@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scaling Laws, Carefully - Recall Note</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="nav-shell" aria-label="Primary navigation">
+            <a class="nav-brand" href="../index.html#top">Suliu Qin</a>
+            <div class="nav-links">
+                <a href="../index.html#about">About</a>
+                <a href="../index.html#research">Research</a>
+                <a href="../index.html#publications">Publications</a>
+                <a href="../index.html#blog">Blog</a>
+                <a href="../index.html#contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="blog-page">
+        <article class="blog-article">
+            <a class="back-link" href="../index.html#blog">← Back to Blog</a>
+
+            <header class="blog-hero">
+                <p class="blog-kicker">Reading note · Recall-first checklist</p>
+                <h1>Scaling Laws, Carefully：给未来自己的复习卡</h1>
+                <p class="blog-subtitle">
+                    这不是普通读书笔记，而是一份用来对抗遗忘的技术复习页。目标是几天后回来时，
+                    先被问题唤醒，再用图像定位，最后用折叠答案补漏洞。
+                </p>
+                <div class="blog-meta">
+                    <span>2026-07-06</span>
+                    <span>Source: <a href="https://lilianweng.github.io/posts/2026-06-24-scaling-laws/" target="_blank" rel="noopener noreferrer">Lilian Weng, Scaling Laws, Carefully</a></span>
+                </div>
+            </header>
+
+            <section class="recall-panel" aria-labelledby="recall-title">
+                <h2 id="recall-title">0. 30 秒回忆</h2>
+                <p>先不要看答案。只用这三个问题检查自己是否还抓得住主线。</p>
+                <ol>
+                    <li>Scaling law 讨论的核心资源分配是哪三个量？它们之间最粗的关系是什么？</li>
+                    <li>Kaplan 和 Chinchilla 的分歧，究竟是“模型大小”问题，还是“模型和数据如何一起增长”的问题？</li>
+                    <li>为什么 scaling law 拟合里的小误差，在外推到大模型时会被放大成大偏差？</li>
+                </ol>
+            </section>
+
+            <section class="content-section">
+                <h2>1. Mental Model</h2>
+                <p>
+                    我现在对 scaling law 的理解是：它不是一句“大模型更好”的口号，而是在问
+                    <strong>给定训练算力 C，参数量 N 和 token 数 D 应该怎样分配</strong>。
+                    最粗的约束是 <code>C ≈ 6ND</code>。当 C 固定时，N 和 D 的乘积固定；
+                    如果 N 变大，D 就必须变小，反过来也一样。
+                </p>
+                <p>
+                    Kaplan 和 Chinchilla 的争论可以压缩成一句话：算力增长时，是让模型比数据长得更快，
+                    还是让模型和数据大致同速增长？Kaplan 的局部指数偏向更快增大 N；
+                    Chinchilla 的结论更接近 N 与 D 同速增长。
+                </p>
+                <div class="formula-strip">
+                    <div><span>C ≈ 6ND</span><small>training compute</small></div>
+                    <div><span>Kaplan: N ∝ C<sup>0.73</sup></span><small>more model-heavy</small></div>
+                    <div><span>Chinchilla: N ∝ C<sup>0.5</sup></span><small>model/data balanced</small></div>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>2. Visual Anchor</h2>
+                <figure class="visual-anchor">
+                    <img src="../images/blog/scaling-laws-visual-anchor.png" alt="Scaling law visual anchor for compute-optimal valley">
+                    <figcaption>
+                        这张图当前更像“视觉占位符”：legend 和提示可见，但主体曲面不明显。
+                        复习时先把它当作提醒：我要能解释低 loss、高 loss 和 compute-optimal 山谷分别意味着什么。
+                    </figcaption>
+                </figure>
+                <div class="anchor-grid">
+                    <div>
+                        <h3>看图前先问</h3>
+                        <p>绿色山谷线应该回答什么问题？它不是某个模型，而是一组 compute-optimal 的 N、D 配比。</p>
+                    </div>
+                    <div>
+                        <h3>容易忘的点</h3>
+                        <p>Kaplan vs Chinchilla 的分歧可以看成山谷线斜率问题，不一定需要塞进 3D 曲面才讲清楚。</p>
+                    </div>
+                    <div>
+                        <h3>下次改图</h3>
+                        <p>重新导出主体曲面，或改画 2D 外推图：小规模区间几乎重合，外推后裂开。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>3. Checklist</h2>
+                <p class="section-note">
+                    使用方式：先只看题目，脑内作答；卡住再展开。每题的答案都被压成“记忆钩子 + 解释”。
+                </p>
+
+                <details class="qa-card">
+                    <summary>Q1. C ≈ 6ND 固定时，N 和 D 是什么关系？C 增长 100 倍时两派怎么分配？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>C 固定时，N 和 D 是跷跷板；C 增长时，指数决定新算力更偏向模型还是数据。
+                    </p>
+                    <p>
+                        C 是训练 FLOPs，N 是参数量，D 是 token 数。6 可以理解成一次 token/参数交互的大致前向与反向成本。
+                        C 固定时，ND 乘积固定。若 C 增长 100 倍，Kaplan 的 N ∝ C^0.73 让 N 约增 28.84 倍，
+                        D 只约增 3.47 倍；Chinchilla 的 N ∝ C^0.5 则让 N 和 D 都增 10 倍。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q2. Kaplan vs Chinchilla 的核心分歧是什么？undertrained 和 overfitting 有什么不同？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>Gopher 不是“背过头”，而是“没喂饱”。
+                    </p>
+                    <p>
+                        Kaplan 更支持训更大的模型并在收敛前停止；Chinchilla 更支持相对小一些的模型加更多数据。
+                        Chinchilla 形容早期大模型的词是 undertrained。过拟合是重复看数据后记住噪音，泛化变差；
+                        欠训练是还没学够就因算力耗尽而停下。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q3. Data-Infinite Region 保证了什么？为什么经典过拟合不该出现？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>无限不是一次训练用无限多，而是每次需要时都有新 token。
+                    </p>
+                    <p>
+                        Data-infinite 的核心是假设数据池总能供应不重复的新 token。单次训练实际 D 仍然有限，
+                        但不用重读旧数据。经典过拟合依赖重复曝光和记噪音；如果 token 单遍经过，主要风险更像欠训练，
+                        不是把同一批样本背熟。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q4. N ∝ C^n 是幂函数还是指数函数？为什么不要和指数衰减混淆？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>C 是底数，n 是固定指数，所以是 power law。
+                    </p>
+                    <p>
+                        N ∝ C^0.73 中变量是 C，0.73 是固定指数，因此是幂函数。它在 C &gt; 0 的训练预算区间单调增加，
+                        增速变慢但不会在正无穷处趋于 0。不要把它和 y = a^x 这种指数函数或指数衰减混在一起。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q5. 除了是否收敛，还有什么技术原因让 Kaplan 和 Chinchilla 指数不同？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>数不数 embedding，在小模型上会改变斜率，在大模型上影响变小。
+                    </p>
+                    <p>
+                        Kaplan 数的是非 embedding 参数，Chinchilla 数总参数。Embedding 更像查表，几乎不产生主要矩阵乘法 FLOPs。
+                        如果 N = N_E + ωN_E^(1/3)，embedding 项和非 embedding 项的比例约为 ωN_E^(-2/3)，规模越大比例越小。
+                        因此小规模区间的局部指数可能更像 0.73，大规模时逐渐滑向 0.5。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q6. 为什么 power law 可能自然出现？manifold 和 quantization 两个解释差在哪？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>一个把知识看成连续切分，一个把知识看成离散技能块。
+                    </p>
+                    <p>
+                        Manifold 切分假说认为模型把数据所在低维流形切成 O(N) 块，每块尺度约 N^(-1/d)，切得越细误差越小。
+                        d 越大，同样增加 N 带来的误差下降越慢。Quantization 模型则把知识看成按频率分布的离散技能：
+                        常见技能先学，罕见技能后学，也会诱导幂律式 loss 下降。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q7. Data-limited 区域里，D = U_D(1+R_D) 和 D' 分别表示什么？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>D 是总曝光，不等于有效新信息。
+                    </p>
+                    <p>
+                        U_D 是 unique token 数，R_D 是重复次数。D = U_D(1+R_D) 是模型实际看过的总 token 曝光量。
+                        因为重复 token 的边际价值低于新 token，所以引入有效数据量 D'：
+                        <code>D' = U_D + U_D r_D (1 - exp(-R_D / r_D))</code>。当 R_D 趋于无穷时，
+                        D' 封顶到 U_D(1+r_D)，表示重复训练有价值但不能无限等价于新数据。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q8. r_N 和 r_D 的半衰期分别在说什么？r_N &lt; r_D 意味着什么策略？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>多余参数贬值比重复数据更快时，算力应更偏向“多训一点”。
+                    </p>
+                    <p>
+                        r_D 描述重复数据边际价值衰减，r_N 描述过度参数化时多余参数价值衰减。
+                        r_N &lt; r_D 意味着多余参数的边际收益更快失效。算力有限且数据有限时，
+                        盲目增大模型不如更多利用现有数据。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q9. 为什么 scaling law 拟合对小误差特别敏感？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>问题不在拟合当下，而在外推距离。
+                    </p>
+                    <p>
+                        Scaling law 常在小模型上拟合，然后外推到大几个数量级的模型。log-log 空间里的斜率就是幂律指数，
+                        指数上看似微小的误差，映射回原尺度后会随外推范围被放大，最终可能变成一个数量级的预测差异。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q10. Besiroglu et al. 复现 Chinchilla Method 3 时发现了哪些工程坑？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>理论曲线优雅，落到代码里会被 sum/average 和取整这种小事改变。
+                    </p>
+                    <p>
+                        他们从论文图中反推散点重新拟合，发现 Method 3 的实现细节会影响结果：
+                        一是 Huber loss 聚合时用 average 而不是 sum，会把 loss 绝对量级压小，让 L-BFGS 提前停止；
+                        二是指数只报两位小数，log-log 外推会放大这种舍入误差。这解释了为什么 Method 3 与 Method 1/2 不一致。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q11. loss function 为什么像训练的“罗盘”？sum 换 average 为什么会坏？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>average 改的不是方向，而是罗盘刻度。
+                    </p>
+                    <p>
+                        Loss function 把模型预测和真实目标的差距压成一个优化器能下降的数字。若本该对样本损失求和却取平均，
+                        总 loss 的绝对尺度会被压小。某些优化器会据此误判下降空间不大，从而提前停止，导致参数没有真正拟合到位。
+                    </p>
+                </details>
+
+                <details class="qa-card">
+                    <summary>Q12. Huber loss 为什么小误差用平方、大误差用线性？</summary>
+                    <p>
+                        <strong>记忆钩子：</strong>让正常点保持好优化，让异常点失去绑架全局的特权。
+                    </p>
+                    <p>
+                        Huber loss 在误差小于阈值时像 MSE，光滑且利于优化；误差很大时像 MAE，线性增长，避免异常点因平方惩罚过大而拖歪拟合线。
+                        在 Chinchilla 场景里，训练失败或 loss 异常的模型就是坏点；使用 Huber 是合理的，真正的坑在后续聚合实现。
+                    </p>
+                </details>
+            </section>
+
+            <section class="content-section">
+                <h2>4. Concepts I Keep Mixing Up</h2>
+                <div class="contrast-table">
+                    <div><strong>undertrained</strong><span>没学够；loss 还在下降时被算力截断。</span></div>
+                    <div><strong>overfitting</strong><span>重复看数据并记住噪音；训练/测试出现泛化 gap。</span></div>
+                    <div><strong>data-infinite</strong><span>总能取到新 token，不代表一次训练无限长。</span></div>
+                    <div><strong>data-limited</strong><span>unique token 有上限，重复曝光必须打折成 D'。</span></div>
+                    <div><strong>power law</strong><span>变量在底数位置，如 C^0.73；不是指数函数。</span></div>
+                    <div><strong>extrapolation</strong><span>从小规模拟合到大规模预测，是误差被放大的根源。</span></div>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>5. My Current Takeaway</h2>
+                <ol class="takeaway-list">
+                    <li>Scaling laws 最重要的不是公式形式，而是训练资源如何分配。</li>
+                    <li>Kaplan 和 Chinchilla 可以同时在各自规模区间内“看起来正确”。</li>
+                    <li>欠训练和过拟合不是同一个失败模式，不能混用。</li>
+                    <li>在 data-limited 场景里，重复数据和堆参数都要看边际价值衰减。</li>
+                    <li>拟合 scaling law 时，工程细节会通过外推被放大成理论结论上的偏差。</li>
+                </ol>
+            </section>
+
+            <section class="content-section">
+                <h2>6. Next Review</h2>
+                <p>
+                    下次复习只做三件事：先口头重推 <code>C ≈ 6ND</code>，再解释 undertrained vs overfitting，
+                    最后闭卷说出 sum vs average 为什么会影响 Chinchilla Method 3。
+                </p>
+            </section>
+        </article>
+    </main>
+
+    <footer class="site-footer">
+        <p>© 2026 Suliu Qin. All rights reserved.</p>
+    </footer>
+</body>
+</html>
