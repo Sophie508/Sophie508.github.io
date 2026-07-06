@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scaling Law 3D Loss Surface</title>
+    <style>
+        :root {
+            --text-secondary: #4f5963;
+            --text-muted: #6a747d;
+            --panel: #ffffff;
+            --border: #d9dde2;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--panel);
+            color: var(--text-secondary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .surface-shell {
+            padding: 14px 0 0;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 0 0 10px;
+            padding: 0 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .swatch {
+            width: 11px;
+            height: 11px;
+            border-radius: 2px;
+        }
+
+        .line-swatch {
+            width: 18px;
+            height: 3px;
+        }
+
+        .hint {
+            margin: 0 0 4px;
+            padding: 0 10px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        #surf {
+            width: 100%;
+            height: min(460px, 68vh);
+            min-height: 340px;
+        }
+
+        .fallback {
+            display: none;
+            margin: 16px 10px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="surface-shell">
+        <div class="legend" aria-label="Legend">
+            <span><span class="swatch" style="background:#378ADD;"></span>低 loss（好）</span>
+            <span><span class="swatch" style="background:#D85A30;"></span>高 loss（差）</span>
+            <span><span class="line-swatch" style="background:#0F6E56;"></span>compute-optimal 山谷</span>
+        </div>
+        <p class="hint">用鼠标拖动可旋转，滚轮缩放</p>
+        <div id="surf" role="img" aria-label="Interactive 3D loss surface"></div>
+        <p class="fallback" id="fallback">
+            The interactive Plotly surface did not load. Try refreshing this page with network access.
+        </p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+    <script>
+        const A = 482.01;
+        const B = 2085.43;
+        const E = 1.8172;
+        const alpha = 0.3478;
+        const beta = 0.3658;
+        const logN = [];
+        const logD = [];
+        const nSteps = 40;
+
+        for (let i = 0; i < nSteps; i++) {
+            logN.push(6 + i * (11 - 6) / (nSteps - 1));
+        }
+        for (let j = 0; j < nSteps; j++) {
+            logD.push(8 + j * (13 - 8) / (nSteps - 1));
+        }
+
+        const Z = [];
+        for (let j = 0; j < nSteps; j++) {
+            const row = [];
+            for (let i = 0; i < nSteps; i++) {
+                const N = Math.pow(10, logN[i]);
+                const D = Math.pow(10, logD[j]);
+                row.push(A / Math.pow(N, alpha) + B / Math.pow(D, beta) + E);
+            }
+            Z.push(row);
+        }
+
+        const surface = {
+            type: "surface",
+            x: logN,
+            y: logD,
+            z: Z,
+            colorscale: [[0, "#378ADD"], [0.5, "#EF9F27"], [1, "#D85A30"]],
+            showscale: false,
+            opacity: 0.92
+        };
+
+        const vx = [];
+        const vy = [];
+        const vz = [];
+        for (let k = 0; k < 30; k++) {
+            const C = Math.pow(10, 18 + k * (24 - 18) / 29);
+            const Nopt = Math.pow((alpha * A) / (beta * B), 1 / (alpha + beta)) *
+                Math.pow(C / 6, beta / (alpha + beta));
+            const Dopt = C / (6 * Nopt);
+            const lN = Math.log10(Nopt);
+            const lD = Math.log10(Dopt);
+            if (lN >= 6 && lN <= 11 && lD >= 8 && lD <= 13) {
+                vx.push(lN);
+                vy.push(lD);
+                vz.push(A / Math.pow(Nopt, alpha) + B / Math.pow(Dopt, beta) + E + 0.15);
+            }
+        }
+
+        const valley = {
+            type: "scatter3d",
+            mode: "lines",
+            x: vx,
+            y: vy,
+            z: vz,
+            line: { color: "#0F6E56", width: 7 },
+            name: "optimal"
+        };
+
+        const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+        const ink = dark ? "#c3c2b7" : "#52514e";
+
+        if (!window.Plotly) {
+            document.getElementById("fallback").style.display = "block";
+        } else {
+            Plotly.newPlot("surf", [surface, valley], {
+                margin: { l: 0, r: 0, t: 0, b: 0 },
+                paper_bgcolor: "rgba(0,0,0,0)",
+                scene: {
+                    xaxis: {
+                        title: { text: "log₁₀ N (模型大小)", font: { size: 12, color: ink } },
+                        color: ink,
+                        gridcolor: dark ? "#2c2c2a" : "#e1e0d9"
+                    },
+                    yaxis: {
+                        title: { text: "log₁₀ D (数据量)", font: { size: 12, color: ink } },
+                        color: ink,
+                        gridcolor: dark ? "#2c2c2a" : "#e1e0d9"
+                    },
+                    zaxis: {
+                        title: { text: "loss", font: { size: 12, color: ink } },
+                        color: ink,
+                        gridcolor: dark ? "#2c2c2a" : "#e1e0d9"
+                    },
+                    camera: { eye: { x: 1.6, y: 1.6, z: 1.2 } }
+                },
+                showlegend: false
+            }, { responsive: true, displayModeBar: false });
+        }
+    </script>
+</body>
+</html>
