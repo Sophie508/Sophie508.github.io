@@ -22,6 +22,21 @@ textarea{width:100%} label{display:block;margin:8px 0 3px;font-weight:600;font-s
 .tab.act{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
 .tab.done{border-color:#5a8c3a;color:#5a8c3a} .tab.act.done{background:#5a8c3a;color:#fff}
 .log{background:#141412;color:#d9d7cf;font-family:"SF Mono","JetBrains Mono",Consolas,monospace;font-size:11.8px;line-height:1.55;padding:14px;height:430px;overflow:auto;white-space:pre-wrap;word-break:break-all;border-radius:4px}
+.slog{background:#fbfaf7;border:1px solid #d8d4c8;height:460px;overflow:auto;padding:10px 14px;border-radius:4px}
+.ev{margin:8px 0;border-radius:4px}
+.ev pre{white-space:pre-wrap;word-break:break-word;font-family:"SF Mono","JetBrains Mono",Consolas,monospace;font-size:11.5px;line-height:1.5;margin:4px 0 0;color:#222}
+.ev-msg{background:#fff;border:1px solid #cfd8e3;border-left:3px solid #4a6fa5;padding:8px 11px}
+.ev-tool{background:#f4f2ee;border:1px solid #ddd8cd;padding:7px 11px}
+.ev-tag{font-weight:600;font-size:12.5px;color:#333}
+.ev-st{font-weight:400;font-size:11px;margin-left:6px}
+.ok2{color:#5a8c3a}.warn2{color:#c14a1d}
+.ev-th{background:#faf7ef;border:1px dashed #cbbfa5;padding:6px 11px;color:#7a6f57}
+.ev-user{background:#f3efe5;border:1px solid #d8d4c8;padding:6px 11px}
+.ev-oth,.ev-raw{background:#f6f6f6;border:1px solid #e0e0e0;padding:6px 11px}
+.ev summary,.ev-out summary{cursor:pointer;font-size:12px;color:#555;user-select:none}
+.ev-out{margin-top:5px}
+.logbar{margin:6px 0 4px}
+.lbtn{padding:4px 10px!important;font-size:11.5px!important}
 .inst{background:#f3efe5;border-left:3px solid #002fa7;padding:10px 14px;margin:8px 0;max-height:230px;overflow:auto;white-space:pre-wrap;font-size:13px}
 .qrow{display:flex;align-items:center;gap:12px;margin:8px 0;flex-wrap:wrap}
 .score{width:70px} .radio label{display:inline;font-weight:400;margin-right:12px}
@@ -108,6 +123,7 @@ function rGuide(){ app.innerHTML=`<h1>标注指南(务必读完)</h1>
 <p>1. <b>agent 自己说做完了不算数</b>——只有日志里<b>展示出来</b>的命令输出、文件内容才是证据;<br>
 2. Q3 判不了就选"<b>判不了</b>"(证据不足),不要硬猜;<br>
 3. 判断的是<b>进度与正确性</b>,不是文风、不是啰嗦程度、也不用猜是哪家的 agent(日志风格可能露出厂商,忽略它)。</p></div>
+<div class="card"><h3>怎么读日志</h3><p>执行日志已按事件<b>结构化显示</b>:🤖 是 agent 的发言,⚙️ 是工具调用(其下"命令输出"是<b>证据的主要来源</b>,较长的默认折叠、点开查看),💭 是 agent 内部思考(默认折叠,通常无需细读)。可用"展开全部/收起全部"批量操作;不放心渲染时点"查看原始日志"看原文。</p></div>
 <div class="card"><h3>其他</h3><p>进度自动保存,可分多天完成;先做 2 条<b>校准练习</b>(不计入正式数据)熟悉界面与口径。遇到界面问题联系研究者,但<b>不要讨论具体轨迹的判断</b>。</p>
 <button class="btn" onclick="startCal()">开始校准练习</button></div>`; }
 async function startCal(){ CAL=CAL||await getJSON("data/calibration.json"); S.step="cal"; render(); }
@@ -115,7 +131,7 @@ async function startCal(){ CAL=CAL||await getJSON("data/calibration.json"); S.st
 function rCal(){ const i=S.cal.i||0; const c=CAL[i];
  app.innerHTML=`<h1>校准练习 ${i+1}/${CAL.length}</h1><div class="sub">练习不计入正式数据;目的:熟悉界面、统一口径。</div>
 <div class="card"><h3>任务说明</h3><div class="inst">${esc(c.instruction)}</div>
-<h3>执行日志</h3><div class="log">${esc(c.log)}</div>
+<h3>执行日志</h3>${logView(c.log,"cal")}
 <div class="qrow"><label>Q1 进度分(0-10):</label><input class="score" type="number" min="0" max="10" step="0.5" id="c_q1" value="${(S.cal["q1_"+i]??"")}"></div>
 <div class="qrow radio"><label>Q1b 算完成吗:</label><label><input type="radio" name="c_q1b" value="yes" ${S.cal["q1b_"+i]==="yes"?"checked":""}>是</label><label><input type="radio" name="c_q1b" value="no" ${S.cal["q1b_"+i]==="no"?"checked":""}>否</label></div>
 <h3>Q3 试判 3 条</h3><table><thead><tr><th>要求</th><th>怎么核验</th><th>判定</th></tr></thead><tbody>
@@ -145,7 +161,7 @@ async function rTask(){ const task=S.order[S.ti]; const d=await taskDoc(task);
   return `<div class="tab ${j===S.tab?"act":""} ${dn?"done":""}" onclick="S.tab=${j};saveCur();render()">轨迹 ${j+1}${isCore(task,t.id)?" ★":""}${dn?" ✓":""}</div>`}).join("")}</div>
 <div class="card">
 <h3>轨迹 ${S.tab+1} 执行日志 ${core?'<span class="warn" style="padding:2px 8px">★ 本条需逐条核对(Q3)</span>':""}</h3>
-<div class="log">${esc(tr.log)}</div>
+${logView(tr.log,"t"+S.ti+"_"+S.tab)}
 <div class="qrow"><label>Q1 进度分(0-10):</label><input class="score" type="number" min="0" max="10" step="0.5" id="q1" value="${a.q1??""}">
 <label style="margin-left:18px">Q1b 算完成吗:</label><span class="radio"><label><input type="radio" name="q1b" value="yes" ${a.q1b==="yes"?"checked":""}>是</label><label><input type="radio" name="q1b" value="no" ${a.q1b==="no"?"checked":""}>否</label></span>
 <label style="margin-left:18px">Q2 本组排名(1=最好,可并列):</label><span class="ranking"><input type="number" min="1" max="${d.trajectories.length}" id="rank" value="${a.rank??""}"></span></div>
@@ -216,6 +232,38 @@ function doExport(){ const ts=new Date().toISOString().replace(/[:.]/g,"-").slic
  const a=document.createElement("a"); a.href=URL.createObjectURL(zip); a.download=`cpc_annotation_${S.labeler}_${ts}.zip`; a.click(); }
 /* ---------- 工具 ---------- */
 function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+/* ---------- 结构化日志渲染 ---------- */
+function parseLog(log){ const evs=[]; let buf="";
+ for(const line of (log||"").split("\n")){
+  if(buf===""){ if(!line.trim()){continue;} if(!line.trim().startsWith("{")){ evs.push({ok:false,raw:line}); continue; } buf=line; }
+  else buf+="\n"+line;
+  try{ evs.push({ok:true,ev:JSON.parse(buf.trim())}); buf=""; }catch(e){ if(buf.length>200000){ evs.push({ok:false,raw:buf}); buf=""; } } }
+ if(buf.trim()) evs.push({ok:false,raw:buf});
+ return evs; }
+function evHTML(e){
+ if(!e.ok) return `<div class="ev ev-raw"><pre>${esc(e.raw)}</pre></div>`;
+ const v=e.ev, ty=v.type;
+ if(ty==="agent_thought"){ const tx=(v.text||"").trim(); if(!tx) return "";
+  return `<details class="ev ev-th"><summary>💭 agent 内部思考(通常无需细读)</summary><pre>${esc(tx)}</pre></details>`; }
+ if(ty==="agent_message") return `<div class="ev ev-msg"><div class="ev-tag">🤖 agent 发言</div><pre>${esc(v.text||"")}</pre></div>`;
+ if(ty==="user_message") return `<details class="ev ev-user"><summary>📥 任务输入(与上方"任务说明"一致,点开可核对)</summary><pre>${esc(v.text||"")}</pre></details>`;
+ if(ty==="tool_call"){ const texts=[]; (v.content||[]).forEach(c=>{const t=c&&c.content&&c.content.text; if(t) texts.push(t);});
+  const desc=texts.length?texts[0]:(v.title||""); const outs=texts.slice(1);
+  const st=v.status||""; const joined=outs.join("\n\n"); const big=joined.length>600;
+  const body=outs.length?`<details class="ev-out"${big?"":" open"}><summary>命令输出${big?`(较长,共 ${joined.length} 字符,点开查看——这是证据的主要来源)`:""}</summary><pre>${esc(joined)}</pre></details>`:"";
+  return `<div class="ev ev-tool"><div class="ev-tag">⚙️ ${esc(v.title||v.kind||"工具调用")} · ${esc(desc)}<span class="ev-st ${st==="completed"?"ok2":"warn2"}">${esc(st)}</span></div>${body}</div>`; }
+ return `<details class="ev ev-oth"><summary>${esc(ty||"event")}</summary><pre>${esc(JSON.stringify(v,null,1))}</pre></details>`; }
+function logView(log,key){ const evs=parseLog(log);
+ if(!evs.some(x=>x.ok)) return `<div class="log">${esc(log)}</div>`;
+ return `<div class="logbar"><button class="btn sec lbtn" id="tb_${key}" onclick="toggleRaw('${key}')">查看原始日志</button>
+<button class="btn sec lbtn" onclick="expandAll('${key}',true)">展开全部</button>
+<button class="btn sec lbtn" onclick="expandAll('${key}',false)">收起全部</button></div>
+<div class="slog" id="sv_${key}">${evs.map(evHTML).join("")}</div>
+<div class="log hide" id="rv_${key}">${esc(log)}</div>`; }
+function toggleRaw(key){ const sv=document.getElementById("sv_"+key), rv=document.getElementById("rv_"+key), b=document.getElementById("tb_"+key);
+ const showRaw=rv.classList.contains("hide"); rv.classList.toggle("hide",!showRaw); sv.classList.toggle("hide",showRaw);
+ b.textContent=showRaw?"返回结构化视图":"查看原始日志"; }
+function expandAll(key,open){ document.querySelectorAll("#sv_"+key+" details").forEach(d=>d.open=open); }
 /* ---------- 启动 ---------- */
 (async function(){ load(); MAN=await getJSON("data/manifest.json");
  if(S.step==="task"){ for(const t of S.order.slice(0,1)) await taskDoc(t); }
