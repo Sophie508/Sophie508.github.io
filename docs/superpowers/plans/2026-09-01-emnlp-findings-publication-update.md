@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add SinoGlyphBench as an EMNLP Findings publication, keep AIRGuard second, and move MemeBridge (KDD) to the bottom of the homepage publication list.
+**Goal:** Add SinoGlyphBench as an EMNLP Findings publication, add the first-author GCPC preprint, keep AIRGuard below GCPC, and move MemeBridge (KDD) to the bottom of the homepage publication list.
 
 **Architecture:** Preserve the dependency-free static homepage and its existing publication component. Make one focused markup change in `index.html`; no CSS, assets, Blog pages, or CPC pages need to change.
 
@@ -10,10 +10,12 @@
 
 ## Global Constraints
 
-- Display order must be SinoGlyphBench, AIRGuard, MemeBridge.
+- Display order must be SinoGlyphBench, Grounded Checklist Partial Credit for Agent Skill Trajectories, AIRGuard, MemeBridge.
 - Use the badge text `EMNLP Findings` and venue line `Findings of EMNLP, 2026.`.
 - Link the SinoGlyphBench title and `Code` button to `https://github.com/fengshun124/SinoGlyphBench`.
-- Emphasize `Suliu Qin` in the SinoGlyphBench author list using the existing `<strong>` pattern.
+- Use the badge text `arXiv` and venue line `arXiv preprint arXiv:2608.27487, 2026.` for GCPC.
+- Link the GCPC title and `arXiv` button to `https://arxiv.org/abs/2608.27487`, and its `PDF` button to `https://arxiv.org/pdf/2608.27487`.
+- Emphasize `Suliu Qin` in both new author lists using the existing `<strong>` pattern.
 - Do not modify About Me, CSS, profile assets, Blog routes, or CPC pages.
 - Show the implementation diff to Sophie before committing. Do not push without separate explicit approval.
 
@@ -22,12 +24,12 @@
 ### Task 1: Update and verify the publication list
 
 **Files:**
-- Modify: `index.html:57-90`
+- Modify: `index.html:57-106`
 - Reference: `docs/superpowers/specs/2026-09-01-emnlp-findings-publication-update-design.md`
 
 **Interfaces:**
 - Consumes: the existing `.publication`, `.publication-badge`, `.publication-title`, `.publication-authors`, `.publication-periodical`, and `.publication-actions` CSS hooks.
-- Produces: three ordered `<article class="publication">` elements rendered by the existing homepage styles.
+- Produces: four ordered `<article class="publication">` elements rendered by the existing homepage styles.
 
 - [ ] **Step 1: Record the pre-change structural check**
 
@@ -38,12 +40,12 @@ python3 - <<'PY'
 from pathlib import Path
 
 html = Path("index.html").read_text()
-titles = ["SinoGlyphBench", "AIRGuard", "MemeBridge"]
+titles = ["SinoGlyphBench", "Grounded Checklist Partial Credit", "AIRGuard", "MemeBridge"]
 print({title: html.find(title) for title in titles})
 PY
 ```
 
-Expected: `SinoGlyphBench` reports `-1`; `AIRGuard` and `MemeBridge` report non-negative positions, with MemeBridge currently before AIRGuard.
+Expected: the approved intermediate homepage already contains SinoGlyphBench, AIRGuard, and MemeBridge in that order; `Grounded Checklist Partial Credit` reports `-1`.
 
 - [ ] **Step 2: Replace the publication markup with the approved order and content**
 
@@ -63,6 +65,23 @@ Inside `<div class="publications">`, use this complete ordered markup:
     <p class="publication-periodical"><em>Findings of EMNLP, 2026.</em></p>
     <div class="publication-actions">
         <a href="https://github.com/fengshun124/SinoGlyphBench" target="_blank" rel="noopener noreferrer">Code</a>
+    </div>
+</article>
+
+<article class="publication">
+    <span class="publication-badge">arXiv</span>
+    <h3 class="publication-title">
+        <a href="https://arxiv.org/abs/2608.27487" target="_blank" rel="noopener noreferrer">
+            Grounded Checklist Partial Credit for Agent Skill Trajectories
+        </a>
+    </h3>
+    <p class="publication-authors">
+        <strong>Suliu Qin</strong>, Lu Yin, Xilu Wang
+    </p>
+    <p class="publication-periodical"><em>arXiv preprint arXiv:2608.27487, 2026.</em></p>
+    <div class="publication-actions">
+        <a href="https://arxiv.org/abs/2608.27487" target="_blank" rel="noopener noreferrer">arXiv</a>
+        <a href="https://arxiv.org/pdf/2608.27487" target="_blank" rel="noopener noreferrer">PDF</a>
     </div>
 </article>
 
@@ -111,15 +130,19 @@ python3 - <<'PY'
 from pathlib import Path
 
 html = Path("index.html").read_text()
-titles = ["SinoGlyphBench", "AIRGuard", "MemeBridge"]
+titles = ["SinoGlyphBench", "Grounded Checklist Partial Credit", "AIRGuard", "MemeBridge"]
 positions = [html.index(title) for title in titles]
 assert positions == sorted(positions), positions
-assert html.count('<article class="publication">') == 3
+assert html.count('<article class="publication">') == 4
 assert '<span class="publication-badge">EMNLP Findings</span>' in html
 assert '<em>Findings of EMNLP, 2026.</em>' in html
 assert 'Zimu Wang, <strong>Suliu Qin</strong>, Changyu Zeng' in html
 assert html.count('https://github.com/fengshun124/SinoGlyphBench') == 2
-assert html.count('target="_blank" rel="noopener noreferrer"') >= 8
+assert '<strong>Suliu Qin</strong>, Lu Yin, Xilu Wang' in html
+assert '<em>arXiv preprint arXiv:2608.27487, 2026.</em>' in html
+assert html.count('https://arxiv.org/abs/2608.27487') == 2
+assert html.count('https://arxiv.org/pdf/2608.27487') == 1
+assert html.count('target="_blank" rel="noopener noreferrer"') >= 11
 print("publication structure: PASS")
 PY
 ```
@@ -130,7 +153,7 @@ Expected: `publication structure: PASS`.
 
 Run `python3 -m http.server 4173`, then request `http://127.0.0.1:4173/` and the preserved routes `/blog/`, `/blog/scaling-laws-carefully.html`, and `/cpc-annotation/`.
 
-Expected: each route returns HTTP 200. Inspect the homepage at desktop and mobile widths and confirm all three entries remain readable without horizontal overflow.
+Expected: each route returns HTTP 200. Inspect the homepage at desktop and mobile widths and confirm all four entries remain readable without horizontal overflow.
 
 - [ ] **Step 5: Review the exact implementation diff**
 
@@ -151,7 +174,7 @@ After explicit approval, stage only `index.html` and commit with Sophie's config
 ```bash
 git add -- index.html
 git diff --cached --check
-git commit -m "Add EMNLP Findings publication"
+git commit -m "Update homepage publications"
 ```
 
 Expected: the commit contains only `index.html`. Do not push; pushing requires a separate explicit request.
