@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sasdocs-41 — Case Report · Code Repair</title>
+<style>
+  :root{
+    --bg:#070b16;
+    --bg-2:#0b1224;
+    --ink:#e9edf8;
+    --muted:#95a2c0;
+    --dim:#6b7896;
+    --violet:#7c5cff;
+    --cyan:#22d3ee;
+    --amber:#fbbf24;
+    --rose:#fb7185;
+    --green:#34d399;
+    --line:rgba(255,255,255,.09);
+    --glass:rgba(255,255,255,.045);
+    --radius:18px;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(720px 520px at 12% -6%, rgba(124,92,255,.28), transparent 62%),
+      radial-gradient(660px 460px at 92% 4%, rgba(34,211,238,.16), transparent 60%),
+      radial-gradient(900px 700px at 50% 108%, rgba(124,92,255,.13), transparent 65%);
+  }
+  .wrap{position:relative;z-index:1;width:min(1180px,92vw);margin:0 auto}
+  section{position:relative;z-index:1}
+
+  /* ---------- nav ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    transition:background .35s ease, backdrop-filter .35s ease, border-color .35s ease, box-shadow .35s;
+    border-bottom:1px solid transparent;
+  }
+  nav.scrolled{
+    background:rgba(7,11,22,.72);
+    backdrop-filter:blur(16px) saturate(140%);
+    -webkit-backdrop-filter:blur(16px) saturate(140%);
+    border-bottom-color:var(--line);
+    box-shadow:0 10px 34px rgba(0,0,0,.35);
+  }
+  .nav-inner{display:flex;align-items:center;gap:26px;height:68px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:650;letter-spacing:-.01em;white-space:nowrap}
+  .mark{
+    width:30px;height:30px;border-radius:9px;flex:none;
+    background:linear-gradient(135deg,var(--violet),var(--cyan));
+    display:grid;place-items:center;font-family:var(--mono);font-size:13px;font-weight:700;color:#060a14;
+  }
+  .nav-links{display:flex;gap:24px;margin-left:auto;font-size:14px}
+  .nav-links a{color:var(--muted);text-decoration:none;transition:color .2s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{
+    font-size:13.5px;font-weight:600;text-decoration:none;color:#060a14;
+    background:linear-gradient(135deg,#c4b5fd,#67e8f9);
+    padding:9px 16px;border-radius:999px;white-space:nowrap;
+    transition:transform .22s ease, box-shadow .22s ease;
+    box-shadow:0 6px 22px rgba(124,92,255,.3);
+  }
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(124,92,255,.45)}
+
+  /* ---------- hero ---------- */
+  header{padding:150px 0 84px}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:24px}
+  .chip{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;
+    color:var(--muted);border:1px solid var(--line);background:var(--glass);
+    padding:5px 11px;border-radius:999px;
+  }
+  .chip.bad{color:#fecdd3;border-color:rgba(251,113,133,.4);background:rgba(251,113,133,.1)}
+  .chip.ok{color:#a7f3d0;border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)}
+  h1{
+    font-size:clamp(2.3rem,5.6vw,4.15rem);line-height:1.03;letter-spacing:-.035em;
+    margin:0 0 22px;font-weight:760;
+  }
+  h1 .grad{
+    background:linear-gradient(105deg,#c4b5fd 4%,#67e8f9 58%,#a7f3d0 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{font-size:clamp(1.02rem,1.55vw,1.2rem);color:var(--muted);max-width:640px;margin:0 0 34px}
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .btn{
+    text-decoration:none;font-weight:620;font-size:14.5px;padding:13px 24px;border-radius:12px;
+    transition:transform .22s ease, box-shadow .22s ease, background .22s;
+    display:inline-flex;align-items:center;gap:9px;
+  }
+  .btn.primary{color:#060a14;background:linear-gradient(135deg,#c4b5fd,#67e8f9);box-shadow:0 10px 34px rgba(124,92,255,.35)}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 16px 44px rgba(124,92,255,.5)}
+  .btn.ghost{color:var(--ink);border:1px solid var(--line);background:var(--glass)}
+  .btn.ghost:hover{background:rgba(255,255,255,.08);transform:translateY(-2px)}
+
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  .stats{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:44px;max-width:520px;
+  }
+  .stat{
+    border:1px solid var(--line);background:var(--glass);border-radius:14px;padding:15px 17px;
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    transition:transform .25s ease,border-color .25s ease;
+  }
+  .stat:hover{transform:translateY(-4px);border-color:rgba(124,92,255,.4)}
+  .stat b{display:block;font-size:1.75rem;letter-spacing:-.03em;line-height:1.1}
+  .stat span{font-size:12.5px;color:var(--dim);letter-spacing:.02em}
+  .stat b.warn{color:var(--amber)}
+  .stat b.pass{color:var(--green)}
+  .stat b.fail{color:var(--rose)}
+
+  /* ---------- terminal ---------- */
+  .term{
+    border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(13,19,36,.96),rgba(9,13,26,.96));
+    box-shadow:0 34px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+    backdrop-filter:blur(12px);
+  }
+  .term-bar{
+    display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid var(--line);
+    background:rgba(255,255,255,.03);
+  }
+  .dot{width:10px;height:10px;border-radius:50%}
+  .term-title{margin-left:8px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+  .term-body{padding:16px 18px 20px;font-family:var(--mono);font-size:12.6px;line-height:1.85}
+  .ln{white-space:pre-wrap;word-break:break-word}
+  .p{color:var(--cyan)}
+  .c{color:#d6dcf0}
+  .g{color:var(--dim)}
+  .e{color:var(--rose)}
+  .y{color:var(--amber)}
+  .cmt{color:#4d5875}
+
+  /* ---------- section chrome ---------- */
+  .band{padding:82px 0}
+  .eyebrow{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--cyan);margin:0 0 14px;
+  }
+  h2{font-size:clamp(1.65rem,3.1vw,2.5rem);letter-spacing:-.028em;line-height:1.13;margin:0 0 14px;font-weight:730}
+  .sub{color:var(--muted);max-width:660px;margin:0 0 40px;font-size:1.02rem}
+
+  /* ---------- cards ---------- */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{
+    position:relative;border:1px solid var(--line);border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));
+    padding:24px 22px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    transition:transform .3s cubic-bezier(.2,.7,.3,1), border-color .3s, box-shadow .3s;
+    overflow:hidden;
+  }
+  .card::after{
+    content:"";position:absolute;inset:0;border-radius:var(--radius);pointer-events:none;
+    background:radial-gradient(340px 180px at 20% -20%,rgba(124,92,255,.2),transparent 70%);
+    opacity:0;transition:opacity .3s;
+  }
+  .card:hover{transform:translateY(-7px);border-color:rgba(124,92,255,.42);box-shadow:0 22px 50px rgba(0,0,0,.45)}
+  .card:hover::after{opacity:1}
+  .card .num{
+    font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.12em;
+  }
+  .card h3{font-size:1.06rem;margin:11px 0 9px;letter-spacing:-.015em;font-weight:680}
+  .card p{margin:0;color:var(--muted);font-size:14.2px}
+  .sev{
+    display:inline-block;margin-top:15px;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.09em;text-transform:uppercase;padding:4px 9px;border-radius:6px;
+  }
+  .sev.hi{color:#fecdd3;background:rgba(251,113,133,.13);border:1px solid rgba(251,113,133,.32)}
+  .sev.mid{color:#fde68a;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3)}
+  .sev.lo{color:#bae6fd;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.3)}
+
+  /* ---------- timeline ---------- */
+  .tl{position:relative;margin-top:8px}
+  .tl::before{
+    content:"";position:absolute;left:19px;top:8px;bottom:8px;width:2px;
+    background:linear-gradient(180deg,rgba(124,92,255,.7),rgba(34,211,238,.5),rgba(251,113,133,.6));
+    border-radius:2px;
+  }
+  .step{position:relative;padding:0 0 26px 60px}
+  .step:last-child{padding-bottom:0}
+  .node{
+    position:absolute;left:8px;top:2px;width:24px;height:24px;border-radius:50%;
+    display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:700;
+    background:#0c1326;border:2px solid var(--violet);color:#c4b5fd;
+  }
+  .node.bad{border-color:var(--rose);color:#fecdd3}
+  .node.warn{border-color:var(--amber);color:#fde68a}
+  .node.ok{border-color:var(--green);color:#a7f3d0}
+  .step-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:8px}
+  .step-head h3{margin:0;font-size:1rem;font-weight:650;letter-spacing:-.012em}
+  .tag{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:3px 8px;border-radius:6px;
+    border:1px solid var(--line);color:var(--dim);
+  }
+  .tag.act{color:#c4b5fd;border-color:rgba(124,92,255,.4);background:rgba(124,92,255,.1)}
+  .tag.out{color:#94a3b8}
+  .step p{margin:0 0 10px;color:var(--muted);font-size:14.2px;max-width:760px}
+  .code{
+    font-family:var(--mono);font-size:12.4px;line-height:1.8;border:1px solid var(--line);
+    border-radius:12px;background:rgba(6,10,20,.72);padding:13px 15px;overflow-x:auto;
+    white-space:pre;color:#d6dcf0;
+  }
+  .code.bad{border-color:rgba(251,113,133,.3);background:rgba(251,113,133,.05)}
+
+  /* ---------- evidence quote ---------- */
+  .quote{
+    border:1px solid var(--line);border-left:3px solid var(--rose);border-radius:14px;
+    background:linear-gradient(180deg,rgba(251,113,133,.07),rgba(255,255,255,.02));
+    padding:26px 26px 22px;backdrop-filter:blur(12px);
+  }
+  .quote blockquote{margin:0;font-size:clamp(1rem,1.7vw,1.22rem);line-height:1.65;color:#f0e6ea;letter-spacing:-.01em}
+  .quote blockquote em{color:#fecdd3;font-style:normal;background:rgba(251,113,133,.14);padding:1px 4px;border-radius:4px}
+  .quote figcaption{margin-top:16px;font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.05em}
+  .truth{
+    margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;
+  }
+  .pill{
+    font-size:12.5px;color:var(--muted);border:1px solid var(--line);background:var(--glass);
+    border-radius:999px;padding:6px 13px;
+  }
+  .pill b{color:var(--ink);font-weight:620}
+
+  /* ---------- scorecard ---------- */
+  .score{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+  .panel{
+    border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px;
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.018));
+    backdrop-filter:blur(14px);transition:transform .3s ease,border-color .3s;
+  }
+  .panel:hover{transform:translateY(-6px)}
+  .panel.need{border-color:rgba(52,211,153,.3)}
+  .panel.got{border-color:rgba(251,113,133,.32)}
+  .panel h3{margin:0 0 4px;font-size:1.12rem;letter-spacing:-.015em}
+  .panel .cap{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.09em;text-transform:uppercase;margin-bottom:20px}
+  .panel ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
+  .panel li{display:flex;gap:11px;align-items:flex-start;font-size:14.2px;color:var(--muted)}
+  .tick,.cross{
+    flex:none;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;
+    font-size:11px;font-weight:700;margin-top:2px;font-family:var(--mono);
+  }
+  .tick{background:rgba(52,211,153,.15);color:#6ee7b7;border:1px solid rgba(52,211,153,.35)}
+  .cross{background:rgba(251,113,133,.13);color:#fda4af;border:1px solid rgba(251,113,133,.34)}
+  .verdict-box{
+    margin-top:20px;border:1px solid rgba(251,113,133,.3);border-radius:14px;
+    background:linear-gradient(135deg,rgba(251,113,133,.11),rgba(124,92,255,.08));
+    padding:20px 22px;
+  }
+  .verdict-box strong{color:#fecdd3;letter-spacing:.01em}
+  .verdict-box p{margin:6px 0 0;color:var(--muted);font-size:14.2px}
+
+  /* ---------- faq ---------- */
+  details{
+    border:1px solid var(--line);border-radius:13px;background:var(--glass);
+    margin-bottom:11px;overflow:hidden;transition:border-color .25s, background .25s;
+  }
+  details[open]{border-color:rgba(124,92,255,.38);background:rgba(124,92,255,.06)}
+  summary{
+    cursor:pointer;list-style:none;padding:17px 20px;font-weight:620;font-size:14.8px;
+    display:flex;align-items:center;gap:13px;letter-spacing:-.01em;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::after{
+    content:"+";margin-left:auto;font-family:var(--mono);color:var(--cyan);font-size:17px;
+    transition:transform .25s ease;
+  }
+  details[open] summary::after{transform:rotate(45deg)}
+  details .body{padding:0 20px 19px;color:var(--muted);font-size:14.2px}
+  details .body code{
+    font-family:var(--mono);font-size:12.4px;background:rgba(255,255,255,.07);
+    padding:1.5px 6px;border-radius:5px;color:#d6dcf0;
+  }
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--line);margin-top:26px;padding:46px 0 60px;position:relative;z-index:1}
+  .f-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:30px}
+  .f-grid h4{margin:0 0 12px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+  .f-grid p,.f-grid li{color:var(--muted);font-size:13.4px;margin:0 0 7px}
+  .f-grid ul{list-style:none;padding:0;margin:0}
+  .mono{font-family:var(--mono);font-size:12.2px;color:var(--dim);word-break:break-all}
+  .f-note{margin-top:34px;padding-top:22px;border-top:1px solid var(--line);color:var(--dim);font-size:12.6px;display:flex;flex-wrap:wrap;gap:10px 22px}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .75s ease,transform .75s cubic-bezier(.2,.7,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    html{scroll-behavior:auto}
+  }
+
+  @media (max-width:960px){
+    .hero-grid{grid-template-columns:1fr;gap:38px}
+    .cards{grid-template-columns:repeat(2,1fr)}
+    .nav-links{display:none}
+    header{padding-top:120px}
+  }
+  @media (max-width:640px){
+    .cards{grid-template-columns:1fr}
+    .score{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr 1fr}
+    .f-grid{grid-template-columns:1fr}
+    .band{padding:60px 0}
+    .step{padding-left:50px}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-inner">
+    <div class="brand"><span class="mark">SD</span>sasdocs&nbsp;<span style="color:var(--dim);font-weight:400">/ case 41</span></div>
+    <div class="nav-links">
+      <a href="#findings">Findings</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#patch">Patch</a>
+      <a href="#verdict">Verdict</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a class="nav-cta" href="#timeline">Replay the run</a>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="chips reveal">
+        <span class="chip">SWE-bench · code_repair</span>
+        <span class="chip">swe-agent-llama-70b</span>
+        <span class="chip bad">exit: submitted · no fix</span>
+      </div>
+      <h1 class="reveal">A parser bug that was<br><span class="grad">never actually opened.</span></h1>
+      <p class="lede reveal">
+        The issue asked the agent to make the sasdocs parser accept explicit options on
+        data steps and procedures — <span style="font-family:var(--mono);font-size:.93em;color:#c4b5fd">data test / view=testvew;</span>.
+        Over eight turns the agent never listed, opened, or searched a single file in the
+        repository it was standing in. It declared the source unavailable and submitted an
+        empty fix.
+      </p>
+      <div class="cta-row reveal">
+        <a class="btn primary" href="#timeline">See the eight turns</a>
+        <a class="btn ghost" href="#patch">Inspect the patch</a>
+      </div>
+      <div class="stats reveal">
+        <div class="stat"><b>8</b><span>agent commands issued</span></div>
+        <div class="stat"><b class="fail">0</b><span>repository files read</span></div>
+        <div class="stat"><b class="fail">0</b><span>tests executed</span></div>
+        <div class="stat"><b class="warn">1</b><span>file in final patch — the repro, not a fix</span></div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="term">
+        <div class="term-bar">
+          <span class="dot" style="background:#fb7185"></span>
+          <span class="dot" style="background:#fbbf24"></span>
+          <span class="dot" style="background:#34d399"></span>
+          <span class="term-title">replay · /sasdocs — 4 of 8 commands</span>
+        </div>
+        <div class="term-body">
+          <div class="ln g"># the bug, as given in the issue</div>
+          <div class="ln"><span class="p">$</span> <span class="c">cat reproduce.sas</span></div>
+          <div class="ln c">data test / view=testvew;</div>
+          <div class="ln c">    set test;</div>
+          <div class="ln c">run;</div>
+          <div class="ln">&nbsp;</div>
+          <div class="ln g"># attempt 1 — run SAS itself</div>
+          <div class="ln"><span class="p">$</span> <span class="c">sas reproduce.sas</span></div>
+          <div class="ln e">/bin/bash: line 238: sas: command not found</div>
+          <div class="ln">&nbsp;</div>
+          <div class="ln g"># attempt 2 — hand-rolled parser</div>
+          <div class="ln"><span class="p">$</span> <span class="c">python parse_sas.py</span></div>
+          <div class="ln e">ModuleNotFoundError: No module named 'ply'</div>
+          <div class="ln">&nbsp;</div>
+          <div class="ln g"># attempt 3 — read the repository?</div>
+          <div class="ln y">never attempted.</div>
+          <div class="ln"><span class="p">$</span> <span class="c">rm parse_sas.py &amp;&amp; submit</span></div>
+          <div class="ln g">→ session ends, exit_status: submitted</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="band" id="findings">
+  <div class="wrap">
+    <p class="eyebrow reveal">Findings</p>
+    <h2 class="reveal">Six ways the run came apart</h2>
+    <p class="sub reveal">Every command the agent issued is accounted for below. The failure was not a wrong
+      edit — it was that no edit to the parser was ever attempted.</p>
+    <div class="cards">
+      <div class="card reveal">
+        <div class="num">01</div>
+        <h3>The repository was never explored</h3>
+        <p>Working directory was <span class="mono">/sasdocs</span> for all eight turns. No <code>ls</code>,
+          no <code>find</code>, no <code>search_dir</code>, no <code>open</code> — not one path in the
+          repo was listed or read.</p>
+        <span class="sev hi">critical</span>
+      </div>
+      <div class="card reveal">
+        <div class="num">02</div>
+        <h3>A false blocker was asserted</h3>
+        <p>The agent wrote that it had no parser code to inspect and therefore could not make specific
+          edits — while cwd was the parser's own repository.</p>
+        <span class="sev hi">critical</span>
+      </div>
+      <div class="card reveal">
+        <div class="num">03</div>
+        <h3>Wrong tools assumed</h3>
+        <p>It reached for a real SAS interpreter and then the <code>ply</code> package rather than the
+          project's own parser. When both were missing, it treated that as a dead end instead of
+          pivoting to the source tree.</p>
+        <span class="sev hi">critical</span>
+      </div>
+      <div class="card reveal">
+        <div class="num">04</div>
+        <h3>The fallback script was itself invalid</h3>
+        <p><code>parse_sas.py</code> declared <code>tokens = ()</code> and fed PEG-style strings like
+          <code>S := DS / PROC</code> to <code>yacc</code>. PLY expects BNF grammar rules — so even with
+          the module installed, it would not have run.</p>
+        <span class="sev mid">high</span>
+      </div>
+      <div class="card reveal">
+        <div class="num">05</div>
+        <h3>The submitted patch is a no-op</h3>
+        <p>The generated diff adds only <code>reproduce.sas</code> — a scratch file containing the bug
+          report's own snippet. No parser file is touched. This cannot resolve the issue.</p>
+        <span class="sev hi">critical</span>
+      </div>
+      <div class="card reveal">
+        <div class="num">06</div>
+        <h3>Abandonment was narrated as completion</h3>
+        <p>After deleting its scratch script, the agent concluded the analysis was done and invoked
+          <code>submit</code>. The run terminated in the <em>submitted</em> state, typical of a solved
+          task.</p>
+        <span class="sev mid">high</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="timeline">
+  <div class="wrap">
+    <p class="eyebrow reveal">How it went</p>
+    <h2 class="reveal">The recorded trajectory, turn by turn</h2>
+    <p class="sub reveal">Eight agent turns (<span class="mono">swe-agent-traj</span> format) reproduced below.
+      Nothing is inferred; each command and its observed output is shown as recorded.</p>
+
+    <div class="tl">
+      <div class="step reveal">
+        <div class="node">1</div>
+        <div class="step-head"><h3>Create the reproduction file</h3><span class="tag act">create reproduce.sas</span></div>
+        <p>A reasonable opening move — set up a file for the snippet from the issue.</p>
+        <div class="code">[File: /sasdocs/reproduce.sas (1 lines total)]</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node">2</div>
+        <div class="step-head"><h3>Paste the bug snippet</h3><span class="tag act">edit 1:1</span></div>
+        <p>The data step with an explicit <span class="mono">/ view=</span> option is written out exactly as
+          the issue describes.</p>
+        <div class="code">1:data test / view=testvew;
+2:    set test;
+3:run;</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node bad">3</div>
+        <div class="step-head"><h3>Try to execute SAS</h3><span class="tag act">sas reproduce.sas</span><span class="tag out">blocked</span></div>
+        <p>The environment has no SAS interpreter. This is the first dead end — and the moment the agent
+          stops looking for the project's own code.</p>
+        <div class="code bad">/bin/bash: line 238: sas: command not found</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node warn">4</div>
+        <div class="step-head"><h3>Hand-roll a parser instead of reading one</h3><span class="tag act">create parse_sas.py</span></div>
+        <p>Rather than locating the real parser under <span class="mono">/sasdocs</span>, the agent starts a
+          new one from scratch in the repo root.</p>
+        <div class="code">[File: /sasdocs/parse_sas.py (1 lines total)]</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node warn">5</div>
+        <div class="step-head"><h3>Write a grammar PLY cannot accept</h3><span class="tag act">edit 1:1</span></div>
+        <p>35 lines importing <span class="mono">ply.yacc</span>. The grammar strings use PEG notation
+          (<span class="mono">S := DS / PROC</span>) and <span class="mono">tokens</span> is left empty —
+          neither is valid PLY usage.</p>
+        <div class="code">from ply import yacc
+...
+tokens = ()
+...
+def p_DS(p):
+    '''DS := "data"i ID "/"i ID ";"i'''
+    print("Data step with options:", p[2], p[4])</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node bad">6</div>
+        <div class="step-head"><h3>Run it — dependency missing</h3><span class="tag act">python parse_sas.py</span><span class="tag out">ModuleNotFoundError</span></div>
+        <p>Second dead end in four turns. The agent now treats the task as unachievable rather than
+          revisiting its approach.</p>
+        <div class="code bad">Traceback (most recent call last):
+  File "/sasdocs/parse_sas.py", line 1, in &lt;module&gt;
+    from ply import yacc
+ModuleNotFoundError: No module named 'ply'</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node bad">7</div>
+        <div class="step-head"><h3>Declare the source unavailable, delete the evidence, give up</h3><span class="tag act">rm parse_sas.py</span></div>
+        <p>The turn contains no command aimed at the repository. It contains a long written rationale
+          asserting the parser code does not exist, followed by cleanup of the scratch script.</p>
+        <div class="code">rm parse_sas.py
+→ Your command ran successfully and did not produce any output.</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node bad">8</div>
+        <div class="step-head"><h3>Submit</h3><span class="tag act">submit</span><span class="tag out">exit_status: "submitted"</span></div>
+        <p>The final command. No parser file was ever modified, so the submission carries only the
+          reproduction file created in turn 1.</p>
+        <div class="code bad">generated_patch → adds reproduce.sas (+3 lines) only
+exit_status   → "submitted"</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow reveal">The pivotal moment</p>
+    <h2 class="reveal">What the agent told itself</h2>
+    <p class="sub reveal">Turn 7 is the decisive one. Facing two missing binaries, the agent reasoned itself
+      out of the task instead of into the filesystem.</p>
+    <figure class="quote reveal" style="margin:0">
+      <blockquote>
+        &ldquo;Since we don't have the actual parser code available, we cannot make specific edits…
+        <em>Fixing this issue will require modifications to the parser code</em>, but since we don't have the
+        actual parser code available, we cannot proceed with the implementation.&rdquo;
+      </blockquote>
+      <figcaption>— agent reasoning, turn 7 · /sasdocs, the repository containing that parser</figcaption>
+    </figure>
+    <div class="truth reveal">
+      <span class="pill">Working directory: <b>/sasdocs</b></span>
+      <span class="pill">Directory listings run: <b>0</b></span>
+      <span class="pill">Files opened via <b>open</b>: <b>0</b></span>
+      <span class="pill">Searches run: <b>0</b></span>
+      <span class="pill">Bash commands beyond <b>sas</b>/<b>python</b>: <b>rm</b> only</span>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="patch">
+  <div class="wrap">
+    <p class="eyebrow reveal">The artifact</p>
+    <h2 class="reveal">Everything that was submitted</h2>
+    <p class="sub reveal">The complete generated patch. It creates one file and changes nothing that the
+      parser reads.</p>
+    <div class="code reveal" style="padding:20px">diff --git a/reproduce.sas b/reproduce.sas
+new file mode 100644
+index 0000000..c4d0b53
+--- /dev/null
++++ b/reproduce.sas
+@@ -0,0 +1,3 @@
++data test / view=testvew;
++    set test;
++run;</div>
+    <div class="truth reveal" style="margin-top:18px">
+      <span class="pill">Files added: <b>1</b> (scratch repro)</span>
+      <span class="pill">Files modified: <b>0</b></span>
+      <span class="pill">Parser changes: <b>none</b></span>
+      <span class="pill">Issue resolved: <b>no</b></span>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="verdict">
+  <div class="wrap">
+    <p class="eyebrow reveal">Scorecard</p>
+    <h2 class="reveal">What the task needed vs. what was delivered</h2>
+    <p class="sub reveal">The issue is narrow: teach the parser to tolerate an options clause after a data
+      step or procedure name. The bar is set by the issue itself.</p>
+    <div class="score">
+      <div class="panel need reveal">
+        <h3>A resolving run</h3>
+        <div class="cap">Required</div>
+        <ul>
+          <li><span class="tick">✓</span> Locate the parser module inside <span class="mono">/sasdocs</span></li>
+          <li><span class="tick">✓</span> Read how <span class="mono">data</span> / <span class="mono">proc</span> statements are tokenised</li>
+          <li><span class="tick">✓</span> Extend the grammar to accept <span class="mono">/ option=value</span></li>
+          <li><span class="tick">✓</span> Re-run the reproduction and confirm it parses</li>
+          <li><span class="tick">✓</span> Submit a diff that touches the parser</li>
+        </ul>
+      </div>
+      <div class="panel got reveal">
+        <h3>This run</h3>
+        <div class="cap">Delivered</div>
+        <ul>
+          <li><span class="cross">✕</span> No file in the repository was listed or opened</li>
+          <li><span class="cross">✕</span> Parser location and structure never established</li>
+          <li><span class="cross">✕</span> Grammar untouched; a throwaway script was written instead</li>
+          <li><span class="cross">✕</span> Reproduction never successfully executed (<span class="mono">sas</span> and <span class="mono">ply</span> both absent)</li>
+          <li><span class="cross">✕</span> Submitted diff does not contain a parser change</li>
+        </ul>
+      </div>
+    </div>
+    <div class="verdict-box reveal">
+      <strong>Verdict: unresolved.</strong>
+      <p>The session reported <span class="mono">exit_status: "submitted"</span>, but submission status here
+        reflects only that the agent chose to stop — not that the issue was fixed. The recorded patch
+        contains no change to any parser source file, so the reported bug remains open. This is an
+        execution failure, not a partial success.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="faq">
+  <div class="wrap">
+    <p class="eyebrow reveal">Detail</p>
+    <h2 class="reveal">Questions the record answers</h2>
+    <p class="sub reveal"></p>
+    <div class="reveal">
+      <details>
+        <summary>Why didn't the agent just read the repository?</summary>
+        <div class="body">The record shows no such attempt. The shell prompt on every turn read
+          <code>(Current directory: /sasdocs)</code>, and the toolkit it was given included
+          <code>open</code>, <code>search_dir</code>, <code>find_file</code> and plain bash. The two
+          failures it hit (<code>sas</code> missing, then <code>ply</code> missing) were taken as evidence
+          the task was impossible rather than as reasons to change strategy.</div>
+      </details>
+      <details>
+        <summary>Could the ply script have worked if the module were installed?</summary>
+        <div class="body">No. It passes PEG-style productions such as <code>DS := "data"i ID "/"i ID ";"i</code>
+          to <code>yacc.yacc()</code>, but PLY expects BNF rule docstrings of the form
+          <code>name : symbol symbol</code>, with terminals declared in <code>tokens</code>. Here
+          <code>tokens = ()</code> is empty. The module error masked a deeper defect in the script itself.</div>
+      </details>
+      <details>
+        <summary>Is the reproduction itself correct?</summary>
+        <div class="body">Yes — <code>reproduce.sas</code> faithfully copies the snippet from the issue
+          (<code>data test / view=testvew;</code> with a <code>set</code> and a <code>run</code>). The
+          problem is that it was never executed: the only attempt ran the external <code>sas</code>
+          command, which does not exist in the environment.</div>
+      </details>
+      <details>
+        <summary>Did any test or check pass?</summary>
+        <div class="body">None were run. The two execution attempts both failed at the interpreter or
+          import stage, and no project test command appears anywhere in the trajectory. There is therefore
+          no evidence of either a reproduced bug or a verified fix.</div>
+      </details>
+      <details>
+        <summary>What would the minimal correct fix look like?</summary>
+        <div class="body">Something in the order of: find the grammar production handling
+          <code>data &lt;name&gt;</code> / <code>proc &lt;name&gt;</code>, add an optional
+          <code>/ &lt;option&gt;=&lt;value&gt;</code> clause to it, then re-parse the snippet. The record
+          never reaches the identification step, so the exact production cannot be named from this
+          trajectory alone.</div>
+      </details>
+      <details>
+        <summary>How should the exit status be read?</summary>
+        <div class="body"><code>submitted</code> is the agent's own termination signal. It should not be
+          read as task success. Independent evidence of success would be a patch touching parser code plus
+          a passing parse of the reproduction — neither exists here.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="f-grid">
+      <div>
+        <h4>Case</h4>
+        <p><span class="mono">01_benjamincorcoran__sasdocs-41</span></p>
+        <p>Repository <span class="mono">benjamincorcoran/sasdocs</span> · issue #41</p>
+        <p>Domain <span class="mono">code_repair</span> · benchmark <span class="mono">SWE-bench</span> · source <span class="mono">upstream</span></p>
+      </div>
+      <div>
+        <h4>Run</h4>
+        <p>Model <span class="mono">swe-agent-llama-70b</span></p>
+        <p>Format <span class="mono">swe-agent-traj</span></p>
+        <p>Exit status <span class="mono">submitted</span></p>
+      </div>
+      <div>
+        <h4>Trace</h4>
+        <p class="mono">trajectory.json</p>
+        <p class="mono" style="font-size:11px">sha256 0823be65cbcc51c8d1e1dc6e7fcdfecea0f8699cba2592b4ae8c04a9f1954305</p>
+      </div>
+    </div>
+    <div class="f-note">
+      <span>Fields stripped from the source record: <span class="mono">eval_logs</span>, <span class="mono">target</span>.</span>
+      <span>External references declared in the case metadata: none (<span class="mono">references: []</span>).</span>
+      <span>Media references: none. All content drawn from the trajectory, task statement and case metadata.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var nav = document.getElementById('nav');
+    function onScroll(){
+      if (window.scrollY > 16) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    }
+    onScroll();
+    window.addEventListener('scroll', onScroll, {passive:true});
+
+    var items = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      items.forEach(function(el){ el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:0.08});
+    items.forEach(function(el, i){
+      el.style.transitionDelay = (Math.min(i,6) * 55) + 'ms';
+      io.observe(el);
+    });
+  })();
+</script>
+</body>
+</html>

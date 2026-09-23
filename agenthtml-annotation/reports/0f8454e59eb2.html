@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SWE-bench · benjamincorcoran/sasdocs #41</title>
+<style>
+  /* ── Reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0b0d14;
+    --bg2: #10131f;
+    --surface: rgba(255,255,255,0.04);
+    --surface-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --text-muted: #7a7f99;
+    --text-dim: #4a4f6a;
+    --accent: #7c6aff;
+    --accent2: #4fc3f7;
+    --accent3: #ff6b6b;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --fail: #f87171;
+    --code-bg: #0d1117;
+    --glow: rgba(124,106,255,0.18);
+  }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(124,106,255,0.3); border-radius: 3px; }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 2rem;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid transparent;
+    transition: background 0.3s, border-color 0.3s, backdrop-filter 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(11,13,20,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom-color: var(--border);
+  }
+  .nav-left { display: flex; align-items: center; gap: 0.75rem; }
+  .nav-logo {
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .nav-sep { color: var(--text-dim); font-size: 0.8rem; }
+  .nav-id { font-size: 0.78rem; color: var(--text-muted); font-family: 'Courier New', monospace; }
+  .nav-right { display: flex; align-items: center; gap: 0.5rem; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.2rem 0.6rem; border-radius: 100px; font-size: 0.7rem;
+    font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    border: 1px solid;
+  }
+  .badge-domain { background: rgba(124,106,255,0.12); border-color: rgba(124,106,255,0.3); color: var(--accent); }
+  .badge-bench { background: rgba(79,195,247,0.10); border-color: rgba(79,195,247,0.25); color: var(--accent2); }
+  .badge-fail { background: rgba(248,113,113,0.10); border-color: rgba(248,113,113,0.25); color: var(--fail); }
+  .badge-partial { background: rgba(251,191,36,0.10); border-color: rgba(251,191,36,0.25); color: var(--warning); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 7rem 2rem 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero-glow {
+    position: absolute; top: 10%; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse at center, rgba(124,106,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 860px; margin: 0 auto; width: 100%; position: relative; }
+  .hero-meta {
+    display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;
+  }
+  .hero-title {
+    font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 800;
+    line-height: 1.15; letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 0%, #a8b0d8 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+  }
+  .hero-title em { font-style: normal; color: var(--accent);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-sub { font-size: 1.1rem; color: var(--text-muted); max-width: 620px; margin-bottom: 2.5rem; }
+
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem; margin-bottom: 3rem;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.1rem 1.2rem;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .stat-card:hover { background: var(--surface-hover); border-color: var(--border-strong); transform: translateY(-2px); }
+  .stat-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.4rem; }
+  .stat-val { font-size: 1.35rem; font-weight: 700; color: var(--text); }
+  .stat-val.accent { color: var(--accent); }
+  .stat-val.fail { color: var(--fail); }
+  .stat-val.warn { color: var(--warning); }
+
+  /* ── Issue block ── */
+  .issue-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.8rem;
+    margin-bottom: 3rem; position: relative; overflow: hidden;
+  }
+  .issue-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: linear-gradient(to bottom, var(--accent), var(--accent2));
+  }
+  .issue-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .issue-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(124,106,255,0.15); display: flex; align-items: center;
+    justify-content: center; font-size: 0.9rem; flex-shrink: 0;
+  }
+  .issue-title-text { font-size: 0.8rem; color: var(--text-muted); font-family: monospace; }
+  .issue-body { font-size: 0.95rem; color: var(--text-muted); line-height: 1.7; }
+  .issue-body strong { color: var(--text); }
+
+  /* ── Code blocks ── */
+  .code-block {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; margin: 1rem 0;
+    font-family: 'Courier New', Courier, monospace; font-size: 0.82rem;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+  .code-lang {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text-dim);
+  }
+  .code-dots { display: flex; gap: 5px; }
+  .code-dots span {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .code-dots .d1 { background: #ff5f57; }
+  .code-dots .d2 { background: #febc2e; }
+  .code-dots .d3 { background: #28c840; }
+  .code-body { padding: 1rem 1.2rem; overflow-x: auto; }
+  .code-body pre { margin: 0; color: var(--text); line-height: 1.6; }
+
+  /* SAS syntax highlight */
+  .kw { color: #c792ea; }
+  .id { color: #82aaff; }
+  .op { color: #89ddff; }
+  .str { color: #c3e88d; }
+  .cm { color: #4a5568; font-style: italic; }
+
+  /* Diff highlight */
+  .diff-add { color: #4ade80; }
+  .diff-meta { color: var(--text-muted); }
+  .diff-hdr { color: var(--accent2); }
+
+  /* ── Section ── */
+  section { padding: 4rem 2rem; max-width: 900px; margin: 0 auto; }
+  section + section { padding-top: 0; }
+  .section-label {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--accent); margin-bottom: 0.75rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .section-title {
+    font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700;
+    letter-spacing: -0.01em; margin-bottom: 0.6rem;
+  }
+  .section-sub { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 2rem; }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content: ''; position: absolute; left: 8px; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(to bottom, var(--accent), transparent);
+  }
+  .tl-step {
+    position: relative; margin-bottom: 1.5rem;
+    opacity: 0; transform: translateY(12px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .tl-step:nth-child(1) { animation-delay: 0.05s; }
+  .tl-step:nth-child(2) { animation-delay: 0.12s; }
+  .tl-step:nth-child(3) { animation-delay: 0.19s; }
+  .tl-step:nth-child(4) { animation-delay: 0.26s; }
+  .tl-step:nth-child(5) { animation-delay: 0.33s; }
+  .tl-step:nth-child(6) { animation-delay: 0.40s; }
+  .tl-step:nth-child(7) { animation-delay: 0.47s; }
+  .tl-step:nth-child(8) { animation-delay: 0.54s; }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tl-dot {
+    position: absolute; left: -2rem; top: 1rem;
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg2); display: flex; align-items: center; justify-content: center;
+    font-size: 0.55rem; font-weight: 700;
+    transition: border-color 0.2s;
+    z-index: 1;
+  }
+  .tl-step:hover .tl-dot { border-color: var(--accent); }
+  .tl-dot.ok { border-color: rgba(74,222,128,0.5); background: rgba(74,222,128,0.08); color: var(--success); }
+  .tl-dot.err { border-color: rgba(248,113,113,0.5); background: rgba(248,113,113,0.08); color: var(--fail); }
+  .tl-dot.warn { border-color: rgba(251,191,36,0.5); background: rgba(251,191,36,0.08); color: var(--warning); }
+
+  .tl-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .tl-step:hover .tl-card { background: var(--surface-hover); border-color: var(--border-strong); }
+  .tl-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.85rem 1.1rem; cursor: pointer; user-select: none;
+  }
+  .tl-card-head-left { display: flex; align-items: center; gap: 0.65rem; }
+  .tl-role {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; padding: 0.15rem 0.45rem; border-radius: 4px;
+  }
+  .tl-role.agent { background: rgba(124,106,255,0.15); color: var(--accent); }
+  .tl-role.env { background: rgba(79,195,247,0.12); color: var(--accent2); }
+  .tl-card-title { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+  .tl-toggle { color: var(--text-dim); font-size: 0.8rem; transition: transform 0.25s; }
+  details[open] .tl-toggle { transform: rotate(180deg); }
+  .tl-card-body { padding: 0 1.1rem 1rem; border-top: 1px solid var(--border); }
+  .tl-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.65; padding-top: 0.9rem; }
+  .tl-cmd {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.6rem 1rem; margin-top: 0.75rem;
+    font-family: monospace; font-size: 0.8rem; color: var(--success);
+  }
+  .tl-output {
+    background: rgba(0,0,0,0.25); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.6rem 1rem; margin-top: 0.5rem;
+    font-family: monospace; font-size: 0.78rem; color: var(--text-muted);
+  }
+  .tl-output.err-out { color: var(--fail); }
+
+  /* ── Outcome banner ── */
+  .outcome-banner {
+    background: linear-gradient(135deg, rgba(248,113,113,0.06), rgba(251,191,36,0.06));
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 16px; padding: 2rem;
+    display: flex; gap: 1.5rem; align-items: flex-start;
+    margin-bottom: 2rem;
+  }
+  .outcome-icon {
+    flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px;
+    background: rgba(248,113,113,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .outcome-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .outcome-body { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
+
+  /* ── Patch ── */
+  .patch-card {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin-bottom: 2rem;
+  }
+  .patch-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.8rem 1.2rem; background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+  .patch-title { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+  .patch-body { padding: 1.1rem 1.2rem; overflow-x: auto; }
+  .patch-body pre { font-family: 'Courier New', monospace; font-size: 0.78rem; line-height: 1.7; margin: 0; }
+
+  /* ── Analysis cards ── */
+  .analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+  .analysis-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.3rem;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .analysis-card:hover { background: var(--surface-hover); border-color: var(--border-strong); transform: translateY(-2px); }
+  .analysis-card-icon { font-size: 1.4rem; margin-bottom: 0.7rem; }
+  .analysis-card-title { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .analysis-card-text { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
+
+  /* ── Details/summary FAQ-style ── */
+  details summary { cursor: pointer; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border); padding: 2rem;
+    text-align: center; color: var(--text-dim); font-size: 0.78rem;
+  }
+  footer span { color: var(--text-muted); }
+
+  /* ── Animate on scroll ── */
+  .fade-in {
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .fade-in.visible { opacity: 1; transform: none; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    nav { padding: 0 1rem; }
+    section { padding: 3rem 1rem; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .hero { padding: 6rem 1rem 3rem; }
+    .outcome-banner { flex-direction: column; }
+    .analysis-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="nav">
+  <div class="nav-left">
+    <span class="nav-logo">SWE-bench</span>
+    <span class="nav-sep">/</span>
+    <span class="nav-id">code_repair · 01</span>
+  </div>
+  <div class="nav-right">
+    <span class="badge badge-domain"><span class="dot"></span>code repair</span>
+    <span class="badge badge-bench">SWE-bench</span>
+    <span class="badge badge-fail"><span class="dot"></span>no fix</span>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-meta">
+      <span class="badge badge-domain">code_repair</span>
+      <span class="badge badge-bench">SWE-bench</span>
+      <span class="badge" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:var(--text-muted);">swe-agent-llama-70b</span>
+    </div>
+    <h1 class="hero-title">
+      <em>/ options</em> for Datasteps<br>and Procedures
+    </h1>
+    <p class="hero-sub">
+      The SAS documentation parser crashes when a datastep or procedure declares
+      explicit options using the <code style="font-family:monospace;color:var(--accent2)">/</code> separator syntax.
+      Agent <strong>swe-agent-llama-70b</strong> attempts—but ultimately fails—to fix it.
+    </p>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Case ID</div>
+        <div class="stat-val accent" style="font-size:0.9rem;font-family:monospace">sasdocs-41</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Model</div>
+        <div class="stat-val" style="font-size:0.85rem;">Llama 70B</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Steps taken</div>
+        <div class="stat-val accent">8</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Outcome</div>
+        <div class="stat-val fail">Not Fixed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Exit status</div>
+        <div class="stat-val warn" style="font-size:0.95rem;">submitted</div>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <div class="issue-header">
+        <div class="issue-icon">🐛</div>
+        <div>
+          <div style="font-size:0.95rem;font-weight:700">/ options for datasteps and procedures</div>
+          <div class="issue-title-text">benjamincorcoran/sasdocs · issue #41</div>
+        </div>
+      </div>
+      <div class="issue-body">
+        <p>The parser <strong>fails</strong> when presented with a SAS datastep or procedure that uses
+        explicitly defined options after a <code style="font-family:monospace;color:var(--accent2)">/</code> separator.</p>
+      </div>
+      <div class="code-block" style="margin-top:1rem;">
+        <div class="code-header">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-lang">SAS</span>
+        </div>
+        <div class="code-body"><pre><span class="kw">data</span> <span class="id">test</span> <span class="op">/</span> view=testvew<span class="op">;</span>
+    <span class="kw">set</span> <span class="id">test</span><span class="op">;</span>
+<span class="kw">run</span><span class="op">;</span></pre></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TIMELINE ── -->
+<section class="fade-in">
+  <div class="section-label">Agent trajectory</div>
+  <h2 class="section-title">Step-by-Step Execution</h2>
+  <p class="section-sub">Eight interactions between the agent and the sandboxed shell environment.</p>
+
+  <div class="timeline">
+
+    <!-- Step 1 -->
+    <div class="tl-step">
+      <div class="tl-dot ok">1</div>
+      <div class="tl-card">
+        <details open>
+          <summary class="tl-card-head">
+            <div class="tl-card-head-left">
+              <span class="tl-role agent">Agent</span>
+              <span class="tl-card-title">Reproduce the bug — create test file</span>
+            </div>
+            <span class="tl-toggle">▼</span>
+          </summary>
+          <div class="tl-card-body">
+            <div class="tl-text">Agent decides to replicate the bug first by creating <code>reproduce.sas</code> with the example code from the issue.</div>
+            <div class="tl-cmd">create reproduce.sas</div>
+            <div class="tl-output">
+[File: /sasdocs/reproduce.sas (1 lines total)]<br>
+1:<br><br>
+(Open file: /sasdocs/reproduce.sas)<br>
+(Current directory: /sasdocs)</div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="tl-step">
+      <div class="tl-dot ok">2</div>
+      <div class="tl-card">
+        <details>
+          <summary class="tl-card-head">
+            <div class="tl-card-head-left">
+              <span class="tl-role agent">Agent</span>
+              <span class="tl-card-title">Write the SAS snippet into reproduce.sas</span>
+            </div>
+            <span class="tl-toggle">▼</span>
+          </summary>
+          <div class="tl-card-body">
+            <div class="tl-text">Pastes the failing SAS code into the file using the <code>edit</code> command.</div>
+            <div class="tl-cmd">edit 1:1<br>data test / view=testvew;<br>&nbsp;&nbsp;&nbsp;&nbsp;set test;<br>run;<br>end_of_edit</div>
+            <div class="tl-output">
+[File: /sasdocs/reproduce.sas (3 lines total)]<br>
+1:data test / view=testvew;<br>
+2:&nbsp;&nbsp;&nbsp;&nbsp;set test;<br>
+3:run;<br>
+File updated.
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="tl-step">
+      <div class="tl-dot err">3</div>
+      <div class="tl-card">
+        <details>
+          <summary class="tl-card-head">
+            <div class="tl-card-head-left">
+              <span class="tl-role agent">Agent</span>
+              <span class="tl-card-title">Run SAS — command not found</span>
+            </div>
+            <span class="tl-toggle">▼</span>
+          </summary>
+          <div class="tl-card-body">
+            <div class="tl-text">Tries to run the SAS interpreter directly. SAS is not installed in the sandbox environment.</div>
+            <div class="tl-cmd">sas reproduce.sas</div>
+            <div class="tl-output err-out">/bin/bash: line 238: sas: command not found</div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="tl-step">
+      <div class="tl-dot warn">4</div>
+      <div class="tl-card">
+        <details>
+          <summary class="tl-card-head">
+            <div class="tl-card-head-left">
+              <span class="tl-role agent">Agent</span>
+              <span class="tl-card-title">Pivot — write a Python parser using <code>ply</code></span>
+            </div>
+            <span class="tl-toggle">▼</span>
+          </summary>
+          <div class="tl-card-body">
+            <div class="tl-text">Agent decides to simulate parsing with a Python PLY grammar. Creates <code>parse_sas.py</code> without first checking if <code>ply</code> is available.</div>
+            <div class="tl-cmd">create parse_sas.py</div>
+            <div class="code-block" style="margin-top:0.75rem;">
+              <div class="code-header">
+                <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+                <span class="code-lang">Python</span>
+              </div>
+              <div class="code-body"><pre><span class="kw">from</span> ply <span class="kw">import</span> yacc
+
+peg = <span class="str">'''
+S    := DS / PROC
+DS   := "data"i ID "/"i ID ";"i
+PROC := "proc"i ID "/"i ID ";"i
+'''</span>
+
+tokens = ()
+t_ignore = <span class="str">' \t'</span>
+
+<span class="kw">def</span> t_ID(t):
+    r<span class="str">'[a-zA-Z_][a-zA-Z0-9_]*'</span>
+    <span class="kw">return</span> t
+
+<span class="cm"># ... grammar rules ...</span>
+
+parser = yacc.yacc(debug=<span class="kw">True</span>)
+<span class="kw">with</span> open(<span class="str">"reproduce.sas"</span>) <span class="kw">as</span> f:
+    parser.parse(f.read())</pre></div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="tl-step">
+      <div class="tl-dot err">5</div>
+      <div class="tl-card">
+        <details>
+          <summary class="tl-card-head">
+            <div class="tl-card-head-left">
+              <span class="tl-role env">Environment</span>
+              <span class="tl-card-title">ModuleNotFoundError: ply not installed</span>
+            </div>
+            <span class="tl-toggle">▼</span>
+          </summary>
+          <div class="tl-card-body">
+            <div class="tl-text">Running the Python script fails immediately because <code>ply</code> is not installed in the environment.</div>
+            <div class="tl-cmd">python parse_sas.py</div>
+            <div class="tl-output err-out">
+Traceback (most recent call last):<br>
+&nbsp;&nbsp;File "/sasdocs/parse_sas.py", line 1, in &lt;module&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;from ply import yacc<br>
+ModuleNotFoundError: No module named 'ply'
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="tl-step">
+      <div class="tl-dot warn">6</div>
+      <div class="tl-card">
+        <details>
+          <summary class="tl-card-head">
+            <div class="tl-card-head-left">
+              <span class="tl-role agent">Agent</span>
+              <span class="tl-card-title">Abandons execution — writes theoretical analysis only</span>
+            </div>
+            <span class="tl-toggle">▼</span>
+          </summary>
+          <div class="tl-card-body">
+            <div class="tl-text">
+              Faced with two blocked paths, the agent gives up on executing code and writes a lengthy
+              <em>theoretical</em> explanation of what would need to change—without ever reading or modifying
+              the actual <code>sasdocs</code> parser source files. Key observations in the analysis:
+              <ul style="margin-top:0.6rem;margin-left:1.2rem;color:var(--text-muted);font-size:0.83rem;line-height:1.7;">
+                <li>Parser is likely a state machine that processes tokens one at a time</li>
+                <li>Encountering <code>/</code> after identifier is unexpected, causing parse failure</li>
+                <li>Fix requires adding an "options" state after <code>data</code>/<code>proc</code> keywords</li>
+                <li>No actual code is read or modified</li>
+              </ul>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="tl-step">
+      <div class="tl-dot warn">7</div>
+      <div class="tl-card">
+        <details>
+          <summary class="tl-card-head">
+            <div class="tl-card-head-left">
+              <span class="tl-role agent">Agent</span>
+              <span class="tl-card-title">Cleans up — deletes parse_sas.py</span>
+            </div>
+            <span class="tl-toggle">▼</span>
+          </summary>
+          <div class="tl-card-body">
+            <div class="tl-text">Agent removes the failed Python script before submitting.</div>
+            <div class="tl-cmd">rm parse_sas.py</div>
+            <div class="tl-output">Your command ran successfully and did not produce any output.</div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="tl-step">
+      <div class="tl-dot err">8</div>
+      <div class="tl-card">
+        <details>
+          <summary class="tl-card-head">
+            <div class="tl-card-head-left">
+              <span class="tl-role agent">Agent</span>
+              <span class="tl-card-title">Submit — without any parser fix</span>
+            </div>
+            <span class="tl-toggle">▼</span>
+          </summary>
+          <div class="tl-card-body">
+            <div class="tl-text">Agent submits the session. The only change is the addition of <code>reproduce.sas</code>—the actual parser was never touched.</div>
+            <div class="tl-cmd">submit</div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── PATCH ── -->
+<section class="fade-in">
+  <div class="section-label">Generated patch</div>
+  <h2 class="section-title">What Was Actually Submitted</h2>
+  <p class="section-sub">The patch adds only a reproduction file. No parser code was changed.</p>
+
+  <div class="patch-card">
+    <div class="patch-header">
+      <span class="patch-title">diff output · 1 file changed, 3 insertions</span>
+      <span class="badge badge-partial">not a fix</span>
+    </div>
+    <div class="patch-body"><pre><span class="diff-meta">diff --git a/reproduce.sas b/reproduce.sas
+new file mode 100644
+index 0000000..c4d0b53</span>
+<span class="diff-hdr">--- /dev/null
++++ b/reproduce.sas</span>
+<span class="diff-meta">@@ -0,0 +1,3 @@</span>
+<span class="diff-add">+data test / view=testvew;
++    set test;
++run;</span></pre></div>
+  </div>
+
+  <div class="outcome-banner">
+    <div class="outcome-icon">⚠️</div>
+    <div>
+      <div class="outcome-title">Issue not resolved</div>
+      <div class="outcome-body">
+        The agent submitted only the reproduction script (<code>reproduce.sas</code>) without modifying
+        any source files in the <code>sasdocs</code> parser. The root grammar or tokenization rules that
+        handle the <code>/</code> separator were never identified or patched. The bug remains
+        present in the codebase.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ANALYSIS ── -->
+<section class="fade-in">
+  <div class="section-label">Failure analysis</div>
+  <h2 class="section-title">Where the Agent Went Wrong</h2>
+  <p class="section-sub">Three compounding failure modes led to a non-fix submission.</p>
+
+  <div class="analysis-grid">
+    <div class="analysis-card">
+      <div class="analysis-card-icon">🔍</div>
+      <div class="analysis-card-title">Never explored the codebase</div>
+      <div class="analysis-card-text">
+        The agent did not use <code>search_dir</code>, <code>find_file</code>, or <code>ls</code>
+        to locate the actual parser source. It assumed SAS was the runtime rather than
+        recognising this is a Python documentation-parser project.
+      </div>
+    </div>
+    <div class="analysis-card">
+      <div class="analysis-card-icon">📦</div>
+      <div class="analysis-card-title">Dependency check skipped</div>
+      <div class="analysis-card-text">
+        Chose <code>ply</code> without verifying it was installed (<code>pip show ply</code> or
+        <code>pip list</code>). A quick check would have revealed it was unavailable and prompted
+        an alternate approach.
+      </div>
+    </div>
+    <div class="analysis-card">
+      <div class="analysis-card-icon">🏳️</div>
+      <div class="analysis-card-title">Premature surrender</div>
+      <div class="analysis-card-text">
+        After two dead ends the agent produced only a theoretical description and submitted.
+        The correct next step was to inspect the actual parser grammar file
+        and apply a targeted edit to handle the <code>/ option=value</code> syntax.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span>AgentHTML · Case <strong>01_benjamincorcoran__sasdocs-41</strong></span>
+  &nbsp;·&nbsp;
+  Model: <span>swe-agent-llama-70b</span>
+  &nbsp;·&nbsp;
+  Benchmark: <span>SWE-bench</span>
+  &nbsp;·&nbsp;
+  Domain: <span>code_repair</span>
+</footer>
+
+<script>
+  // Nav scroll effect
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  // Scroll-triggered fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Toggle icon for open details
+  document.querySelectorAll('.tl-card details').forEach(d => {
+    d.addEventListener('toggle', () => {
+      const toggle = d.querySelector('.tl-toggle');
+      if (toggle) toggle.style.transform = d.open ? 'rotate(180deg)' : '';
+    });
+  });
+</script>
+</body>
+</html>

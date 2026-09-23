@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03_stockindex_query1 — Asia Volatility Analysis</title>
+<style>
+  /* ===== Reset & Base ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0F0E17;
+    --surface: #1A1825;
+    --surface-2: #221F30;
+    --ink: #FFFFFC;
+    --muted: #8E89A3;
+    --dim: #5B5772;
+    --jade: #3DD9B4;
+    --jade-dim: #2A9E7E;
+    --gold: #E8B86D;
+    --gold-dim: #B8924F;
+    --cinnabar: #E5484D;
+    --cinnabar-dim: #B03A3E;
+    --border: rgba(255,255,252,0.08);
+    --border-bright: rgba(255,255,252,0.15);
+    --mono: 'SF Mono', 'Fira Code', 'Monaco', 'Consolas', 'Courier New', monospace;
+    --display: 'Georgia', 'Times New Roman', serif;
+    --body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ===== Layout ===== */
+  .page { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  /* ===== Hero ===== */
+  .hero {
+    padding: 80px 0 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--jade);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--jade);
+  }
+
+  .hero-title {
+    font-family: var(--display);
+    font-size: clamp(32px, 5.5vw, 52px);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    margin-bottom: 24px;
+    color: var(--ink);
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 620px;
+    line-height: 1.7;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 32px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .hero-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hero-meta-label {
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+  .hero-meta-value {
+    color: var(--ink);
+    font-size: 13px;
+  }
+
+  /* ===== Answer Card (signature) ===== */
+  .answer-section {
+    padding: 64px 0;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label-num {
+    color: var(--jade);
+  }
+
+  .answer-card {
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    border-radius: 4px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .answer-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(to bottom, var(--jade), var(--gold));
+  }
+
+  .answer-winner {
+    font-family: var(--display);
+    font-size: clamp(28px, 4.5vw, 40px);
+    font-style: italic;
+    color: var(--gold);
+    margin-bottom: 8px;
+    line-height: 1.15;
+  }
+
+  .answer-ticker {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--jade);
+    margin-bottom: 24px;
+  }
+
+  .answer-vol {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .answer-vol-num {
+    font-family: var(--mono);
+    font-size: 48px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .answer-vol-unit {
+    font-family: var(--mono);
+    font-size: 16px;
+    color: var(--muted);
+  }
+  .answer-vol-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-left: 16px;
+  }
+
+  /* ===== Volatility Chart ===== */
+  .vol-chart {
+    margin-top: 16px;
+  }
+  .vol-chart-header {
+    display: grid;
+    grid-template-columns: 1fr 70px 70px 90px;
+    gap: 12px;
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+  .vol-row {
+    display: grid;
+    grid-template-columns: 1fr 70px 70px 90px;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s ease;
+  }
+  .vol-row:last-child { border-bottom: none; }
+  .vol-row:hover { background: rgba(255,255,252,0.02); }
+
+  .vol-name-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .vol-rank {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    width: 18px;
+  }
+  .vol-name {
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .vol-ticker {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .vol-days {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+    text-align: right;
+  }
+  .vol-val {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    text-align: right;
+  }
+  .vol-bar-wrap {
+    grid-column: 1 / -1;
+    height: 3px;
+    background: var(--surface-2);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .vol-bar {
+    height: 100%;
+    border-radius: 2px;
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .vol-row.is-winner .vol-bar { background: var(--gold); }
+  .vol-row.is-winner .vol-name { color: var(--gold); }
+  .vol-row.is-winner .vol-val { color: var(--gold); }
+  .vol-row .vol-bar { background: var(--jade-dim); }
+
+  /* ===== Method Section ===== */
+  .method-section { padding: 48px 0; border-top: 1px solid var(--border); }
+
+  .method-formula {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin: 24px 0;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--jade);
+    display: inline-block;
+  }
+  .method-formula .op { color: var(--muted); }
+
+  .method-text {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 620px;
+    line-height: 1.75;
+  }
+  .method-text strong { color: var(--ink); font-weight: 600; }
+
+  /* ===== Date Formats ===== */
+  .date-formats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .date-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 18px;
+  }
+  .date-card-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+  .date-card-value {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .date-card-fmt {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--jade);
+    margin-top: 6px;
+  }
+
+  /* ===== Trajectory Timeline ===== */
+  .timeline-section { padding: 48px 0; border-top: 1px solid var(--border); }
+
+  .timeline {
+    position: relative;
+    margin-top: 32px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .tl-step {
+    position: relative;
+    padding-left: 40px;
+    padding-bottom: 28px;
+  }
+  .tl-step:last-child { padding-bottom: 0; }
+
+  .tl-dot {
+    position: absolute;
+    left: 5px;
+    top: 3px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--dim);
+    z-index: 1;
+  }
+  .tl-step.is-error .tl-dot { border-color: var(--cinnabar); background: var(--cinnabar-dim); }
+  .tl-step.is-success .tl-dot { border-color: var(--jade); background: var(--jade-dim); }
+  .tl-step.is-comment .tl-dot { border-color: var(--gold); background: var(--gold-dim); }
+  .tl-step.is-final .tl-dot { 
+    border-color: var(--jade); 
+    background: var(--jade);
+    box-shadow: 0 0 0 4px rgba(61,217,180,0.15);
+  }
+
+  .tl-time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .tl-title {
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .tl-step.is-error .tl-title { color: var(--cinnabar); }
+  .tl-step.is-success .tl-title { color: var(--jade); }
+  .tl-step.is-final .tl-title { color: var(--jade); }
+
+  .tl-body {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .tl-body code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--gold);
+  }
+
+  .tl-output {
+    margin-top: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space: pre-wrap;
+    overflow-x: auto;
+    line-height: 1.5;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .tl-output.is-error-out { border-left: 2px solid var(--cinnabar); }
+  .tl-output.is-success-out { border-left: 2px solid var(--jade); }
+
+  .tl-output .out-label {
+    font-size: 9px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 4px;
+  }
+
+  /* ===== Data Sources ===== */
+  .sources-section { padding: 48px 0; border-top: 1px solid var(--border); }
+  .sources-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .source-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+  }
+  .source-engine {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--jade);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 10px;
+  }
+  .source-file {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    word-break: break-all;
+  }
+  .source-table {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .source-cols {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    line-height: 1.6;
+  }
+
+  /* ===== Footer ===== */
+  .footer {
+    padding: 48px 0 64px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  .footer-text {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* ===== Reveal Animation ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .vol-bar { transition: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 640px) {
+    .page { padding: 0 16px; }
+    .hero { padding: 48px 0 32px; }
+    .answer-card { padding: 24px; }
+    .answer-vol-num { font-size: 36px; }
+    .vol-chart-header { display: none; }
+    .vol-row { grid-template-columns: 1fr 80px; }
+    .vol-row .vol-ticker, .vol-row .vol-days { display: none; }
+    .sources-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ===== Focus ===== */
+  :focus-visible {
+    outline: 2px solid var(--jade);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="page">
+    <div class="hero-eyebrow">DataAgentBench · Case 03</div>
+    <h1 class="hero-title">
+      Which Asian stock index carries the most <em>intraday turbulence</em> since 2020?
+    </h1>
+    <p class="hero-sub">
+      An agent queries two databases — SQLite for exchange metadata, DuckDB for decades of OHLC trade records —
+      parses three mismatched date formats, survives a hostile shell sandbox, and isolates a single winner.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Model</span>
+        <span class="hero-meta-value">gpt-5.6-sol</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Duration</span>
+        <span class="hero-meta-value">4,248 s</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Steps</span>
+        <span class="hero-meta-value">18 events</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Outcome</span>
+        <span class="hero-meta-value" style="color:var(--jade)">Solved</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== ANSWER ===== -->
+<section class="answer-section">
+  <div class="page">
+    <div class="section-label reveal"><span class="section-label-num">01</span> The Result</div>
+    <div class="answer-card reveal">
+      <div class="answer-winner">Shenzhen Component Index</div>
+      <div class="answer-ticker">399001.SZ · Shenzhen Stock Exchange</div>
+      <div class="answer-vol">
+        <span class="answer-vol-num">1.8341</span>
+        <span class="answer-vol-unit">%</span>
+        <span class="answer-vol-label">avg daily range / 342 sessions</span>
+      </div>
+
+      <div class="vol-chart" id="volChart">
+        <div class="vol-chart-header">
+          <span>Index</span>
+          <span style="text-align:right">Days</span>
+          <span style="text-align:right">Volatility</span>
+          <span style="text-align:right">Share</span>
+        </div>
+
+        <div class="vol-row is-winner">
+          <div class="vol-name-wrap">
+            <span class="vol-rank">1</span>
+            <span class="vol-name">Shenzhen Component</span>
+          </div>
+          <span class="vol-ticker">399001.SZ</span>
+          <span class="vol-days">342</span>
+          <span class="vol-val">1.8341%</span>
+          <div class="vol-bar-wrap"><div class="vol-bar" data-w="100"></div></div>
+        </div>
+
+        <div class="vol-row">
+          <div class="vol-name-wrap">
+            <span class="vol-rank">2</span>
+            <span class="vol-name">Nifty 50</span>
+          </div>
+          <span class="vol-ticker">NSEI</span>
+          <span class="vol-days">349</span>
+          <span class="vol-val">1.7072%</span>
+          <div class="vol-bar-wrap"><div class="vol-bar" data-w="93.1"></div></div>
+        </div>
+
+        <div class="vol-row">
+          <div class="vol-name-wrap">
+            <span class="vol-rank">3</span>
+            <span class="vol-name">Hang Seng Index</span>
+          </div>
+          <span class="vol-ticker">HSI</span>
+          <span class="vol-days">348</span>
+          <span class="vol-val">1.4932%</span>
+          <div class="vol-bar-wrap"><div class="vol-bar" data-w="81.5"></div></div>
+        </div>
+
+        <div class="vol-row">
+          <div class="vol-name-wrap">
+            <span class="vol-rank">4</span>
+            <span class="vol-name">Shanghai Composite</span>
+          </div>
+          <span class="vol-ticker">000001.SS</span>
+          <span class="vol-days">340</span>
+          <span class="vol-val">1.3781%</span>
+          <div class="vol-bar-wrap"><div class="vol-bar" data-w="75.2"></div></div>
+        </div>
+
+        <div class="vol-row">
+          <div class="vol-name-wrap">
+            <span class="vol-rank">5</span>
+            <span class="vol-name">Nikkei 225</span>
+          </div>
+          <span class="vol-ticker">N225</span>
+          <span class="vol-days">344</span>
+          <span class="vol-val">1.3427%</span>
+          <div class="vol-bar-wrap"><div class="vol-bar" data-w="73.2"></div></div>
+        </div>
+
+        <div class="vol-row">
+          <div class="vol-name-wrap">
+            <span class="vol-rank">6</span>
+            <span class="vol-name">Taiwan Weighted</span>
+          </div>
+          <span class="vol-ticker">TWII</span>
+          <span class="vol-days">339</span>
+          <span class="vol-val">1.3225%</span>
+          <div class="vol-bar-wrap"><div class="vol-bar" data-w="72.1"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== METHOD ===== -->
+<section class="method-section">
+  <div class="page">
+    <div class="section-label reveal"><span class="section-label-num">02</span> Method</div>
+    <p class="method-text reveal">
+      The agent defines <strong>intraday volatility</strong> as the daily percentage range —
+      the spread between each session's high and low, normalized by the opening price.
+      This avoids scale distortion: a 100-point swing means something very different
+      for the Nikkei (≈38,000) than for the Nifty (≈22,000).
+    </p>
+    <div class="method-formula reveal">
+      <span class="op">intraday_volatility =</span> (High <span class="op">−</span> Low) <span class="op">/</span> Open <span class="op">×</span> 100
+    </div>
+    <p class="method-text reveal" style="margin-top:24px">
+      Six Asia-region indices were identified from the exchange metadata table (Hong Kong, Shanghai,
+      Tokyo, Shenzhen, Mumbai, Taipei). Trade records since <strong>2020-01-01</strong> were filtered,
+      grouped by index, and averaged. All 0 unparsed dates confirmed a clean parse.
+    </p>
+  </div>
+</section>
+
+<!-- ===== DATE FORMATS ===== -->
+<section class="sources-section">
+  <div class="page">
+    <div class="section-label reveal"><span class="section-label-num">03</span> The Date Problem</div>
+    <p class="method-text reveal">
+      The <code style="font-family:var(--mono);font-size:13px;color:var(--gold);background:var(--surface-2);padding:1px 5px;border-radius:3px">Date</code>
+      column in the trade table mixes three incompatible string formats across decades of records.
+      The agent stacked three <code style="font-family:var(--mono);font-size:13px;color:var(--gold);background:var(--surface-2);padding:1px 5px;border-radius:3px">try_strptime</code>
+      calls inside a <code style="font-family:var(--mono);font-size:13px;color:var(--gold);background:var(--surface-2);padding:1px 5px;border-radius:3px">COALESCE</code>
+      to catch them all — and verified zero rows fell through.
+    </p>
+    <div class="date-formats">
+      <div class="date-card reveal">
+        <div class="date-card-label">Format A</div>
+        <div class="date-card-value">1987-01-05 00:00:00</div>
+        <div class="date-card-fmt">%Y-%m-%d %H:%M:%S</div>
+      </div>
+      <div class="date-card reveal">
+        <div class="date-card-label">Format B</div>
+        <div class="date-card-value">31 Dec 1986, 00:00</div>
+        <div class="date-card-fmt">%d %b %Y, %H:%M</div>
+      </div>
+      <div class="date-card reveal">
+        <div class="date-card-label">Format C</div>
+        <div class="date-card-value">January 02, 1987 at 12:00 AM</div>
+        <div class="date-card-fmt">%B %d, %Y at %I:%M %p</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DATA SOURCES ===== -->
+<section class="sources-section">
+  <div class="page">
+    <div class="section-label reveal"><span class="section-label-num">04</span> Data Sources</div>
+    <div class="sources-grid">
+      <div class="source-card reveal">
+        <div class="source-engine">SQLite</div>
+        <div class="source-file">indexInfo_query.db</div>
+        <div class="source-table">index_info</div>
+        <div class="source-cols">Exchange (TEXT), Currency (TEXT)<br>14 rows — maps exchanges to regions</div>
+      </div>
+      <div class="source-card reveal">
+        <div class="source-engine">DuckDB</div>
+        <div class="source-file">indextrade_query.db</div>
+        <div class="source-table">index_trade</div>
+        <div class="source-cols">Index, Date, Open, High, Low,<br>Close, Adj Close, CloseUSD<br>13 indices · ~84k rows</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TRAJECTORY ===== -->
+<section class="timeline-section">
+  <div class="page">
+    <div class="section-label reveal"><span class="section-label-num">05</span> Execution Trail</div>
+    <p class="method-text reveal" style="margin-bottom:12px">
+      The sandbox blocked heredocs and choked on nested quotes. The agent spent five attempts
+      fighting the shell — then broke through by hand-rolling a base64 encoder in JavaScript
+      to smuggle the Python script past the parser.
+    </p>
+
+    <div class="timeline">
+
+      <div class="tl-step is-comment reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">22:16:52</div>
+        <div class="tl-title">Plan announced</div>
+        <div class="tl-body">
+          "I'll inspect both database schemas, identify the Asia-region indexes, and compute
+          average intraday volatility from 2020 onward."
+        </div>
+      </div>
+
+      <div class="tl-step is-error reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">22:16:59</div>
+        <div class="tl-title">Attempt 1 — Heredoc blocked</div>
+        <div class="tl-body">Tried <code>python &lt;&lt;'PY'</code> heredoc syntax to run a multi-line script.</div>
+        <div class="tl-output is-error-out"><div class="out-label">Shell output</div>zsh:1: can't create temp file for here document: operation not permitted</div>
+      </div>
+
+      <div class="tl-step is-comment reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">22:17:01</div>
+        <div class="tl-title">Pivot — switch to <code>python -c</code></div>
+        <div class="tl-body">"The environment blocks shell heredocs, so I'm switching to a direct Python invocation."</div>
+      </div>
+
+      <div class="tl-step is-success reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">22:17:07</div>
+        <div class="tl-title">Schemas discovered</div>
+        <div class="tl-body">Both databases read successfully. Found <code>index_info</code> (SQLite, 14 exchanges) and <code>index_trade</code> (DuckDB, 13 indices, 8 columns).</div>
+        <div class="tl-output is-success-out"><div class="out-label">Output</div>SQLite ['index_info']
+  (0,'Exchange','TEXT'), (1,'Currency','TEXT')
+DuckDB ['index_trade']
+  ('Index','VARCHAR'), ('Date','VARCHAR'), ('Open','DOUBLE'),
+  ('High','DOUBLE'), ('Low','DOUBLE'), ...</div>
+      </div>
+
+      <div class="tl-step is-success reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">22:17:16</div>
+        <div class="tl-title">Data profiled</div>
+        <div class="tl-body">Listed all 14 exchanges and 13 trade indices. Sampled dates and spotted the three mixed formats.</div>
+        <div class="tl-output is-success-out"><div class="out-label">Exchanges</div>3 Hong Kong (HKD), 4 Shanghai (CNY), 5 Tokyo (JPY),
+7 Shenzhen (CNY), 9 NSE India (INR), 13 Taiwan (TWD)
+
+<div class="out-label">Date samples</div>'1987-01-12 00:00:00'
+'27 Jan 1987, 00:00'
+'October 07, 1987 at 12:00 AM'</div>
+      </div>
+
+      <div class="tl-step is-comment reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">22:17:21</div>
+        <div class="tl-title">Volatility formula stated</div>
+        <div class="tl-body">
+          "I'm using the comparable daily percentage range, <code>(High − Low) / Open × 100</code>,
+          rather than raw index points, which would be distorted by index scale."
+        </div>
+      </div>
+
+      <div class="tl-step is-error reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">22:17:31</div>
+        <div class="tl-title">Attempt 2 — Shell parse error</div>
+        <div class="tl-body">Packed the entire SQL query into a single <code>python -c '...'</code> string. Deeply nested quotes broke zsh.</div>
+        <div class="tl-output is-error-out"><div class="out-label">Shell output</div>zsh:1: parse error near `)'</div>
+      </div>
+
+      <div class="tl-step is-error reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">23:26:51</div>
+        <div class="tl-title">Attempt 3 — TextEncoder undefined</div>
+        <div class="tl-body">Tried base64-encoding the script via <code>TextEncoder</code> + <code>btoa</code>. The exec runtime doesn't expose browser APIs.</div>
+        <div class="tl-output is-error-out"><div class="out-label">Runtime error</div>ReferenceError: TextEncoder is not defined
+    at exec_main.mjs:35:15</div>
+      </div>
+
+      <div class="tl-step is-error reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">23:27:01</div>
+        <div class="tl-title">Attempt 4 — btoa undefined</div>
+        <div class="tl-body">Dropped <code>TextEncoder</code>, called <code>btoa</code> directly. Also unavailable in the Node-like sandbox.</div>
+        <div class="tl-output is-error-out"><div class="out-label">Runtime error</div>ReferenceError: btoa is not defined
+    at exec_main.mjs:35:17</div>
+      </div>
+
+      <div class="tl-step is-error reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">23:27:13</div>
+        <div class="tl-title">Attempt 5 — Escaped newlines</div>
+        <div class="tl-body">Tried <code>JSON.stringify(script)</code> to pass the string, but the literal <code>\n</code> sequences reached Python as backslash-n, not newlines.</div>
+        <div class="tl-output is-error-out"><div class="out-label">Python error</div>  File "&lt;string&gt;", line 1
+    import duckdb\nc=duckdb.connect(...)
+                  ^
+SyntaxError: unexpected character after line continuation character</div>
+      </div>
+
+      <div class="tl-step is-success reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">23:27:26</div>
+        <div class="tl-title">Breakthrough — hand-rolled base64</div>
+        <div class="tl-body">
+          The agent wrote its own base64 encoder from scratch in JavaScript —
+          a 6-line loop over <code>charCodeAt</code> with the standard alphabet
+          <code>ABC…XYZabc…xyz012…89+/</code> — then decoded it inside Python with
+          <code>base64.b64decode</code>. The shell never saw a quote or a newline.
+        </div>
+      </div>
+
+      <div class="tl-step is-success reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">23:27:27</div>
+        <div class="tl-title">Query executed</div>
+        <div class="tl-body">The DuckDB query ran in 0.4 seconds. Six Asian indices ranked by average intraday volatility, 0 unparsed dates.</div>
+        <div class="tl-output is-success-out"><div class="out-label">Query result</div>name              | ticker    | days | avg vol (%)
+Shenzhen Component| 399001.SZ | 342  | 1.8341
+Nifty 50          | NSEI      | 349  | 1.7072
+Hang Seng Index   | HSI       | 348  | 1.4932
+Shanghai Composite | 000001.SS | 340  | 1.3781
+Nikkei 225        | N225      | 344  | 1.3427
+Taiwan Weighted   | TWII      | 339  | 1.3225
+unparsed dates 0</div>
+      </div>
+
+      <div class="tl-step is-final reveal">
+        <div class="tl-dot"></div>
+        <div class="tl-time">23:27:38</div>
+        <div class="tl-title">Final answer delivered</div>
+        <div class="tl-body">
+          "The <strong>Shenzhen Component Index (399001.SZ)</strong> had the highest average
+          intraday volatility since 2020 — <strong>1.8341% per trading day</strong> across 342 observations."
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="page">
+    <div class="footer-text">DataAgentBench · 03_stockindex_query1 · gpt-5.6-sol · 2026-07-11</div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  // ===== Scroll Reveal =====
+  var reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(function(el) { observer.observe(el); });
+  } else {
+    reveals.forEach(function(el) { el.classList.add('is-visible'); });
+  }
+
+  // ===== Animate Volatility Bars =====
+  function animateBars() {
+    var bars = document.querySelectorAll('.vol-bar');
+    bars.forEach(function(bar) {
+      var w = bar.getAttribute('data-w');
+      requestAnimationFrame(function() {
+        bar.style.width = w + '%';
+      });
+    });
+  }
+
+  // Trigger bar animation when chart enters viewport
+  var chart = document.getElementById('volChart');
+  if (chart) {
+    if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var chartObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            setTimeout(animateBars, 200);
+            chartObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.2 });
+      chartObserver.observe(chart);
+    } else {
+      animateBars();
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
