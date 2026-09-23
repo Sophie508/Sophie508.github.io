@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Travel Planning Case: St. Petersburg to Rockford</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --paper: #fffdf8;
+      --ink: #1f2933;
+      --muted: #667085;
+      --line: #d8d2c4;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --bad: #b42318;
+      --good: #027a48;
+      --soft: #e8f3f1;
+      --soft-warn: #fff3d6;
+      --shadow: 0 18px 42px rgba(31, 41, 51, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 28px; }
+    header {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 22px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+    .hero, .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: 8px;
+    }
+    .hero { padding: 30px; }
+    .eyebrow { color: var(--accent); font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    h1 { margin: 8px 0 12px; font-size: clamp(31px, 5vw, 58px); line-height: 1; letter-spacing: 0; }
+    .subtitle { max-width: 780px; color: var(--muted); font-size: 18px; margin: 0; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 18px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #fff1f0;
+      color: var(--bad);
+      border: 1px solid #f4b9b2;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .panel { padding: 18px; }
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .metric {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfaf6;
+      min-height: 84px;
+    }
+    .metric span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .metric strong { display: block; margin-top: 4px; font-size: 24px; }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: rgba(246, 244, 239, 0.94);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      margin: 0 -28px 24px;
+      padding: 10px 28px;
+    }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; max-width: 1180px; margin: 0 auto; }
+    .tab {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 13px;
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .tab[aria-selected="true"] { background: var(--accent); color: white; border-color: var(--accent); }
+    main { display: grid; gap: 20px; }
+    section { scroll-margin-top: 78px; }
+    .section-title { display: flex; justify-content: space-between; gap: 18px; align-items: end; margin-bottom: 10px; }
+    h2 { margin: 0; font-size: 25px; letter-spacing: 0; }
+    .note { color: var(--muted); font-size: 14px; margin: 0; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    pre {
+      white-space: pre-wrap;
+      margin: 0;
+      padding: 16px;
+      border-radius: 7px;
+      background: #1f2933;
+      color: #f9fafb;
+      overflow-wrap: anywhere;
+      font-size: 13px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 11px 10px; text-align: left; vertical-align: top; }
+    th { color: #344054; background: #f3efe5; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+    tr:last-child td { border-bottom: 0; }
+    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; background: var(--soft); color: var(--accent); font-weight: 800; font-size: 12px; }
+    .pill.bad { background: #fff1f0; color: var(--bad); }
+    .pill.warn { background: var(--soft-warn); color: var(--accent-2); }
+    .timeline { display: grid; gap: 12px; }
+    .turn {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .turn-label { font-weight: 850; color: var(--accent); }
+    .turn-label.user { color: var(--accent-2); }
+    .turn-label.assistant { color: var(--accent); }
+    .turn-label.tool { color: #475467; }
+    .compact-list { margin: 0; padding-left: 19px; }
+    .compact-list li { margin: 5px 0; }
+    .money-line { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .money-line:last-child { border-bottom: 0; }
+    .money-line strong { font-size: 18px; }
+    .total-box { background: #fff1f0; border-color: #f4b9b2; }
+    .ok-box { background: #ecfdf3; border-color: #abefc6; }
+    .callout { border-left: 5px solid var(--bad); background: #fff8f7; }
+    .source-meta { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .meta-item { border: 1px solid var(--line); border-radius: 7px; padding: 10px; background: #fbfaf6; overflow-wrap: anywhere; }
+    .meta-item span { display: block; color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .meta-item code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+    .hidden { display: none !important; }
+    footer { color: var(--muted); font-size: 13px; margin: 24px 0 6px; }
+    @media (max-width: 880px) {
+      .page { padding: 18px; }
+      header, .grid-2, .grid-3, .source-meta { grid-template-columns: 1fr; }
+      nav { margin-left: -18px; margin-right: -18px; padding-left: 18px; padding-right: 18px; }
+      .turn { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: 1fr; }
+      table { font-size: 13px; }
+      th, td { padding: 9px 7px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="hero">
+        <div class="eyebrow">TravelPlanner case presentation</div>
+        <h1>St. Petersburg to Rockford</h1>
+        <p class="subtitle">A 3-day solo trip request for March 16-18, 2022 with a maximum budget of $900. The trajectory shows the agent ran the required searches, discovered a binding transportation cost, and reported that the requested budget could not be met.</p>
+        <div class="status">Outcome: infeasible under $900</div>
+      </div>
+      <aside class="panel">
+        <div class="eyebrow">Case snapshot</div>
+        <div class="metric-grid">
+          <div class="metric"><span>Benchmark</span><strong>TravelPlanner</strong></div>
+          <div class="metric"><span>Model</span><strong>Claude Opus 4.8</strong></div>
+          <div class="metric"><span>Duration</span><strong>74.9s</strong></div>
+          <div class="metric"><span>Exit code</span><strong>0</strong></div>
+        </div>
+      </aside>
+    </header>
+
+    <nav aria-label="Case sections">
+      <div class="tabs" role="tablist">
+        <button class="tab" type="button" data-target="brief" aria-selected="true">Brief</button>
+        <button class="tab" type="button" data-target="searches" aria-selected="false">Searches</button>
+        <button class="tab" type="button" data-target="budget" aria-selected="false">Budget</button>
+        <button class="tab" type="button" data-target="itinerary" aria-selected="false">Itinerary</button>
+        <button class="tab" type="button" data-target="trajectory" aria-selected="false">Trajectory</button>
+        <button class="tab" type="button" data-target="metadata" aria-selected="false">Metadata</button>
+      </div>
+    </nav>
+
+    <main>
+      <section id="brief" data-section>
+        <div class="section-title">
+          <h2>Task Brief</h2>
+          <p class="note">From workspace/prompt.txt</p>
+        </div>
+        <div class="card">
+          <pre>Plan a 3-day trip from St. Petersburg to Rockford for 1 person (March 16-18, 2022). Budget: $900 maximum.
+
+Required search order:
+1. Search flights and calculate remaining budget after transportation.
+2. Search accommodations and adjust if the cheapest option exceeds the budget.
+3. Search restaurants and select options that fit the remaining budget.
+4. Search attractions.
+5. Write a day-by-day plan with running budget total.
+6. Verify the total and revise if over budget.</pre>
+        </div>
+      </section>
+
+      <section id="searches" data-section>
+        <div class="section-title">
+          <h2>Search Results</h2>
+          <p class="note">Four separate tool searches were run in the trajectory.</p>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Flights</h3>
+            <table>
+              <thead><tr><th>Leg</th><th>Flight</th><th>Time</th><th>Price</th></tr></thead>
+              <tbody>
+                <tr><td>St. Petersburg to Rockford</td><td>F3573659</td><td>Mar 16, 15:40-17:04</td><td>$474</td></tr>
+                <tr><td>Rockford to St. Petersburg</td><td>F3573120</td><td>Mar 18, 19:00-22:43</td><td>$346</td></tr>
+                <tr><td colspan="3"><strong>Transportation total</strong></td><td><strong>$820</strong></td></tr>
+              </tbody>
+            </table>
+            <p class="note">Self-driving and taxi returned no valid information.</p>
+          </div>
+          <div class="card">
+            <h3>Accommodation Floor</h3>
+            <table>
+              <thead><tr><th>Cheapest option</th><th>Type</th><th>Rules</th><th>Price</th></tr></thead>
+              <tbody>
+                <tr><td>The heart of Brooklyn</td><td>Entire home/apt</td><td>No children under 10, no visitors, no pets</td><td>$154</td></tr>
+              </tbody>
+            </table>
+            <p class="note">The next-lowest available lodging was $210, so $154 is the minimum lodging cost in the search data.</p>
+          </div>
+          <div class="card">
+            <h3>Lowest Restaurant Options Used</h3>
+            <table>
+              <thead><tr><th>Restaurant</th><th>Categories</th><th>Rating</th><th>Cost</th></tr></thead>
+              <tbody>
+                <tr><td>Flying Mango</td><td>American / BBQ / Seafood</td><td>4.5</td><td>$20</td></tr>
+                <tr><td>Grappa - Shangri-La's - Eros Hotel</td><td>Bakery / Desserts / Italian</td><td>3.4</td><td>$21</td></tr>
+                <tr><td>Dunkin' Donuts</td><td>Cafe / Bakery / BBQ / Seafood</td><td>0.0</td><td>$24</td></tr>
+                <tr><td>Subway</td><td>Bakery / Pizza / BBQ / Desserts</td><td>3.8</td><td>$26</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <h3>Attractions Returned</h3>
+            <ul class="compact-list">
+              <li>Burpee Museum of Natural History</li>
+              <li>Midway Village Museum</li>
+              <li>Discovery Center Museum</li>
+              <li>Tinker Swiss Cottage Museum and Gardens</li>
+              <li>Anderson Japanese Gardens</li>
+              <li>Nicholas Conservatory &amp; Gardens</li>
+              <li>Klehm Arboretum &amp; Botanic Garden</li>
+              <li>Sinnissippi Park and Sinnissippi Gardens</li>
+            </ul>
+            <p class="note">No attraction fees were included in the tool output.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="budget" data-section>
+        <div class="section-title">
+          <h2>Budget Constraint</h2>
+          <p class="note">The infeasibility follows directly from the cheapest fixed costs.</p>
+        </div>
+        <div class="grid-3">
+          <div class="card">
+            <div class="money-line"><span>Budget cap</span><strong>$900</strong></div>
+            <div class="money-line"><span>Round-trip flights</span><strong>$820</strong></div>
+            <div class="money-line"><span>Remaining after flights</span><strong>$80</strong></div>
+          </div>
+          <div class="card total-box">
+            <div class="money-line"><span>Cheapest lodging</span><strong>$154</strong></div>
+            <div class="money-line"><span>Flights + lodging</span><strong>$974</strong></div>
+            <div class="money-line"><span>Over budget before food</span><strong>$74</strong></div>
+          </div>
+          <div class="card callout">
+            <h3>Key finding</h3>
+            <p>The requested $900 plan is not attainable with the returned data. Flights alone use 91% of the cap, and the cheapest lodging exceeds the remaining $80.</p>
+            <span class="pill bad">No feasible combination found</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="itinerary" data-section>
+        <div class="section-title">
+          <h2>Closest Achievable Plan</h2>
+          <p class="note">The agent presented the cheapest realistic itinerary, then verified it was over budget.</p>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Day</th><th>Plan</th><th>Added cost</th><th>Running total</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Mar 16<br><span class="pill">Arrival 17:04</span></td>
+                <td>Flight to Rockford, check in at The heart of Brooklyn, dinner at Flying Mango.</td>
+                <td>Flight $474 + lodging $154 + dinner $20</td>
+                <td><strong>$648</strong></td>
+              </tr>
+              <tr>
+                <td>Mar 17</td>
+                <td>Anderson Japanese Gardens, Nicholas Conservatory, Burpee Museum of Natural History, Discovery Center Museum. Lunch at Grappa and dinner at Subway.</td>
+                <td>$21 + $26 = $47</td>
+                <td><strong>$695</strong></td>
+              </tr>
+              <tr>
+                <td>Mar 18<br><span class="pill">Departure 19:00</span></td>
+                <td>Dunkin' Donuts breakfast, Klehm Arboretum, Tinker Swiss Cottage, light lunch at Flying Mango, return flight.</td>
+                <td>Breakfast $24 + lunch $20 + flight $346</td>
+                <td><strong>$1,085</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid-3" style="margin-top:16px">
+          <div class="card total-box"><h3>Final total</h3><p><strong>$1,085</strong> versus the $900 cap, which is <strong>$185 over</strong>.</p></div>
+          <div class="card total-box"><h3>Ultra-low meal variant</h3><p>Flights + lodging + one $20 meal per day still totals <strong>$1,034</strong>, or $134 over.</p></div>
+          <div class="card total-box"><h3>Absolute floor</h3><p>Flights + cheapest lodging and zero food totals <strong>$974</strong>, or $74 over.</p></div>
+        </div>
+      </section>
+
+      <section id="trajectory" data-section>
+        <div class="section-title">
+          <h2>Trajectory Timeline</h2>
+          <p class="note">Parsed from the claude-jsonl trajectory.</p>
+        </div>
+        <div class="timeline">
+          <article class="turn"><div class="turn-label user">User</div><div>Requested a 3-day, 1-person St. Petersburg to Rockford trip for March 16-18, 2022, with a $900 maximum budget and four required separate searches.</div></article>
+          <article class="turn"><div class="turn-label assistant">Assistant</div><div>Started with flight search to establish transportation cost and remaining budget.</div></article>
+          <article class="turn"><div class="turn-label tool">Tool result</div><div>Returned one outbound flight at $474 and one return flight at $346; driving and taxi had no valid information.</div></article>
+          <article class="turn"><div class="turn-label assistant">Assistant</div><div>Calculated transportation total as $820, leaving only $80 for lodging, meals, and attractions.</div></article>
+          <article class="turn"><div class="turn-label tool">Tool result</div><div>Accommodation search returned 13 options; the cheapest was The heart of Brooklyn at $154.</div></article>
+          <article class="turn"><div class="turn-label assistant">Assistant</div><div>Identified that flights plus cheapest lodging already reached $974, exceeding the budget before food.</div></article>
+          <article class="turn"><div class="turn-label tool">Tool result</div><div>Restaurant search returned 27 options, with the lowest costs including Flying Mango $20, Grappa $21, Dunkin' Donuts $24, and Subway $26.</div></article>
+          <article class="turn"><div class="turn-label tool">Tool result</div><div>Attraction search returned a list of Rockford attractions including museums, gardens, parks, and arboretums.</div></article>
+          <article class="turn"><div class="turn-label assistant">Final answer</div><div>Reported infeasibility under $900, gave a closest-achievable $1,085 itinerary, verified the overage, and suggested raising the budget or changing trip constraints.</div></article>
+        </div>
+      </section>
+
+      <section id="metadata" data-section>
+        <div class="section-title">
+          <h2>Case Metadata</h2>
+          <p class="note">From case_meta.json</p>
+        </div>
+        <div class="source-meta">
+          <div class="meta-item"><span>ID</span><code>01_task0_stpetersburg_to_rockford</code></div>
+          <div class="meta-item"><span>Domain</span><code>travel_planning</code></div>
+          <div class="meta-item"><span>Source</span><code>regen</code></div>
+          <div class="meta-item"><span>Collected</span><code>2026-07-11</code></div>
+          <div class="meta-item"><span>Trajectory format</span><code>claude-jsonl</code></div>
+          <div class="meta-item"><span>Trajectory lines</span><code>17</code></div>
+          <div class="meta-item"><span>References</span><code>none</code></div>
+          <div class="meta-item"><span>SHA-256</span><code>46e2935bddabe0e673fd186971a2649bb1c8d9e36025b43c0c8a364892a112a4</code></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>Self-contained HTML generated from the assigned case directory only. No external assets, links, fonts, scripts, or stylesheets are used.</footer>
+  </div>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const sections = Array.from(document.querySelectorAll('[data-section]'));
+    function show(target) {
+      tabs.forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.target === target)));
+      sections.forEach(section => section.classList.toggle('hidden', section.id !== target));
+      const active = document.getElementById(target);
+      if (active) active.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    tabs.forEach(tab => tab.addEventListener('click', () => show(tab.dataset.target)));
+    show('brief');
+  </script>
+</body>
+</html>

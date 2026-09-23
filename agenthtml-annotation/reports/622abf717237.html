@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>asv#702 · Holding Pattern — a profiler fix that never landed</title>
+<style>
+  :root{
+    --void:#080d13;
+    --panel:#0f1926;
+    --panel-2:#152332;
+    --panel-3:#1b2c3d;
+    --line:#243544;
+    --line-bright:#31485c;
+    --ink:#d9e5f1;
+    --ink-dim:#8698a9;
+    --ink-faint:#566577;
+    --phosphor:#4fd6a8;
+    --phosphor-deep:#2b8f6f;
+    --amber:#f2ac3c;
+    --warn:#ff5b52;
+    --warn-glow:rgba(255,91,82,.16);
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 620px at 80% -10%, rgba(79,214,168,.06), transparent 60%),
+      radial-gradient(900px 500px at 5% 8%, rgba(242,172,60,.05), transparent 55%),
+      var(--void);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--phosphor);text-decoration:none}
+  ::selection{background:rgba(79,214,168,.28);color:#fff}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* ---------- instrument bezel ---------- */
+  .bezel{
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 24px 60px -30px #000;
+  }
+
+  /* ---------- eyebrow / labels ---------- */
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.34em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .tag{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    padding:4px 9px;
+    border:1px solid var(--line-bright);
+    border-radius:999px;
+    color:var(--ink-dim);
+    white-space:nowrap;
+  }
+
+  /* ---------- HERO ---------- */
+  header{padding:64px 0 40px}
+  .topline{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:16px;flex-wrap:wrap;margin-bottom:38px;
+  }
+  .callsign{display:flex;align-items:center;gap:12px}
+  .roundel{
+    width:34px;height:34px;border-radius:50%;
+    border:1px solid var(--phosphor-deep);
+    display:grid;place-items:center;flex:none;
+    background:radial-gradient(circle at 50% 42%, rgba(79,214,168,.18), transparent 70%);
+  }
+  .roundel span{
+    font-family:var(--mono);font-size:13px;color:var(--phosphor);font-weight:700;letter-spacing:.02em;
+  }
+  .callsign b{font-family:var(--mono);letter-spacing:.2em;font-size:12px;text-transform:uppercase;color:var(--ink-dim);font-weight:600}
+
+  .verdict-chip{
+    display:inline-flex;align-items:center;gap:9px;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--warn);border:1px solid rgba(255,91,82,.45);
+    background:var(--warn-glow);padding:6px 13px;border-radius:999px;
+  }
+  .verdict-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 10px var(--warn)}
+
+  h1{
+    font-family:var(--sans);
+    font-weight:800;
+    font-size:clamp(2.5rem,6.4vw,4.9rem);
+    line-height:.98;
+    letter-spacing:-.03em;
+    margin:0 0 4px;
+    color:#f2f7fc;
+  }
+  h1 .thin{font-weight:300;color:var(--ink-dim)}
+  h1 em{font-style:normal;color:var(--amber)}
+  .subhead{
+    max-width:60ch;margin:22px 0 0;
+    font-size:clamp(1.02rem,1.5vw,1.2rem);
+    color:var(--ink-dim);
+  }
+  .subhead b{color:var(--ink);font-weight:600}
+
+  /* ---------- instrument gauge row ---------- */
+  .gauges{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    margin-top:46px;background:var(--line);border:1px solid var(--line);
+    border-radius:12px;overflow:hidden;
+  }
+  .gauge{background:var(--panel);padding:20px 20px 18px}
+  .gauge .lab{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint)}
+  .gauge .val{
+    font-family:var(--mono);font-weight:700;
+    font-size:clamp(1.7rem,3.4vw,2.5rem);
+    line-height:1.05;margin-top:8px;letter-spacing:-.01em;
+  }
+  .gauge .val.g{color:var(--phosphor)}
+  .gauge .val.a{color:var(--amber)}
+  .gauge .val.r{color:var(--warn)}
+  .gauge .sub{font-size:12px;color:var(--ink-faint);margin-top:3px}
+
+  /* ---------- section frame ---------- */
+  section{padding:52px 0}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+  .sec-head h2{
+    font-size:clamp(1.5rem,3vw,2.1rem);font-weight:700;letter-spacing:-.02em;margin:0;color:#eef4fa;
+  }
+  .sec-idx{font-family:var(--mono);font-size:12px;color:var(--phosphor);letter-spacing:.2em}
+  .rule{height:1px;background:var(--line);flex:1;min-width:40px;opacity:.7}
+
+  /* ---------- issue block ---------- */
+  .issue{padding:30px 32px}
+  .issue .q{
+    font-size:1.32rem;font-weight:600;color:var(--ink);margin:0 0 20px;line-height:1.4;
+  }
+  .issue .q .cmd{color:var(--amber);font-family:var(--mono);font-weight:600;font-size:1.05rem}
+  .term{
+    font-family:var(--mono);font-size:13px;background:var(--void);
+    border:1px solid var(--line);border-radius:9px;padding:16px 18px;margin:14px 0 0;
+    overflow-x:auto;
+  }
+  .term .p{color:var(--phosphor-deep)}
+  .term .u{color:var(--ink)}
+  .term .e{color:var(--warn);display:block}
+  .term .e::before{content:"· ";color:var(--warn)}
+  .issue .note{font-size:13.5px;color:var(--ink-faint);margin:20px 0 0}
+
+  /* ---------- holding pattern signature ---------- */
+  .holding{padding:14px 0 0}
+  .hold-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;align-items:center}
+  .hp-figure{position:relative}
+  .hp-figure svg{width:100%;height:auto;display:block;overflow:visible}
+  .track{fill:none;stroke:var(--line-bright);stroke-width:2}
+  .track-live{
+    fill:none;stroke:var(--warn);stroke-width:2.4;
+    stroke-dasharray:8 10;opacity:.85;
+    animation:march 2.6s linear infinite;
+  }
+  @keyframes march{to{stroke-dashoffset:-360}}
+  .craft{fill:var(--phosphor);filter:drop-shadow(0 0 6px rgba(79,214,168,.7))}
+  .wp-node{fill:var(--panel);stroke:var(--line-bright);stroke-width:1.5}
+  .wp-node.err{stroke:var(--warn)}
+  .wp-lab{font-family:var(--mono);font-size:11px;fill:var(--ink-dim);letter-spacing:.1em;text-transform:uppercase}
+  .wp-lab.err{fill:var(--warn)}
+  .hp-center{font-family:var(--mono);fill:var(--ink-faint);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase}
+  .hp-center-n{font-family:var(--mono);fill:var(--warn);font-size:38px;font-weight:700}
+
+  .hp-copy p{margin:0 0 16px;color:var(--ink-dim);font-size:1.02rem}
+  .hp-copy p b{color:var(--ink);font-weight:600}
+  .hp-copy .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--amber);margin-bottom:14px}
+
+  /* ---------- flight log timeline ---------- */
+  .log{position:relative;padding-left:8px}
+  .phase{
+    display:grid;grid-template-columns:56px 1fr;gap:20px;
+    padding:20px 0;border-top:1px solid var(--line);
+  }
+  .phase:first-child{border-top:0}
+  .phase .stamp{font-family:var(--mono);font-size:12px;color:var(--ink-faint);padding-top:2px}
+  .phase .stamp b{display:block;color:var(--phosphor);font-size:15px}
+  .phase.warn .stamp b{color:var(--warn)}
+  .phase.caution .stamp b{color:var(--amber)}
+  .phase h3{margin:0 0 6px;font-size:1.08rem;font-weight:650;color:var(--ink)}
+  .phase p{margin:0;color:var(--ink-dim);font-size:.98rem}
+  .phase p code{font-family:var(--mono);font-size:.86em;color:var(--amber);background:rgba(242,172,60,.09);padding:1px 6px;border-radius:5px}
+  .loopstack{display:flex;gap:5px;margin-top:12px;flex-wrap:wrap}
+  .loopstack .lap{
+    font-family:var(--mono);font-size:10.5px;color:var(--warn);
+    border:1px solid rgba(255,91,82,.4);background:var(--warn-glow);
+    border-radius:5px;padding:3px 8px;letter-spacing:.06em;
+  }
+
+  /* ---------- code anatomy ---------- */
+  .code-wrap{padding:26px 0 4px 0}
+  .codebar{
+    display:flex;align-items:center;gap:10px;padding:12px 18px;
+    border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--ink-dim);
+  }
+  .codebar .fn{color:var(--phosphor)}
+  .codebar .dots{display:flex;gap:6px;margin-right:6px}
+  .codebar .dots i{width:10px;height:10px;border-radius:50%;display:block;opacity:.6}
+  pre.code{
+    margin:0;padding:20px 4px 22px;overflow-x:auto;
+    font-family:var(--mono);font-size:12.7px;line-height:1.72;background:var(--void);
+    border-radius:0 0 13px 13px;
+  }
+  .ln{display:block;padding:1px 20px 1px 62px;position:relative;white-space:pre}
+  .ln::before{
+    content:attr(data-n);position:absolute;left:0;width:46px;text-align:right;
+    color:#3a4b5c;font-size:11px;user-select:none;
+  }
+  .ln.hot{background:var(--warn-glow);box-shadow:inset 3px 0 0 var(--warn)}
+  .ln.root{background:rgba(242,172,60,.1);box-shadow:inset 3px 0 0 var(--amber)}
+  .kw{color:#7fb2e8}
+  .fnname{color:var(--phosphor)}
+  .str{color:#e6b565}
+  .com{color:#4d6273;font-style:italic}
+  .num{color:#c98be0}
+  .anno{color:var(--ink-faint)}
+
+  .annot{
+    display:flex;gap:14px;padding:16px 18px;border:1px solid var(--line);
+    border-radius:10px;margin-top:14px;background:var(--panel-2);
+  }
+  .annot .band{width:4px;border-radius:3px;flex:none}
+  .annot.root .band{background:var(--amber)}
+  .annot.hot .band{background:var(--warn)}
+  .annot h4{margin:0 0 5px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+  .annot.root h4{color:var(--amber)}
+  .annot.hot h4{color:var(--warn)}
+  .annot p{margin:0;font-size:.95rem;color:var(--ink-dim)}
+  .annot p code{font-family:var(--mono);color:var(--ink);font-size:.86em}
+
+  /* ---------- diff ---------- */
+  .diff{font-family:var(--mono);font-size:12.5px;line-height:1.68;background:var(--void);border-radius:13px;overflow:hidden;border:1px solid var(--line)}
+  .diff .dl{display:block;padding:1px 18px;white-space:pre;overflow-x:auto}
+  .diff .add{background:rgba(79,214,168,.09);color:#a7e9cf}
+  .diff .del{background:rgba(255,91,82,.09);color:#f2b0ab}
+  .diff .ctx{color:var(--ink-faint)}
+  .diff .hdr{color:var(--ink-dim);background:var(--panel-2);border-bottom:1px solid var(--line)}
+  .diff .mark{color:inherit;opacity:.6}
+
+  /* ---------- verdict ---------- */
+  .verdict{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .vcard{padding:24px 26px}
+  .vcard h3{margin:0 0 12px;font-size:1.05rem;display:flex;align-items:center;gap:10px}
+  .vcard h3 .ic{font-family:var(--mono);font-size:12px;padding:3px 8px;border-radius:6px}
+  .vcard.miss h3 .ic{color:var(--warn);border:1px solid rgba(255,91,82,.45);background:var(--warn-glow)}
+  .vcard.fix h3 .ic{color:var(--phosphor);border:1px solid var(--phosphor-deep);background:rgba(79,214,168,.08)}
+  .vcard p{margin:0 0 12px;color:var(--ink-dim);font-size:.97rem}
+  .vcard ul{margin:0;padding-left:18px;color:var(--ink-dim);font-size:.95rem}
+  .vcard li{margin-bottom:8px}
+  .vcard code{font-family:var(--mono);font-size:.85em;color:var(--amber)}
+
+  /* ---------- footer ---------- */
+  footer{padding:56px 0 72px;border-top:1px solid var(--line);margin-top:20px}
+  .foot-grid{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
+  .foot-grid b{color:var(--ink-dim);font-weight:600}
+  .foot-note{max-width:60ch;font-family:var(--sans);font-size:13px;color:var(--ink-faint);margin-top:26px;line-height:1.7}
+
+  @media (max-width:840px){
+    .gauges{grid-template-columns:repeat(2,1fr)}
+    .hold-grid{grid-template-columns:1fr;gap:26px}
+    .verdict{grid-template-columns:1fr}
+  }
+  @media (max-width:520px){
+    .gauges{grid-template-columns:1fr 1fr}
+    .phase{grid-template-columns:44px 1fr;gap:14px}
+    header{padding:44px 0 28px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .track-live{animation:none}
+    *{scroll-behavior:auto}
+  }
+  :focus-visible{outline:2px solid var(--phosphor);outline-offset:3px;border-radius:4px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============ HERO ============ -->
+  <header>
+    <div class="topline">
+      <div class="callsign">
+        <div class="roundel"><span>asv</span></div>
+        <b>airspeed&#8202;velocity&nbsp;/&nbsp;#702</b>
+      </div>
+      <div class="verdict-chip"><span class="dot"></span>Unresolved · context exhausted</div>
+    </div>
+
+    <div class="eyebrow">Code-repair trajectory &nbsp;·&nbsp; SWE-bench &nbsp;·&nbsp; swe-agent-llama-70b</div>
+    <h1>The fix that<br><span class="thin">flew a</span> <em>holding pattern</em>.</h1>
+    <p class="subhead">
+      An agent set out to repair <b>`asv profile`</b> in an existing environment. It found the failing
+      line on its first pass — then spent the rest of its flight editing the same six lines
+      <b>eight times</b>, re-running the same command, and reading the same error back, until it ran out of context.
+    </p>
+
+    <div class="gauges">
+      <div class="gauge">
+        <div class="lab">Fix attempts</div>
+        <div class="val a">08</div>
+        <div class="sub">all on line 156</div>
+      </div>
+      <div class="gauge">
+        <div class="lab">Re-runs flown</div>
+        <div class="val r">08</div>
+        <div class="sub">identical failures</div>
+      </div>
+      <div class="gauge">
+        <div class="lab">Root cause found</div>
+        <div class="val g">NO</div>
+        <div class="sub">wrong line diagnosed</div>
+      </div>
+      <div class="gauge">
+        <div class="lab">Exit status</div>
+        <div class="val a">EXIT</div>
+        <div class="sub">context window full</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ THE ISSUE ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-idx">01</span>
+      <h2>The malfunction</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="bezel issue">
+      <p class="q">
+        Profiling a benchmark against an <em>already-installed</em> environment refuses to launch —
+        even though the user never named a revision.
+      </p>
+      <div class="term">
+        <span class="p">$</span> <span class="u">asv profile -E existing comm.Transfer.time_tcp_large_transfers_uncompressible</span>
+        <span class="e">An explicit revision may not be specified when using an existing environment.</span>
+      </div>
+      <div class="term">
+        <span class="p">$</span> <span class="u">asv profile --python=same comm.Transfer.time_tcp_large_transfers_uncompressible</span>
+        <span class="e">An explicit revision may not be specified when using an existing environment.</span>
+      </div>
+      <p class="note">Reported against asv 0.2.1. The user passed no revision — yet the tool insists one was given.</p>
+    </div>
+  </section>
+
+  <!-- ============ SIGNATURE: HOLDING PATTERN ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-idx">02</span>
+      <h2>The holding pattern</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="bezel holding" style="padding:34px 32px">
+      <div class="hold-grid">
+        <div class="hp-figure">
+          <svg viewBox="0 0 460 300" role="img" aria-label="Diagram of the agent circling between edit, run and error eight times without landing">
+            <!-- racetrack / holding pattern -->
+            <path class="track" d="M140,60 H320 A90,90 0 0 1 320,240 H140 A90,90 0 0 1 140,60 Z"/>
+            <path class="track-live" d="M140,60 H320 A90,90 0 0 1 320,240 H140 A90,90 0 0 1 140,60 Z"/>
+
+            <!-- waypoints -->
+            <circle class="wp-node" cx="140" cy="60" r="7"/>
+            <text class="wp-lab" x="128" y="46" text-anchor="end">edit 156</text>
+
+            <circle class="wp-node" cx="320" cy="60" r="7"/>
+            <text class="wp-lab" x="332" y="46">re-run</text>
+
+            <circle class="wp-node err" cx="320" cy="240" r="7"/>
+            <text class="wp-lab err" x="332" y="262">same error</text>
+
+            <circle class="wp-node" cx="140" cy="240" r="7"/>
+            <text class="wp-lab" x="128" y="262" text-anchor="end">re-read</text>
+
+            <!-- craft on the loop -->
+            <g class="craft">
+              <path d="M230,52 l7,14 -7,-4 -7,4 z"/>
+              <animateMotion dur="4.2s" repeatCount="indefinite" rotate="auto"
+                path="M140,60 H320 A90,90 0 0 1 320,240 H140 A90,90 0 0 1 140,60 Z"/>
+            </g>
+
+            <!-- center counter -->
+            <text class="hp-center" x="230" y="140" text-anchor="middle">laps flown</text>
+            <text class="hp-center-n" x="230" y="182" text-anchor="middle">8</text>
+          </svg>
+        </div>
+        <div class="hp-copy">
+          <div class="kicker">Waypoints of a stuck agent</div>
+          <p>The agent circled a fixed four-step loop: <b>edit line 156</b>, <b>re-run the command</b>,
+          read the <b>identical error</b>, then <b>re-open the file</b> and edit again.</p>
+          <p>Each lap widened the edit range — <code style="font-family:var(--mono);color:var(--amber);font-size:.9em">156:161</code> →
+          <code style="font-family:var(--mono);color:var(--amber);font-size:.9em">156:200</code> — but never left the same region of code,
+          and never questioned whether that region was the real fault.</p>
+          <p><b>Never landed:</b> the runway it needed was 30 lines up.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FLIGHT LOG ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-idx">03</span>
+      <h2>Flight log</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="bezel" style="padding:8px 30px">
+      <div class="log">
+        <div class="phase">
+          <div class="stamp"><b>T+0</b>reproduce</div>
+          <div>
+            <h3>Confirms the malfunction</h3>
+            <p>Re-runs the reported command. The error prints exactly as filed — a clean reproduction. Good start.</p>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="stamp"><b>T+1</b>locate</div>
+          <div>
+            <h3>Navigates to the fault</h3>
+            <p>Lists the tree, finds <code>asv/main.py</code>, searches <code>commands/</code> for “profile”, opens
+            <code>profiling.py</code>, scrolls to the <code>run()</code> method and lands on the raising block at lines 156–161. Correct file, correct symptom.</p>
+          </div>
+        </div>
+        <div class="phase caution">
+          <div class="stamp"><b>T+2</b>first fix</div>
+          <div>
+            <h3>Guesses at the environment flag</h3>
+            <p>Adds <code>and env_spec != "existing"</code> to the guard — treating <code>env_spec</code> as if it were the string
+            <code>"existing"</code>. Re-runs. <b>Same error.</b></p>
+          </div>
+        </div>
+        <div class="phase warn">
+          <div class="stamp"><b>T+3</b>loop</div>
+          <div>
+            <h3>Circles the same six lines</h3>
+            <p>Rather than re-diagnosing, it rewrites the guard again and again — appending an <code>elif</code>, then
+            <code>environments = [env]</code>, then deleting <code>install_project</code> — re-running after each. Every lap returns the identical line.</p>
+            <div class="loopstack">
+              <span class="lap">lap 1 · 156:161</span>
+              <span class="lap">lap 2 · 156:161</span>
+              <span class="lap">lap 3 · 156:164</span>
+              <span class="lap">lap 4 · 156:190</span>
+              <span class="lap">lap 5 · 156:192</span>
+              <span class="lap">lap 6 · 156:200</span>
+              <span class="lap">lap 7 · 156:199</span>
+              <span class="lap">lap 8 · 156:199</span>
+            </div>
+          </div>
+        </div>
+        <div class="phase warn">
+          <div class="stamp"><b>T+n</b>timeout</div>
+          <div>
+            <h3>Runs out of runway</h3>
+            <p>The session ends on <code>submitted (exit_context)</code> — the context window filled mid-loop. The submitted patch still raises the original error.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CODE ANATOMY ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-idx">04</span>
+      <h2>Where the fault really lived</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="bezel code-wrap">
+      <div class="codebar">
+        <span class="dots"><i style="background:var(--warn)"></i><i style="background:var(--amber)"></i><i style="background:var(--phosphor)"></i></span>
+        <span>asv/commands/profiling.py</span> · <span class="fn">Profile.run()</span>
+      </div>
+      <pre class="code"><span class="ln" data-n="124">        machine_name = Machine.get_unique_machine_name()</span><span class="ln root" data-n="125">        <span class="kw">if</span> revision <span class="kw">is</span> <span class="kw">None</span>:</span><span class="ln root" data-n="126">            revision = conf.branches[<span class="num">0</span>]   <span class="com"># &larr; user gave none, but now it is set</span></span><span class="ln" data-n="127">        commit_hash = repo.get_hash_from_name(revision)</span><span class="ln" data-n="128"></span><span class="ln" data-n="129">        profile_data = <span class="kw">None</span></span><span class="ln anno" data-n="…">        <span class="com"># ... look up cached profile ...</span></span><span class="ln" data-n="151">        <span class="kw">if</span> profile_data <span class="kw">is</span> <span class="kw">None</span>:</span><span class="ln" data-n="155"></span><span class="ln hot" data-n="156">            <span class="kw">if</span> revision <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:            <span class="com"># &larr; always true after line 126</span></span><span class="ln hot" data-n="157">                <span class="kw">for</span> env <span class="kw">in</span> environments:</span><span class="ln hot" data-n="158">                    <span class="kw">if</span> <span class="kw">not</span> env.can_install_project():</span><span class="ln hot" data-n="159">                        <span class="kw">raise</span> util.UserError(</span><span class="ln hot" data-n="160">                            <span class="str">"An explicit revision may not be specified when "</span></span><span class="ln hot" data-n="161">                            <span class="str">"using an existing environment."</span>)</span></pre>
+
+      <div class="annot root">
+        <div class="band"></div>
+        <div>
+          <h4>Root cause · line 125–126</h4>
+          <p>When no revision is passed, the code quietly defaults <code>revision</code> to the current branch. From that point on it is never <code>None</code> — so the “explicit revision” it complains about is one the code itself invented.</p>
+        </div>
+      </div>
+      <div class="annot hot">
+        <div class="band"></div>
+        <div>
+          <h4>The symptom the agent fixated on · line 156</h4>
+          <p>The guard reads <code>if revision is not None</code>, then bails on any environment that can’t install a project — exactly the existing / <code>--python=same</code> case. The agent rewrote this eight times; the truth is it should have keyed off <em>whether the user actually supplied</em> a revision, decided 30 lines earlier.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE SUBMITTED PATCH ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-idx">05</span>
+      <h2>What it submitted</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="diff" role="img" aria-label="The generated patch, which special-cases the string existing and deletes install_project">
+      <span class="dl hdr">--- a/asv/commands/profiling.py</span>
+      <span class="dl hdr">+++ b/asv/commands/profiling.py</span>
+      <span class="dl ctx"> <span class="mark"> </span>            <span class="ctx">log.error("No environments selected")</span></span>
+      <span class="dl ctx"> <span class="mark"> </span>            return</span>
+      <span class="dl del"><span class="mark">-</span>            if revision is not None:</span>
+      <span class="dl add"><span class="mark">+</span>            if revision is not None and env_spec!= "existing":</span>
+      <span class="dl ctx"> <span class="mark"> </span>                for env in environments:</span>
+      <span class="dl ctx"> <span class="mark"> </span>                    if not env.can_install_project():</span>
+      <span class="dl ctx"> <span class="mark"> </span>                        raise util.UserError(</span>
+      <span class="dl ctx"> <span class="mark"> </span>                            "An explicit revision may not be specified ...")</span>
+      <span class="dl add"><span class="mark">+</span>            elif env_spec == "existing":</span>
+      <span class="dl add"><span class="mark">+</span>                env = environments[0]</span>
+      <span class="dl add"><span class="mark">+</span>                environments = [env]</span>
+      <span class="dl ctx"> <span class="mark"> </span>            env = environments[0]</span>
+      <span class="dl ctx"> <span class="mark"> </span>            ...</span>
+      <span class="dl ctx"> <span class="mark"> </span>            with log.indent():</span>
+      <span class="dl del"><span class="mark">-</span>                env.install_project(conf, repo, commit_hash)</span>
+      <span class="dl ctx"> <span class="mark"> </span>                results = run_benchmarks(</span>
+      <span class="dl ctx"> <span class="mark"> </span>                    benchmarks, env, show_stderr=True, quick=False, profile=True)</span>
+    </div>
+    <p style="color:var(--ink-faint);font-size:13.5px;margin-top:16px;max-width:66ch">
+      The patch compares <code style="font-family:var(--mono);color:var(--amber)">env_spec</code> — a list of environment
+      selectors — against the bare string <code style="font-family:var(--mono);color:var(--amber)">"existing"</code>, which never
+      matches. It leaves <code style="font-family:var(--mono);color:var(--amber)">--python=same</code> untouched, and quietly deletes
+      <code style="font-family:var(--mono);color:var(--amber)">env.install_project</code>, which would break ordinary profiling. It does not compile the bug away.
+    </p>
+  </section>
+
+  <!-- ============ VERDICT ============ -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-idx">06</span>
+      <h2>Debrief</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="verdict">
+      <div class="bezel vcard miss">
+        <h3><span class="ic">Missed</span> Why it never landed</h3>
+        <p>The agent treated the error message as the bug and hunted for a flag to suppress it — never tracing <em>why</em> <code>revision</code> was non-<code>None</code> when the user passed nothing.</p>
+        <ul>
+          <li>Read the guard, not the assignment that fed it 30 lines above.</li>
+          <li>Assumed <code>env_spec</code> was a string; it is a list of selectors.</li>
+          <li>Ignored <code>--python=same</code> entirely — the second failing case.</li>
+          <li>Re-ran an unchanged strategy 8 times instead of re-diagnosing after the first failure.</li>
+        </ul>
+      </div>
+      <div class="bezel vcard fix">
+        <h3><span class="ic">Runway</span> The landing it needed</h3>
+        <p>Distinguish a revision the <em>user</em> chose from one the code <em>defaulted</em>. Capture that intent before line 126 overwrites it:</p>
+        <ul>
+          <li>Remember whether <code>revision</code> was supplied before defaulting to the branch.</li>
+          <li>Raise the “explicit revision” error only when the user really named one <em>and</em> the environment can’t install.</li>
+          <li>Let existing / same-Python environments profile in place — keeping <code>install_project</code> for every other path.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="foot-grid">
+      <div><b>CASE</b><br>05_airspeed-velocity__asv-702</div>
+      <div><b>DOMAIN</b><br>code_repair · SWE-bench</div>
+      <div><b>MODEL</b><br>swe-agent-llama-70b</div>
+      <div><b>FORMAT</b><br>swe-agent-traj · 70 exchanges</div>
+      <div><b>OUTCOME</b><br>submitted (exit_context)</div>
+    </div>
+    <p class="foot-note">
+      A presentation of one agent trajectory. Timeline, diff and code are transcribed from the recorded session;
+      the airspeed-velocity project name inspires the instrument styling. No files were executed to build this page.
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>

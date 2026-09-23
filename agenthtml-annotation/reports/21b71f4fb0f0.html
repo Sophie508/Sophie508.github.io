@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case 03_test_domain_test_domain_2_85 — Save a coffee mocha recipe.</title>
+<style>
+:root {
+  --bg: #0f1419;
+  --panel: #1a2332;
+  --panel2: #243044;
+  --border: #2f3f56;
+  --text: #e7eef8;
+  --muted: #9aabbf;
+  --accent: #5eb1ff;
+  --accent2: #7ee0a8;
+  --warn: #ffcc66;
+  --danger: #ff8f8f;
+  --chip: #2a3a52;
+  --target: #3d2a12;
+  --target-border: #e0a04a;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  background: linear-gradient(180deg, #0c1016 0%, #121a24 100%);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+header.hero {
+  background: radial-gradient(1200px 300px at 10% -20%, #1d3b5c 0%, transparent 60%),
+              radial-gradient(900px 260px at 90% 0%, #1a3d32 0%, transparent 55%),
+              var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 28px 22px;
+  margin-bottom: 22px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+}
+.kicker {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--chip);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: .02em;
+}
+.chip strong { color: var(--text); font-weight: 600; }
+.chip.good { border-color: #2f6b4f; color: var(--accent2); }
+.chip.blue { border-color: #2f5f8a; color: var(--accent); }
+h1 {
+  margin: 0 0 10px;
+  font-size: 1.7rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+.task-box {
+  margin-top: 14px;
+  background: rgba(94,177,255,.08);
+  border: 1px solid rgba(94,177,255,.25);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.task-box .label { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+.task-box .task { font-size: 1.15rem; margin-top: 4px; font-weight: 600; }
+.grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 16px; margin-bottom: 22px; }
+@media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  font-weight: 700;
+}
+.kv { display: grid; grid-template-columns: 140px 1fr; gap: 6px 10px; font-size: 14px; }
+.kv .k { color: var(--muted); }
+.kv .v { color: var(--text); word-break: break-word; }
+.kv code, code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  background: #0d1520;
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+p.note, .note { color: var(--muted); font-size: 14px; }
+.toc { display: flex; flex-direction: column; gap: 8px; }
+.toc a {
+  color: var(--text);
+  text-decoration: none;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex; gap: 10px; align-items: flex-start;
+  transition: border-color .15s, background .15s;
+}
+.toc a:hover { border-color: var(--accent); background: #283953; }
+.toc .n {
+  flex: 0 0 auto;
+  width: 28px; height: 28px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #132033; border: 1px solid var(--border);
+  color: var(--accent); font-weight: 700; font-size: 13px;
+}
+.toc .t { font-size: 14px; }
+.toc .op { display:block; color: var(--muted); font-size: 12px; margin-top: 2px; font-family: var(--mono); }
+.flow {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin: 8px 0 0;
+}
+.flow .step-pill {
+  background: #132033;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--text);
+}
+.flow .arrow { color: var(--muted); font-size: 14px; }
+.section-title {
+  margin: 28px 0 12px;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.step {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.step-head {
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(90deg, #1b283a, #1a2332);
+  border-bottom: 1px solid var(--border);
+}
+.step-num {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: #0f1a28; border: 1px solid var(--border);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--accent); font-weight: 800;
+}
+.step-head h3 { margin: 0; font-size: 1.05rem; font-weight: 650; }
+.op-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #3b6d4a;
+  background: rgba(126,224,168,.1);
+  color: var(--accent2);
+}
+.op-badge.hover {
+  border-color: #7a6230;
+  background: rgba(255,204,102,.1);
+  color: var(--warn);
+}
+.step-body { padding: 16px 18px 18px; }
+.meta-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.meta-item {
+  background: #121c2a;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.meta-item .lbl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.meta-item .val { margin-top: 3px; font-size: 13.5px; word-break: break-word; }
+.target {
+  border: 1px solid var(--target-border);
+  background: linear-gradient(180deg, #2a2114, #1c1810);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.target h4 { margin: 0 0 8px; color: var(--warn); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+.attrs { display: grid; grid-template-columns: 160px 1fr; gap: 4px 8px; font-size: 13px; }
+.attrs .k { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+.attrs .v { font-family: var(--mono); font-size: 12px; }
+.warn-box {
+  border: 1px solid #7a6230;
+  background: rgba(255,204,102,.08);
+  color: #f0d59a;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  margin-bottom: 12px;
+}
+.snippet {
+  background: #0b121c;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  overflow: auto;
+  max-height: 220px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #c7d6ea;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.snippet mark {
+  background: rgba(224,160,74,.28);
+  color: #ffe1ad;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag {
+  font-size: 12px;
+  background: #132033;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+.tag em { color: var(--text); font-style: normal; }
+details {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #121c2a;
+}
+details summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  color: var(--accent);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+details[open] summary { border-bottom: 1px solid var(--border); }
+details .inner { padding: 10px 12px 12px; color: var(--muted); font-size: 13.5px; }
+.list { margin: 8px 0 0; padding-left: 18px; }
+.list li { margin: 3px 0; }
+footer {
+  margin-top: 28px;
+  color: var(--muted);
+  font-size: 12.5px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.nav-page {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;
+}
+.page-pill {
+  background: #132033; border: 1px solid var(--border);
+  border-radius: 8px; padding: 4px 10px; font-size: 12.5px; color: var(--text);
+}
+.page-pill span { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="kicker">
+    <span class="chip blue"><strong>Mind2Web</strong></span>
+    <span class="chip">domain <strong>web_navigation</strong></span>
+    <span class="chip">website <strong>allrecipes</strong></span>
+    <span class="chip">subdomain <strong>Cooking</strong></span>
+    <span class="chip good">model <strong>human-annotator</strong></span>
+    <span class="chip">format <strong>mind2web-json</strong></span>
+  </div>
+  <h1>Web navigation case: save a coffee mocha recipe</h1>
+  <p class="note" style="margin:0;">Human demonstration trajectory on Allrecipes (no agent model). Case ID <code>03_test_domain_test_domain_2_85</code>.</p>
+  <div class="task-box">
+    <div class="label">Task</div>
+    <div class="task">Save a coffee mocha recipe.</div>
+  </div>
+  <div class="flow" aria-label="Action flow">
+<span class="step-pill">1. Meals (hover)</span><span class="arrow">→</span><span class="step-pill">2. Drinks</span><span class="arrow">→</span><span class="step-pill">3. Coffee Drinks</span><span class="arrow">→</span><span class="step-pill">4. Mochas</span><span class="arrow">→</span><span class="step-pill">5. Save Recipe</span>
+  </div>
+</header>
+
+<div class="grid">
+  <section class="card">
+    <h2>Case metadata</h2>
+    <div class="kv">
+      <div class="k">Case ID</div><div class="v"><code>03_test_domain_test_domain_2_85</code></div>
+      <div class="k">Benchmark</div><div class="v">Mind2Web</div>
+      <div class="k">Website</div><div class="v">allrecipes (Info / Cooking)</div>
+      <div class="k">Annotation ID</div><div class="v"><code>547ed17c-da34-4a20-93cd-24a3603f4ccf</code></div>
+      <div class="k">Source model</div><div class="v">human-annotator</div>
+      <div class="k">Trajectory</div><div class="v"><code>trajectory.json</code> (mind2web-json)</div>
+      <div class="k">SHA-256</div><div class="v"><code style="font-size:11px">af0436e6db5344f724a7c3d9a8a6f1b495e8fefd941213b5beaf89e180a87c7b</code></div>
+      <div class="k">Actions</div><div class="v">5 steps · human demonstration</div>
+      <div class="k">References</div><div class="v">none</div>
+      <div class="k">Note</div><div class="v">human demonstration trajectory; no agent model</div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Trajectory outline</h2>
+    <div class="toc">
+<a href="#step-0"><span class="n">1</span><span class="t">[link]  MEALS -&gt; HOVER<span class="op">HOVER · uid a32110f8…</span></span></a><a href="#step-1"><span class="n">2</span><span class="t">[link]  Drinks -&gt; CLICK<span class="op">CLICK · uid 99658c6d…</span></span></a><a href="#step-2"><span class="n">3</span><span class="t">[link]  COFFEE DRINKS -&gt; CLICK<span class="op">CLICK · uid 016eecbe…</span></span></a><a href="#step-3"><span class="n">4</span><span class="t">[link]  MOCHAS -&gt; CLICK<span class="op">CLICK · uid d6feb2d8…</span></span></a><a href="#step-4"><span class="n">5</span><span class="t">[button]  Save Recipe -&gt; CLICK<span class="op">CLICK · uid 60a110ee…</span></span></a>
+    </div>
+  </section>
+</div>
+
+<section class="card" style="margin-bottom:22px;">
+  <h2>What the demonstrator did</h2>
+  <p class="note" style="margin-top:0;">
+    Starting from Allrecipes, the annotator opens the <em>Meals</em> menu, chooses <em>Drinks</em>,
+    drills into <em>Coffee Drinks</em> → <em>Mochas</em>, then saves the first recipe card
+    (<strong>Mexican Mocha</strong>) via the <em>Save Recipe</em> button.
+  </p>
+  <ol class="list">
+    <li>HOVER the top-level <strong>Meals</strong> navigation link (operation recorded as HOVER; normalized op CLICK).</li>
+    <li>CLICK <strong>Drinks</strong> in the expanded menu (no positive candidate stored in the JSON for this step).</li>
+    <li>CLICK taxonomy link <strong>Coffee Drinks</strong> on the Drinks page.</li>
+    <li>CLICK taxonomy link <strong>Mochas</strong> on the Coffee Drinks page.</li>
+    <li>CLICK <strong>Save Recipe</strong> on the Mexican Mocha card on the Mochas listing.</li>
+  </ol>
+  <p class="note">Page headings observed across steps:
+    <span class="nav-page">
+      <span class="page-pill"><span>step 3→</span> Drinks</span>
+      <span class="page-pill"><span>step 4→</span> Coffee Drinks</span>
+      <span class="page-pill"><span>step 5→</span> Mochas</span>
+    </span>
+  </p>
+</section>
+
+<h2 class="section-title">Step-by-step trajectory</h2>
+
+<article class="step" id="step-0">
+  <div class="step-head">
+    <span class="step-num">1</span>
+    <h3>[link]  MEALS -&gt; HOVER</h3>
+    <span class="op-badge hover">HOVER</span>
+  </div>
+  <div class="step-body">
+    <div class="meta-row">
+      <div class="meta-item"><div class="lbl">Action UID</div><div class="val"><code>a32110f8-da0c-4cb0-aafd-151670022f66</code></div></div>
+      <div class="meta-item"><div class="lbl">Operation</div><div class="val">original <code>HOVER</code> · op <code>CLICK</code> · value <code>∅</code></div></div>
+      <div class="meta-item"><div class="lbl">Candidates</div><div class="val">1 positive · 233 negative</div></div>
+      <div class="meta-item"><div class="lbl">Cleaned HTML size</div><div class="val">65,189 chars</div></div>
+      <div class="meta-item"><div class="lbl">Page H1</div><div class="val">— (no h1 in cleaned HTML)</div></div>
+    </div>
+<div class="target"><h4>Positive target element</h4><div class="attrs"><div class="k">tag</div><div class="v">a</div><div class="k">backend_node_id</div><div class="v">99</div><div class="k">is_original_target</div><div class="v">True</div><div class="k">is_top_level_target</div><div class="v">True</div><div class="k">bounding_box_rect</div><div class="v">127,110,47,18</div><div class="k">is_clickable</div><div class="v">true</div></div><div class="tags"><span class="tag">nearby text:</span><span class="tag"><em>Main Dishes</em></span><span class="tag"><em>Sheet Pan Dinners</em></span><span class="tag"><em>View All</em></span><span class="tag"><em>Meals</em></span><span class="tag"><em>Breakfast &amp; Brunch</em></span><span class="tag"><em>Lunch</em></span></div></div><div class="snippet">79&quot;&gt;Sheet Pan Dinners&lt;/text&gt;
+                  &lt;/a&gt;
+                &lt;a backend_node_id=&quot;1784&quot;&gt;
+                    &lt;text backend_node_id=&quot;1785&quot;&gt;View All&lt;/text&gt;
+                  &lt;/a&gt;
+                &lt;/ul&gt;
+            &lt;/li&gt;
+            &lt;li backend_node_id=&quot;1790&quot;&gt;
+              &lt;a <mark>backend_node_id=&quot;99&quot;</mark>&gt;
+                &lt;text backend_node_id=&quot;1792&quot;&gt;Meals&lt;/text&gt;
+              &lt;/a&gt;
+              &lt;ul backend_node_id=&quot;1794&quot;&gt;
+                &lt;a backend_node_id=&quot;1798&quot;&gt;
+                    &lt;text backend_node_id=&quot;1799&quot;&gt;Breakfast &amp;amp; Brunch&lt;/text&gt;
+                  &lt;/a&gt;
+                &lt;a backend_node_id=&quot;1804&quot;&gt;
+                    &lt;text backend_node_id=&quot;1805&quot;&gt;Lu</div>
+    <details>
+      <summary>Raw action_repr and operation JSON</summary>
+      <div class="inner">
+        <div><strong>action_repr:</strong> <code>[link]  MEALS -&gt; HOVER</code></div>
+        <pre style="margin:8px 0 0; white-space:pre-wrap; font-family:var(--mono); font-size:12px; color:var(--text);">{
+  &quot;original_op&quot;: &quot;HOVER&quot;,
+  &quot;value&quot;: &quot;&quot;,
+  &quot;op&quot;: &quot;CLICK&quot;
+}</pre>
+      </div>
+    </details>
+  </div>
+</article>
+
+<article class="step" id="step-1">
+  <div class="step-head">
+    <span class="step-num">2</span>
+    <h3>[link]  Drinks -&gt; CLICK</h3>
+    <span class="op-badge">CLICK</span>
+  </div>
+  <div class="step-body">
+    <div class="meta-row">
+      <div class="meta-item"><div class="lbl">Action UID</div><div class="val"><code>99658c6d-74b8-42e1-b29d-ea41370c11d7</code></div></div>
+      <div class="meta-item"><div class="lbl">Operation</div><div class="val">original <code>CLICK</code> · op <code>CLICK</code> · value <code>∅</code></div></div>
+      <div class="meta-item"><div class="lbl">Candidates</div><div class="val">0 positive · 234 negative</div></div>
+      <div class="meta-item"><div class="lbl">Cleaned HTML size</div><div class="val">66,229 chars</div></div>
+      <div class="meta-item"><div class="lbl">Page H1</div><div class="val">— (no h1 in cleaned HTML)</div></div>
+    </div>
+<div class="warn-box">No pos_candidates in trajectory; inferred from action_repr text match in cleaned_html (backend_node_id=10719).</div><div class="target"><h4>Inferred target (not in pos_candidates)</h4>
+        <div class="attrs">
+          <div class="k">tag</div><div class="v">a</div>
+          <div class="k">backend_node_id</div><div class="v">10719</div>
+          <div class="k">label</div><div class="v">Drinks</div>
+        </div><div class="tags"><span class="tag">nearby text:</span><span class="tag"><em>Side Dishes</em></span><span class="tag"><em>Soups</em></span><span class="tag"><em>Bread</em></span><span class="tag"><em>Drinks</em></span><span class="tag"><em>Desserts</em></span><span class="tag"><em>View All</em></span></div></div><div class="snippet">     &lt;a backend_node_id=&quot;10707&quot;&gt;
+                      &lt;text backend_node_id=&quot;10708&quot;&gt;Soups&lt;/text&gt;
+                    &lt;/a&gt;
+                  &lt;a backend_node_id=&quot;10713&quot;&gt;
+                      &lt;text backend_node_id=&quot;10714&quot;&gt;Bread&lt;/text&gt;
+                    &lt;/a&gt;
+                  &lt;a <mark>backend_node_id=&quot;10719&quot;</mark>&gt;
+                      &lt;text backend_node_id=&quot;10720&quot;&gt;Drinks&lt;/text&gt;
+                    &lt;/a&gt;
+                  &lt;a backend_node_id=&quot;10725&quot;&gt;
+                      &lt;text backend_node_id=&quot;10726&quot;&gt;Desserts&lt;/text&gt;
+                    &lt;/a&gt;
+                  &lt;a backend_node_id=&quot;10731&quot;&gt;
+                      &lt;text backend_node_id=&quot;10732&quot;&gt;View All&lt;/text&gt;
+           </div>
+    <details>
+      <summary>Raw action_repr and operation JSON</summary>
+      <div class="inner">
+        <div><strong>action_repr:</strong> <code>[link]  Drinks -&gt; CLICK</code></div>
+        <pre style="margin:8px 0 0; white-space:pre-wrap; font-family:var(--mono); font-size:12px; color:var(--text);">{
+  &quot;original_op&quot;: &quot;CLICK&quot;,
+  &quot;value&quot;: &quot;&quot;,
+  &quot;op&quot;: &quot;CLICK&quot;
+}</pre>
+      </div>
+    </details>
+  </div>
+</article>
+
+<article class="step" id="step-2">
+  <div class="step-head">
+    <span class="step-num">3</span>
+    <h3>[link]  COFFEE DRINKS -&gt; CLICK</h3>
+    <span class="op-badge">CLICK</span>
+  </div>
+  <div class="step-body">
+    <div class="meta-row">
+      <div class="meta-item"><div class="lbl">Action UID</div><div class="val"><code>016eecbe-0668-424b-9de6-cb15a1fdb4c6</code></div></div>
+      <div class="meta-item"><div class="lbl">Operation</div><div class="val">original <code>CLICK</code> · op <code>CLICK</code> · value <code>∅</code></div></div>
+      <div class="meta-item"><div class="lbl">Candidates</div><div class="val">1 positive · 388 negative</div></div>
+      <div class="meta-item"><div class="lbl">Cleaned HTML size</div><div class="val">117,457 chars</div></div>
+      <div class="meta-item"><div class="lbl">Page H1</div><div class="val">Drinks</div></div>
+    </div>
+<div class="target"><h4>Positive target element</h4><div class="attrs"><div class="k">tag</div><div class="v">a</div><div class="k">backend_node_id</div><div class="v">17091</div><div class="k">is_original_target</div><div class="v">False</div><div class="k">is_top_level_target</div><div class="v">True</div><div class="k">id</div><div class="v">taxonomy-nodes__link_1-0-4</div><div class="k">class</div><div class="v"> taxonomy-nodes__link mntl-text-link type--squirrel-link</div><div class="k">bounding_box_rect</div><div class="v">649,796,111,18</div><div class="k">is_clickable</div><div class="v">true</div></div><div class="tags"><span class="tag">nearby text:</span><span class="tag"><em>Cocktails</em></span><span class="tag"><em>Coffee Drinks</em></span><span class="tag"><em>Punch</em></span></div></div><div class="snippet">end_node_id=&quot;17084&quot;&gt;
+                    &lt;span backend_node_id=&quot;17085&quot;&gt;
+                      &lt;text backend_node_id=&quot;17086&quot;&gt;Cocktails&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;17089&quot;&gt;
+                  &lt;a <mark>backend_node_id=&quot;17091&quot;</mark>&gt;
+                    &lt;span backend_node_id=&quot;14966&quot;&gt;
+                      &lt;text backend_node_id=&quot;17092&quot;&gt;Coffee Drinks&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;17095&quot;&gt;
+                  &lt;a backend_node_id=&quot;17097&quot;&gt;
+                    &lt;span backend_node_id=&quot;17098&quot;&gt;
+                </div>
+    <details>
+      <summary>Raw action_repr and operation JSON</summary>
+      <div class="inner">
+        <div><strong>action_repr:</strong> <code>[link]  COFFEE DRINKS -&gt; CLICK</code></div>
+        <pre style="margin:8px 0 0; white-space:pre-wrap; font-family:var(--mono); font-size:12px; color:var(--text);">{
+  &quot;original_op&quot;: &quot;CLICK&quot;,
+  &quot;value&quot;: &quot;&quot;,
+  &quot;op&quot;: &quot;CLICK&quot;
+}</pre>
+      </div>
+    </details>
+  </div>
+</article>
+
+<article class="step" id="step-3">
+  <div class="step-head">
+    <span class="step-num">4</span>
+    <h3>[link]  MOCHAS -&gt; CLICK</h3>
+    <span class="op-badge">CLICK</span>
+  </div>
+  <div class="step-body">
+    <div class="meta-row">
+      <div class="meta-item"><div class="lbl">Action UID</div><div class="val"><code>d6feb2d8-d266-4d7e-912d-083d18304258</code></div></div>
+      <div class="meta-item"><div class="lbl">Operation</div><div class="val">original <code>CLICK</code> · op <code>CLICK</code> · value <code>∅</code></div></div>
+      <div class="meta-item"><div class="lbl">Candidates</div><div class="val">1 positive · 319 negative</div></div>
+      <div class="meta-item"><div class="lbl">Cleaned HTML size</div><div class="val">105,062 chars</div></div>
+      <div class="meta-item"><div class="lbl">Page H1</div><div class="val">Coffee Drinks</div></div>
+    </div>
+<div class="target"><h4>Positive target element</h4><div class="attrs"><div class="k">tag</div><div class="v">a</div><div class="k">backend_node_id</div><div class="v">25001</div><div class="k">is_original_target</div><div class="v">False</div><div class="k">is_top_level_target</div><div class="v">True</div><div class="k">id</div><div class="v">taxonomy-nodes__link_1-0-1</div><div class="k">class</div><div class="v"> taxonomy-nodes__link mntl-text-link type--squirrel-link</div><div class="k">bounding_box_rect</div><div class="v">447,480,60,18</div><div class="k">is_clickable</div><div class="v">true</div></div><div class="tags"><span class="tag">nearby text:</span><span class="tag"><em>Lattes</em></span><span class="tag"><em>Mochas</em></span><span class="tag"><em>Creamer</em></span></div></div><div class="snippet">ackend_node_id=&quot;24994&quot;&gt;
+                    &lt;span backend_node_id=&quot;24995&quot;&gt;
+                      &lt;text backend_node_id=&quot;24996&quot;&gt;Lattes&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;24999&quot;&gt;
+                  &lt;a <mark>backend_node_id=&quot;25001&quot;</mark>&gt;
+                    &lt;span backend_node_id=&quot;22890&quot;&gt;
+                      &lt;text backend_node_id=&quot;25002&quot;&gt;Mochas&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;25005&quot;&gt;
+                  &lt;a backend_node_id=&quot;25007&quot;&gt;
+                    &lt;span backend_node_id=&quot;25008&quot;&gt;
+                      &lt;</div>
+    <details>
+      <summary>Raw action_repr and operation JSON</summary>
+      <div class="inner">
+        <div><strong>action_repr:</strong> <code>[link]  MOCHAS -&gt; CLICK</code></div>
+        <pre style="margin:8px 0 0; white-space:pre-wrap; font-family:var(--mono); font-size:12px; color:var(--text);">{
+  &quot;original_op&quot;: &quot;CLICK&quot;,
+  &quot;value&quot;: &quot;&quot;,
+  &quot;op&quot;: &quot;CLICK&quot;
+}</pre>
+      </div>
+    </details>
+  </div>
+</article>
+
+<article class="step" id="step-4">
+  <div class="step-head">
+    <span class="step-num">5</span>
+    <h3>[button]  Save Recipe -&gt; CLICK</h3>
+    <span class="op-badge">CLICK</span>
+  </div>
+  <div class="step-body">
+    <div class="meta-row">
+      <div class="meta-item"><div class="lbl">Action UID</div><div class="val"><code>60a110ee-acb1-49ce-be80-eaf5f66d8332</code></div></div>
+      <div class="meta-item"><div class="lbl">Operation</div><div class="val">original <code>CLICK</code> · op <code>CLICK</code> · value <code>∅</code></div></div>
+      <div class="meta-item"><div class="lbl">Candidates</div><div class="val">1 positive · 193 negative</div></div>
+      <div class="meta-item"><div class="lbl">Cleaned HTML size</div><div class="val">60,947 chars</div></div>
+      <div class="meta-item"><div class="lbl">Page H1</div><div class="val">Mochas</div></div>
+    </div>
+<div class="target"><h4>Positive target element</h4><div class="attrs"><div class="k">tag</div><div class="v">button</div><div class="k">backend_node_id</div><div class="v">30584</div><div class="k">is_original_target</div><div class="v">True</div><div class="k">is_top_level_target</div><div class="v">True</div><div class="k">id</div><div class="v">mntl-save__link_1-0</div><div class="k">class</div><div class="v">comp mntl-save__link mntl-button</div><div class="k">aria_label</div><div class="v">Save Recipe</div><div class="k">bounding_box_rect</div><div class="v">338.65625,594,48,48</div></div><div class="tags"><span class="tag">nearby text:</span><span class="tag"><em>Save</em></span><span class="tag"><em>Mexican Mocha</em></span></div></div><div class="snippet">&lt;section backend_node_id=&quot;30607&quot;&gt;
+            &lt;div backend_node_id=&quot;32757&quot;&gt;
+              &lt;a backend_node_id=&quot;32759&quot;&gt;
+                &lt;div backend_node_id=&quot;32761&quot;&gt;
+                  &lt;img backend_node_id=&quot;30601&quot; alt=&quot;Mexican Mocha with whipped cream&quot;/&gt;
+                    &lt;button <mark>backend_node_id=&quot;30584&quot;</mark> aria_label=&quot;Save Recipe&quot;&gt;
+                      &lt;span backend_node_id=&quot;32774&quot;&gt;
+                        &lt;text backend_node_id=&quot;32775&quot;&gt;Save&lt;/text&gt;
+                      &lt;/span&gt;
+                    &lt;/button&gt;
+                  &lt;/div&gt;
+                &lt;span backend_node_id=&quot;32791&quot;&gt;
+                      &lt;text backend_node_id=&quot;32792&quot;&gt;Mexican Mocha&lt;/text&gt;
+      </div>
+    <details>
+      <summary>Raw action_repr and operation JSON</summary>
+      <div class="inner">
+        <div><strong>action_repr:</strong> <code>[button]  Save Recipe -&gt; CLICK</code></div>
+        <pre style="margin:8px 0 0; white-space:pre-wrap; font-family:var(--mono); font-size:12px; color:var(--text);">{
+  &quot;original_op&quot;: &quot;CLICK&quot;,
+  &quot;value&quot;: &quot;&quot;,
+  &quot;op&quot;: &quot;CLICK&quot;
+}</pre>
+      </div>
+    </details>
+  </div>
+</article>
+
+<section class="card">
+  <h2>Mochas listing — recipes visible at final step</h2>
+  <p class="note" style="margin-top:0;">The Save Recipe control clicked in step 5 belongs to the <strong>Mexican Mocha</strong> card (image alt: “Mexican Mocha with whipped cream”). Other mocha-related titles present in the cleaned HTML:</p>
+  <ul class="list">
+<li>Chocolate lovers and coffee lovers, you&#x27;re in luck. Frozen, hot, or iced, these mocha drink recipes will satisfy.</li><li>Mexican Mocha ← saved card</li><li>Chocolate-y Iced Mocha</li><li>3-Minute Mochaccino</li><li>Blended Mocha Drink</li><li>Iced Mocha Frapp</li><li>Starbucks Mocha Frappuccino Replica</li><li>Iced Mocha Cola</li><li>Mocha Coffee Cooler</li><li>Orange Mocha</li><li>White Chocolate Butterscotch Mocha</li><li>Skinny Dark Chocolate Mocha</li><li>Skinny Chocolate Mocha Shake</li><li>Vegan Mocha Latte</li><li>Easy Blended Mocha</li>
+  </ul>
+</section>
+
+<section class="card" style="margin-top:16px;">
+  <h2>Files in this case</h2>
+  <div class="kv">
+    <div class="k">case_meta.json</div><div class="v">Case descriptor (benchmark, format, hashes)</div>
+    <div class="k">trajectory.json</div><div class="v">Full Mind2Web trajectory with cleaned_html and candidates per step</div>
+    <div class="k">task/task_statement.md</div><div class="v">Natural-language task</div>
+    <div class="k">raw_text.jsonl</div><div class="v">Flattened raw text index; oversized action payloads omitted with excerpts</div>
+  </div>
+  <p class="note">No screenshots or media_refs are bundled with this case. HTML snippets above are taken from each step’s <code>cleaned_html</code> around the target <code>backend_node_id</code>.</p>
+</section>
+
+<footer>
+  Presentation generated for case <code>03_test_domain_test_domain_2_85</code>.
+  Source benchmark: Mind2Web · Website: allrecipes · Demonstrator: human-annotator.
+  Self-contained HTML with inline CSS only; no external resources.
+</footer>
+</div>
+</body>
+</html>

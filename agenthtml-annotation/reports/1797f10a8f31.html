@@ -1,0 +1,86 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Case report · Hyphens in germline patient names</title><style>
+:root{--ink:#182b38;--muted:#586b78;--line:#d9e1e5;--paper:#fff;--teal:#126d65}*{box-sizing:border-box}body{margin:0;background:#eef2f4;color:var(--ink);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1120px;margin:auto;padding:48px 32px 60px}header{border-top:5px solid var(--teal);padding-top:22px}.eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:750;color:var(--teal)}h1{font-size:clamp(32px,5vw,53px);line-height:1.1;letter-spacing:-1.8px;max-width:850px;margin:18px 0}h2{font-size:24px;line-height:1.25;margin:0 0 18px}h3{font-size:17px;margin:0 0 8px}p{margin:0 0 14px}.lead{font-size:20px;max-width:880px;color:var(--muted)}.meta{font-size:13px;color:var(--muted);margin:23px 0}.banner{background:#183d44;color:white;padding:25px 28px;border-radius:10px;margin:28px 0}.banner p{margin:6px 0 0;color:#dbe9e9}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}.card,section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:25px}.card strong{display:block;font-size:29px;line-height:1.2}.card span{color:var(--muted);font-size:14px}section{margin-top:20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}.mono,code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}code{font-size:.86em;background:#edf2f4;padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}pre{font-size:12px;line-height:1.65;overflow:auto;background:#f4f7f8;padding:18px;border-radius:6px;white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:0}table{width:100%;border-collapse:collapse;text-align:left;font-size:14px}th{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}td,th{padding:13px 10px;border-bottom:1px solid var(--line);vertical-align:top}.pill{display:inline-block;font-size:10px;font-weight:800;padding:3px 7px;border-radius:4px;margin-right:7px}.ok{background:#d9eee5;color:#1c6249}.warn{background:#fff0d3;color:#875d17}.note{border-left:3px solid #c99840;padding-left:16px;color:var(--muted);margin-top:20px}.steps{padding-left:23px}.steps li{padding:0 0 15px 8px}.steps small{display:block;color:var(--muted)}.diff span{display:block;min-height:1em}.diff{white-space:pre;overflow-x:auto}.add{background:#dfefe5;color:#215a37}.del{background:#fae4e3;color:#873c38}details{border-top:1px solid var(--line);padding:13px 0}summary{cursor:pointer;font-size:14px;font-weight:650}footer{font-size:12px;color:var(--muted);margin-top:28px;overflow-wrap:anywhere}@media(max-width:700px){main{padding:25px 16px}.grid,.cards{grid-template-columns:1fr}section{padding:20px}table{font-size:12px}td,th{padding:10px 5px}}@media print{body{background:white}main{padding:0}.card,section{break-inside:avoid}details{display:none}}</style></head><body><main>
+<header><div class="eyebrow">SWE-bench · Code repair · Recorded case</div><h1>Allowing hyphens in germline patient names</h1><p class="lead">A targeted validation change let one hyphenated patient record load successfully. Broader correctness remains unverified in the supplied record.</p><div class="meta">Case 02_bihealth__biomedsheets-23 &nbsp;·&nbsp; Model: swe-agent-llama-70b &nbsp;·&nbsp; Source: upstream</div></header>
+<div class="banner"><strong>Submitted · Manual smoke test passed</strong><p>The trajectory ends with <code>submit</code> and records exit status <code>submitted</code>. No benchmark verdict or full test-suite result is provided.</p></div>
+<div class="cards"><div class="card"><strong>1 file</strong><span>Changed in the submitted patch</span></div><div class="card"><strong>3 checks</strong><span>Hyphen rejection guards disabled</span></div><div class="card"><strong>5 runs</strong><span>Four fixture failures, then one pass</span></div></div>
+<section><h2>The reported problem</h2><div class="grid"><div><h3>Input accepted upstream, rejected downstream</h3><p>The issue reports that SODAR allows hyphens in patient names, while biomedsheets 0.11.1 rejects them when a genomic pipeline loads a germline TSV sample sheet.</p><pre>GermlineTSVSheetException:
+Hyphen not allowed in patientName column</pre></div><div><h3>Where the restriction lived</h3><p>The stack trace led to <code>GermlineTSVReader.check_tsv_line</code> in <code>biomedsheets/io_tsv/germline.py</code>, starting at line 106.</p><p>The issue attributes the restriction to a historical need to resolve names containing hyphen-separated sample identifiers. The requested behavior is to accept hyphenated patient names.</p></div></div></section>
+<section><h2>What the recorded agent did</h2><ol class="steps"><li><strong>Located the row validator.</strong> Searched for <code>germline.py</code>, found the method, and inspected its checks.<small>Entries 3–10 · No pre-change bug reproduction is recorded.</small></li><li><strong>Commented out all three hyphen guards.</strong> Disabled rejection for <code>patientName</code>, <code>fatherName</code>, and <code>motherName</code>.<small>Entries 11–12 · Library type, sex, and affected-status validation stayed active.</small></li><li><strong>Built and corrected a temporary smoke test.</strong> Called <code>GermlineTSVReader(...).read_sheet()</code> on an in-memory TSV with patient <code>test-patient-1</code>.<small>Entries 13–34 · Repaired invalid fixture inputs until the reader returned successfully.</small></li><li><strong>Deleted the script and submitted.</strong> The final patch contains only the reader change.<small>Entries 35–37 · No persistent regression test was included.</small></li></ol></section>
+<section><h2>Validation: what actually ran</h2><p>All five executions used <code>python test_hyphen.py</code> after the source edit. The first four failures arose from the test data.</p><table><thead><tr><th>Entry</th><th>Observed result</th><th>Next action</th></tr></thead><tbody><tr><td class="mono">18</td><td><span class="pill warn">FAIL</span> Missing required columns</td><td>Added the seven missing required columns.</td></tr><tr><td class="mono">22</td><td><span class="pill warn">FAIL</span> Invalid library type: single</td><td>Changed libraryType to WGS.</td></tr><tr><td class="mono">26</td><td><span class="pill warn">FAIL</span> Invalid sex: male</td><td>Changed sex to 1.</td></tr><tr><td class="mono">30</td><td><span class="pill warn">FAIL</span> Invalid isAffected: unaffected</td><td>Changed isAffected to 1.</td></tr><tr><td class="mono">34</td><td><span class="pill ok">PASS</span> Read completed successfully</td><td>Removed the temporary script, then submitted.</td></tr></tbody></table><p class="note">The final fixture used <code>fatherName=0</code> and <code>motherName=0</code>, with <code>sex=1</code>, <code>isAffected=1</code>, and <code>libraryType=WGS</code>. It exercised a hyphenated patient name, but no hyphenated parent names or pedigree links.</p></section>
+<section><h2>Submitted patch</h2><p><code>biomedsheets/io_tsv/germline.py</code> · 10 added lines / 9 removed lines</p><p>The checks remain as commented code, alongside a duplicated “Check for hyphen in patient or sample name” comment. This disables the explicit exceptions without changing the other validator branches.</p><pre class="diff"><span class="context">diff --git a/biomedsheets/io_tsv/germline.py b/biomedsheets/io_tsv/germline.py</span>
+<span class="context">index 2214d46..c515317 100644</span>
+<span class="context">--- a/biomedsheets/io_tsv/germline.py</span>
+<span class="context">+++ b/biomedsheets/io_tsv/germline.py</span>
+<span class="context">@@ -106,15 +106,16 @@ class GermlineTSVReader(BaseTSVReader):</span>
+<span class="context">     def check_tsv_line(self, mapping, lineno):</span>
+<span class="context">         &quot;&quot;&quot;Cancer sample sheet--specific valiation&quot;&quot;&quot;</span>
+<span class="context">         # Check for hyphen in patient or sample name</span>
+<span class="del">-        if &#x27;-&#x27; in mapping[&#x27;patientName&#x27;]:</span>
+<span class="del">-            raise GermlineTSVSheetException(</span>
+<span class="del">-                &#x27;Hyphen not allowed in patientName column&#x27;)  # pragma: no cover</span>
+<span class="del">-        if mapping[&#x27;fatherName&#x27;] and &#x27;-&#x27; in mapping[&#x27;fatherName&#x27;]:</span>
+<span class="del">-            raise GermlineTSVSheetException(</span>
+<span class="del">-                &#x27;Hyphen not allowed in fatherName column&#x27;)  # pragma: no cover</span>
+<span class="del">-        if mapping[&#x27;motherName&#x27;] and &#x27;-&#x27; in mapping[&#x27;motherName&#x27;]:</span>
+<span class="del">-            raise GermlineTSVSheetException(</span>
+<span class="del">-                &#x27;Hyphen not allowed in motherName column&#x27;)  # pragma: no cover</span>
+<span class="add">+        # Check for hyphen in patient or sample name</span>
+<span class="add">+        # if &#x27;-&#x27; in mapping[&#x27;patientName&#x27;]:</span>
+<span class="add">+        #    raise GermlineTSVSheetException(</span>
+<span class="add">+        #        &#x27;Hyphen not allowed in patientName column&#x27;)  # pragma: no cover</span>
+<span class="add">+        # if mapping[&#x27;fatherName&#x27;] and &#x27;-&#x27; in mapping[&#x27;fatherName&#x27;]:</span>
+<span class="add">+        #    raise GermlineTSVSheetException(</span>
+<span class="add">+        #        &#x27;Hyphen not allowed in fatherName column&#x27;)  # pragma: no cover</span>
+<span class="add">+        # if mapping[&#x27;motherName&#x27;] and &#x27;-&#x27; in mapping[&#x27;motherName&#x27;]:</span>
+<span class="add">+        #    raise GermlineTSVSheetException(</span>
+<span class="add">+        #        &#x27;Hyphen not allowed in motherName column&#x27;)  # pragma: no cover</span>
+<span class="context">         # Check &quot;libraryType&quot; field</span>
+<span class="context">         if mapping[&#x27;libraryType&#x27;] and (</span>
+<span class="context">                 mapping[&#x27;libraryType&#x27;] not in LIBRARY_TYPES):</span></pre></section>
+<section><h2>Outcome and limits</h2><div class="grid"><div><h3>Supported by the record</h3><p>The edited reader loaded the final single-patient fixture and printed “Test completed successfully, no errors.” The generated patch confirms all three hyphen guards became comments.</p></div><div><h3>Not established</h3><p>No full suite, end-to-end pipeline run, output-content assertion, or parent-name test is recorded. The temporary script caught exceptions and printed failures, so its printed output is the useful evidence—not an inferred process exit code.</p></div></div><p class="note">Submission is not a benchmark success verdict. Case metadata lists <code>eval_logs</code> and <code>target</code> as stripped fields; the supplied trajectory contains no evaluation outcome.</p></section>
+<section><h2>Selected source evidence</h2><p>Entry numbers are 1-based positions in the trajectory array, including the initial system and task entries. Expand to inspect recorded text.</p><details><summary>Entry 11 · Agent action</summary><pre>The `check_tsv_line` method is where the hyphen restriction is implemented. The method checks if there&#x27;s a hyphen in the `patientName` column and raises a `GermlineTSVSheetException` if it finds one. To allow hyphens in the `patientName` column, we need to modify this method to not raise an exception when a hyphen is present.
+
+Let&#x27;s edit the method to remove the hyphen restriction. We will also need to remove the similar restrictions for `fatherName` and `motherName` if they are not needed.
+```
+edit 109:117
+        # Check for hyphen in patient or sample name
+        # if &#x27;-&#x27; in mapping[&#x27;patientName&#x27;]:
+        #    raise GermlineTSVSheetException(
+        #        &#x27;Hyphen not allowed in patientName column&#x27;)  # pragma: no cover
+        # if mapping[&#x27;fatherName&#x27;] and &#x27;-&#x27; in mapping[&#x27;fatherName&#x27;]:
+        #    raise GermlineTSVSheetException(
+        #        &#x27;Hyphen not allowed in fatherName column&#x27;)  # pragma: no cover
+        # if mapping[&#x27;motherName&#x27;] and &#x27;-&#x27; in mapping[&#x27;motherName&#x27;]:
+        #    raise GermlineTSVSheetException(
+        #        &#x27;Hyphen not allowed in motherName column&#x27;)  # pragma: no cover
+end_of_edit
+```</pre></details><details><summary>Entry 18 · Recorded observation</summary><pre>Test failed: Empty or invalid data column names in TSV sheet file &lt;unknown&gt;. Must be superset of {patientName, fatherName, motherName, sex, isAffected, folderName, hpoTerms, libraryType} but is missing {libraryType, hpoTerms, fatherName, motherName, folderName, sex, isAffected}
+
+(Open file: /biomedsheets/test_hyphen.py)
+(Current directory: /biomedsheets)
+bash-$</pre></details><details><summary>Entry 22 · Recorded observation</summary><pre>Test failed: Invalid library type single, must be in {WES, WGS, Panel_seq, mRNA_seq, total_RNA_seq}
+
+(Open file: /biomedsheets/test_hyphen.py)
+(Current directory: /biomedsheets)
+bash-$</pre></details><details><summary>Entry 26 · Recorded observation</summary><pre>Test failed: Invalid &quot;sex&quot; value male in line 2 of data section of &lt;unknown&gt;
+
+(Open file: /biomedsheets/test_hyphen.py)
+(Current directory: /biomedsheets)
+bash-$</pre></details><details><summary>Entry 30 · Recorded observation</summary><pre>Test failed: Invalid &quot;isAffected&quot; value unaffected in line 2 of data section of &lt;unknown&gt;
+
+(Open file: /biomedsheets/test_hyphen.py)
+(Current directory: /biomedsheets)
+bash-$</pre></details><details><summary>Entry 34 · Recorded observation</summary><pre>Test completed successfully, no errors.
+
+(Open file: /biomedsheets/test_hyphen.py)
+(Current directory: /biomedsheets)
+bash-$</pre></details><details><summary>Entry 35 · Agent action</summary><pre>The test script ran successfully and did not raise any exceptions, indicating that the changes to the `check_tsv_line` method are working as expected. We have verified that hyphens are now allowed in the `patientName` column without causing any issues.
+
+Since the fix has been confirmed, we can proceed to clean up by removing the test script and then submit the changes. First, let&#x27;s remove the `test_hyphen.py` file.
+```
+rm test_hyphen.py
+```</pre></details><details><summary>Entry 37 · Agent action</summary><pre>The test script has been successfully deleted. Now that we have fixed the issue and verified the solution, we can submit the changes to the code base. Let&#x27;s submit the changes using the `submit` command.
+```
+submit
+```</pre></details></section>
+<footer><strong>Source boundary.</strong> This report describes the completed run; the original repair was not rerun. Inputs: <code>/app/case/case_meta.json</code>, <code>/app/case/trajectory.json</code>, and <code>/app/case/task/task_statement.md</code>. Format: <code>swe-agent-traj</code>; 37 entries, including 18 agent actions. No reference-only files or media references are listed.<br><br><strong>Access method.</strong> Bash with Python structured parsing was used for all three input paths because no dedicated Read tool was available. Only the assigned HTML output was written.<br>Trajectory SHA-256 (metadata): 2c7611660a88e4502c78129f002deb75be2e5d0438e71d7fac2a1f0a7fa7f29e</footer></main></body></html>

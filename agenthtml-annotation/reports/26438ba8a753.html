@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AeroStay · Dubai 5★ City-Center Booking</title>
+<style>
+  :root {
+    --bg: #070b14;
+    --bg2: #0d1424;
+    --surface: rgba(255,255,255,0.04);
+    --surface2: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f4f7ff;
+    --muted: #9aa8c7;
+    --faint: #6b7a99;
+    --blue: #3b82f6;
+    --blue2: #60a5fa;
+    --cyan: #22d3ee;
+    --yellow: #fbbf24;
+    --yellow2: #f59e0b;
+    --green: #34d399;
+    --pink: #f472b6;
+    --purple: #a78bfa;
+    --shadow: 0 20px 60px rgba(0,0,0,0.45);
+    --radius: 18px;
+    --nav-h: 72px;
+    --font: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ambient background */
+  .bg-orb {
+    position: fixed; inset: auto; border-radius: 50%;
+    filter: blur(90px); pointer-events: none; z-index: 0; opacity: 0.55;
+  }
+  .orb-a { width: 520px; height: 520px; background: #1d4ed8; top: -120px; left: -80px; }
+  .orb-b { width: 420px; height: 420px; background: #0e7490; top: 40%; right: -120px; opacity: 0.35; }
+  .orb-c { width: 380px; height: 380px; background: #7c3aed; bottom: 0; left: 30%; opacity: 0.22; }
+
+  .wrap { position: relative; z-index: 1; }
+
+  /* NAV */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    height: var(--nav-h);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+    backdrop-filter: blur(18px) saturate(140%);
+    background: rgba(7,11,20,0.72);
+    border-bottom: 1px solid transparent;
+    transition: border-color .25s, background .25s, box-shadow .25s;
+  }
+  .nav.scrolled {
+    border-color: var(--border);
+    background: rgba(7,11,20,0.88);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    font-weight: 700; letter-spacing: -0.02em; font-size: 1.15rem;
+    color: var(--text); text-decoration: none;
+  }
+  .brand-mark {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    display: grid; place-items: center;
+    box-shadow: 0 8px 24px rgba(59,130,246,0.35);
+  }
+  .brand-mark svg { width: 20px; height: 20px; }
+  .nav-links {
+    display: flex; align-items: center; gap: 6px; list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 0.92rem;
+    padding: 8px 14px; border-radius: 999px; transition: color .2s, background .2s;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--surface2); }
+  .nav-cta {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .btn {
+    appearance: none; border: none; cursor: pointer;
+    font: inherit; font-weight: 600; font-size: 0.92rem;
+    border-radius: 999px; padding: 11px 20px;
+    transition: transform .15s ease, box-shadow .2s, background .2s, border-color .2s, color .2s;
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  }
+  .btn:active { transform: translateY(1px) scale(0.99); }
+  .btn-ghost {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { background: var(--surface2); border-color: rgba(255,255,255,0.25); }
+  .btn-primary {
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    color: white;
+    box-shadow: 0 10px 30px rgba(37,99,235,0.35);
+  }
+  .btn-primary:hover { box-shadow: 0 14px 36px rgba(37,99,235,0.5); transform: translateY(-1px); }
+  .btn-yellow {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #1a1200;
+    box-shadow: 0 10px 28px rgba(251,191,36,0.28);
+  }
+  .btn-yellow:hover { transform: translateY(-1px); box-shadow: 0 14px 34px rgba(251,191,36,0.4); }
+  .btn-sm { padding: 8px 14px; font-size: 0.85rem; }
+  .menu-toggle {
+    display: none; background: var(--surface2); border: 1px solid var(--border);
+    width: 42px; height: 42px; border-radius: 12px; color: var(--text); cursor: pointer;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 64px 28px 40px;
+    max-width: 1180px; margin: 0 auto;
+    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 999px;
+    background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.28);
+    color: var(--blue2); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.02em;
+    margin-bottom: 20px;
+  }
+  .eyebrow .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 0 4px rgba(52,211,153,0.18);
+  }
+  .hero h1 {
+    font-size: clamp(2.4rem, 4.6vw, 3.7rem);
+    line-height: 1.05; letter-spacing: -0.035em; font-weight: 750;
+    margin-bottom: 18px;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(120deg, #fff 10%, #7dd3fc 45%, #a78bfa 80%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero-lead {
+    color: var(--muted); font-size: 1.08rem; max-width: 34em; margin-bottom: 28px;
+  }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+  .meta-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill {
+    font-size: 0.8rem; color: var(--muted);
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 7px 12px; border-radius: 999px;
+  }
+  .pill strong { color: var(--text); font-weight: 600; }
+
+  .hero-card {
+    position: relative;
+    background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    border: 1px solid var(--border2);
+    border-radius: 24px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+  }
+  .hero-card::before {
+    content: ""; position: absolute; inset: -1px; border-radius: 24px; z-index: -1;
+    background: linear-gradient(135deg, rgba(96,165,250,0.45), transparent 40%, rgba(34,211,238,0.3));
+    opacity: 0.5;
+  }
+  .search-widget { display: grid; gap: 12px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 4px; }
+  .tab {
+    flex: 1; text-align: center; padding: 10px; border-radius: 12px;
+    background: transparent; border: 1px solid transparent; color: var(--muted);
+    font-weight: 600; font-size: 0.88rem; cursor: pointer;
+  }
+  .tab.active {
+    background: rgba(59,130,246,0.15); color: var(--text);
+    border-color: rgba(59,130,246,0.35);
+  }
+  .field {
+    background: rgba(0,0,0,0.28); border: 1px solid var(--border);
+    border-radius: 14px; padding: 12px 14px;
+  }
+  .field label {
+    display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--faint); margin-bottom: 4px;
+  }
+  .field .value { font-weight: 600; font-size: 0.98rem; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .chip {
+    font-size: 0.75rem; padding: 5px 10px; border-radius: 999px;
+    background: rgba(34,211,238,0.12); color: #a5f3fc; border: 1px solid rgba(34,211,238,0.25);
+  }
+  .widget-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 4px; }
+  .widget-note { font-size: 0.78rem; color: var(--faint); }
+
+  /* SECTIONS shared */
+  section { padding: 80px 28px; }
+  .container { max-width: 1180px; margin: 0 auto; }
+  .section-head {
+    max-width: 680px; margin-bottom: 40px;
+  }
+  .section-head h2 {
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 12px;
+  }
+  .section-head p { color: var(--muted); font-size: 1.02rem; }
+  .kicker {
+    color: var(--cyan); font-weight: 700; font-size: 0.82rem;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;
+  }
+
+  /* TASK BRIEF */
+  .brief {
+    display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px;
+  }
+  .glass {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(12px);
+  }
+  .task-card { padding: 28px; }
+  .task-card h3 { font-size: 1.2rem; margin-bottom: 10px; letter-spacing: -0.02em; }
+  .task-quote {
+    font-size: 1.15rem; line-height: 1.45; color: #e8eefc;
+    border-left: 3px solid var(--blue2); padding-left: 16px; margin: 16px 0 20px;
+  }
+  .spec-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .spec {
+    background: rgba(0,0,0,0.25); border-radius: 12px; padding: 12px 14px;
+    border: 1px solid var(--border);
+  }
+  .spec dt { font-size: 0.72rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.05em; }
+  .spec dd { font-weight: 600; margin-top: 2px; font-size: 0.95rem; }
+
+  .case-meta { padding: 24px; display: grid; gap: 14px; align-content: start; }
+  .case-meta h3 { font-size: 1rem; color: var(--muted); font-weight: 600; }
+  .meta-row {
+    display: flex; justify-content: space-between; gap: 12px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .meta-row:last-child { border-bottom: 0; padding-bottom: 0; }
+  .meta-row span { color: var(--faint); }
+  .meta-row strong { color: var(--text); font-weight: 600; text-align: right; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(52,211,153,0.12); color: var(--green);
+    border: 1px solid rgba(52,211,153,0.28); border-radius: 999px;
+    padding: 4px 10px; font-size: 0.78rem; font-weight: 600;
+  }
+
+  /* FEATURES */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .feature {
+    padding: 24px; border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border: 1px solid var(--border);
+    transition: transform .22s ease, border-color .22s, box-shadow .22s;
+    min-height: 200px;
+  }
+  .feature:hover {
+    transform: translateY(-6px);
+    border-color: rgba(96,165,250,0.35);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: grid; place-items: center; margin-bottom: 16px;
+    background: rgba(59,130,246,0.15); color: var(--blue2);
+    font-size: 1.2rem;
+  }
+  .feature h3 { font-size: 1.08rem; margin-bottom: 8px; letter-spacing: -0.02em; }
+  .feature p { color: var(--muted); font-size: 0.92rem; }
+
+  /* HOW / STEPS */
+  .how {
+    background: linear-gradient(180deg, transparent, rgba(15,23,42,0.65), transparent);
+  }
+  .timeline-layout {
+    display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start;
+  }
+  .step-list {
+    display: flex; flex-direction: column; gap: 8px;
+    max-height: 560px; overflow: auto; padding-right: 6px;
+  }
+  .step-list::-webkit-scrollbar { width: 6px; }
+  .step-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
+  .step-item {
+    text-align: left; width: 100%;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 12px 14px; color: var(--muted);
+    cursor: pointer; transition: .18s ease;
+    display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start;
+  }
+  .step-item:hover { border-color: var(--border2); color: var(--text); }
+  .step-item.active {
+    background: rgba(59,130,246,0.12);
+    border-color: rgba(59,130,246,0.4);
+    color: var(--text);
+    box-shadow: 0 0 0 1px rgba(59,130,246,0.15);
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(255,255,255,0.06); display: grid; place-items: center;
+    font-size: 0.75rem; font-weight: 700; color: var(--blue2);
+    font-family: var(--mono);
+  }
+  .step-item.active .step-num {
+    background: linear-gradient(135deg, #2563eb, #06b6d4); color: white;
+  }
+  .step-title { font-weight: 600; font-size: 0.9rem; line-height: 1.3; }
+  .step-op {
+    font-size: 0.72rem; color: var(--faint); margin-top: 2px;
+    font-family: var(--mono);
+  }
+
+  .step-detail {
+    padding: 28px;
+    min-height: 560px;
+    display: flex; flex-direction: column;
+  }
+  .step-detail-top {
+    display: flex; justify-content: space-between; gap: 16px; align-items: start;
+    margin-bottom: 18px;
+  }
+  .op-badge {
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 700;
+    padding: 5px 10px; border-radius: 8px;
+    background: rgba(251,191,36,0.12); color: var(--yellow);
+    border: 1px solid rgba(251,191,36,0.28);
+  }
+  .op-badge.click { background: rgba(96,165,250,0.12); color: var(--blue2); border-color: rgba(96,165,250,0.28); }
+  .op-badge.type { background: rgba(167,139,250,0.12); color: var(--purple); border-color: rgba(167,139,250,0.28); }
+  .detail-title { font-size: 1.4rem; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .detail-desc { color: var(--muted); margin-bottom: 20px; max-width: 48em; }
+  .mock-ui {
+    flex: 1;
+    background: #0a1020;
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .mock-chrome {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+  .traffic { display: flex; gap: 6px; }
+  .traffic i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+  .traffic .r { background: #f87171; }
+  .traffic .y { background: #fbbf24; }
+  .traffic .g { background: #34d399; }
+  .url-bar {
+    flex: 1; margin-left: 8px; background: rgba(0,0,0,0.3);
+    border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; color: var(--faint);
+    font-family: var(--mono); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
+  .mock-body { padding: 20px; flex: 1; }
+  .highlight-target {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-radius: 12px;
+    background: rgba(59,130,246,0.18);
+    border: 1px dashed rgba(96,165,250,0.6);
+    color: var(--text); font-weight: 600;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.35); }
+    50% { box-shadow: 0 0 0 10px rgba(59,130,246,0); }
+  }
+  .mock-stage { min-height: 220px; }
+  .controls {
+    display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; align-items: center;
+  }
+  .progress-track {
+    flex: 1; min-width: 120px; height: 6px; background: rgba(255,255,255,0.08);
+    border-radius: 99px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--blue), var(--cyan));
+    transition: width .3s ease;
+  }
+
+  /* RESULTS / SOCIAL */
+  .hotel-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .hotel-card {
+    padding: 0; overflow: hidden; border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: transform .2s, border-color .2s, box-shadow .2s;
+    display: flex; flex-direction: column;
+  }
+  .hotel-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(96,165,250,0.4);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+  }
+  .hotel-card.winner {
+    border-color: rgba(52,211,153,0.5);
+    box-shadow: 0 0 0 1px rgba(52,211,153,0.2), 0 16px 40px rgba(0,0,0,0.35);
+  }
+  .hotel-art {
+    height: 140px;
+    background:
+      linear-gradient(135deg, rgba(15,23,42,0.2), rgba(15,23,42,0.55)),
+      linear-gradient(120deg, #1e3a8a, #0e7490 50%, #4c1d95);
+    position: relative;
+  }
+  .hotel-card:nth-child(2) .hotel-art {
+    background:
+      linear-gradient(135deg, rgba(15,23,42,0.25), rgba(15,23,42,0.55)),
+      linear-gradient(120deg, #334155, #1e293b 40%, #0f766e);
+  }
+  .hotel-card:nth-child(3) .hotel-art {
+    background:
+      linear-gradient(135deg, rgba(15,23,42,0.25), rgba(15,23,42,0.55)),
+      linear-gradient(120deg, #1e293b, #312e81 55%, #7c2d12);
+  }
+  .hotel-art .stars {
+    position: absolute; top: 12px; left: 12px;
+    background: rgba(0,0,0,0.45); backdrop-filter: blur(8px);
+    padding: 4px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700;
+    color: var(--yellow);
+  }
+  .hotel-art .dist {
+    position: absolute; bottom: 12px; right: 12px;
+    background: rgba(0,0,0,0.45); backdrop-filter: blur(8px);
+    padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; color: #e2e8f0;
+  }
+  .hotel-body { padding: 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .hotel-body h3 { font-size: 1.05rem; letter-spacing: -0.02em; }
+  .hotel-body .addr { color: var(--faint); font-size: 0.82rem; }
+  .amenities { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+  .amenities span {
+    font-size: 0.72rem; padding: 4px 8px; border-radius: 999px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--muted);
+  }
+  .hotel-foot {
+    display: flex; justify-content: space-between; align-items: center; margin-top: auto;
+  }
+  .price { font-weight: 700; }
+  .price small { display: block; font-weight: 500; color: var(--faint); font-size: 0.72rem; }
+  .chosen-tag {
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(52,211,153,0.9); color: #042f1a;
+    font-size: 0.72rem; font-weight: 800; padding: 4px 8px; border-radius: 6px;
+  }
+
+  /* PROOF */
+  .logos {
+    display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+    margin-bottom: 36px;
+  }
+  .logo-pill {
+    padding: 12px 18px; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--faint); font-weight: 700; letter-spacing: 0.04em; font-size: 0.85rem;
+  }
+  .quotes {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .quote {
+    padding: 22px; border-radius: var(--radius);
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  .quote p { color: #dbe4f5; margin-bottom: 16px; font-size: 0.95rem; }
+  .quote .who { font-size: 0.85rem; color: var(--faint); }
+  .quote .who strong { color: var(--text); display: block; }
+
+  /* PRICING / ROOMS */
+  .rooms {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .room {
+    padding: 24px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface);
+    display: flex; flex-direction: column; gap: 12px;
+    transition: transform .2s, border-color .2s;
+  }
+  .room:hover { transform: translateY(-4px); border-color: rgba(96,165,250,0.35); }
+  .room.featured {
+    background: linear-gradient(180deg, rgba(37,99,235,0.18), rgba(255,255,255,0.03));
+    border-color: rgba(96,165,250,0.45);
+  }
+  .room h3 { font-size: 1.1rem; }
+  .room .amt { font-size: 1.8rem; font-weight: 750; letter-spacing: -0.03em; }
+  .room .amt span { font-size: 0.9rem; color: var(--muted); font-weight: 500; }
+  .room ul { list-style: none; display: grid; gap: 8px; color: var(--muted); font-size: 0.9rem; margin: 8px 0 12px; }
+  .room ul li::before { content: "✓ "; color: var(--green); font-weight: 700; }
+  .room .btn { width: 100%; justify-content: center; margin-top: auto; }
+
+  /* FAQ */
+  .faq { max-width: 760px; margin: 0 auto; display: grid; gap: 10px; }
+  details.faq-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 18px;
+  }
+  details.faq-item[open] { border-color: rgba(96,165,250,0.35); }
+  details.faq-item summary {
+    cursor: pointer; font-weight: 600; list-style: none;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  details.faq-item summary::-webkit-details-marker { display: none; }
+  details.faq-item summary::after {
+    content: "+"; color: var(--blue2); font-size: 1.2rem; font-weight: 500;
+  }
+  details.faq-item[open] summary::after { content: "–"; }
+  details.faq-item .faq-body {
+    color: var(--muted); margin-top: 12px; font-size: 0.95rem; line-height: 1.6;
+  }
+
+  /* CTA band */
+  .cta-band {
+    margin: 20px 28px 0;
+    border-radius: 28px;
+    padding: 48px 36px;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(59,130,246,0.35), transparent 40%),
+      radial-gradient(circle at 80% 0%, rgba(34,211,238,0.25), transparent 35%),
+      linear-gradient(135deg, #111827, #0b1220 60%, #172554);
+    border: 1px solid var(--border2);
+    text-align: center;
+    max-width: 1180px; margin-left: auto; margin-right: auto;
+  }
+  .cta-band h2 {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    letter-spacing: -0.03em; margin-bottom: 12px;
+  }
+  .cta-band p { color: var(--muted); max-width: 36em; margin: 0 auto 24px; }
+
+  /* FOOTER */
+  footer {
+    padding: 48px 28px 32px;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+  }
+  .footer-grid {
+    max-width: 1180px; margin: 0 auto;
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 28px;
+  }
+  footer h4 { font-size: 0.85rem; margin-bottom: 12px; color: var(--text); }
+  footer a { display: block; color: var(--faint); text-decoration: none; font-size: 0.88rem; margin-bottom: 8px; }
+  footer a:hover { color: var(--text); }
+  .footer-brand p { color: var(--faint); font-size: 0.9rem; margin-top: 10px; max-width: 28em; }
+  .footer-bottom {
+    max-width: 1180px; margin: 28px auto 0;
+    padding-top: 18px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    color: var(--faint); font-size: 0.82rem;
+  }
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 80;
+    background: #0f172a; border: 1px solid rgba(52,211,153,0.4);
+    color: var(--text); padding: 14px 18px; border-radius: 14px;
+    box-shadow: var(--shadow); transform: translateY(120%); opacity: 0;
+    transition: .3s ease; max-width: 320px; font-size: 0.92rem;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* reveal */
+  .reveal {
+    opacity: 0; transform: translateY(18px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* mobile */
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: 1fr; padding-top: 36px; }
+    .brief, .timeline-layout, .features-grid, .hotel-grid, .quotes, .rooms, .footer-grid {
+      grid-template-columns: 1fr;
+    }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+    .nav-links.open {
+      display: flex; flex-direction: column;
+      position: absolute; top: var(--nav-h); left: 0; right: 0;
+      background: rgba(7,11,20,0.96); padding: 16px; border-bottom: 1px solid var(--border);
+    }
+    .menu-toggle { display: grid; place-items: center; }
+    .nav-cta .btn-ghost { display: none; }
+    .step-list { max-height: 240px; }
+    .step-detail { min-height: auto; }
+  }
+  @media (max-width: 640px) {
+    .features-grid, .field-row, .spec-grid { grid-template-columns: 1fr; }
+    section { padding: 56px 18px; }
+    .nav { padding: 0 16px; }
+    .hero { padding-left: 18px; padding-right: 18px; }
+    .cta-band { margin-left: 18px; margin-right: 18px; padding: 36px 20px; }
+  }
+</style>
+</head>
+<body>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+  <div class="bg-orb orb-c"></div>
+
+  <div class="wrap">
+    <nav class="nav" id="nav">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 12h18M12 3l9 9-9 9"/></svg>
+        </span>
+        AeroStay
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#task">Task</a></li>
+        <li><a href="#features">Filters</a></li>
+        <li><a href="#trajectory">Trajectory</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#rooms">Rooms</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <div class="nav-cta">
+        <button class="btn btn-ghost btn-sm" type="button" onclick="scrollToId('trajectory')">Replay demo</button>
+        <a class="btn btn-primary btn-sm" href="#rooms">Book now</a>
+        <button class="menu-toggle" id="menuBtn" aria-label="Menu" type="button">☰</button>
+      </div>
+    </nav>
+
+    <header class="hero" id="top">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> Mind2Web · Ryanair Hotels · Human demo</div>
+        <h1>Book a <span class="grad">5-star Dubai stay</span> nearest the center — two rooms, four adults.</h1>
+        <p class="hero-lead">
+          An interactive prototype of the annotated web-navigation case:
+          filter for pool, minibar, bathtub & spa, sort by city-centre distance, and lock in Hyatt Regency Dubai for 13–16 July.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-yellow" href="#trajectory">Walk the 21 steps</a>
+          <a class="btn btn-ghost" href="#task">Read the brief</a>
+        </div>
+        <div class="meta-pills">
+          <span class="pill"><strong>Website</strong> · ryanair</span>
+          <span class="pill"><strong>Domain</strong> · Travel / Airlines</span>
+          <span class="pill"><strong>Actions</strong> · 21</span>
+          <span class="pill"><strong>Model</strong> · human-annotator</span>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="search-widget">
+          <div class="tabs" role="tablist">
+            <button class="tab" type="button" data-tab="flights">Flights</button>
+            <button class="tab active" type="button" data-tab="hotels">Hotels</button>
+            <button class="tab" type="button" data-tab="cars">Cars</button>
+          </div>
+          <div class="field">
+            <label>Destination or property</label>
+            <div class="value" id="destValue">Dubai, Dubai, United Arab Emirates</div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Check-in</label>
+              <div class="value">Thu 13 Jul 2023</div>
+            </div>
+            <div class="field">
+              <label>Check-out</label>
+              <div class="value">Sun 16 Jul 2023</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Guests & rooms</label>
+            <div class="value">2 Rooms · 4 Adults · 3 nights</div>
+          </div>
+          <div class="chip-row">
+            <span class="chip">Pool</span>
+            <span class="chip">Mini-bar</span>
+            <span class="chip">Bathtub</span>
+            <span class="chip">Spa</span>
+            <span class="chip">Hotels · 5★</span>
+            <span class="chip">Nearest centre</span>
+          </div>
+          <div class="widget-foot">
+            <span class="widget-note">Mirrors the confirmed trajectory search</span>
+            <button class="btn btn-yellow btn-sm" type="button" onclick="scrollToId('results')">Search</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="task">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="kicker">Case brief</div>
+          <h2>One booking goal. Twenty-one precise actions.</h2>
+          <p>Human demonstration from Mind2Web on the Ryanair hotels widget — no agent model, pure annotated ground truth.</p>
+        </div>
+        <div class="brief reveal">
+          <article class="glass task-card">
+            <h3>Confirmed task</h3>
+            <p class="task-quote">Book two rooms for four adults in a 5-star hotel with pool, minibar, bathtub, and spa facilities, that are nearest to the city center in Dubai from June 13 to 16.</p>
+            <p style="color:var(--muted);font-size:0.9rem;margin-bottom:16px;">Trajectory execution used <strong style="color:var(--text)">13–16 Jul 2023</strong> on the calendar control (month toggle → 13 → 16).</p>
+            <dl class="spec-grid">
+              <div class="spec"><dt>Destination</dt><dd>Dubai, UAE</dd></div>
+              <div class="spec"><dt>Stay</dt><dd>3 nights · 2 rooms</dd></div>
+              <div class="spec"><dt>Party</dt><dd>4 adults</dd></div>
+              <div class="spec"><dt>Property bar</dt><dd>5-star hotel</dd></div>
+              <div class="spec"><dt>Facilities</dt><dd>Pool · Spa · Minibar · Bath</dd></div>
+              <div class="spec"><dt>Sort</dt><dd>Distance from city centre</dd></div>
+            </dl>
+          </article>
+          <aside class="glass case-meta">
+            <h3>case_meta.json</h3>
+            <div class="meta-row"><span>ID</span><strong>05_test_task_test_task_2_4</strong></div>
+            <div class="meta-row"><span>Benchmark</span><strong>Mind2Web</strong></div>
+            <div class="meta-row"><span>Format</span><strong>mind2web-json</strong></div>
+            <div class="meta-row"><span>Annotation</span><strong>81b23d7b-e0e9…</strong></div>
+            <div class="meta-row"><span>Provenance</span><strong>upstream traj</strong></div>
+            <div class="meta-row"><span>References</span><strong>none</strong></div>
+            <div><span class="badge">● human demonstration</span></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="kicker">Why these filters</div>
+          <h2>Every constraint in the brief becomes a toggle.</h2>
+          <p>The demonstration narrows inventory with property facilities, room amenities, property type, and distance ranking before choosing a room.</p>
+        </div>
+        <div class="features-grid">
+          <article class="feature reveal">
+            <div class="feature-icon">🏊</div>
+            <h3>Pool</h3>
+            <p>Property-facilities checkbox applied on the results rail to keep only stays with a swimming pool.</p>
+          </article>
+          <article class="feature reveal">
+            <div class="feature-icon">🍸</div>
+            <h3>Mini-bar</h3>
+            <p>Room-facilities filter ensuring in-room refreshments — a hard requirement from the task statement.</p>
+          </article>
+          <article class="feature reveal">
+            <div class="feature-icon">🛁</div>
+            <h3>Bathtub</h3>
+            <p>Amenity checkbox for bathtub, reducing candidates to rooms built for a longer leisure stay.</p>
+          </article>
+          <article class="feature reveal">
+            <div class="feature-icon">💆</div>
+            <h3>Spa</h3>
+            <p>On-site spa facility filter paired with hotel-type + 5-star intent for premium wellness stays.</p>
+          </article>
+          <article class="feature reveal">
+            <div class="feature-icon">🏨</div>
+            <h3>Hotels only</h3>
+            <p>Property-type “Hotels” checked so apartments, hostels, and B&Bs drop out of the list.</p>
+          </article>
+          <article class="feature reveal">
+            <div class="feature-icon">📍</div>
+            <h3>City-centre sort</h3>
+            <p>“Distance from city centre” ranking surfaces the nearest match — Hyatt Regency Dubai at 0.93 km.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="how" id="trajectory">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="kicker">Trajectory player</div>
+          <h2>Replay the annotated path end to end.</h2>
+          <p>Click any step or use Previous / Next. Labels come from <code style="color:var(--blue2)">action_reprs</code> with operations from the Mind2Web action log.</p>
+        </div>
+        <div class="timeline-layout reveal">
+          <div class="step-list" id="stepList" aria-label="Trajectory steps"></div>
+          <div class="glass step-detail">
+            <div class="step-detail-top">
+              <div>
+                <div class="detail-title" id="detailTitle">—</div>
+                <p class="detail-desc" id="detailDesc">—</p>
+              </div>
+              <span class="op-badge" id="opBadge">CLICK</span>
+            </div>
+            <div class="mock-ui">
+              <div class="mock-chrome">
+                <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+                <div class="url-bar" id="urlBar">https://www.ryanair.com/hotels</div>
+              </div>
+              <div class="mock-body">
+                <div class="mock-stage" id="mockStage"></div>
+              </div>
+            </div>
+            <div class="controls">
+              <button class="btn btn-ghost btn-sm" type="button" id="prevBtn">← Previous</button>
+              <button class="btn btn-primary btn-sm" type="button" id="nextBtn">Next →</button>
+              <button class="btn btn-ghost btn-sm" type="button" id="playBtn">Autoplay</button>
+              <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+              <span style="font-family:var(--mono);font-size:0.78rem;color:var(--faint)" id="stepCounter">1 / 21</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="kicker">Sorted results</div>
+          <h2>Nearest city-centre matches after filters.</h2>
+          <p>Snapshot reconstructed from cleaned result-page text in the later trajectory steps. The chosen property leads the distance ranking.</p>
+        </div>
+        <div class="hotel-grid">
+          <article class="hotel-card winner reveal">
+            <div class="hotel-art">
+              <span class="stars">★ ★ ★ ★ ★</span>
+              <span class="chosen-tag">CHOSEN</span>
+              <span class="dist">0.93 km to centre</span>
+            </div>
+            <div class="hotel-body">
+              <h3>Hyatt Regency Dubai</h3>
+              <div class="addr">Deira Corniche Alkhaleej Road, Dubai</div>
+              <div class="amenities">
+                <span>Pool</span><span>Spa</span><span>Mini-bar</span><span>Bathtub</span><span>Free wifi</span>
+              </div>
+              <div class="hotel-foot">
+                <div class="price">Best match<small>3 nights · 2 rooms</small></div>
+                <button class="btn btn-primary btn-sm" type="button" onclick="scrollToId('rooms')">Choose room</button>
+              </div>
+            </div>
+          </article>
+          <article class="hotel-card reveal">
+            <div class="hotel-art">
+              <span class="stars">★ ★ ★ ★ ★</span>
+              <span class="dist">1.68 km to centre</span>
+            </div>
+            <div class="hotel-body">
+              <h3>Swissotel Al Ghurair</h3>
+              <div class="addr">Omar Bin Al Khattab Street, Dubai</div>
+              <div class="amenities">
+                <span>40% off today</span><span>Pool</span><span>Wifi</span>
+              </div>
+              <div class="hotel-foot">
+                <div class="price">Alternate<small>Distance rank #2</small></div>
+                <button class="btn btn-ghost btn-sm" type="button" onclick="toast('Not selected in the demo trajectory')">View</button>
+              </div>
+            </div>
+          </article>
+          <article class="hotel-card reveal">
+            <div class="hotel-art">
+              <span class="stars">★ ★ ★ ★ ★</span>
+              <span class="dist">1.72 km to centre</span>
+            </div>
+            <div class="hotel-body">
+              <h3>Sheraton Dubai Creek Hotel & Towers</h3>
+              <div class="addr">Baniyas Street, Po Box 4250, Dubai</div>
+              <div class="amenities">
+                <span>Creek views</span><span>Pool</span><span>Restaurant</span>
+              </div>
+              <div class="hotel-foot">
+                <div class="price">Alternate<small>Distance rank #3</small></div>
+                <button class="btn btn-ghost btn-sm" type="button" onclick="toast('Not selected in the demo trajectory')">View</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="proof">
+      <div class="container">
+        <div class="section-head reveal" style="text-align:center;margin-left:auto;margin-right:auto;">
+          <div class="kicker">Social proof</div>
+          <h2>Built for travel teams who measure every click.</h2>
+          <p>Prototype framing for the Mind2Web Ryanair hotels case — useful as a teaching UI for agent evaluation and UI grounding.</p>
+        </div>
+        <div class="logos reveal">
+          <div class="logo-pill">MIND2WEB</div>
+          <div class="logo-pill">RYANAIR HOTELS</div>
+          <div class="logo-pill">TRAVEL · AIRLINES</div>
+          <div class="logo-pill">HUMAN ANNOTATOR</div>
+          <div class="logo-pill">WEB NAVIGATION</div>
+        </div>
+        <div class="quotes">
+          <blockquote class="quote reveal">
+            <p>“Twenty-one steps from Hotels tab to Book now — clear enough to grade an agent against token-level targets.”</p>
+            <div class="who"><strong>Evaluation lead</strong>Benchmark review</div>
+          </blockquote>
+          <blockquote class="quote reveal">
+            <p>“Facility filters and distance sort are exactly where agents often skip constraints. This case stresses both.”</p>
+            <div class="who"><strong>Annotation QA</strong>Grounding checks</div>
+          </blockquote>
+          <blockquote class="quote reveal">
+            <p>“Ending on Hyatt Regency Dubai after city-centre sort makes success criteria unambiguous.”</p>
+            <div class="who"><strong>Product researcher</strong>Travel UX study</div>
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section id="rooms">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="kicker">Hyatt Regency Dubai · room selection</div>
+          <h2>Final “Book now” surface from the demo.</h2>
+          <p>Room cards inspired by the room-selection page text in action 20. The trajectory completes on the blue Book now control.</p>
+        </div>
+        <div class="rooms">
+          <article class="room reveal">
+            <h3>Room, 1 King Bed</h3>
+            <div class="amt">$1,021 <span>/ stay est.</span></div>
+            <ul>
+              <li>Free cancellation</li>
+              <li>Free WiFi</li>
+              <li>Parking available</li>
+              <li>Hand-held showerhead</li>
+            </ul>
+            <button class="btn btn-ghost" type="button" onclick="bookRoom(this)">Book now</button>
+          </article>
+          <article class="room featured reveal">
+            <h3>Club Room, 1 King Bed</h3>
+            <div class="amt">$1,250 <span>/ stay est.</span></div>
+            <ul>
+              <li>Club level access</li>
+              <li>Breakfast options</li>
+              <li>Mini-bar · bathtub</li>
+              <li>Matches demo flow</li>
+            </ul>
+            <button class="btn btn-primary" type="button" onclick="bookRoom(this)">Book now</button>
+          </article>
+          <article class="room reveal">
+            <h3>Regency Suite, 1 King</h3>
+            <div class="amt">$1,919 <span>/ stay est.</span></div>
+            <ul>
+              <li>Suite layout</li>
+              <li>Sea / city options</li>
+              <li>Spa & pool access</li>
+              <li>2 rooms capability</li>
+            </ul>
+            <button class="btn btn-ghost" type="button" onclick="bookRoom(this)">Book now</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <div class="section-head reveal" style="text-align:center;margin-left:auto;margin-right:auto;">
+          <div class="kicker">FAQ</div>
+          <h2>About this case presentation</h2>
+        </div>
+        <div class="faq reveal">
+          <details class="faq-item">
+            <summary>What benchmark does this case come from?</summary>
+            <div class="faq-body">Mind2Web (upstream). Case id <code>05_test_task_test_task_2_4</code>, trajectory format <code>mind2web-json</code>, model field <code>human-annotator</code>. Website field is <code>ryanair</code> under Travel / Airlines.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Why do dates say July instead of June?</summary>
+            <div class="faq-body">The natural-language task mentions June 13–16, but the annotated demonstration opens the date picker, switches the month control to Jul, then selects 13 and 16. Result headers show <strong>13 Jul 2023 – 16 Jul 2023</strong>.</div>
+          </details>
+          <details class="faq-item">
+            <summary>How were rooms and guests configured?</summary>
+            <div class="faq-body">Adult counter incremented for room 1, “+ Add room” pressed, adult counter incremented for room 2, then Done — producing 2 rooms and 4 adults before Search.</div>
+          </details>
+          <details class="faq-item">
+            <summary>What was the final booked property?</summary>
+            <div class="faq-body">After facility filters and sorting by distance from city centre, the demonstrator chose <strong>Hyatt Regency Dubai</strong> (0.93 km) via Choose room, then Book now on a room card.</div>
+          </details>
+          <details class="faq-item">
+            <summary>Are screenshots embedded?</summary>
+            <div class="faq-body">No local screenshots/ or frames/ were present under this case directory. The prototype reconstructs UI state from <code>action_reprs</code>, operations, and cleaned-html text signals. References list in case_meta was empty.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <div class="cta-band reveal">
+      <h2>Ready to replay the booking path?</h2>
+      <p>Jump back into the trajectory player, inspect each grounded target, or jump straight to the Hyatt Regency room sheet that closes the demonstration.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a class="btn btn-yellow" href="#trajectory">Open trajectory</a>
+        <a class="btn btn-ghost" href="#rooms">Finish on Book now</a>
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="#top">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 12h18M12 3l9 9-9 9"/></svg>
+            </span>
+            AeroStay
+          </a>
+          <p>High-fidelity presentation of Mind2Web case 05_test_task_test_task_2_4 — Ryanair hotels navigation to a centrically-ranked 5-star Dubai stay.</p>
+        </div>
+        <div>
+          <h4>Case</h4>
+          <a href="#task">Task brief</a>
+          <a href="#trajectory">Action trajectory</a>
+          <a href="#results">Filtered results</a>
+        </div>
+        <div>
+          <h4>Stay details</h4>
+          <a href="#features">Facility filters</a>
+          <a href="#rooms">Room offers</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div>
+          <h4>Meta</h4>
+          <a href="#task">Benchmark: Mind2Web</a>
+          <a href="#task">Format: mind2web-json</a>
+          <a href="#task">Website: ryanair</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>Prototype presentation · self-contained HTML · no external assets</span>
+        <span>Trajectory SHA256 · 0207fb29da19c104…</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const STEPS = [
+  {
+    repr: "[div] hotels → CLICK",
+    op: "CLICK",
+    title: "Switch to Hotels tab",
+    desc: "From the Ryanair search widget, activate the Hotels mode so the rooms booking controls appear.",
+    url: "https://www.ryanair.com/ · search widget",
+    stage: "tabs",
+    target: "Hotels",
+    note: "Tab control aria-label: hotels"
+  },
+  {
+    repr: "[textbox] Destination or property → TYPE: DUBAI",
+    op: "TYPE",
+    title: "Type destination: DUBAI",
+    desc: "Focus the locations field (placeholder “Find me a hotel”) and type DUBAI.",
+    url: "https://www.ryanair.com/hotels · destination",
+    stage: "type",
+    target: "DUBAI",
+    note: "#input-button__locations-or-properties"
+  },
+  {
+    repr: "[div] Dubai, Dubai → CLICK",
+    op: "CLICK",
+    title: "Pick Dubai from suggestions",
+    desc: "Select the location suggestion “Dubai, Dubai” from the autocomplete list.",
+    url: "https://www.ryanair.com/hotels · suggestions",
+    stage: "suggest",
+    target: "Dubai, Dubai",
+    note: ".location__name"
+  },
+  {
+    repr: "[div] Choose date → CLICK",
+    op: "CLICK",
+    title: "Open date picker",
+    desc: "Open the connected date control on the rooms widget to choose stay nights.",
+    url: "https://www.ryanair.com/hotels · dates",
+    stage: "dates",
+    target: "Choose date",
+    note: "rooms-widget-controls__control--date"
+  },
+  {
+    repr: "[div] Jul → CLICK",
+    op: "CLICK",
+    title: "Jump month to July",
+    desc: "Use the month toggle to move the calendar to July (trajectory dates are Jul 13–16).",
+    url: "https://www.ryanair.com/hotels · calendar",
+    stage: "month",
+    target: "Jul",
+    note: ".m-toggle__month"
+  },
+  {
+    repr: "[generic] 13 → CLICK",
+    op: "CLICK",
+    title: "Select check-in: 13",
+    desc: "Click day cell 13 as the check-in date.",
+    url: "https://www.ryanair.com/hotels · calendar",
+    stage: "cal",
+    target: "13",
+    note: ".calendar-body__cell"
+  },
+  {
+    repr: "[generic] 16 → CLICK",
+    op: "CLICK",
+    title: "Select check-out: 16",
+    desc: "Click day cell 16 to complete a 3-night stay.",
+    url: "https://www.ryanair.com/hotels · calendar",
+    stage: "cal",
+    target: "16",
+    note: ".calendar-body__cell"
+  },
+  {
+    repr: "[div] Adults +1 → CLICK",
+    op: "CLICK",
+    title: "Add an adult in room 1",
+    desc: "Increment adults via the counter control (aria-label Adults+1) for the first room.",
+    url: "https://www.ryanair.com/hotels · guests",
+    stage: "guests",
+    target: "Adults +",
+    note: "ry-counter-button"
+  },
+  {
+    repr: "[button] + Add room → CLICK",
+    op: "CLICK",
+    title: "Add a second room",
+    desc: "Press “+ Add room” so the party can split across two rooms.",
+    url: "https://www.ryanair.com/hotels · guests",
+    stage: "guests",
+    target: "+ Add room",
+    note: ".rooms__add-button"
+  },
+  {
+    repr: "[div] Adults +1 → CLICK",
+    op: "CLICK",
+    title: "Add an adult in room 2",
+    desc: "Increment adults on the second room counter — total becomes 4 adults / 2 rooms.",
+    url: "https://www.ryanair.com/hotels · guests",
+    stage: "guests",
+    target: "Adults +",
+    note: "second room counter"
+  },
+  {
+    repr: "[button] Done → CLICK",
+    op: "CLICK",
+    title: "Confirm guest sheet",
+    desc: "Close the rooms & guests popover with Done.",
+    url: "https://www.ryanair.com/hotels · guests",
+    stage: "guests",
+    target: "Done",
+    note: ".rooms_done-button"
+  },
+  {
+    repr: "[button] Search → CLICK",
+    op: "CLICK",
+    title: "Run hotel search",
+    desc: "Submit the yellow Search CTA on the rooms widget.",
+    url: "https://www.ryanair.com/hotels · search",
+    stage: "search",
+    target: "Search",
+    note: ".rooms-search-widget__start-search"
+  },
+  {
+    repr: "[path] (filters affordance) → CLICK",
+    op: "CLICK",
+    title: "Open filter UI",
+    desc: "Interact with the results chrome (SVG path target) to reach filtering controls. No positive candidate node was listed for this step.",
+    url: "https://www.ryanair.com/hotels/results · Dubai",
+    stage: "results",
+    target: "Filters",
+    note: "pos_candidates: 0"
+  },
+  {
+    repr: "[checkbox] Pool → CLICK",
+    op: "CLICK",
+    title: "Filter: Pool",
+    desc: "Enable Property facilities → Pool.",
+    url: "https://www.ryanair.com/hotels/results · filters",
+    stage: "filters",
+    target: "☐ Pool",
+    note: "checkbox-list__checkbox"
+  },
+  {
+    repr: "[checkbox] Mini-bar → CLICK",
+    op: "CLICK",
+    title: "Filter: Mini-bar",
+    desc: "Enable Room facilities → Mini-bar.",
+    url: "https://www.ryanair.com/hotels/results · filters",
+    stage: "filters",
+    target: "☐ Mini-bar",
+    note: "checkbox-list__checkbox"
+  },
+  {
+    repr: "[checkbox] Bathtub → CLICK",
+    op: "CLICK",
+    title: "Filter: Bathtub",
+    desc: "Enable Room facilities → Bathtub.",
+    url: "https://www.ryanair.com/hotels/results · filters",
+    stage: "filters",
+    target: "☐ Bathtub",
+    note: "checkbox-list__checkbox"
+  },
+  {
+    repr: "[checkbox] Spa → CLICK",
+    op: "CLICK",
+    title: "Filter: Spa",
+    desc: "Enable Property facilities → Spa.",
+    url: "https://www.ryanair.com/hotels/results · filters",
+    stage: "filters",
+    target: "☐ Spa",
+    note: "checkbox-list__checkbox"
+  },
+  {
+    repr: "[checkbox] Hotels → CLICK",
+    op: "CLICK",
+    title: "Property type: Hotels",
+    desc: "Restrict property type to Hotels (exclude apartments, hostels, B&Bs).",
+    url: "https://www.ryanair.com/hotels/results · filters",
+    stage: "filters",
+    target: "☐ Hotels",
+    note: "property type group"
+  },
+  {
+    repr: "[span] Distance from city centre → CLICK",
+    op: "CLICK",
+    title: "Sort by distance",
+    desc: "Change sort from Most popular to Distance from city centre so the nearest qualifying stay rises.",
+    url: "https://www.ryanair.com/hotels/results · sort",
+    stage: "sort",
+    target: "Distance from city centre",
+    note: "sort label target"
+  },
+  {
+    repr: "[button] Choose room → CLICK",
+    op: "CLICK",
+    title: "Choose Hyatt Regency Dubai",
+    desc: "On the leading card — Hyatt Regency Dubai, 0.93 km from centre — press Choose room.",
+    url: "https://www.ryanair.com/hotels/results · card",
+    stage: "choose",
+    target: "Choose room",
+    note: ".accommodation-card-body__choose-room-btn"
+  },
+  {
+    repr: "[button] Book now → CLICK",
+    op: "CLICK",
+    title: "Confirm Book now",
+    desc: "On the room selection page for Hyatt Regency Dubai, complete the demo with Book now.",
+    url: "https://www.ryanair.com/hotels/room · Hyatt Regency",
+    stage: "book",
+    target: "Book now",
+    note: ".room-card__book-button"
+  }
+];
+
+let idx = 0;
+let timer = null;
+
+function scrollToId(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._h);
+  toast._h = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+function bookRoom(btn) {
+  const name = btn.closest(".room").querySelector("h3").textContent;
+  toast("Book now captured · " + name + " · trajectory terminal action");
+  btn.textContent = "Booked ✓";
+  setTimeout(() => { btn.textContent = "Book now"; }, 2000);
+}
+
+function stageHTML(step) {
+  const t = step.target;
+  switch (step.stage) {
+    case "tabs":
+      return `<div style="display:flex;gap:8px;margin-bottom:16px">
+        <div style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);text-align:center;color:#6b7a99">Flights</div>
+        <div class="highlight-target" style="flex:1;justify-content:center">${t}</div>
+        <div style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);text-align:center;color:#6b7a99">Cars</div>
+      </div>
+      <p style="color:#9aa8c7;font-size:0.9rem">Search widget tabs · activating Hotels mode.</p>`;
+    case "type":
+      return `<div style="background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px">
+        <div style="font-size:0.72rem;color:#6b7a99;margin-bottom:6px">DESTINATION OR PROPERTY</div>
+        <div class="highlight-target">${t}<span style="opacity:.5">|</span></div>
+      </div>`;
+    case "suggest":
+      return `<div style="display:grid;gap:8px">
+        <div class="highlight-target">${t}</div>
+        <div style="padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);color:#6b7a99">Dubai Marina…</div>
+        <div style="padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);color:#6b7a99">Dubai Silicon Oasis…</div>
+      </div>`;
+    case "dates":
+      return `<div class="highlight-target">${t}</div>
+        <p style="margin-top:14px;color:#9aa8c7;font-size:0.9rem">Opens dual-month calendar for check-in / check-out.</p>`;
+    case "month":
+      return `<div style="display:flex;gap:8px;align-items:center">
+        <div style="padding:8px 12px;border-radius:8px;background:rgba(255,255,255,0.05);color:#6b7a99">Jun</div>
+        <div class="highlight-target">${t}</div>
+        <div style="padding:8px 12px;border-radius:8px;background:rgba(255,255,255,0.05);color:#6b7a99">Aug</div>
+      </div>`;
+    case "cal":
+      return `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;max-width:320px">
+        ${Array.from({length:21},(_,i)=>{
+          const d=i+1;
+          const hit=String(d)===String(t);
+          return `<div style="aspect-ratio:1;display:grid;place-items:center;border-radius:8px;font-size:0.85rem;${hit?'':'background:rgba(255,255,255,0.03);color:#9aa8c7'}">${hit?`<span class="highlight-target" style="padding:8px 10px">${d}</span>`:d}</div>`;
+        }).join("")}
+      </div>`;
+    case "guests":
+      return `<div style="display:grid;gap:12px;max-width:360px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:12px;background:rgba(255,255,255,0.03)">
+          <span>Room configuration</span>
+          <span class="highlight-target">${t}</span>
+        </div>
+        <p style="color:#9aa8c7;font-size:0.88rem">Build 2 rooms × adults until total party is 4 adults.</p>
+      </div>`;
+    case "search":
+      return `<div style="display:flex;justify-content:flex-end"><span class="highlight-target" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1200;border:none">${t}</span></div>
+        <p style="margin-top:14px;color:#9aa8c7;font-size:0.9rem">Dubai · 13–16 Jul · 2 rooms · 4 adults</p>`;
+    case "results":
+      return `<div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+        <span class="highlight-target">${t}</span>
+        <span style="color:#6b7a99;font-size:0.85rem">Sort · Map · 4 filters pending</span>
+      </div>
+      <div style="height:70px;border-radius:12px;background:linear-gradient(90deg,rgba(59,130,246,0.15),rgba(255,255,255,0.03))"></div>`;
+    case "filters":
+      return `<div style="display:grid;gap:8px;max-width:280px">
+        <div style="color:#6b7a99;font-size:0.75rem;letter-spacing:.06em">FILTER BY</div>
+        <div class="highlight-target">${t}</div>
+        <div style="padding:10px;border-radius:10px;background:rgba(255,255,255,0.03);color:#6b7a99">Other amenities…</div>
+      </div>`;
+    case "sort":
+      return `<div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span style="padding:8px 12px;border-radius:999px;background:rgba(255,255,255,0.04);color:#6b7a99">Most popular</span>
+        <span style="padding:8px 12px;border-radius:999px;background:rgba(255,255,255,0.04);color:#6b7a99">Lowest price</span>
+        <span class="highlight-target">${t}</span>
+      </div>`;
+    case "choose":
+      return `<div style="padding:16px;border-radius:14px;border:1px solid rgba(52,211,153,0.35);background:rgba(52,211,153,0.08)">
+        <div style="font-weight:700;margin-bottom:4px">Hyatt Regency Dubai</div>
+        <div style="color:#9aa8c7;font-size:0.85rem;margin-bottom:12px">0.93 km from Dubai centre · 5-star</div>
+        <span class="highlight-target">${t}</span>
+      </div>`;
+    case "book":
+      return `<div style="padding:16px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08)">
+        <div style="font-weight:700">Select your room · Hyatt Regency Dubai</div>
+        <div style="color:#9aa8c7;font-size:0.85rem;margin:8px 0 14px">Thu 13 Jul → Sun 16 Jul · 2 Rooms, 4 Adults</div>
+        <span class="highlight-target" style="background:linear-gradient(135deg,#2563eb,#06b6d4);border:none">${t}</span>
+      </div>`;
+    default:
+      return `<span class="highlight-target">${t}</span>`;
+  }
+}
+
+function renderList() {
+  const list = document.getElementById("stepList");
+  list.innerHTML = STEPS.map((s, i) => `
+    <button type="button" class="step-item ${i===idx?"active":""}" data-i="${i}">
+      <span class="step-num">${String(i+1).padStart(2,"0")}</span>
+      <span>
+        <div class="step-title">${s.title}</div>
+        <div class="step-op">${s.op}${s.op==="TYPE"?" · DUBAI":""}</div>
+      </span>
+    </button>
+  `).join("");
+  list.querySelectorAll(".step-item").forEach(btn => {
+    btn.addEventListener("click", () => {
+      stopPlay();
+      idx = +btn.dataset.i;
+      renderStep();
+    });
+  });
+  const active = list.querySelector(".step-item.active");
+  if (active) {
+    const r = active.getBoundingClientRect();
+    const lr = list.getBoundingClientRect();
+    if (r.top < lr.top || r.bottom > lr.bottom) active.scrollIntoView({ block: "nearest" });
+  }
+}
+
+function renderStep() {
+  const step = STEPS[idx];
+  document.getElementById("detailTitle").textContent = step.title;
+  document.getElementById("detailDesc").textContent = step.desc + " · " + step.note;
+  const badge = document.getElementById("opBadge");
+  badge.textContent = step.op === "TYPE" ? "TYPE: DUBAI" : step.op;
+  badge.className = "op-badge " + (step.op === "TYPE" ? "type" : "click");
+  document.getElementById("urlBar").textContent = step.url;
+  document.getElementById("mockStage").innerHTML = stageHTML(step);
+  document.getElementById("stepCounter").textContent = (idx+1) + " / " + STEPS.length;
+  document.getElementById("progressFill").style.width = ((idx+1)/STEPS.length*100) + "%";
+  renderList();
+}
+
+function stopPlay() {
+  if (timer) { clearInterval(timer); timer = null; }
+  document.getElementById("playBtn").textContent = "Autoplay";
+}
+
+function togglePlay() {
+  if (timer) { stopPlay(); return; }
+  document.getElementById("playBtn").textContent = "Pause";
+  timer = setInterval(() => {
+    idx = (idx + 1) % STEPS.length;
+    renderStep();
+  }, 1600);
+}
+
+document.getElementById("prevBtn").addEventListener("click", () => {
+  stopPlay(); idx = (idx - 1 + STEPS.length) % STEPS.length; renderStep();
+});
+document.getElementById("nextBtn").addEventListener("click", () => {
+  stopPlay(); idx = (idx + 1) % STEPS.length; renderStep();
+});
+document.getElementById("playBtn").addEventListener("click", togglePlay);
+
+// nav scroll style
+const nav = document.getElementById("nav");
+window.addEventListener("scroll", () => {
+  nav.classList.toggle("scrolled", window.scrollY > 8);
+}, { passive: true });
+
+// mobile menu
+const menuBtn = document.getElementById("menuBtn");
+const navLinks = document.getElementById("navLinks");
+menuBtn.addEventListener("click", () => navLinks.classList.toggle("open"));
+navLinks.querySelectorAll("a").forEach(a => a.addEventListener("click", () => navLinks.classList.remove("open")));
+
+// hero tabs decorative
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    if (tab.dataset.tab !== "hotels") {
+      toast("Demo trajectory is Hotels-only — switched back in annotated path");
+      setTimeout(() => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab==="hotels"));
+      }, 900);
+    }
+  });
+});
+
+// reveal on scroll
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("in"); });
+}, { threshold: 0.12 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+renderStep();
+</script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>asv-702 · asv profile broken with existing environment — SWE-agent trajectory</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c232c; --line:#2b333d;
+    --ink:#e6edf3; --dim:#9aa7b4; --faint:#6b7684;
+    --accent:#58a6ff; --agent:#7ee787; --env:#f0883e; --warn:#f85149;
+    --good:#3fb950; --loop:#d29922; --code:#c9d1d9;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;font-size:15px}
+  a{color:var(--accent)}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 22px 80px}
+  header.hero{border:1px solid var(--line);border-radius:14px;background:linear-gradient(160deg,#171d26,#12161c);padding:26px 28px;position:relative;overflow:hidden}
+  header.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 200px at 90% -20%,rgba(88,166,255,.14),transparent);pointer-events:none}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  h1{margin:.35em 0 .15em;font-size:26px;line-height:1.2}
+  h1 .id{font-family:var(--mono);color:var(--accent);font-size:18px}
+  .sub{color:var(--dim);max-width:74ch}
+  .metagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:20px}
+  .meta{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .meta .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .meta .v{font-family:var(--mono);font-size:13.5px;margin-top:3px;word-break:break-word}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-family:var(--mono);font-size:12px;font-weight:600}
+  .pill.fail{background:rgba(248,81,73,.15);color:#ff9a92;border:1px solid rgba(248,81,73,.4)}
+  .pill.ctx{background:rgba(210,153,34,.15);color:#e3b341;border:1px solid rgba(210,153,34,.4)}
+
+  h2{font-size:18px;margin:38px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px}
+  h2 .dot{width:9px;height:9px;border-radius:50%;background:var(--accent)}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .issue pre, .code{font-family:var(--mono);font-size:13px;background:#0b0f14;border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto;color:var(--code);white-space:pre;margin:10px 0}
+  .cmd-inline{font-family:var(--mono);background:#0b0f14;border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:#ffb86c;font-size:12.5px}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:6px 0}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .stat .n{font-family:var(--mono);font-size:28px;font-weight:700}
+  .stat .l{color:var(--dim);font-size:12.5px;margin-top:2px}
+  .stat.bad .n{color:var(--warn)}
+  .stat.loopn .n{color:var(--loop)}
+  .stat.ok .n{color:var(--good)}
+
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0 16px;font-size:13px;color:var(--dim)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .swatch{width:12px;height:12px;border-radius:3px}
+
+  /* timeline */
+  .timeline{position:relative;margin-top:8px;padding-left:4px}
+  .phase{margin:22px 0 8px}
+  .phase h3{font-size:14px;margin:0 0 4px;font-family:var(--mono);color:var(--ink);display:flex;align-items:center;gap:8px}
+  .phase h3 .badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;letter-spacing:.03em}
+  .phase h3 .steps{color:var(--faint);font-weight:400;font-size:12px}
+  .phase p.desc{margin:2px 0 8px;color:var(--dim);font-size:13px}
+  .b-explore{background:rgba(88,166,255,.16);color:#79b8ff}
+  .b-diag{background:rgba(126,231,135,.14);color:#7ee787}
+  .b-edit{background:rgba(210,153,34,.16);color:#e3b341}
+  .b-loop{background:rgba(248,81,73,.16);color:#ff9a92}
+
+  .turn{display:grid;grid-template-columns:56px 1fr;gap:12px;margin:7px 0}
+  .turn .tag{font-family:var(--mono);font-size:11px;text-align:right;padding-top:9px;color:var(--faint)}
+  .bubble{border:1px solid var(--line);border-radius:9px;padding:9px 12px;background:var(--panel2)}
+  .bubble.agent{border-left:3px solid var(--agent)}
+  .bubble.env{border-left:3px solid var(--env)}
+  .bubble .who{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-bottom:3px;font-family:var(--mono)}
+  .bubble .who.a{color:var(--agent)} .bubble .who.e{color:var(--env)}
+  .bubble .say{color:var(--dim);font-size:13px}
+  .bubble .action{font-family:var(--mono);font-size:12.5px;background:#0b0f14;border:1px solid var(--line);border-radius:6px;padding:6px 9px;margin-top:6px;color:#ffb86c;white-space:pre-wrap;word-break:break-word}
+  .bubble .out{font-family:var(--mono);font-size:12px;background:#0b0f14;border:1px solid var(--line);border-radius:6px;padding:6px 9px;margin-top:6px;color:var(--code);white-space:pre-wrap;overflow:auto;max-height:200px}
+  .out.err{color:#ff9a92}
+
+  .loopband{border:1px dashed var(--loop);background:rgba(210,153,34,.06);border-radius:12px;padding:6px 14px 12px;margin:10px 0}
+  .loopband .cap{font-family:var(--mono);font-size:12px;color:var(--loop);margin:8px 0;display:flex;align-items:center;gap:8px}
+  .cycle{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;margin:6px 0 2px}
+  .cycle .node{border:1px solid var(--line);border-radius:7px;padding:5px 10px;background:var(--panel2)}
+  .cycle .arr{color:var(--loop)}
+  .cycle .rep{margin-left:auto;color:var(--loop);font-weight:700}
+
+  /* diff */
+  .diff{font-family:var(--mono);font-size:12.5px;background:#0b0f14;border:1px solid var(--line);border-radius:8px;overflow:auto}
+  .diff .ln{display:block;padding:0 12px;white-space:pre}
+  .diff .add{background:rgba(63,185,80,.14);color:#7ee787}
+  .diff .del{background:rgba(248,81,73,.15);color:#ff9a92}
+  .diff .hunk{color:#79b8ff;background:rgba(88,166,255,.07)}
+  .diff .ctx{color:var(--faint)}
+
+  .callout{border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:9px;background:var(--panel);padding:14px 16px;margin:10px 0}
+  .callout.good{border-left-color:var(--good)}
+  .callout h4{margin:0 0 6px;font-size:14px}
+  .callout p{margin:6px 0;color:var(--dim);font-size:13.5px}
+  .callout code{font-family:var(--mono);background:#0b0f14;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:#ffb86c;font-size:12.5px}
+  footer{margin-top:46px;color:var(--faint);font-size:12px;font-family:var(--mono);text-align:center;border-top:1px solid var(--line);padding-top:16px}
+  .toggle{cursor:pointer;user-select:none;color:var(--accent);font-size:12px;font-family:var(--mono)}
+  details>summary{cursor:pointer;color:var(--accent);font-family:var(--mono);font-size:12.5px;list-style:none}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary::before{content:"▸ ";}
+  details[open]>summary::before{content:"▾ ";}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">Code Repair · SWE-bench · SWE-agent trajectory</div>
+    <h1>“asv profile” broken with existing environment<br><span class="id">airspeed-velocity__asv-702</span></h1>
+    <p class="sub">An autonomous agent attempts to fix a bug where <span class="cmd-inline">asv profile -E existing</span> / <span class="cmd-inline">--python=same</span> fails with a spurious “explicit revision” error. It reproduces and localizes the bug, then loops on the same non-working edit until it exhausts its context.</p>
+    <div class="metagrid">
+      <div class="meta"><div class="k">Model</div><div class="v">swe-agent-llama-70b</div></div>
+      <div class="meta"><div class="k">Benchmark</div><div class="v">SWE-bench (upstream)</div></div>
+      <div class="meta"><div class="k">Format</div><div class="v">swe-agent-traj</div></div>
+      <div class="meta"><div class="k">Turns</div><div class="v">35 agent / 35 env</div></div>
+      <div class="meta"><div class="k">Target file</div><div class="v">asv/commands/profiling.py</div></div>
+      <div class="meta"><div class="k">Exit status</div><div class="v"><span class="pill ctx">submitted · exit_context</span></div></div>
+    </div>
+  </header>
+
+  <h2><span class="dot"></span>The issue</h2>
+  <div class="panel issue">
+    <p style="margin-top:0;color:var(--dim)">Reported against asv <b>0.2.1</b>. Profiling an already-installed / existing environment is rejected as if the user asked for a specific revision:</p>
+    <pre class="issue">$ asv profile -E existing comm.Transfer.time_tcp_large_transfers_uncompressible
+· An explicit revision may not be specified when using an existing environment.
+
+$ asv profile --python=same comm.Transfer.time_tcp_large_transfers_uncompressible
+· An explicit revision may not be specified when using an existing environment.</pre>
+    <p style="margin-bottom:0;color:var(--dim)">The user also notes <span class="cmd-inline">asv run --python=same --profile</span> saves no profile output anywhere.</p>
+  </div>
+
+  <h2><span class="dot"></span>Outcome at a glance</h2>
+  <div class="stats">
+    <div class="stat"><div class="n">71</div><div class="l">trajectory messages (incl. system)</div></div>
+    <div class="stat loopn"><div class="n">8×</div><div class="l">near-identical edit→test cycles</div></div>
+    <div class="stat bad"><div class="n">7</div><div class="l">identical failing test runs</div></div>
+    <div class="stat bad"><div class="n">0</div><div class="l">progress after first edit</div></div>
+  </div>
+  <div class="callout">
+    <h4>Verdict — unresolved</h4>
+    <p>The agent never changed the error message. Every profiling run reprinted the <em>same</em> two lines. It kept re-issuing the <em>same</em> conditional guard (widening the <code>edit</code> range each time but not the logic) until it ran out of context and auto-submitted a patch that does not fix the bug.</p>
+  </div>
+
+  <h2><span class="dot"></span>The buggy code region</h2>
+  <div class="panel">
+    <p style="margin-top:0;color:var(--dim)"><code style="font-family:var(--mono);color:#ffb86c">Profile.run()</code> defaults the revision to the first branch, so <code style="font-family:var(--mono);color:#ffb86c">revision</code> is never <code style="font-family:var(--mono);color:#ffb86c">None</code> — then the guard at line 156 fires for existing environments:</p>
+    <div class="code">124  machine_name = Machine.get_unique_machine_name()
+125  <span style="color:#e3b341">if revision is None:</span>
+126      <span style="color:#e3b341">revision = conf.branches[0]</span>   <span style="color:var(--faint)"># ← revision now always set</span>
+127  commit_hash = repo.get_hash_from_name(revision)
+...
+151  if profile_data is None:
+...
+156      <span style="color:#ff9a92">if revision is not None:</span>            <span style="color:var(--faint)"># ← always True after L126</span>
+157          for env in environments:
+158              if not env.can_install_project():
+159                  raise util.UserError(
+160                      "An explicit revision may not be specified when "
+161                      "using an existing environment.")</div>
+    <p style="margin-bottom:0;color:var(--dim)">The real fix lives around <b>lines 125–127 &amp; 156</b>: the revision default must not be applied (or the guard must not trip) when the selected environment is an existing one. The agent instead guarded on <code>env_spec != "existing"</code> — but <code>env_spec</code> is the parsed environment-spec list, never the literal string <code>"existing"</code>, so the guard is a no-op.</p>
+  </div>
+
+  <h2><span class="dot"></span>Trajectory walkthrough</h2>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--agent)"></span> agent (reasoning + command)</span>
+    <span><span class="swatch" style="background:var(--env)"></span> environment (terminal output)</span>
+    <span><span class="swatch" style="background:var(--loop)"></span> repeated / degenerate loop</span>
+  </div>
+  <div class="timeline" id="tl"></div>
+
+  <h2><span class="dot"></span>Submitted patch (auto-flushed at context limit)</h2>
+  <div class="panel">
+    <p style="margin-top:0;color:var(--dim)">The final diff adds an ineffective guard, drops <code style="font-family:var(--mono);color:#ffb86c">env.install_project(...)</code>, and introduces a subtle bug — <code style="font-family:var(--mono);color:#ffb86c">env.python!=</code> has no space, and the “existing” branch is dead code because the string comparison never matches.</p>
+    <div class="diff" id="diff"></div>
+  </div>
+
+  <h2><span class="dot"></span>Why it failed</h2>
+  <div class="callout">
+    <h4>1 · Wrong mental model of <code>env_spec</code></h4>
+    <p>The agent assumed <code>env_spec == "existing"</code>. In asv, <code>env_spec</code> is a list of environment specifiers parsed by <code>get_environments()</code>; the “existing” case is detected via <code>is_existing_only(environments)</code> or <code>env.can_install_project()</code>, both already imported in the file. The chosen comparison silently never matches.</p>
+  </div>
+  <div class="callout">
+    <h4>2 · Localized the symptom, not the cause</h4>
+    <p>The genuine defect is the unconditional <code>revision = conf.branches[0]</code> default at line 126, which makes the line-156 guard fire. The agent only ever touched the guard, never the default, so the branch that raises the error remained reachable.</p>
+  </div>
+  <div class="callout">
+    <h4>3 · No new evidence between attempts → degenerate loop</h4>
+    <p>After the first failed test, every cycle produced byte-identical output. The agent re-explained the same hypothesis and re-applied structurally-equivalent edits (only widening the <code>edit</code> line range) instead of probing why the message was unchanged — e.g. printing <code>env_spec</code>, or reading <code>environment.py</code>. Eight such cycles exhausted the context window (<code>exit_context</code>).</p>
+  </div>
+  <div class="callout good">
+    <h4>What went right</h4>
+    <p>Bug reproduction (step 2) and code localization (steps 4–23) were clean and efficient: it found <code>profiling.py</code>, opened <code>Profile.run()</code>, and correctly pointed at the raising statement — a solid diagnosis undone by a flawed fix and no loop-breaking strategy.</p>
+  </div>
+
+  <footer>
+    airspeed-velocity__asv-702 · swe-agent-llama-70b · exit_context · self-contained presentation, no external resources
+  </footer>
+</div>
+
+<script>
+/* Phase + turn data extracted from trajectory.json */
+const phases = [
+  {name:"Reproduce", badge:"b-diag", steps:"steps 2–3", desc:"Run the failing command from the issue and confirm the error.",
+   turns:[
+    {n:2,who:"agent",say:"Start by replicating the reported failure.",act:"asv profile -E existing comm.Transfer.time_tcp_large_transfers_uncompressible"},
+    {n:3,who:"env",err:true,out:"· No executable found for python 2.7\n· An explicit revision may not be specified when using an existing environment."},
+   ]},
+  {name:"Locate the code", badge:"b-explore", steps:"steps 4–19", desc:"List the tree, find main.py, then discover the profile command lives in commands/profiling.py.",
+   turns:[
+    {n:4,who:"agent",say:"Bug reproduced. Find the files handling the profile command.",act:"ls -F"},
+    {n:6,who:"agent",say:"Source lives in the asv/ package dir.",act:'find_file "main.py" asv'},
+    {n:12,who:"agent",say:"Open the entrypoint.",act:"open asv/main.py"},
+    {n:14,who:"agent",say:"Logic is likely under commands/.",act:'find_file "profile.py" asv/commands  → no match'},
+    {n:16,who:"agent",say:"Grep for the term instead.",act:'search_dir "profile" asv/commands'},
+    {n:17,who:"env",out:'34 matches — profiling.py (29), run.py (5)'},
+    {n:18,who:"agent",say:"profiling.py is the target.",act:"open asv/commands/profiling.py"},
+   ]},
+  {name:"Diagnose the raise", badge:"b-diag", steps:"steps 20–23", desc:"Scroll to Profile.run(), land on the guard at lines 156–161 that raises the error.",
+   turns:[
+    {n:20,who:"agent",say:"Scroll to the run() body to find where options are processed.",act:"scroll_down"},
+    {n:22,who:"agent",say:"The guard at L156–161 raises the exact error message. Inspect it.",act:"goto 156"},
+    {n:23,who:"env",out:"156  if revision is not None:\n157      for env in environments:\n158          if not env.can_install_project():\n159              raise util.UserError(\n160                  \"An explicit revision may not be specified when \"\n161                  \"using an existing environment.\")"},
+   ]},
+  {name:"First fix attempt", badge:"b-edit", steps:"steps 24–27", desc:"Guard the raise with env_spec != \"existing\" — the flawed hypothesis that seals the loop.",
+   turns:[
+    {n:24,who:"agent",say:"Allow existing envs by adding a string check to the guard.",act:'edit 156:161\n  if revision is not None and env_spec!= "existing":\n      for env in environments:\n          if not env.can_install_project():\n              raise util.UserError(...)'},
+    {n:26,who:"agent",say:"Re-run to verify.",act:"asv profile --python=same comm.Transfer.time_tcp_large_transfers_uncompressible"},
+    {n:27,who:"env",err:true,out:"· No executable found for python 2.7\n· An explicit revision may not be specified when using an existing environment.  (unchanged)"},
+   ]},
+];
+
+const loopCycles = [
+  {edit:"#2 · steps 28–33", range:"edit 156:161", add:'+ elif env_spec == "existing": env = environments[0]'},
+  {edit:"#3 · steps 34–39", range:"edit 156:164", add:'+ ... environments = [env]'},
+  {edit:"#4 · steps 40–45", range:"edit 156:165", add:'re-flatten the same elif block'},
+  {edit:"#5 · steps 46–51", range:"edit 156:190", add:'drop env.install_project(...)'},
+  {edit:"#6 · steps 52–57", range:"edit 156:192", add:'same block, wider range'},
+  {edit:"#7 · steps 58–63", range:"edit 156:200", add:'same block, wider range'},
+  {edit:"#8 · steps 64–70", range:"edit 156:199", add:'same block — then goto 156, context ends'},
+];
+
+const tl = document.getElementById('tl');
+function turnEl(t){
+  const d=document.createElement('div'); d.className='turn';
+  const isAgent = t.who==='agent';
+  d.innerHTML = `<div class="tag">#${t.n}</div>
+   <div class="bubble ${isAgent?'agent':'env'}">
+     <div class="who ${isAgent?'a':'e'}">${isAgent?'agent':'terminal'}</div>
+     ${t.say?`<div class="say">${t.say}</div>`:''}
+     ${t.act?`<div class="action">$ ${t.act}</div>`:''}
+     ${t.out?`<div class="out ${t.err?'err':''}">${t.out}</div>`:''}
+   </div>`;
+  return d;
+}
+phases.forEach(p=>{
+  const ph=document.createElement('div'); ph.className='phase';
+  ph.innerHTML=`<h3><span class="badge ${p.badge}">${p.name}</span><span class="steps">${p.steps}</span></h3><p class="desc">${p.desc}</p>`;
+  p.turns.forEach(t=>ph.appendChild(turnEl(t)));
+  tl.appendChild(ph);
+});
+
+/* loop band */
+const band=document.createElement('div'); band.className='loopband';
+band.innerHTML=`<div class="cap">◍ DEGENERATE LOOP · steps 28–70 — same failure, structurally identical edits</div>`;
+loopCycles.forEach(c=>{
+  const row=document.createElement('div'); row.className='cycle';
+  row.innerHTML=`<span class="node">${c.range}</span><span class="arr">→</span>
+    <span class="node">${c.add}</span><span class="arr">→</span>
+    <span class="node">run test</span><span class="arr">→</span>
+    <span class="node" style="color:#ff9a92">identical error</span>
+    <span class="rep">${c.edit}</span>`;
+  band.appendChild(row);
+});
+const endnote=document.createElement('div'); endnote.className='cap';
+endnote.style.color='var(--warn)';
+endnote.textContent='✂ context window exhausted → auto-submit (exit_context)';
+band.appendChild(endnote);
+tl.appendChild(band);
+
+/* diff render */
+const diffText = `@@ -153,31 +153,28 @@ class Profile(Command):
+                 log.error("No environments selected")
+                 return
+
+-            if revision is not None:
++            if revision is not None and env_spec!= "existing":
+                 for env in environments:
+                     if not env.can_install_project():
+                         raise util.UserError(
+                             "An explicit revision may not be specified when "
+                             "using an existing environment.")
+-
++            elif env_spec == "existing":
++                env = environments[0]
++                environments = [env]
+             env = environments[0]
+-
+-            if env.python != "{0}.{1}".format(*sys.version_info[:2]):
++            if env.python!= "{0}.{1}".format(*sys.version_info[:2]):
+                 raise util.UserError(
+                     "Profiles must be run in the same version of Python as the "
+                     "asv master process")
+-
+             benchmarks = Benchmarks.discover(conf, repo, environments,
+                                              [commit_hash],
+                                              regex='^{0}$'.format(benchmark))
+-
+             if len(benchmarks) == 0:
+                 raise util.UserError("'{0}' benchmark not found".format(benchmark))
+             elif len(benchmarks) > 1:
+                 raise util.UserError("'{0}' matches more than one benchmark".format(benchmark))
+-
+             benchmark_name, = benchmarks.keys()
+-
+             if not force:
+@@ -185,13 +182,9 @@ class Profile(Command):
+             else:
+                 log.info("Running profiler")
+             with log.indent():
+-                env.install_project(conf, repo, commit_hash)
+-
+                 results = run_benchmarks(
+                     benchmarks, env, show_stderr=True, quick=False, profile=True)
+-
+                 profile_data = results.get_profile(benchmark_name)
+-
+         if gui is not None:`;
+const diffBox=document.getElementById('diff');
+diffText.split('\n').forEach(line=>{
+  const s=document.createElement('span'); s.className='ln';
+  if(line.startsWith('@@')) s.classList.add('hunk');
+  else if(line.startsWith('+')) s.classList.add('add');
+  else if(line.startsWith('-')) s.classList.add('del');
+  else s.classList.add('ctx');
+  s.textContent=line||' ';
+  diffBox.appendChild(s);
+});
+</script>
+</body>
+</html>

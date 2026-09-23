@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>distribution-search · TerminalBench trajectory</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --border:#2a3441;
+    --ink:#e6edf3; --dim:#8b98a5; --faint:#6b7684;
+    --accent:#58a6ff; --agent:#7ee787; --user:#d2a8ff;
+    --warn:#f0883e; --err:#ff7b72; --ok:#3fb950; --code:#1a1f28;
+    --mono:'SFMono-Regular',ui-monospace,'Cascadia Code',Consolas,'Liberation Mono',monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  .wrap{max-width:1060px;margin:0 auto;padding:32px 22px 90px}
+  header.top{border-bottom:1px solid var(--border);padding-bottom:22px;margin-bottom:26px}
+  .crumb{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.02em}
+  h1{margin:.35em 0 .15em;font-size:27px;letter-spacing:-.01em}
+  .sub{color:var(--dim);font-size:14px;max-width:70ch}
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;
+    border-radius:20px;border:1px solid var(--border);color:var(--dim);
+    background:var(--panel);margin:4px 6px 0 0;vertical-align:middle}
+  .pill.warn{color:var(--warn);border-color:#5a3a22;background:#241a12}
+  .pill.err{color:var(--err);border-color:#5a2a28;background:#241416}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:13px 15px}
+  .stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
+  .stat .v{font-family:var(--mono);font-size:20px;margin-top:3px;color:var(--ink)}
+  .stat .v small{font-size:12px;color:var(--dim);font-weight:normal}
+  section{margin:34px 0}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);
+    border-bottom:1px solid var(--border);padding-bottom:7px;margin-bottom:16px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+  .task h3{margin:.2em 0 .5em;font-size:16px}
+  .kl{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  @media(max-width:640px){.kl{grid-template-columns:1fr}}
+  .klbox{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:13px 15px}
+  .klbox .lbl{font-size:12px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .formula{font-family:var(--mono);font-size:13.5px;color:var(--ink);margin:8px 0 4px;
+    background:var(--code);padding:8px 10px;border-radius:6px;overflow-x:auto}
+  .req{list-style:none;padding:0;margin:12px 0 0}
+  .req li{font-family:var(--mono);font-size:13px;padding:6px 0 6px 24px;position:relative;
+    border-top:1px dashed var(--border);color:var(--ink)}
+  .req li:first-child{border-top:none}
+  .req li::before{content:'▸';position:absolute;left:4px;color:var(--accent)}
+  .req b{color:var(--agent)}
+  /* timeline */
+  .tl{position:relative;margin-left:6px;padding-left:26px;border-left:2px solid var(--border)}
+  .ev{position:relative;margin:0 0 16px}
+  .ev::before{content:'';position:absolute;left:-33px;top:4px;width:11px;height:11px;
+    border-radius:50%;background:var(--panel);border:2px solid var(--faint)}
+  .ev.agent::before{border-color:var(--agent)}
+  .ev.user::before{border-color:var(--user)}
+  .ev.tool::before{border-color:var(--accent)}
+  .ev.err::before{border-color:var(--err);background:var(--err)}
+  .ev.warn::before{border-color:var(--warn)}
+  .ev .role{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+  .ev.agent .role{color:var(--agent)}
+  .ev.user .role{color:var(--user)}
+  .ev.tool .role{color:var(--accent)}
+  .ev.err .role{color:var(--err)}
+  .ev.warn .role{color:var(--warn)}
+  .ev .body{margin-top:3px;color:var(--ink);font-size:14px}
+  .ev .body.dim{color:var(--dim)}
+  .tool-chip{font-family:var(--mono);font-size:12px;background:var(--code);
+    border:1px solid var(--border);border-radius:5px;padding:2px 7px;color:var(--accent);
+    display:inline-block;margin-right:6px}
+  .cmd{font-family:var(--mono);font-size:12.5px;background:var(--code);border:1px solid var(--border);
+    border-radius:6px;padding:8px 11px;margin-top:6px;color:#c9d4e0;overflow-x:auto;white-space:pre}
+  .obs{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:6px;
+    padding-left:11px;border-left:2px solid var(--border)}
+  .loop{background:var(--panel);border:1px dashed var(--warn);border-radius:9px;
+    padding:14px 16px;margin:2px 0 16px}
+  .loop .lh{font-family:var(--mono);font-size:12px;color:var(--warn);font-weight:600}
+  .poll-bars{display:flex;gap:3px;flex-wrap:wrap;margin:10px 0 4px}
+  .poll-bars span{width:14px;height:22px;background:var(--warn);opacity:.5;border-radius:2px}
+  .poll-bars span.chk{background:var(--accent);opacity:.7}
+  .loop small{color:var(--dim);font-family:var(--mono);font-size:11.5px}
+  .outcome{background:linear-gradient(180deg,#241416,#1a1215);border:1px solid #5a2a28;
+    border-radius:10px;padding:20px 22px}
+  .outcome h3{margin:0 0 8px;color:var(--err);font-size:16px}
+  .outcome p{margin:6px 0;color:var(--ink);font-size:14px}
+  .outcome ul{margin:10px 0 0;padding-left:20px;color:var(--dim);font-size:13.5px}
+  .outcome li{margin:4px 0}
+  .note{font-size:12.5px;color:var(--faint);margin-top:10px;font-style:italic}
+  footer{margin-top:50px;border-top:1px solid var(--border);padding-top:16px;
+    font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+  code.inl{font-family:var(--mono);background:var(--code);padding:1px 5px;border-radius:4px;
+    font-size:.92em;color:#c9d4e0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="crumb">terminal_devops / 05_distribution-search · TerminalBench</div>
+    <h1>Finding a target probability distribution</h1>
+    <p class="sub">Construct a probability distribution over a 150,000-token vocabulary whose
+    forward and backward KL divergences from uniform are <em>both</em> exactly 10.0 (±0.001),
+    then save it to <code class="inl">/app/dist.npy</code>.</p>
+    <div>
+      <span class="pill">agent: claude-code</span>
+      <span class="pill">model: claude-haiku-4-5</span>
+      <span class="pill">trial: distribution-search__7jYjH73</span>
+      <span class="pill warn">outcome: stalled → process killed</span>
+      <span class="pill err">no dist.npy produced</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="stat"><div class="k">Duration</div><div class="v">230.2<small> s</small></div></div>
+    <div class="stat"><div class="k">Input tokens</div><div class="v">771,992</div></div>
+    <div class="stat"><div class="k">Output tokens</div><div class="v">1,366</div></div>
+    <div class="stat"><div class="k">Cost</div><div class="v">8.49<small> ¢</small></div></div>
+    <div class="stat"><div class="k">Timeline steps</div><div class="v">45</div></div>
+    <div class="stat"><div class="k">Tool calls</div><div class="v">27</div></div>
+  </div>
+
+  <section>
+    <h2>The task</h2>
+    <div class="card task">
+      <h3>Two KL divergences, one distribution</h3>
+      <p style="color:var(--dim);font-size:14px;margin-top:0">
+      Confidence of an LLM token prediction is measured by KL divergence between the model
+      distribution <code class="inl">P</code> and the uniform distribution <code class="inl">U</code>.
+      The goal is a single <code class="inl">P</code> that hits a target of 10.0 on both directions.</p>
+      <div class="kl">
+        <div class="klbox">
+          <div class="lbl">Forward KL — target 10.0</div>
+          <div class="formula">KL(P‖U) = Σ P(i)·log( P(i) / U(i) )</div>
+        </div>
+        <div class="klbox">
+          <div class="lbl">Backward KL — target 10.0</div>
+          <div class="formula">KL(U‖P) = Σ U(i)·log( U(i) / P(i) )</div>
+        </div>
+      </div>
+      <ul class="req">
+        <li>forward KL(P‖U) = <b>10.0</b>,  tolerance ±0.001</li>
+        <li>backward KL(U‖P) = <b>10.0</b>,  tolerance ±0.001</li>
+        <li>vocabulary size n = <b>150,000</b></li>
+        <li>P must be a <b>valid</b> probability distribution (non-negative, sums to 1)</li>
+        <li>save to <b>/app/dist.npy</b> as a NumPy array &nbsp;(numpy + scipy available)</li>
+      </ul>
+      <p class="note">Task statement restored from the official terminal-bench registry; the
+      original recording had lost the instruction. The <code class="inl">reward</code> field
+      was stripped from this case.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the agent did</h2>
+    <div class="tl">
+
+      <div class="ev user">
+        <div class="role">user · warmup ×2</div>
+        <div class="body dim">Two empty "Warmup" turns before the real task is delivered.</div>
+      </div>
+
+      <div class="ev agent">
+        <div class="role">agent · self-intro ×2</div>
+        <div class="body dim">Model greets as a "file search specialist" (Glob / Grep / Read /
+        Bash), operating in <code class="inl">/app</code> — before the actual task arrives.</div>
+      </div>
+
+      <div class="ev user">
+        <div class="role">user · task delivered</div>
+        <div class="body">The KL-divergence distribution problem (shown above) is handed over.</div>
+      </div>
+
+      <div class="ev agent">
+        <div class="role">agent</div>
+        <div class="body">"I'll help you find a probability distribution that satisfies these
+        KL divergence constraints." Plans a 4-step approach.</div>
+      </div>
+
+      <div class="ev tool">
+        <div class="role">tool · TodoWrite</div>
+        <div class="body">Lays out the plan as a todo list.</div>
+        <div class="obs">1 · Understand KL divergence properties &nbsp;→ <em>in_progress</em>
+        <br>2 · Implement KL divergence calculations
+        <br>3 · Find distribution with KL(P‖U)=10 and KL(U‖P)=10
+        <br>4 · Save distribution to /app/dist.npy</div>
+      </div>
+
+      <div class="ev agent">
+        <div class="role">agent · math reasoning</div>
+        <div class="body">Works out the structure of the two divergences with U(i)=1/n:
+        <div class="cmd">KL(U‖P) = log(n) − Σ (1/n)·log(P(i))
+        = log(n) + H(P)/n     ← relates backward KL to entropy H(P)</div>
+        Uses this to reason about how to shape P.</div>
+      </div>
+
+      <div class="ev tool">
+        <div class="role">tool · Write</div>
+        <div class="body"><span class="tool-chip">Write</span>
+        <code class="inl">/app/find_distribution.py</code> — a search script for the target
+        distribution. <span style="color:var(--faint)">(Script body not preserved in the recording.)</span></div>
+      </div>
+
+      <div class="ev tool">
+        <div class="role">tool · Bash</div>
+        <div class="body"><span class="tool-chip">Bash</span> launches the search in the background.
+        <div class="cmd">python find_distribution.py     → background shell 66e6c5</div></div>
+      </div>
+
+      <div class="loop">
+        <div class="lh">⟳ polling loop — 22 × BashOutput + 1 × file check</div>
+        <div class="poll-bars">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span class="chk" title="ls /app/dist.npy — not found"></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="body dim" style="margin-top:8px">
+        Over ~50 s of wall-clock (20:31:13 → 20:31:59) the agent repeatedly queried the
+        background shell. Every single poll returned <code class="inl">&lt;status&gt;running&lt;/status&gt;</code>
+        with <code class="inl">stdoutLines: 1</code> — no progress.</div>
+        <div class="obs" style="margin-top:8px">Mid-loop check:
+        <code class="inl">ls -la /app/dist.npy</code> →
+        <span style="color:var(--err)">"cannot access '/app/dist.npy': No such file or directory"</span></div>
+        <small>Agent narration drifts from "wait a moment" → "wait a bit longer" →
+        "check more aggressively" → "the script might be stuck."</small>
+      </div>
+
+      <div class="ev err">
+        <div class="role">tool · KillShell — trajectory ends</div>
+        <div class="body">Concluding the script was stuck in its analytical search loop, the
+        agent kills the background process and the recording ends here.
+        <div class="obs" style="margin-top:6px">"Successfully killed shell: 66e6c5
+        (python find_distribution.py)"</div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Outcome</h2>
+    <div class="outcome">
+      <h3>✕ Incomplete — no valid solution written</h3>
+      <p>The agent understood the problem, derived useful structure (linking backward KL to
+      entropy), and wrote a search script — but that script never produced output within the
+      window. After 22 unproductive status polls the agent killed the stuck process, and the
+      trajectory terminates without ever creating <code class="inl">/app/dist.npy</code>.</p>
+      <ul>
+        <li><strong>Required artifact <code class="inl">/app/dist.npy</code> — never created.</strong></li>
+        <li>The background search loop appears to run forever / far too slowly at n = 150,000.</li>
+        <li>Nearly all of the 45 steps are spent waiting on and re-polling a single shell.</li>
+        <li>Just before giving up, the agent recognizes the need for "a better mathematical
+        approach" — but the run ends before any rewrite happens.</li>
+      </ul>
+      <p class="note">Reward is not available (stripped from this case), but the observable
+      evidence — no output file, killed process, abrupt end — indicates a failed attempt.</p>
+    </div>
+  </section>
+
+  <footer>
+    source: trajs/terminal_devops/05_distribution-search.json &nbsp;·&nbsp;
+    format: terminalbench-json &nbsp;·&nbsp;
+    sha256: 430ca092…0569d77 &nbsp;·&nbsp; references: none
+  </footer>
+
+</div>
+</body>
+</html>

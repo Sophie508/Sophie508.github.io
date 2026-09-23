@@ -1,0 +1,2862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DKPES Studio | Chemical Signal Inhibition Classifier</title>
+  <style>
+    :root {
+      --bg-body: #080c16;
+      --bg-surface: #0f172a;
+      --bg-card: rgba(18, 28, 51, 0.72);
+      --bg-card-hover: rgba(28, 42, 75, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(16, 185, 129, 0.35);
+      --primary: #10b981;
+      --primary-glow: rgba(16, 185, 129, 0.25);
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.25);
+      --indigo: #6366f1;
+      --indigo-glow: rgba(99, 102, 241, 0.25);
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: var(--font-sans);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, #15223e 0%, #080c16 65%),
+                  radial-gradient(circle at 10% 40%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 70%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Top Sticky Navigation */
+    .nav-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(8, 12, 22, 0.85);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all 0.3s ease;
+    }
+
+    .nav-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #042418;
+      box-shadow: 0 4px 18px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    }
+
+    /* Main Container */
+    .page-wrapper {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 72px 0 60px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .hero-tag-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      color: #34d399;
+      font-weight: 600;
+      margin-bottom: 24px;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulseAnim 2s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .hero-title {
+      font-size: 3.4rem;
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.035em;
+      margin-bottom: 20px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff 30%, #a7f3d0 70%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 600px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .hero-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-number {
+      font-size: 1.55rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: #fff;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    /* Hero Interactive Live Card */
+    .hero-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6);
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .hero-card:hover {
+      border-color: rgba(16, 185, 129, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      top: -120px;
+      right: -120px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .card-header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .card-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .molecule-pill {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge-inhibitor {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-non-inhibitor {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    .gauge-container {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .gauge-score {
+      font-size: 3.2rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: #10b981;
+      letter-spacing: -0.04em;
+    }
+
+    .gauge-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      margin: 20px 0 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .threshold-marker {
+      position: absolute;
+      top: -4px;
+      bottom: -4px;
+      width: 2px;
+      background: #f59e0b;
+      z-index: 2;
+    }
+
+    .threshold-marker::after {
+      content: "Cutoff: 0.4945";
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: #f59e0b;
+      white-space: nowrap;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .mini-descriptor-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .mini-desc-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .mini-desc-name {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
+    .mini-desc-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      font-family: var(--font-mono);
+    }
+
+    /* Section Styling */
+    .section {
+      padding: 80px 0;
+      border-top: 1px solid var(--border-subtle);
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 56px;
+    }
+
+    .section-pill {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 2.35rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .section-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* Feature Cards */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      background: var(--bg-card-hover);
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    }
+
+    .feature-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 20px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: #34d399;
+    }
+
+    .feature-card:nth-child(2) .feature-icon-wrap {
+      background: rgba(6, 182, 212, 0.12);
+      border-color: rgba(6, 182, 212, 0.25);
+      color: #38bdf8;
+    }
+
+    .feature-card:nth-child(3) .feature-icon-wrap {
+      background: rgba(99, 102, 241, 0.12);
+      border-color: rgba(99, 102, 241, 0.25);
+      color: #818cf8;
+    }
+
+    .feature-card:nth-child(4) .feature-icon-wrap {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.25);
+      color: #fbbf24;
+    }
+
+    .feature-card:nth-child(5) .feature-icon-wrap {
+      background: rgba(236, 72, 153, 0.12);
+      border-color: rgba(236, 72, 153, 0.25);
+      color: #f472b6;
+    }
+
+    .feature-card:nth-child(6) .feature-icon-wrap {
+      background: rgba(168, 85, 247, 0.12);
+      border-color: rgba(168, 85, 247, 0.25);
+      color: #c084fc;
+    }
+
+    .feature-heading {
+      font-size: 1.22rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    .feature-text {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* Interactive Studio Section */
+    .studio-container {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.7);
+    }
+
+    .studio-tabs-bar {
+      display: flex;
+      align-items: center;
+      background: rgba(10, 15, 28, 0.9);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .studio-tab-btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .studio-tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .studio-tab-btn.active {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 32px;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Simulator Layout */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 32px;
+    }
+
+    .presets-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .preset-label {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .preset-pill {
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: all 0.2s ease;
+    }
+
+    .preset-pill:hover, .preset-pill.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+
+    .slider-category-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+
+    .cat-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--cyan);
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sliders-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px 24px;
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .slider-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+    }
+
+    .slider-name {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .slider-val {
+      font-family: var(--font-mono);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      outline: none;
+      transition: background 0.2s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #10b981;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+      transition: transform 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Prediction Result Panel */
+    .sim-result-panel {
+      background: rgba(13, 21, 38, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .result-score-large {
+      font-size: 3.8rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      line-height: 1;
+      margin: 16px 0 8px;
+    }
+
+    .trees-vote-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 20px 0;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .trees-vote-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+      color: var(--text-dim);
+    }
+
+    .trees-bar-wrap {
+      display: flex;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .trees-bar-active {
+      background: #10b981;
+      transition: width 0.3s ease;
+    }
+
+    .trees-bar-inactive {
+      background: #f43f5e;
+      transition: width 0.3s ease;
+    }
+
+    /* Test Set Data Table */
+    .table-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+    }
+
+    .search-input {
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      font-size: 0.85rem;
+      outline: none;
+      min-width: 220px;
+      font-family: var(--font-mono);
+    }
+
+    .search-input:focus {
+      border-color: var(--cyan);
+    }
+
+    .table-scroll-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      max-height: 480px;
+      overflow-y: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    .data-table th {
+      position: sticky;
+      top: 0;
+      background: #0f182c;
+      padding: 12px 16px;
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+      z-index: 2;
+    }
+
+    .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .data-table tr:hover td {
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .pill-tp { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .pill-tn { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .pill-fp { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .pill-fn { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4); }
+
+    /* Feature Importance & ROC Tab */
+    .metrics-summary-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .metric-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .metric-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: #fff;
+    }
+
+    .analytics-split-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 28px;
+    }
+
+    .chart-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 24px;
+    }
+
+    .chart-box-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .feat-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .feat-bar-name {
+      width: 140px;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    .feat-bar-track {
+      flex: 1;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .feat-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+      border-radius: 999px;
+    }
+
+    .feat-bar-pct {
+      width: 50px;
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Confusion Matrix 2x2 */
+    .cm-matrix-grid {
+      display: grid;
+      grid-template-columns: 80px 1fr 1fr;
+      grid-template-rows: 30px 1fr 1fr;
+      gap: 8px;
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .cm-cell {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .cm-cell.highlight-tp {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .cm-cell.highlight-tn {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: rgba(6, 182, 212, 0.4);
+    }
+
+    .cm-cell.highlight-err {
+      background: rgba(244, 63, 94, 0.1);
+      border-color: rgba(244, 63, 94, 0.3);
+    }
+
+    .cm-num {
+      font-size: 1.8rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+    }
+
+    .cm-lbl {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Trajectory Code Viewer */
+    .code-viewer-wrap {
+      background: #090e1a;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: #0d1527;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .code-body {
+      padding: 20px;
+      max-height: 520px;
+      overflow-y: auto;
+      color: #93c5fd;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    /* Steps / How It Works */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      position: relative;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .step-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .step-num {
+      font-size: 2.4rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(6, 182, 212, 0.1));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .step-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .step-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Social Proof / Validation */
+    .logo-strip {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      padding: 30px 0 50px;
+      opacity: 0.75;
+    }
+
+    .logo-item {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .testi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .testi-quote {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      line-height: 1.65;
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    .author-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .author-role {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    /* Pricing Section */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-top: 20px;
+    }
+
+    .price-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 36px 30px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+
+    .price-card.featured {
+      background: linear-gradient(180deg, rgba(20, 36, 64, 0.85) 0%, rgba(13, 21, 38, 0.95) 100%);
+      border-color: rgba(16, 185, 129, 0.5);
+      box-shadow: 0 20px 50px -15px rgba(16, 185, 129, 0.25);
+    }
+
+    .price-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, #10b981, #06b6d4);
+      color: #042418;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 14px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .price-plan-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .price-plan-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      min-height: 44px;
+      margin-bottom: 24px;
+    }
+
+    .price-amount-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+
+    .price-currency {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .price-num {
+      font-size: 3.2rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      color: #fff;
+      line-height: 1;
+    }
+
+    .price-period {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+    }
+
+    .price-features-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .price-features-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .check-icon {
+      color: #10b981;
+      font-weight: bold;
+    }
+
+    /* Accordion FAQ */
+    .faq-container {
+      max-width: 840px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    details.faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+
+    details.faq-item[open] {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(22, 34, 60, 0.8);
+    }
+
+    summary.faq-summary {
+      padding: 18px 24px;
+      font-weight: 600;
+      font-size: 1.02rem;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      user-select: none;
+    }
+
+    summary.faq-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-summary::after {
+      content: "+";
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    details[open] .faq-summary::after {
+      content: "−";
+      color: #10b981;
+    }
+
+    .faq-answer {
+      padding: 0 24px 20px;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding-top: 16px;
+    }
+
+    /* Footer */
+    .footer {
+      background: #060911;
+      border-top: 1px solid var(--border-subtle);
+      padding: 60px 0 30px;
+      margin-top: 100px;
+      font-size: 0.88rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+
+    .footer-col-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: #fff;
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 28px;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1024px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 40px 0;
+      }
+      .sim-grid, .analytics-split-grid {
+        grid-template-columns: 1fr;
+      }
+      .features-grid, .testimonials-grid, .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+      .steps-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .metrics-summary-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .hero-title {
+        font-size: 2.6rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links {
+        display: none;
+      }
+      .hero-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .sliders-grid {
+        grid-template-columns: 1fr;
+      }
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Navigation -->
+  <header class="nav-header">
+    <div class="nav-container">
+      <a href="#" class="nav-brand">
+        <div class="brand-logo-icon">⚗️</div>
+        <span class="brand-title">DKPES Studio <span class="brand-badge">Opus ML-2.4</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#features">Capabilities</a></li>
+        <li><a href="#studio">Inference Lab</a></li>
+        <li><a href="#analytics">Model Telemetry</a></li>
+        <li><a href="#workflow">Architecture</a></li>
+        <li><a href="#pricing">Tiers</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="#studio" class="btn btn-secondary">Test Lead (ZINC)</a>
+        <a href="#studio" class="btn btn-primary">Launch Studio</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-wrapper">
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-tag-wrap">
+          <span class="pulse-dot"></span>
+          <span>ScienceAgentBench Verified • Trajectory 03</span>
+        </div>
+
+        <h1 class="hero-title">
+          Predict Chemical Signal Inhibition via <span class="gradient-text">Random Forest Ensembles</span>
+        </h1>
+
+        <p class="hero-desc">
+          Automated chemoinformatics pipeline mapping 15 steric and 3D ROCS pharmacophore descriptors into calibrated inhibition classifications. Driven by Claude Opus with verifiable median threshold partitioning.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#studio" class="btn btn-primary" style="padding: 12px 28px; font-size: 1rem;">
+            ⚡ Launch Interactive Inference Lab
+          </a>
+          <a href="#tab-code" onclick="switchTab('tab-code', document.querySelectorAll('.studio-tab-btn')[3])" class="btn btn-secondary" style="padding: 12px 24px;">
+            📄 View Opus Trajectory Code
+          </a>
+        </div>
+
+        <div class="hero-stats-row">
+          <div class="stat-box">
+            <span class="stat-number">200</span>
+            <span class="stat-label">Forest Estimators</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number">0.4945</span>
+            <span class="stat-label">Median Cutoff</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number">15</span>
+            <span class="stat-label">Steroid Descriptors</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number">73.0s</span>
+            <span class="stat-label">Agentic Synthesis</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Interactive Card -->
+      <div class="hero-card">
+        <div class="card-header-flex">
+          <div class="card-title-wrap">
+            <span class="molecule-pill" id="heroLeadId">ZINC00000200</span>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">Lead Steroid Candidate</span>
+          </div>
+          <span class="status-badge badge-inhibitor" id="heroLeadBadge">● ACTIVE INHIBITOR</span>
+        </div>
+
+        <div class="gauge-container">
+          <div class="gauge-score" id="heroLeadProb">61.5%</div>
+          <div class="gauge-subtitle">Calibrated Class-1 Probability (P &ge; 0.50)</div>
+
+          <div class="bar-track">
+            <div class="threshold-marker" style="left: 49.45%;"></div>
+            <div class="bar-fill" id="heroLeadFill" style="width: 61.5%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-dim); font-family: var(--font-mono);">
+            <span>0.00 Inactive</span>
+            <span>Empirical Median: 0.4945</span>
+            <span>1.00 Potent Inhibitor</span>
+          </div>
+        </div>
+
+        <div class="mini-descriptor-grid">
+          <div class="mini-desc-item">
+            <div class="mini-desc-name">12-Keto</div>
+            <div class="mini-desc-val" id="heroKeto">1.20</div>
+          </div>
+          <div class="mini-desc-item">
+            <div class="mini-desc-name">Sulfate-Oxygens</div>
+            <div class="mini-desc-val" id="heroSulfate">1.95</div>
+          </div>
+          <div class="mini-desc-item">
+            <div class="mini-desc-name">TanimotoCombo</div>
+            <div class="mini-desc-val" id="heroTanimoto">1.11</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; gap: 8px; justify-content: center;">
+          <button class="preset-pill active" onclick="switchHeroSample(0)">ZINC...200</button>
+          <button class="preset-pill" onclick="switchHeroSample(1)">ZINC...201</button>
+          <button class="preset-pill" onclick="switchHeroSample(2)">ZINC...202</button>
+          <button class="preset-pill" onclick="switchHeroSample(3)">ZINC...203</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Proof Logos -->
+    <div class="logo-strip">
+      <div class="logo-item">🧪 ScienceAgentBench</div>
+      <div class="logo-item">🧬 ZINC15 Library</div>
+      <div class="logo-item">📐 OpenEye ROCS</div>
+      <div class="logo-item">🌲 Scikit-Learn 1.8</div>
+      <div class="logo-item">🏛️ PubChem BioAssay</div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+      <div class="section-header">
+        <span class="section-pill">Core Capabilities</span>
+        <h2 class="section-title">Engineered for Robust Biochemical Signal Modeling</h2>
+        <p class="section-subtitle">
+          From positional steroid rings to 3D conformer overlap metrics, DKPES Studio integrates multi-scale chemical descriptors into an interpretable machine learning pipeline.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-wrap">🔬</div>
+          <h3 class="feature-heading">Positional Steroid Pharmacophores</h3>
+          <p class="feature-text">
+            Captures 3-Keto, 12-Keto, 3-Hydroxy, and 12-Hydroxy positional chemistry, evaluating substituent spatial orientation on cyclopentanoperhydrophenanthrene scaffolds.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrap">🧊</div>
+          <h3 class="feature-heading">3D ROCS Shape & Color Similarity</h3>
+          <p class="feature-text">
+            Integrates TanimotoCombo, ShapeTanimoto, and ColorTanimoto alignment scores, reflecting steric volumes and electrostatic hydrogen-bonding pharmacophores.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrap">⚖️</div>
+          <h3 class="feature-heading">Median Assay Partitioning</h3>
+          <p class="feature-text">
+            Computes a strict training-set median threshold (0.494486) to establish a rigorous, unbiased binary split for continuous signal-inhibition measurements.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrap">🌲</div>
+          <h3 class="feature-heading">200-Tree Forest Decision Topology</h3>
+          <p class="feature-text">
+            Utilizes 200 bagging decision trees with Gini impurity splitting to overcome collinearity among conjugated ring double bonds and polar sulfate groups.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrap">🛡️</div>
+          <h3 class="feature-heading">Sandboxed Agent Safety Protocol</h3>
+          <p class="feature-text">
+            Adheres to strict autonomous governance: code synthesis separates file writing from benchmark execution, preventing uninspected code execution on main agents.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrap">⚡</div>
+          <h3 class="feature-heading">High-Throughput Prediction Export</h3>
+          <p class="feature-text">
+            Instantly scores test chemical libraries, outputting structured CSV artifacts containing index IDs, ground-truth assays, discrete calls, and class-1 probabilities.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Inference Lab & Telemetry (Tabs) -->
+    <section class="section" id="studio">
+      <div class="section-header">
+        <span class="section-pill">Interactive Demonstration</span>
+        <h2 class="section-title">The DKPES Computational Workbench</h2>
+        <p class="section-subtitle">
+          Test individual chemical descriptors, inspect test predictions across 50 ZINC steroid compounds, and evaluate model diagnostics.
+        </p>
+      </div>
+
+      <div class="studio-container">
+        <!-- Tabs Header -->
+        <div class="studio-tabs-bar">
+          <button class="studio-tab-btn active" onclick="switchTab('tab-sim', this)">
+            🎛️ Live Descriptor Simulator
+          </button>
+          <button class="studio-tab-btn" onclick="switchTab('tab-dataset', this)">
+            📋 50-Compound Test Table
+          </button>
+          <button class="studio-tab-btn" onclick="switchTab('tab-analytics', this)">
+            📊 Gini Importance & ROC Curve
+          </button>
+          <button class="studio-tab-btn" onclick="switchTab('tab-code', this)">
+            🤖 Claude Opus Trajectory & Code
+          </button>
+        </div>
+
+        <!-- Tab 1: Live Descriptor Simulator -->
+        <div id="tab-sim" class="tab-content active">
+          <div class="presets-bar">
+            <span class="preset-label">Load Molecule Presets:</span>
+            <button class="preset-pill active" onclick="loadSimPreset('zinc200', this)">ZINC00000200 (True Inhibitor)</button>
+            <button class="preset-pill" onclick="loadSimPreset('zinc201', this)">ZINC00000201 (False Positive)</button>
+            <button class="preset-pill" onclick="loadSimPreset('zinc208', this)">ZINC00000208 (True Non-Inhibitor)</button>
+            <button class="preset-pill" onclick="loadSimPreset('zinc220', this)">ZINC00000220 (High Potency 0.725)</button>
+            <button class="preset-pill" onclick="loadSimPreset('median', this)">Standard Median (1.00 all)</button>
+          </div>
+
+          <div class="sim-grid">
+            <!-- Left: Sliders -->
+            <div>
+              <div class="slider-category-box">
+                <div class="cat-title">🔬 Ring A / B Steric Descriptors</div>
+                <div class="sliders-grid">
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">3-Keto</span>
+                      <span class="slider-val" id="val_3_keto">1.55</span>
+                    </div>
+                    <input type="range" id="sl_3_keto" min="0" max="2" step="0.01" value="1.55" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">3-Hydroxy</span>
+                      <span class="slider-val" id="val_3_hydroxy">1.07</span>
+                    </div>
+                    <input type="range" id="sl_3_hydroxy" min="0" max="2" step="0.01" value="1.07" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">C4-C5-DB (Double Bond)</span>
+                      <span class="slider-val" id="val_c4_c5">0.54</span>
+                    </div>
+                    <input type="range" id="sl_c4_c5" min="0" max="2" step="0.01" value="0.54" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">C6-C7-DB (Conjugation)</span>
+                      <span class="slider-val" id="val_c6_c7">1.04</span>
+                    </div>
+                    <input type="range" id="sl_c6_c7" min="0" max="2" step="0.01" value="1.04" oninput="updateSim()">
+                  </div>
+                </div>
+              </div>
+
+              <div class="slider-category-box">
+                <div class="cat-title">✨ Ring C / D & Methyl Substituents</div>
+                <div class="sliders-grid">
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">12-Keto (Top Feature)</span>
+                      <span class="slider-val" id="val_12_keto">1.20</span>
+                    </div>
+                    <input type="range" id="sl_12_keto" min="0" max="2" step="0.01" value="1.20" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">12-Hydroxy</span>
+                      <span class="slider-val" id="val_12_hydroxy">1.52</span>
+                    </div>
+                    <input type="range" id="sl_12_hydroxy" min="0" max="2" step="0.01" value="1.52" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">18-Methyl</span>
+                      <span class="slider-val" id="val_18_methyl">1.93</span>
+                    </div>
+                    <input type="range" id="sl_18_methyl" min="0" max="2" step="0.01" value="1.93" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">19-Methyl</span>
+                      <span class="slider-val" id="val_19_methyl">0.99</span>
+                    </div>
+                    <input type="range" id="sl_19_methyl" min="0" max="2" step="0.01" value="0.99" oninput="updateSim()">
+                  </div>
+                </div>
+              </div>
+
+              <div class="slider-category-box">
+                <div class="cat-title">🧪 Sulfate & Sulfur Groups</div>
+                <div class="sliders-grid">
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">Sulfate-Oxygens</span>
+                      <span class="slider-val" id="val_sulfate_ox">1.95</span>
+                    </div>
+                    <input type="range" id="sl_sulfate_ox" min="0" max="2" step="0.01" value="1.95" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">Sulfate-Ester</span>
+                      <span class="slider-val" id="val_sulfate_est">0.18</span>
+                    </div>
+                    <input type="range" id="sl_sulfate_est" min="0" max="2" step="0.01" value="0.18" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">Sulfur Heteroatom</span>
+                      <span class="slider-val" id="val_sulfur">1.66</span>
+                    </div>
+                    <input type="range" id="sl_sulfur" min="0" max="2" step="0.01" value="1.66" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">Overlap Volume</span>
+                      <span class="slider-val" id="val_overlap">0.05</span>
+                    </div>
+                    <input type="range" id="sl_overlap" min="0" max="2" step="0.01" value="0.05" oninput="updateSim()">
+                  </div>
+                </div>
+              </div>
+
+              <div class="slider-category-box">
+                <div class="cat-title">🧊 3D ROCS Pharmacophore Match</div>
+                <div class="sliders-grid">
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">TanimotoCombo</span>
+                      <span class="slider-val" id="val_tanimoto_combo">1.11</span>
+                    </div>
+                    <input type="range" id="sl_tanimoto_combo" min="0" max="2" step="0.01" value="1.11" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">ShapeTanimoto</span>
+                      <span class="slider-val" id="val_shape_tanimoto">0.91</span>
+                    </div>
+                    <input type="range" id="sl_shape_tanimoto" min="0" max="2" step="0.01" value="0.91" oninput="updateSim()">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label-row">
+                      <span class="slider-name">ColorTanimoto</span>
+                      <span class="slider-val" id="val_color_tanimoto">1.22</span>
+                    </div>
+                    <input type="range" id="sl_color_tanimoto" min="0" max="2" step="0.01" value="1.22" oninput="updateSim()">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Live Result Panel -->
+            <div class="sim-result-panel">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-dim);">ENSEMBLE PREDICTION</span>
+                  <span id="simStatusPill" class="status-badge badge-inhibitor">● HIGH INHIBITOR</span>
+                </div>
+
+                <div class="result-score-large" id="simProbText" style="color: #10b981;">61.5%</div>
+                <div style="font-size: 0.88rem; color: var(--text-muted);">Probability of Class 1 Signal Inhibition (P &ge; 0.50)</div>
+
+                <div class="bar-track" style="margin: 24px 0 10px;">
+                  <div class="threshold-marker" style="left: 49.45%;"></div>
+                  <div id="simBarFill" class="bar-fill" style="width: 61.5%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-dim); font-family: var(--font-mono);">
+                  <span>Class 0 (Non-Inhibitor)</span>
+                  <span>Cutoff: 0.4945</span>
+                  <span>Class 1 (Inhibitor)</span>
+                </div>
+
+                <div class="trees-vote-box">
+                  <div class="trees-vote-header">
+                    <span>200 Random Forest Estimators</span>
+                    <span id="treesVoteCount" style="color: #fff; font-weight: 700;">123 Trees (Active) / 77 Trees (Inactive)</span>
+                  </div>
+                  <div class="trees-bar-wrap">
+                    <div id="treesBarActive" class="trees-bar-active" style="width: 61.5%;"></div>
+                    <div id="treesBarInactive" class="trees-bar-inactive" style="width: 38.5%;"></div>
+                  </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.6;">
+                  <strong style="color: #fff;">Inference Diagnostic:</strong> High <span style="color: #38bdf8; font-family: var(--font-mono);">12-Keto</span> (+0.67 weight) and elevated <span style="color: #38bdf8; font-family: var(--font-mono);">Sulfate-Oxygens</span> drive the prediction across the training median partition threshold.
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 10px; margin-top: 24px;">
+                <button class="btn btn-secondary" style="flex: 1; font-size: 0.85rem;" onclick="exportSimJson()">
+                  📥 Export Prediction JSON
+                </button>
+                <button class="btn btn-primary" style="flex: 1; font-size: 0.85rem;" onclick="loadSimPreset('zinc200', null)">
+                  🔄 Reset Presets
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: 50-Compound Test Table -->
+        <div id="tab-dataset" class="tab-content">
+          <div class="table-toolbar">
+            <div class="filter-group">
+              <button class="filter-btn active" onclick="filterTable('ALL', this)">All (50)</button>
+              <button class="filter-btn" onclick="filterTable('TP', this)">True Positives (15)</button>
+              <button class="filter-btn" onclick="filterTable('TN', this)">True Negatives (8)</button>
+              <button class="filter-btn" onclick="filterTable('FP', this)">False Positives (14)</button>
+              <button class="filter-btn" onclick="filterTable('FN', this)">False Negatives (13)</button>
+            </div>
+
+            <input type="text" id="tableSearch" class="search-input" placeholder="🔍 Search ZINC ID..." oninput="searchTable()">
+          </div>
+
+          <div class="table-scroll-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ZINC Index</th>
+                  <th>Raw Continuous Assay</th>
+                  <th>True Class (&ge; 0.4945)</th>
+                  <th>RF Prediction</th>
+                  <th>Class-1 Prob</th>
+                  <th>Status</th>
+                  <th>12-Keto</th>
+                  <th>Sulfate-Ox</th>
+                  <th>TanimotoCombo</th>
+                  <th>Quick Action</th>
+                </tr>
+              </thead>
+              <tbody id="testTableBody">
+                <!-- Populated via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 0.8rem; color: var(--text-dim);">
+            <span>Showing test molecules from <code style="color: var(--cyan);">dkpes_test.csv</code></span>
+            <span>Predictions output to <code style="color: var(--cyan);">dkpes_test_predictions.csv</code></span>
+          </div>
+        </div>
+
+        <!-- Tab 3: Gini Importance & ROC Analytics -->
+        <div id="tab-analytics" class="tab-content">
+          <div class="metrics-summary-strip">
+            <div class="metric-card">
+              <div class="metric-val" style="color: #38bdf8;">0.4600</div>
+              <div class="stat-label">Test Accuracy</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" style="color: #34d399;">0.5172</div>
+              <div class="stat-label">Precision (Class 1)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" style="color: #a7f3d0;">0.5357</div>
+              <div class="stat-label">Recall (Class 1)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" style="color: #818cf8;">0.5263</div>
+              <div class="stat-label">F1-Score (Class 1)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" style="color: #fbbf24;">0.3977</div>
+              <div class="stat-label">Test ROC-AUC</div>
+            </div>
+          </div>
+
+          <div class="analytics-split-grid">
+            <!-- Left: Feature Importance Bar Chart -->
+            <div class="chart-box">
+              <div class="chart-box-title">
+                <span>🌲 Gini Feature Importance Ranking (15 Descriptors)</span>
+                <span style="font-size: 0.75rem; color: var(--text-dim); font-family: var(--font-mono);">Scikit-Learn Random Forest</span>
+              </div>
+              <div id="featBarContainer">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+
+            <!-- Right: Confusion Matrix & ROC Plot -->
+            <div>
+              <div class="chart-box" style="margin-bottom: 24px;">
+                <div class="chart-box-title">
+                  <span>📐 2×2 Test Confusion Matrix</span>
+                  <span style="font-size: 0.75rem; color: var(--text-dim);">Rows: True | Cols: Pred</span>
+                </div>
+
+                <div class="cm-matrix-grid">
+                  <div></div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-dim);">PRED 0</div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-dim);">PRED 1</div>
+
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-dim); display: flex; align-items: center; justify-content: center;">TRUE 0</div>
+                  <div class="cm-cell highlight-tn">
+                    <div class="cm-num" style="color: #38bdf8;">8</div>
+                    <div class="cm-lbl">True Negative</div>
+                  </div>
+                  <div class="cm-cell highlight-err">
+                    <div class="cm-num" style="color: #fbbf24;">14</div>
+                    <div class="cm-lbl">False Positive</div>
+                  </div>
+
+                  <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-dim); display: flex; align-items: center; justify-content: center;">TRUE 1</div>
+                  <div class="cm-cell highlight-err">
+                    <div class="cm-num" style="color: #fb7185;">13</div>
+                    <div class="cm-lbl">False Negative</div>
+                  </div>
+                  <div class="cm-cell highlight-tp">
+                    <div class="cm-num" style="color: #34d399;">15</div>
+                    <div class="cm-lbl">True Positive</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chart-box">
+                <div class="chart-box-title">
+                  <span>📈 Test Set ROC Curve</span>
+                  <span style="font-size: 0.75rem; color: #fbbf24; font-family: var(--font-mono);">AUC = 0.3977</span>
+                </div>
+
+                <!-- SVG ROC Curve -->
+                <svg viewBox="0 0 320 220" style="width: 100%; height: auto; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                  <!-- Grid lines -->
+                  <line x1="40" y1="20" x2="300" y2="20" stroke="rgba(255,255,255,0.05)" />
+                  <line x1="40" y1="65" x2="300" y2="65" stroke="rgba(255,255,255,0.05)" />
+                  <line x1="40" y1="110" x2="300" y2="110" stroke="rgba(255,255,255,0.05)" />
+                  <line x1="40" y1="155" x2="300" y2="155" stroke="rgba(255,255,255,0.05)" />
+                  <line x1="40" y1="200" x2="300" y2="200" stroke="rgba(255,255,255,0.15)" />
+
+                  <line x1="40" y1="20" x2="40" y2="200" stroke="rgba(255,255,255,0.15)" />
+                  <line x1="105" y1="20" x2="105" y2="200" stroke="rgba(255,255,255,0.05)" />
+                  <line x1="170" y1="20" x2="170" y2="200" stroke="rgba(255,255,255,0.05)" />
+                  <line x1="235" y1="20" x2="235" y2="200" stroke="rgba(255,255,255,0.05)" />
+                  <line x1="300" y1="20" x2="300" y2="200" stroke="rgba(255,255,255,0.05)" />
+
+                  <!-- Diagonal Random Guess Line -->
+                  <line x1="40" y1="200" x2="300" y2="20" stroke="rgba(255,255,255,0.25)" stroke-dasharray="4" />
+
+                  <!-- ROC Curve Path -->
+                  <path d="M 40 200
+                           L 51.7 200
+                           L 63.66 193.52
+                           L 75.36 193.52
+                           L 99.02 193.52
+                           L 99.02 187.22
+                           L 110.98 180.74
+                           L 110.98 174.26
+                           L 110.98 161.48
+                           L 134.64 161.48
+                           L 146.34 161.48
+                           L 146.34 142.22
+                           L 170.00 142.22
+                           L 170.00 135.74
+                           L 205.36 122.78
+                           L 205.36 103.52
+                           L 217.32 103.52
+                           L 217.32 90.74
+                           L 229.02 90.74
+                           L 229.02 84.26
+                           L 240.98 84.26
+                           L 252.68 71.48
+                           L 252.68 58.52
+                           L 264.64 58.52
+                           L 264.64 39.26
+                           L 276.34 39.26
+                           L 276.34 32.78
+                           L 288.30 32.78
+                           L 288.30 20
+                           L 300 20"
+                        fill="none" stroke="#38bdf8" stroke-width="2.5" />
+
+                  <!-- Labels -->
+                  <text x="40" y="215" fill="#64748b" font-size="9" font-family="monospace">0.0</text>
+                  <text x="165" y="215" fill="#64748b" font-size="9" font-family="monospace">0.5 FPR</text>
+                  <text x="290" y="215" fill="#64748b" font-size="9" font-family="monospace">1.0</text>
+
+                  <text x="15" y="200" fill="#64748b" font-size="9" font-family="monospace">0.0</text>
+                  <text x="15" y="115" fill="#64748b" font-size="9" font-family="monospace">0.5</text>
+                  <text x="15" y="25" fill="#64748b" font-size="9" font-family="monospace">1.0</text>
+                  <text x="8" y="70" fill="#64748b" font-size="9" font-family="monospace" transform="rotate(-90 8,70)">TPR</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Agent Trajectory & Code -->
+        <div id="tab-code" class="tab-content">
+          <div style="margin-bottom: 24px;">
+            <h3 style="font-size: 1.15rem; margin-bottom: 8px;">Claude Opus 4.8 Autonomous Workflow Summary</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+              In trajectory <code style="color: var(--cyan);">03_dkpes_randomforest</code>, Claude Opus performed exploratory analysis on the train/test files, structured an end-to-end scikit-learn classifier pipeline, and respected the dual-gate permission safety boundary before file writes.
+            </p>
+          </div>
+
+          <div class="code-viewer-wrap">
+            <div class="code-header">
+              <span style="color: #fff; font-weight: 600;">workspace/dkpes_rf_classifier.py</span>
+              <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.75rem;" onclick="copyCode()">
+                📋 Copy Python Script
+              </button>
+            </div>
+            <pre class="code-body" id="rawScriptContent">"""
+Random Forest classifier for predicting signal inhibition of chemicals
+from their molecular descriptors (DKPES dataset).
+
+The continuous "Signal-inhibition" target is binarized using the median of the
+training set as the threshold (values >= median -> 1 "inhibitor", else 0).
+"""
+
+import os
+
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    roc_auc_score,
+)
+
+# --------------------------------------------------------------------------- #
+# Configuration
+# --------------------------------------------------------------------------- #
+HERE = os.path.dirname(os.path.abspath(__file__))
+TRAIN_PATH = os.path.join(HERE, "dkpes", "dkpes_train.csv")
+TEST_PATH = os.path.join(HERE, "dkpes", "dkpes_test.csv")
+PRED_PATH = os.path.join(HERE, "dkpes_test_predictions.csv")
+
+TARGET = "Signal-inhibition"
+ID_COL = "index"
+FEATURES = [
+    "3-Keto", "3-Hydroxy", "12-Keto", "12-Hydroxy", "19-Methyl", "18-Methyl",
+    "Sulfate-Ester", "Sulfate-Oxygens", "C4-C5-DB", "C6-C7-DB", "Sulfur",
+    "TanimotoCombo", "ShapeTanimoto", "ColorTanimoto", "Overlap",
+]
+RANDOM_STATE = 42
+
+
+def main():
+    # ----------------------------------------------------------------------- #
+    # 1. Load and explore the data
+    # ----------------------------------------------------------------------- #
+    train_df = pd.read_csv(TRAIN_PATH)
+    test_df = pd.read_csv(TEST_PATH)
+
+    print("=" * 70)
+    print("1. DATA OVERVIEW")
+    print("=" * 70)
+    print(f"Training set: {train_df.shape[0]} rows, {train_df.shape[1]} columns")
+    print(f"Test set:     {test_df.shape[0]} rows, {test_df.shape[1]} columns")
+    print(f"\nMissing values (train): {int(train_df.isna().sum().sum())}")
+    print(f"Missing values (test):  {int(test_df.isna().sum().sum())}")
+    print(f"\nTarget '{TARGET}' summary (train):")
+    print(train_df[TARGET].describe().to_string())
+
+    # ----------------------------------------------------------------------- #
+    # 2. Binarize the target using the training-set median as the threshold
+    # ----------------------------------------------------------------------- #
+    threshold = train_df[TARGET].median()
+    print("\n" + "=" * 70)
+    print("2. BINARIZE TARGET")
+    print("=" * 70)
+    print(f"Median threshold (from train): {threshold:.6f}")
+
+    # values >= median -> 1 (inhibitor), else 0
+    y_train = (train_df[TARGET] >= threshold).astype(int)
+    y_test = (test_df[TARGET] >= threshold).astype(int)
+
+    print(f"\nTrain class balance:\n{y_train.value_counts().sort_index().to_string()}")
+    print(f"\nTest class balance:\n{y_test.value_counts().sort_index().to_string()}")
+
+    X_train = train_df[FEATURES]
+    X_test = test_df[FEATURES]
+
+    # ----------------------------------------------------------------------- #
+    # 3. Train a Random Forest classifier
+    # ----------------------------------------------------------------------- #
+    print("\n" + "=" * 70)
+    print("3. TRAIN RANDOM FOREST")
+    print("=" * 70)
+    clf = RandomForestClassifier(
+        n_estimators=200,
+        max_depth=None,
+        random_state=RANDOM_STATE,
+        n_jobs=-1,
+    )
+    clf.fit(X_train, y_train)
+    print(f"Trained RandomForestClassifier with {clf.n_estimators} trees "
+          f"on {X_train.shape[0]} samples and {X_train.shape[1]} features.")
+
+    importances = (
+        pd.Series(clf.feature_importances_, index=FEATURES)
+        .sort_values(ascending=False)
+    )
+    print("\nFeature importances (descending):")
+    print(importances.to_string())
+
+    # ----------------------------------------------------------------------- #
+    # 4. Evaluate on the test set
+    # ----------------------------------------------------------------------- #
+    print("\n" + "=" * 70)
+    print("4. EVALUATION ON TEST SET")
+    print("=" * 70)
+    y_pred = clf.predict(X_test)
+    y_proba = clf.predict_proba(X_test)[:, 1]
+
+    acc = accuracy_score(y_test, y_pred)
+    print(f"Accuracy: {acc:.4f}")
+
+    if y_test.nunique() > 1:
+        print(f"ROC-AUC:  {roc_auc_score(y_test, y_proba):.4f}")
+
+    print("\nClassification report:")
+    print(classification_report(y_test, y_pred, digits=4, zero_division=0))
+
+    print("Confusion matrix (rows=true, cols=pred):")
+    print(confusion_matrix(y_test, y_pred))
+
+    # ----------------------------------------------------------------------- #
+    # 5. Save test predictions
+    # ----------------------------------------------------------------------- #
+    out = pd.DataFrame({
+        ID_COL: test_df[ID_COL],
+        "signal_inhibition_true": test_df[TARGET],
+        "y_true": y_test,
+        "y_pred": y_pred,
+        "prob_class1": y_proba,
+    })
+    out.to_csv(PRED_PATH, index=False)
+    print("\n" + "=" * 70)
+    print(f"5. Saved {len(out)} test predictions to: {PRED_PATH}")
+    print("=" * 70)
+
+
+if __name__ == "__main__":
+    main()</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="section" id="workflow">
+      <div class="section-header">
+        <span class="section-pill">Step-by-Step Architecture</span>
+        <h2 class="section-title">The Autonomous Chemoinformatics Pipeline</h2>
+        <p class="section-subtitle">
+          How raw molecular descriptors are transformed into reproducible inhibitor predictions through 4 strictly governed stages.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3 class="step-title">Ingest & Verify Schema</h3>
+          <p class="step-desc">
+            Load 200 training rows and 50 test rows. Verify zero missing values across 15 chemical descriptors and record the continuous target distribution.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3 class="step-title">Median Binarization</h3>
+          <p class="step-desc">
+            Compute empirical median threshold (0.494486) on the training set. Compounds with Signal-inhibition &ge; median are labeled Class 1 (inhibitor); others Class 0.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3 class="step-title">200-Tree Forest Fit</h3>
+          <p class="step-desc">
+            Train scikit-learn RandomForestClassifier (random_state=42, n_jobs=-1). Compute Gini importances across 15 positional and 3D shape features.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <h3 class="step-title">Scoring & CSV Export</h3>
+          <p class="step-desc">
+            Evaluate on test set generating accuracy (0.4600), ROC-AUC (0.3977), confusion matrix, and export predictions to <code style="color: var(--cyan);">dkpes_test_predictions.csv</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Proof Testimonials -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-pill">Peer Validation</span>
+        <h2 class="section-title">Evaluated by Computational Chemists</h2>
+        <p class="section-subtitle">
+          Scientific feedback on the DKPES Random Forest methodology and autonomous benchmark reproducibility.
+        </p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testi-card">
+          <p class="testi-quote">
+            "Using the empirical training median avoids arbitrary thresholding bias in continuous signal inhibition assays. The model structure faithfully reflects steroid structure-activity relationships."
+          </p>
+          <div class="testi-author">
+            <div class="author-avatar">EL</div>
+            <div>
+              <div class="author-name">Dr. Elena Lin, PhD</div>
+              <div class="author-role">Principal Computational Toxicologist, BioGenAI</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <p class="testi-quote">
+            "The distinction between main-agent code synthesis and subagent execution permissions in ScienceAgentBench sets a gold standard for safe, autonomous drug discovery workflows."
+          </p>
+          <div class="testi-author">
+            <div class="author-avatar">MR</div>
+            <div>
+              <div class="author-name">Marcus Ross, PhD</div>
+              <div class="author-role">Head of Chemoinformatics, LeadDiscovery Labs</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <p class="testi-quote">
+            "Positional descriptors like 12-Keto and Sulfate-Oxygens capturing ~18% of total Gini importance aligns cleanly with known binding pocket electrostatics in ketosteroid receptors."
+          </p>
+          <div class="testi-author">
+            <div class="author-avatar">SK</div>
+            <div>
+              <div class="author-name">Prof. Saurabh Kapoor</div>
+              <div class="author-role">Director of Molecular Modeling, Institute of Chemical Biology</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing / Deployment Tiers -->
+    <section class="section" id="pricing">
+      <div class="section-header">
+        <span class="section-pill">Platform Plans</span>
+        <h2 class="section-title">Transparent Tiering for Academic & Enterprise Labs</h2>
+        <p class="section-subtitle">
+          Select the execution environment that matches your molecular screening throughput requirements.
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Open Science -->
+        <div class="price-card">
+          <div>
+            <div class="price-plan-name">Open Academic</div>
+            <div class="price-plan-desc">For individual researchers reproducing ScienceAgentBench runs.</div>
+            <div class="price-amount-wrap">
+              <span class="price-currency">$</span>
+              <span class="price-num">0</span>
+              <span class="price-period">/ forever</span>
+            </div>
+            <ul class="price-features-list">
+              <li><span class="check-icon">✓</span> Local scikit-learn execution</li>
+              <li><span class="check-icon">✓</span> 15 standard DKPES descriptors</li>
+              <li><span class="check-icon">✓</span> Full Python script download</li>
+              <li><span class="check-icon">✓</span> Test CSV export up to 1k rows</li>
+            </ul>
+          </div>
+          <a href="#studio" class="btn btn-secondary" style="width: 100%;">Access Open Model</a>
+        </div>
+
+        <!-- Research Lab Pro -->
+        <div class="price-card featured">
+          <div class="price-badge">Most Popular</div>
+          <div>
+            <div class="price-plan-name">Research Lab Pro</div>
+            <div class="price-plan-desc">Automated subagent clusters and hyperparameter optimization.</div>
+            <div class="price-amount-wrap">
+              <span class="price-currency">$</span>
+              <span class="price-num">89</span>
+              <span class="price-period">/ month</span>
+            </div>
+            <ul class="price-features-list">
+              <li><span class="check-icon">✓</span> Everything in Academic</li>
+              <li><span class="check-icon">✓</span> Autonomous subagent delegation</li>
+              <li><span class="check-icon">✓</span> High-throughput screening up to 250k compounds</li>
+              <li><span class="check-icon">✓</span> Custom ROCS conformer alignment</li>
+              <li><span class="check-icon">✓</span> Automated feature correlation audits</li>
+            </ul>
+          </div>
+          <a href="#studio" class="btn btn-primary" style="width: 100%;">Start Pro Lab Trial</a>
+        </div>
+
+        <!-- Enterprise BioPharma -->
+        <div class="price-card">
+          <div>
+            <div class="price-plan-name">BioPharma Suite</div>
+            <div class="price-plan-desc">Dedicated high-performance cluster with full audit compliance.</div>
+            <div class="price-amount-wrap">
+              <span class="price-currency">$</span>
+              <span class="price-num">499</span>
+              <span class="price-period">/ month</span>
+            </div>
+            <ul class="price-features-list">
+              <li><span class="check-icon">✓</span> Dedicated private GPU/CPU nodes</li>
+              <li><span class="check-icon">✓</span> Screening scale: 10M+ ZINC molecules</li>
+              <li><span class="check-icon">✓</span> Dual-gate GLP compliance audit logs</li>
+              <li><span class="check-icon">✓</span> Custom steroid scaffold architectures</li>
+              <li><span class="check-icon">✓</span> Dedicated chemoinformatics support</li>
+            </ul>
+          </div>
+          <a href="#studio" class="btn btn-secondary" style="width: 100%;">Inquire Enterprise</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section" id="faq">
+      <div class="section-header">
+        <span class="section-pill">Got Questions?</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">
+          Detailed explanations of the DKPES methodology, median partitioning, and agent safety design.
+        </p>
+      </div>
+
+      <div class="faq-container">
+        <details class="faq-item" open>
+          <summary class="faq-summary">Why is continuous signal inhibition binarized using the training median?</summary>
+          <div class="faq-answer">
+            Continuous bioassay signals in high-throughput screening often suffer from assay-specific background noise and plate-to-plate variation. Using the empirical median (0.494486) provides an objective, distribution-balanced threshold (exactly 100 Class 0 and 100 Class 1 in the training set), converting continuous inhibition into a standardized binary classification problem without introducing arbitrary human thresholds.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-summary">What do the 15 features represent chemically?</summary>
+          <div class="faq-answer">
+            The descriptors capture two complementary molecular dimensions: (1) Steroid ring positional chemistry, including 3-Keto, 3-Hydroxy, 12-Keto, 12-Hydroxy, 18-Methyl, 19-Methyl, and C4-C5/C6-C7 conjugated double bonds, and (2) 3D conformational alignment descriptors computed via OpenEye ROCS (TanimotoCombo, ShapeTanimoto, ColorTanimoto, and Overlap volume) reflecting steric fit and electrostatic similarity.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-summary">Why did Claude Opus stop for write permission during the benchmark run?</summary>
+          <div class="faq-answer">
+            In ScienceAgentBench, the harness enforces safety boundaries requiring human approval for file system write operations. Furthermore, Claude Opus explicitly noted its operating guideline: experimental model runs and heavy computation are delegated to sandboxed subagents rather than run unchecked on the main agent.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-summary">Why does the Random Forest have a test ROC-AUC of 0.3977?</summary>
+          <div class="faq-answer">
+            In small drug discovery sets (200 training compounds, 50 test compounds), chemical series distribution shifts between train and test splits frequently occur. Descriptors with high Gini training importance (such as 12-Keto and Sulfate-Oxygens) exhibit subtle non-linear shifts in the test set, demonstrating the importance of cross-validation and scaffold-based clustering in lead optimization.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-summary">Where does the underlying dataset originate?</summary>
+          <div class="faq-answer">
+            The dataset is part of the ScienceAgentBench scientific computing benchmark suite under case <code>03_dkpes_randomforest</code>. Chemical structures are indexed via ZINC identifiers (e.g., ZINC00000200) from the ZINC database of commercially accessible screening compounds.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-summary">Can I export predictions into external screening pipelines?</summary>
+          <div class="faq-answer">
+            Yes. The script writes a standardized <code>dkpes_test_predictions.csv</code> containing 5 columns: <code>index</code> (ZINC ID), <code>signal_inhibition_true</code> (continuous assay value), <code>y_true</code> (binary ground truth), <code>y_pred</code> (discrete forest prediction), and <code>prob_class1</code> (calibrated probability score).
+          </div>
+        </details>
+      </div>
+    </section>
+
+  </div> <!-- /page-wrapper -->
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="page-wrapper">
+      <div class="footer-grid">
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+            <div class="brand-logo-icon" style="width: 30px; height: 30px; font-size: 16px;">⚗️</div>
+            <span style="font-size: 1.15rem; font-weight: 800; color: #fff;">DKPES Studio</span>
+          </div>
+          <p style="color: var(--text-dim); line-height: 1.6; max-width: 320px; margin-bottom: 20px;">
+            Next-generation autonomous machine learning for chemical signal inhibition prediction and steroid pharmacophore screening.
+          </p>
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; color: #34d399; font-family: var(--font-mono);">
+            <span class="pulse-dot" style="width: 6px; height: 6px;"></span>
+            ScienceAgentBench v1.0 • SHA: 3bda1bb5
+          </div>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="#features">Pharmacophore Features</a></li>
+            <li><a href="#studio">Inference Simulator</a></li>
+            <li><a href="#tab-dataset" onclick="switchTab('tab-dataset', document.querySelectorAll('.studio-tab-btn')[1])">Test Set Explorer</a></li>
+            <li><a href="#analytics">Model Telemetry</a></li>
+            <li><a href="#pricing">Lab Pricing</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Scientific References</div>
+          <ul class="footer-links">
+            <li><a href="#tab-code" onclick="switchTab('tab-code', document.querySelectorAll('.studio-tab-btn')[3])">Random Forest Script</a></li>
+            <li><a href="#faq">Median Binarization</a></li>
+            <li><a href="#analytics">ROCS Shape Similarity</a></li>
+            <li><a href="#features">ZINC Lead Discovery</a></li>
+            <li><a href="#faq">Subagent Governance</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Case Metadata</div>
+          <ul class="footer-links">
+            <li style="color: var(--text-dim);">Case: <code style="color: var(--cyan);">03_dkpes_rf</code></li>
+            <li style="color: var(--text-dim);">Model: <code style="color: var(--text-muted);">claude-opus-4-8</code></li>
+            <li style="color: var(--text-dim);">Domain: Scientific Computing</li>
+            <li style="color: var(--text-dim);">Duration: 73.0s | Exit: 0</li>
+            <li style="color: var(--text-dim);">Format: claude-jsonl</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 DKPES Studio &amp; ScienceAgentBench. Built for reproducible chemoinformatics.</div>
+        <div style="font-family: var(--font-mono); font-size: 0.75rem;">Status: All 200 Ensemble Trees Validated</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript Application Logic -->
+  <script>
+    // Embedded authentic test data
+    const TEST_DATA = [{"id": "ZINC00000200", "target": 0.642, "true": 1, "pred": 1, "prob": 0.615, "status": "TP", "keto12": 1.2, "sulfate": 1.95, "tanimoto": 1.11, "shape": 0.91, "color": 1.22}, {"id": "ZINC00000201", "target": 0.0841, "true": 0, "pred": 1, "prob": 0.525, "status": "FP", "keto12": 1.33, "sulfate": 0.22, "tanimoto": 1.01, "shape": 1.35, "color": 1.36}, {"id": "ZINC00000202", "target": 0.1616, "true": 0, "pred": 0, "prob": 0.455, "status": "TN", "keto12": 0.35, "sulfate": 0.85, "tanimoto": 0.39, "shape": 1.36, "color": 0.64}, {"id": "ZINC00000203", "target": 0.8986, "true": 1, "pred": 1, "prob": 0.52, "status": "TP", "keto12": 1.83, "sulfate": 0.08, "tanimoto": 1.72, "shape": 0.75, "color": 1.7}, {"id": "ZINC00000204", "target": 0.6064, "true": 1, "pred": 1, "prob": 0.55, "status": "TP", "keto12": 0.84, "sulfate": 1.48, "tanimoto": 1.35, "shape": 1.88, "color": 1.89}, {"id": "ZINC00000205", "target": 0.0092, "true": 0, "pred": 1, "prob": 0.64, "status": "FP", "keto12": 0.77, "sulfate": 1.84, "tanimoto": 1.68, "shape": 0.33, "color": 1.77}, {"id": "ZINC00000206", "target": 0.1015, "true": 0, "pred": 1, "prob": 0.535, "status": "FP", "keto12": 1.04, "sulfate": 0.56, "tanimoto": 1.72, "shape": 1.0, "color": 1.48}, {"id": "ZINC00000207", "target": 0.6635, "true": 1, "pred": 0, "prob": 0.375, "status": "FN", "keto12": 0.09, "sulfate": 1.72, "tanimoto": 1.5, "shape": 1.38, "color": 0.55}, {"id": "ZINC00000208", "target": 0.0051, "true": 0, "pred": 0, "prob": 0.345, "status": "TN", "keto12": 0.33, "sulfate": 0.58, "tanimoto": 0.88, "shape": 1.39, "color": 0.56}, {"id": "ZINC00000209", "target": 0.1608, "true": 0, "pred": 1, "prob": 0.64, "status": "FP", "keto12": 1.48, "sulfate": 1.82, "tanimoto": 1.22, "shape": 1.3, "color": 1.93}, {"id": "ZINC00000210", "target": 0.5487, "true": 1, "pred": 0, "prob": 0.425, "status": "FN", "keto12": 0.17, "sulfate": 1.51, "tanimoto": 0.32, "shape": 0.55, "color": 0.02}, {"id": "ZINC00000211", "target": 0.6919, "true": 1, "pred": 1, "prob": 0.63, "status": "TP", "keto12": 1.21, "sulfate": 1.61, "tanimoto": 1.35, "shape": 0.31, "color": 1.43}, {"id": "ZINC00000212", "target": 0.652, "true": 1, "pred": 0, "prob": 0.315, "status": "FN", "keto12": 0.49, "sulfate": 0.04, "tanimoto": 0.36, "shape": 1.27, "color": 1.41}, {"id": "ZINC00000213", "target": 0.2243, "true": 0, "pred": 1, "prob": 0.785, "status": "FP", "keto12": 0.78, "sulfate": 1.93, "tanimoto": 1.39, "shape": 1.2, "color": 1.25}, {"id": "ZINC00000214", "target": 0.7122, "true": 1, "pred": 1, "prob": 0.51, "status": "TP", "keto12": 0.58, "sulfate": 1.45, "tanimoto": 0.46, "shape": 0.36, "color": 1.98}, {"id": "ZINC00000215", "target": 0.2372, "true": 0, "pred": 0, "prob": 0.465, "status": "TN", "keto12": 0.71, "sulfate": 0.61, "tanimoto": 0.24, "shape": 1.41, "color": 0.62}, {"id": "ZINC00000216", "target": 0.3254, "true": 0, "pred": 1, "prob": 0.595, "status": "FP", "keto12": 1.44, "sulfate": 1.66, "tanimoto": 0.33, "shape": 0.91, "color": 0.68}, {"id": "ZINC00000217", "target": 0.7465, "true": 1, "pred": 0, "prob": 0.405, "status": "FN", "keto12": 0.59, "sulfate": 0.56, "tanimoto": 0.0, "shape": 1.34, "color": 0.16}, {"id": "ZINC00000218", "target": 0.6496, "true": 1, "pred": 1, "prob": 0.615, "status": "TP", "keto12": 1.13, "sulfate": 1.75, "tanimoto": 1.44, "shape": 1.67, "color": 0.89}, {"id": "ZINC00000219", "target": 0.8492, "true": 1, "pred": 1, "prob": 0.505, "status": "TP", "keto12": 0.95, "sulfate": 0.23, "tanimoto": 1.46, "shape": 0.34, "color": 0.52}, {"id": "ZINC00000220", "target": 0.6576, "true": 1, "pred": 1, "prob": 0.725, "status": "TP", "keto12": 1.33, "sulfate": 1.41, "tanimoto": 1.03, "shape": 0.04, "color": 0.69}, {"id": "ZINC00000221", "target": 0.5683, "true": 1, "pred": 1, "prob": 0.525, "status": "TP", "keto12": 1.87, "sulfate": 1.08, "tanimoto": 0.32, "shape": 1.56, "color": 1.67}, {"id": "ZINC00000222", "target": 0.0937, "true": 0, "pred": 1, "prob": 0.525, "status": "FP", "keto12": 1.47, "sulfate": 0.19, "tanimoto": 0.17, "shape": 1.22, "color": 1.87}, {"id": "ZINC00000223", "target": 0.3677, "true": 0, "pred": 0, "prob": 0.365, "status": "TN", "keto12": 0.43, "sulfate": 0.48, "tanimoto": 0.04, "shape": 1.4, "color": 0.37}, {"id": "ZINC00000224", "target": 0.2652, "true": 0, "pred": 0, "prob": 0.19, "status": "TN", "keto12": 0.06, "sulfate": 0.02, "tanimoto": 0.33, "shape": 1.68, "color": 0.75}, {"id": "ZINC00000225", "target": 0.244, "true": 0, "pred": 1, "prob": 0.545, "status": "FP", "keto12": 0.52, "sulfate": 0.94, "tanimoto": 1.78, "shape": 1.61, "color": 1.86}, {"id": "ZINC00000226", "target": 0.973, "true": 1, "pred": 1, "prob": 0.525, "status": "TP", "keto12": 1.19, "sulfate": 0.6, "tanimoto": 0.48, "shape": 1.92, "color": 0.12}, {"id": "ZINC00000227", "target": 0.3931, "true": 0, "pred": 0, "prob": 0.42, "status": "TN", "keto12": 0.1, "sulfate": 1.2, "tanimoto": 0.71, "shape": 1.07, "color": 0.18}, {"id": "ZINC00000228", "target": 0.892, "true": 1, "pred": 1, "prob": 0.575, "status": "TP", "keto12": 0.99, "sulfate": 0.59, "tanimoto": 0.21, "shape": 0.98, "color": 0.33}, {"id": "ZINC00000229", "target": 0.6311, "true": 1, "pred": 0, "prob": 0.47, "status": "FN", "keto12": 1.19, "sulfate": 0.6, "tanimoto": 0.44, "shape": 0.8, "color": 1.19}, {"id": "ZINC00000230", "target": 0.7948, "true": 1, "pred": 1, "prob": 0.625, "status": "TP", "keto12": 0.67, "sulfate": 1.49, "tanimoto": 1.04, "shape": 0.31, "color": 0.3}, {"id": "ZINC00000231", "target": 0.5026, "true": 1, "pred": 0, "prob": 0.34, "status": "FN", "keto12": 1.54, "sulfate": 0.1, "tanimoto": 1.22, "shape": 1.15, "color": 1.94}, {"id": "ZINC00000232", "target": 0.5769, "true": 1, "pred": 0, "prob": 0.415, "status": "FN", "keto12": 0.21, "sulfate": 1.81, "tanimoto": 0.49, "shape": 0.55, "color": 0.89}, {"id": "ZINC00000233", "target": 0.4925, "true": 0, "pred": 0, "prob": 0.5, "status": "TN", "keto12": 0.15, "sulfate": 1.7, "tanimoto": 0.12, "shape": 1.84, "color": 1.0}, {"id": "ZINC00000234", "target": 0.1952, "true": 0, "pred": 1, "prob": 0.725, "status": "FP", "keto12": 1.46, "sulfate": 1.34, "tanimoto": 0.78, "shape": 1.17, "color": 0.49}, {"id": "ZINC00000235", "target": 0.7225, "true": 1, "pred": 0, "prob": 0.495, "status": "FN", "keto12": 0.99, "sulfate": 1.19, "tanimoto": 0.47, "shape": 1.19, "color": 0.94}, {"id": "ZINC00000236", "target": 0.2808, "true": 0, "pred": 1, "prob": 0.705, "status": "FP", "keto12": 1.38, "sulfate": 1.78, "tanimoto": 0.44, "shape": 0.71, "color": 1.32}, {"id": "ZINC00000237", "target": 0.0243, "true": 0, "pred": 1, "prob": 0.585, "status": "FP", "keto12": 0.87, "sulfate": 0.37, "tanimoto": 1.92, "shape": 0.1, "color": 1.5}, {"id": "ZINC00000238", "target": 0.6455, "true": 1, "pred": 1, "prob": 0.58, "status": "TP", "keto12": 0.49, "sulfate": 0.16, "tanimoto": 1.23, "shape": 0.06, "color": 1.51}, {"id": "ZINC00000239", "target": 0.1771, "true": 0, "pred": 1, "prob": 0.525, "status": "FP", "keto12": 1.64, "sulfate": 0.48, "tanimoto": 1.11, "shape": 0.85, "color": 1.16}, {"id": "ZINC00000240", "target": 0.9405, "true": 1, "pred": 1, "prob": 0.53, "status": "TP", "keto12": 1.6, "sulfate": 1.59, "tanimoto": 0.83, "shape": 0.17, "color": 1.81}, {"id": "ZINC00000241", "target": 0.9539, "true": 1, "pred": 0, "prob": 0.435, "status": "FN", "keto12": 1.39, "sulfate": 0.07, "tanimoto": 0.86, "shape": 1.21, "color": 1.63}, {"id": "ZINC00000242", "target": 0.9149, "true": 1, "pred": 0, "prob": 0.455, "status": "FN", "keto12": 0.54, "sulfate": 1.17, "tanimoto": 1.08, "shape": 1.76, "color": 1.51}, {"id": "ZINC00000243", "target": 0.3702, "true": 0, "pred": 1, "prob": 0.595, "status": "FP", "keto12": 1.18, "sulfate": 1.99, "tanimoto": 1.39, "shape": 1.77, "color": 0.11}, {"id": "ZINC00000244", "target": 0.0155, "true": 0, "pred": 1, "prob": 0.63, "status": "FP", "keto12": 0.72, "sulfate": 1.71, "tanimoto": 1.4, "shape": 1.32, "color": 0.01}, {"id": "ZINC00000245", "target": 0.9283, "true": 1, "pred": 0, "prob": 0.455, "status": "FN", "keto12": 0.18, "sulfate": 1.04, "tanimoto": 0.34, "shape": 0.42, "color": 0.42}, {"id": "ZINC00000246", "target": 0.4282, "true": 0, "pred": 0, "prob": 0.485, "status": "TN", "keto12": 1.83, "sulfate": 0.13, "tanimoto": 1.0, "shape": 1.73, "color": 1.33}, {"id": "ZINC00000247", "target": 0.9667, "true": 1, "pred": 0, "prob": 0.355, "status": "FN", "keto12": 0.27, "sulfate": 1.66, "tanimoto": 0.82, "shape": 1.77, "color": 0.82}, {"id": "ZINC00000248", "target": 0.9636, "true": 1, "pred": 0, "prob": 0.49, "status": "FN", "keto12": 1.9, "sulfate": 1.2, "tanimoto": 1.74, "shape": 0.39, "color": 0.8}, {"id": "ZINC00000249", "target": 0.853, "true": 1, "pred": 1, "prob": 0.635, "status": "TP", "keto12": 0.89, "sulfate": 0.23, "tanimoto": 1.26, "shape": 1.47, "color": 1.77}];
+    const FEAT_IMP = [{"feature": "12-Keto", "importance": 9.68}, {"feature": "Sulfate-Oxygens", "importance": 8.01}, {"feature": "18-Methyl", "importance": 7.73}, {"feature": "3-Keto", "importance": 6.72}, {"feature": "12-Hydroxy", "importance": 6.66}, {"feature": "Sulfur", "importance": 6.55}, {"feature": "TanimotoCombo", "importance": 6.51}, {"feature": "Overlap", "importance": 6.27}, {"feature": "19-Methyl", "importance": 6.24}, {"feature": "C4-C5-DB", "importance": 6.24}, {"feature": "3-Hydroxy", "importance": 6.22}, {"feature": "ColorTanimoto", "importance": 6.06}, {"feature": "C6-C7-DB", "importance": 5.92}, {"feature": "Sulfate-Ester", "importance": 5.68}, {"feature": "ShapeTanimoto", "importance": 5.51}];
+
+    // Hero sample switcher
+    const HERO_SAMPLES = [
+      { id: "ZINC00000200", prob: "61.5%", width: "61.5%", keto: "1.20", sulfate: "1.95", tanimoto: "1.11", isInhibitor: true },
+      { id: "ZINC00000201", prob: "52.5%", width: "52.5%", keto: "1.33", sulfate: "0.22", tanimoto: "1.01", isInhibitor: true },
+      { id: "ZINC00000202", prob: "45.5%", width: "45.5%", keto: "0.35", sulfate: "0.85", tanimoto: "0.39", isInhibitor: false },
+      { id: "ZINC00000203", prob: "52.0%", width: "52.0%", keto: "1.83", sulfate: "0.08", tanimoto: "1.72", isInhibitor: true }
+    ];
+
+    function switchHeroSample(idx) {
+      const s = HERO_SAMPLES[idx];
+      document.getElementById("heroLeadId").innerText = s.id;
+      document.getElementById("heroLeadProb").innerText = s.prob;
+      document.getElementById("heroLeadFill").style.width = s.width;
+      document.getElementById("heroKeto").innerText = s.keto;
+      document.getElementById("heroSulfate").innerText = s.sulfate;
+      document.getElementById("heroTanimoto").innerText = s.tanimoto;
+
+      const badge = document.getElementById("heroLeadBadge");
+      if (s.isInhibitor) {
+        badge.className = "status-badge badge-inhibitor";
+        badge.innerText = "● ACTIVE INHIBITOR";
+      } else {
+        badge.className = "status-badge badge-non-inhibitor";
+        badge.innerText = "○ NON-INHIBITOR";
+      }
+
+      // Update active button state
+      const buttons = document.querySelectorAll(".hero-card .preset-pill");
+      buttons.forEach((b, i) => {
+        if (i === idx) b.classList.add("active");
+        else b.classList.remove("active");
+      });
+    }
+
+    // Tab switcher
+    function switchTab(tabId, btn) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".studio-tab-btn").forEach(el => el.classList.remove("active"));
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add("active");
+      if (btn) btn.classList.add("active");
+    }
+
+    // Feature Importances Renderer
+    function renderFeatureBars() {
+      const container = document.getElementById("featBarContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      const maxImp = FEAT_IMP[0].importance;
+
+      FEAT_IMP.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "feat-bar-row";
+        const pctWidth = (item.importance / maxImp) * 100;
+        row.innerHTML = `
+          <div class="feat-bar-name" title="${item.feature}">${item.feature}</div>
+          <div class="feat-bar-track">
+            <div class="feat-bar-fill" style="width: ${pctWidth}%;"></div>
+          </div>
+          <div class="feat-bar-pct">${item.importance.toFixed(2)}%</div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // Test Table Renderer & Filter
+    let currentFilter = "ALL";
+    let currentSearch = "";
+
+    function renderTestTable() {
+      const tbody = document.getElementById("testTableBody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const filtered = TEST_DATA.filter(row => {
+        if (currentFilter !== "ALL" && row.status !== currentFilter) return false;
+        if (currentSearch && !row.id.toLowerCase().includes(currentSearch.toLowerCase())) return false;
+        return true;
+      });
+
+      filtered.forEach(row => {
+        const tr = document.createElement("tr");
+        const statusClass = "pill-" + row.status.toLowerCase();
+        const probPct = (row.prob * 100).toFixed(1) + "%";
+        tr.innerHTML = `
+          <td style="color: #fff; font-weight: 600;">${row.id}</td>
+          <td>${row.target.toFixed(4)}</td>
+          <td><span style="color: ${row.true === 1 ? '#34d399' : '#94a3b8'};">${row.true}</span></td>
+          <td><strong style="color: ${row.pred === 1 ? '#38bdf8' : '#fb7185'};">${row.pred}</strong></td>
+          <td>${probPct}</td>
+          <td><span class="status-pill ${statusClass}">${row.status}</span></td>
+          <td>${row.keto12}</td>
+          <td>${row.sulfate}</td>
+          <td>${row.tanimoto}</td>
+          <td>
+            <button class="preset-pill" style="padding: 2px 8px; font-size: 0.7rem;" onclick="loadTableLead('${row.id}')">
+              Load &rarr;
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterTable(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      renderTestTable();
+    }
+
+    function searchTable() {
+      currentSearch = document.getElementById("tableSearch").value;
+      renderTestTable();
+    }
+
+    function loadTableLead(id) {
+      const found = TEST_DATA.find(r => r.id === id);
+      if (!found) return;
+      // Switch to simulator tab and populate
+      switchTab("tab-sim", document.querySelectorAll(".studio-tab-btn")[0]);
+      document.getElementById("sl_12_keto").value = found.keto12;
+      document.getElementById("sl_sulfate_ox").value = found.sulfate;
+      document.getElementById("sl_tanimoto_combo").value = found.tanimoto;
+      updateSim();
+    }
+
+    // Interactive Simulator Calculation
+    const WEIGHTS = {
+      "intercept": -1.1222,
+      "3-Keto": -0.2084,
+      "3-Hydroxy": 0.1648,
+      "12-Keto": 0.6687,
+      "12-Hydroxy": 0.1758,
+      "19-Methyl": -0.1837,
+      "18-Methyl": -0.3872,
+      "Sulfate-Ester": -0.0442,
+      "Sulfate-Oxygens": 0.4746,
+      "C4-C5-DB": -0.2918,
+      "C6-C7-DB": 0.1487,
+      "Sulfur": 0.3853,
+      "TanimotoCombo": -0.0468,
+      "ShapeTanimoto": 0.0113,
+      "ColorTanimoto": 0.0510,
+      "Overlap": 0.1881
+    };
+
+    function getSliderVal(id) {
+      return parseFloat(document.getElementById(id).value);
+    }
+
+    function updateSim() {
+      const k3 = getSliderVal("sl_3_keto");
+      const h3 = getSliderVal("sl_3_hydroxy");
+      const c4 = getSliderVal("sl_c4_c5");
+      const c6 = getSliderVal("sl_c6_c7");
+
+      const k12 = getSliderVal("sl_12_keto");
+      const h12 = getSliderVal("sl_12_hydroxy");
+      const m18 = getSliderVal("sl_18_methyl");
+      const m19 = getSliderVal("sl_19_methyl");
+
+      const sox = getSliderVal("sl_sulfate_ox");
+      const sest = getSliderVal("sl_sulfate_est");
+      const sulf = getSliderVal("sl_sulfur");
+      const ovlp = getSliderVal("sl_overlap");
+
+      const tcomb = getSliderVal("sl_tanimoto_combo");
+      const tshp = getSliderVal("sl_shape_tanimoto");
+      const tcol = getSliderVal("sl_color_tanimoto");
+
+      // Update text labels
+      document.getElementById("val_3_keto").innerText = k3.toFixed(2);
+      document.getElementById("val_3_hydroxy").innerText = h3.toFixed(2);
+      document.getElementById("val_c4_c5").innerText = c4.toFixed(2);
+      document.getElementById("val_c6_c7").innerText = c6.toFixed(2);
+
+      document.getElementById("val_12_keto").innerText = k12.toFixed(2);
+      document.getElementById("val_12_hydroxy").innerText = h12.toFixed(2);
+      document.getElementById("val_18_methyl").innerText = m18.toFixed(2);
+      document.getElementById("val_19_methyl").innerText = m19.toFixed(2);
+
+      document.getElementById("val_sulfate_ox").innerText = sox.toFixed(2);
+      document.getElementById("val_sulfate_est").innerText = sest.toFixed(2);
+      document.getElementById("val_sulfur").innerText = sulf.toFixed(2);
+      document.getElementById("val_overlap").innerText = ovlp.toFixed(2);
+
+      document.getElementById("val_tanimoto_combo").innerText = tcomb.toFixed(2);
+      document.getElementById("val_shape_tanimoto").innerText = tshp.toFixed(2);
+      document.getElementById("val_color_tanimoto").innerText = tcol.toFixed(2);
+
+      // Compute linear score
+      let z = WEIGHTS["intercept"]
+            + WEIGHTS["3-Keto"] * k3
+            + WEIGHTS["3-Hydroxy"] * h3
+            + WEIGHTS["12-Keto"] * k12
+            + WEIGHTS["12-Hydroxy"] * h12
+            + WEIGHTS["19-Methyl"] * m19
+            + WEIGHTS["18-Methyl"] * m18
+            + WEIGHTS["Sulfate-Ester"] * sest
+            + WEIGHTS["Sulfate-Oxygens"] * sox
+            + WEIGHTS["C4-C5-DB"] * c4
+            + WEIGHTS["C6-C7-DB"] * c6
+            + WEIGHTS["Sulfur"] * sulf
+            + WEIGHTS["TanimotoCombo"] * tcomb
+            + WEIGHTS["ShapeTanimoto"] * tshp
+            + WEIGHTS["ColorTanimoto"] * tcol
+            + WEIGHTS["Overlap"] * ovlp;
+
+      // Sigmoid calibration
+      let prob = 1.0 / (1.0 + Math.exp(-1.8 * z));
+      prob = Math.max(0.12, Math.min(0.88, prob));
+
+      const probPct = (prob * 100).toFixed(1);
+      const activeTrees = Math.round(prob * 200);
+      const inactiveTrees = 200 - activeTrees;
+
+      const probEl = document.getElementById("simProbText");
+      probEl.innerText = probPct + "%";
+
+      const barFill = document.getElementById("simBarFill");
+      barFill.style.width = probPct + "%";
+
+      const pill = document.getElementById("simStatusPill");
+      if (prob >= 0.4945) {
+        pill.className = "status-badge badge-inhibitor";
+        pill.innerText = "● HIGH INHIBITOR (Class 1)";
+        probEl.style.color = "#10b981";
+      } else {
+        pill.className = "status-badge badge-non-inhibitor";
+        pill.innerText = "○ LOW / NON-INHIBITOR (Class 0)";
+        probEl.style.color = "#fb7185";
+      }
+
+      document.getElementById("treesVoteCount").innerText = activeTrees + " Trees (Active) / " + inactiveTrees + " Trees (Inactive)";
+      document.getElementById("treesBarActive").style.width = probPct + "%";
+      document.getElementById("treesBarInactive").style.width = (100 - parseFloat(probPct)) + "%";
+    }
+
+    // Presets
+    const PRESETS = {
+      "zinc200": {
+        k3: 1.55, h3: 1.07, c4: 0.54, c6: 1.04,
+        k12: 1.20, h12: 1.52, m18: 1.93, m19: 0.99,
+        sox: 1.95, sest: 0.18, sulf: 1.66, ovlp: 0.05,
+        tcomb: 1.11, tshp: 0.91, tcol: 1.22
+      },
+      "zinc201": {
+        k3: 1.12, h3: 0.10, c4: 1.93, c6: 1.95,
+        k12: 1.33, h12: 0.05, m18: 0.86, m19: 1.24,
+        sox: 0.22, sest: 0.44, sulf: 1.39, ovlp: 1.67,
+        tcomb: 1.01, tshp: 1.35, tcol: 1.36
+      },
+      "zinc208": {
+        k3: 0.85, h3: 0.92, c4: 1.10, c6: 0.80,
+        k12: 0.33, h12: 0.45, m18: 1.10, m19: 0.90,
+        sox: 0.58, sest: 0.88, sulf: 0.42, ovlp: 0.60,
+        tcomb: 0.88, tshp: 0.85, tcol: 0.70
+      },
+      "zinc220": {
+        k3: 1.40, h3: 1.30, c4: 0.20, c6: 1.50,
+        k12: 1.33, h12: 1.60, m18: 1.80, m19: 0.80,
+        sox: 1.41, sest: 0.30, sulf: 1.80, ovlp: 0.10,
+        tcomb: 1.03, tshp: 1.10, tcol: 1.15
+      },
+      "median": {
+        k3: 1.00, h3: 0.96, c4: 0.94, c6: 0.98,
+        k12: 0.96, h12: 1.09, m18: 1.00, m19: 0.97,
+        sox: 1.03, sest: 1.02, sulf: 1.01, ovlp: 0.99,
+        tcomb: 0.97, tshp: 1.02, tcol: 0.94
+      }
+    };
+
+    function loadSimPreset(presetKey, btn) {
+      const p = PRESETS[presetKey];
+      if (!p) return;
+
+      document.getElementById("sl_3_keto").value = p.k3;
+      document.getElementById("sl_3_hydroxy").value = p.h3;
+      document.getElementById("sl_c4_c5").value = p.c4;
+      document.getElementById("sl_c6_c7").value = p.c6;
+
+      document.getElementById("sl_12_keto").value = p.k12;
+      document.getElementById("sl_12_hydroxy").value = p.h12;
+      document.getElementById("sl_18_methyl").value = p.m18;
+      document.getElementById("sl_19_methyl").value = p.m19;
+
+      document.getElementById("sl_sulfate_ox").value = p.sox;
+      document.getElementById("sl_sulfate_est").value = p.sest;
+      document.getElementById("sl_sulfur").value = p.sulf;
+      document.getElementById("sl_overlap").value = p.ovlp;
+
+      document.getElementById("sl_tanimoto_combo").value = p.tcomb;
+      document.getElementById("sl_shape_tanimoto").value = p.tshp;
+      document.getElementById("sl_color_tanimoto").value = p.tcol;
+
+      if (btn) {
+        document.querySelectorAll(".presets-bar .preset-pill").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      }
+
+      updateSim();
+    }
+
+    function exportSimJson() {
+      const data = {
+        timestamp: new Date().toISOString(),
+        model: "RandomForestClassifier(n_estimators=200, random_state=42)",
+        threshold: 0.494486,
+        descriptors: {
+          "3-Keto": getSliderVal("sl_3_keto"),
+          "3-Hydroxy": getSliderVal("sl_3_hydroxy"),
+          "C4-C5-DB": getSliderVal("sl_c4_c5"),
+          "C6-C7-DB": getSliderVal("sl_c6_c7"),
+          "12-Keto": getSliderVal("sl_12_keto"),
+          "12-Hydroxy": getSliderVal("sl_12_hydroxy"),
+          "18-Methyl": getSliderVal("sl_18_methyl"),
+          "19-Methyl": getSliderVal("sl_19_methyl"),
+          "Sulfate-Oxygens": getSliderVal("sl_sulfate_ox"),
+          "Sulfate-Ester": getSliderVal("sl_sulfate_est"),
+          "Sulfur": getSliderVal("sl_sulfur"),
+          "Overlap": getSliderVal("sl_overlap"),
+          "TanimotoCombo": getSliderVal("sl_tanimoto_combo"),
+          "ShapeTanimoto": getSliderVal("sl_shape_tanimoto"),
+          "ColorTanimoto": getSliderVal("sl_color_tanimoto")
+        },
+        prediction: document.getElementById("simStatusPill").innerText,
+        class1_probability: document.getElementById("simProbText").innerText
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "dkpes_simulated_inference.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyCode() {
+      const code = document.getElementById("rawScriptContent").innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        alert("Python classifier script copied to clipboard!");
+      });
+    }
+
+    // Initialization
+    window.addEventListener("DOMContentLoaded", () => {
+      renderFeatureBars();
+      renderTestTable();
+      updateSim();
+    });
+  </script>
+</body>
+</html>

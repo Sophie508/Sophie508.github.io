@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mind2Web Case 02 · Associate Resource Groups — Trajectory Report</title>
+<style>
+  :root{
+    --bg-0:#060a18;
+    --bg-1:#0a1027;
+    --ink:#eef2ff;
+    --ink-dim:#a6b0d6;
+    --ink-faint:#6f7aa8;
+    --line:rgba(150,170,255,.14);
+    --line-strong:rgba(150,170,255,.28);
+    --walmart:#0071dc;
+    --walmart-soft:#4da3ff;
+    --spark:#ffc220;
+    --violet:#8b5cf6;
+    --teal:#2dd4bf;
+    --glass:rgba(255,255,255,.045);
+    --glass-2:rgba(255,255,255,.075);
+    --radius:18px;
+    --maxw:1180px;
+    --font:"Inter","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono","Cascadia Mono",Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:var(--font);
+    color:var(--ink);
+    background:var(--bg-0);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    background:
+      radial-gradient(900px 620px at 12% -6%, rgba(0,113,220,.30), transparent 62%),
+      radial-gradient(760px 560px at 88% 4%, rgba(139,92,246,.24), transparent 60%),
+      radial-gradient(900px 700px at 50% 108%, rgba(45,212,191,.14), transparent 62%),
+      linear-gradient(180deg,var(--bg-1),var(--bg-0) 46%,#04060f);
+  }
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    background-image:linear-gradient(rgba(150,170,255,.045) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(150,170,255,.045) 1px,transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(circle at 50% 22%,#000 0%,transparent 78%);
+    -webkit-mask-image:radial-gradient(circle at 50% 22%,#000 0%,transparent 78%);
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .mono{font-family:var(--mono)}
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    border-bottom:1px solid transparent;
+    transition:background .35s ease,border-color .35s ease,backdrop-filter .35s ease;
+  }
+  .nav.scrolled{
+    background:rgba(6,10,24,.72);
+    backdrop-filter:blur(18px) saturate(160%);
+    -webkit-backdrop-filter:blur(18px) saturate(160%);
+    border-bottom-color:var(--line);
+  }
+  .nav-in{
+    display:flex;align-items:center;gap:20px;
+    height:70px;
+  }
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.02em;font-size:1.02rem}
+  .brand .mark{
+    width:30px;height:30px;flex:0 0 30px;border-radius:9px;
+    background:linear-gradient(140deg,var(--walmart),var(--violet));
+    display:grid;place-items:center;
+    box-shadow:0 8px 24px rgba(0,113,220,.42);
+  }
+  .brand .mark svg{width:16px;height:16px;display:block}
+  .brand small{display:block;font-size:.66rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);line-height:1.1}
+  .nav-links{display:flex;gap:4px;margin-left:auto;align-items:center}
+  .nav-links a{
+    font-size:.83rem;font-weight:500;color:var(--ink-dim);
+    padding:8px 12px;border-radius:10px;transition:color .2s,background .2s;
+  }
+  .nav-links a:hover{color:var(--ink);background:var(--glass-2)}
+  .nav-cta{
+    margin-left:8px;font-size:.8rem;font-weight:600;
+    padding:9px 16px;border-radius:999px;
+    border:1px solid var(--line-strong);
+    background:linear-gradient(120deg,rgba(0,113,220,.28),rgba(139,92,246,.24));
+    white-space:nowrap;
+  }
+  .burger{display:none;margin-left:auto;background:none;border:1px solid var(--line-strong);border-radius:10px;padding:8px 10px;color:var(--ink);cursor:pointer}
+
+  /* ---------- hero ---------- */
+  .hero{padding:76px 0 44px;position:relative}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;flex-wrap:wrap;
+    font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-dim);
+    border:1px solid var(--line);border-radius:999px;
+    padding:7px 15px;background:var(--glass);
+    backdrop-filter:blur(8px);
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--spark);box-shadow:0 0 12px var(--spark)}
+  h1{
+    font-size:clamp(2rem,5vw,3.5rem);
+    line-height:1.06;letter-spacing:-.035em;font-weight:800;
+    margin:26px 0 0;max-width:16ch;
+    background:linear-gradient(120deg,#ffffff 12%,#bcd3ff 58%,#9d8cff 96%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{margin:22px 0 0;max-width:60ch;font-size:1.06rem;color:var(--ink-dim)}
+  .lede b{color:var(--ink);font-weight:600}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:32px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;
+    font-size:.92rem;font-weight:600;padding:13px 24px;border-radius:999px;
+    border:1px solid transparent;cursor:pointer;
+    transition:transform .22s cubic-bezier(.2,.8,.3,1),box-shadow .22s,background .22s;
+  }
+  .btn-primary{
+    background:linear-gradient(120deg,var(--walmart),#3f8cff 55%,var(--violet));
+    color:#fff;box-shadow:0 14px 38px -12px rgba(0,113,220,.85);
+  }
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 22px 46px -14px rgba(99,102,241,.9)}
+  .btn-ghost{border-color:var(--line-strong);background:var(--glass);color:var(--ink)}
+  .btn-ghost:hover{transform:translateY(-3px);background:var(--glass-2)}
+  .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:38px}
+  .pill{
+    border:1px solid var(--line);border-radius:14px;background:var(--glass);
+    padding:12px 16px;min-width:132px;backdrop-filter:blur(8px);
+  }
+  .pill .k{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+  .pill .v{font-size:1.02rem;font-weight:700;letter-spacing:-.01em;margin-top:3px}
+  .pill .v small{font-weight:500;color:var(--ink-dim);font-size:.8rem}
+
+  /* ---------- browser mock ---------- */
+  .mock{
+    margin-top:52px;border:1px solid var(--line-strong);border-radius:22px;
+    background:linear-gradient(165deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    backdrop-filter:blur(14px);
+    box-shadow:0 50px 110px -50px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.07);
+    overflow:hidden;
+  }
+  .mock-bar{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.24)}
+  .lights{display:flex;gap:7px}
+  .lights i{width:11px;height:11px;border-radius:50%;display:block}
+  .lights i:nth-child(1){background:#ff5f57}.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+  .url{
+    flex:1;text-align:center;font-family:var(--mono);font-size:.76rem;color:var(--ink-dim);
+    background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:5px 14px;
+    max-width:340px;margin:0 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .mock-body{padding:0;display:grid;grid-template-columns:1fr}
+  .site-head{
+    display:flex;align-items:center;gap:6px;padding:12px 20px;border-bottom:1px solid var(--line);
+    background:rgba(0,0,0,.18);flex-wrap:wrap;
+  }
+  .site-logo{font-weight:800;letter-spacing:-.03em;color:var(--spark);font-size:.95rem;margin-right:8px}
+  .menu-item{
+    font-size:.78rem;color:var(--ink-dim);padding:6px 10px;border-radius:8px;white-space:nowrap;
+  }
+  .menu-item.on{color:#fff;background:rgba(0,113,220,.35);box-shadow:inset 0 0 0 1px rgba(120,180,255,.45)}
+  .menu-item.hot{color:#0a1027;background:var(--spark);font-weight:700}
+  .mock-panel{
+    display:grid;grid-template-columns:1.05fr .95fr;
+  }
+  .panel-menu{padding:22px 20px;border-right:1px solid var(--line);background:rgba(0,0,0,.12)}
+  .panel-label{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;margin-bottom:12px}
+  .subitem{
+    display:flex;align-items:center;gap:10px;font-size:.86rem;color:var(--ink-dim);
+    padding:9px 12px;border-radius:11px;border:1px solid transparent;margin-bottom:4px;
+  }
+  .subitem.target{
+    color:#fff;background:linear-gradient(100deg,rgba(0,113,220,.42),rgba(139,92,246,.3));
+    border-color:rgba(120,180,255,.5);
+  }
+  .step-no{
+    font-family:var(--mono);font-size:.66rem;font-weight:700;width:20px;height:20px;flex:0 0 20px;
+    border-radius:6px;display:grid;place-items:center;background:rgba(255,255,255,.1);color:var(--ink-dim)
+  }
+  .subitem.target .step-no{background:var(--spark);color:#0a1027}
+  .panel-body{padding:22px 24px}
+  .panel-body h4{margin:0 0 4px;font-size:1.28rem;letter-spacing:-.02em}
+  .panel-body .kicker{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--walmart-soft);font-weight:700}
+  .panel-body p{font-size:.87rem;color:var(--ink-dim);margin:12px 0 0}
+  .ghost-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+  .ghost-card{
+    flex:1 1 30%;min-width:110px;height:64px;border-radius:12px;
+    border:1px solid var(--line);background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.01));
+    display:flex;align-items:center;justify-content:center;font-size:.72rem;color:var(--ink-faint);
+    text-align:center;padding:6px;
+  }
+  .ghost-card.hit{
+    border-color:rgba(255,194,32,.55);
+    background:linear-gradient(150deg,rgba(255,194,32,.18),rgba(255,194,32,.03));
+    color:var(--spark);font-weight:700;
+  }
+  .pathbar{
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+    padding:14px 20px;border-top:1px solid var(--line);background:rgba(0,0,0,.22);
+    font-size:.76rem;color:var(--ink-dim)
+  }
+  .pathbar .arw{color:var(--ink-faint)}
+  .chip{
+    font-family:var(--mono);font-size:.72rem;padding:5px 10px;border-radius:8px;
+    border:1px solid var(--line-strong);background:var(--glass);
+  }
+
+  /* ---------- sections ---------- */
+  section{padding:74px 0}
+  .sec-head{max-width:62ch;margin-bottom:38px}
+  .sec-kicker{
+    font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--walmart-soft);display:flex;align-items:center;gap:10px;
+  }
+  .sec-kicker::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,var(--line-strong),transparent)}
+  h2.sec{font-size:clamp(1.6rem,3.2vw,2.35rem);letter-spacing:-.03em;line-height:1.14;margin:14px 0 0;font-weight:800}
+  .sec-head p{color:var(--ink-dim);margin:14px 0 0;font-size:1rem}
+
+  .grid{display:grid;gap:16px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .card{
+    border:1px solid var(--line);border-radius:var(--radius);
+    background:linear-gradient(165deg,rgba(255,255,255,.065),rgba(255,255,255,.018));
+    padding:24px;backdrop-filter:blur(10px);
+    transition:transform .28s cubic-bezier(.2,.8,.3,1),border-color .28s,box-shadow .28s,background .28s;
+    position:relative;overflow:hidden;
+  }
+  .card::after{
+    content:"";position:absolute;inset:0;opacity:0;transition:opacity .3s;pointer-events:none;
+    background:radial-gradient(420px 200px at var(--mx,50%) var(--my,0%),rgba(120,170,255,.16),transparent 70%);
+  }
+  .card:hover{transform:translateY(-7px);border-color:var(--line-strong);box-shadow:0 34px 70px -40px rgba(0,0,0,.95)}
+  .card:hover::after{opacity:1}
+  .ico{
+    width:40px;height:40px;border-radius:12px;display:grid;place-items:center;margin-bottom:15px;
+    background:linear-gradient(140deg,rgba(0,113,220,.35),rgba(139,92,246,.28));
+    border:1px solid var(--line-strong);font-size:1.05rem;
+  }
+  .card h3{margin:0 0 7px;font-size:1rem;letter-spacing:-.015em}
+  .card p{margin:0;font-size:.88rem;color:var(--ink-dim)}
+  .card .kv{font-family:var(--mono);font-size:.74rem;color:var(--ink-faint);margin-top:12px;word-break:break-all}
+
+  /* ---------- timeline ---------- */
+  .timeline{position:relative;padding-left:34px}
+  .timeline::before{
+    content:"";position:absolute;left:11px;top:12px;bottom:12px;width:2px;
+    background:linear-gradient(180deg,var(--spark),var(--walmart),var(--violet),transparent);
+    border-radius:2px;
+  }
+  .tstep{position:relative;margin-bottom:18px}
+  .tstep::before{
+    content:"";position:absolute;left:-30px;top:26px;width:12px;height:12px;border-radius:50%;
+    background:var(--bg-0);border:2px solid var(--walmart-soft);box-shadow:0 0 0 4px rgba(0,113,220,.16);
+  }
+  .tstep.final::before{border-color:var(--spark);box-shadow:0 0 0 4px rgba(255,194,32,.18)}
+  .thead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .op{
+    font-family:var(--mono);font-size:.7rem;font-weight:700;letter-spacing:.08em;
+    padding:4px 9px;border-radius:7px;border:1px solid var(--line-strong);
+  }
+  .op.hover{background:rgba(139,92,246,.22);color:#c7b6ff;border-color:rgba(167,139,250,.45)}
+  .op.click{background:rgba(0,113,220,.24);color:#9dc9ff;border-color:rgba(77,163,255,.45)}
+  .thead h3{margin:0;font-size:1.02rem;letter-spacing:-.015em}
+  .thead .tag{
+    font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);
+    border:1px dashed var(--line-strong);border-radius:7px;padding:3px 8px;
+  }
+  .meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+  .meta div{
+    border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:rgba(0,0,0,.2)
+  }
+  .meta .k{font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  .meta .v{font-family:var(--mono);font-size:.78rem;margin-top:4px;word-break:break-all}
+  .warn{
+    margin-top:14px;border:1px solid rgba(255,194,32,.4);background:rgba(255,194,32,.09);
+    border-radius:12px;padding:13px 15px;font-size:.84rem;color:#ffe6a8;
+  }
+  .warn b{color:var(--spark)}
+
+  /* ---------- ARG wall ---------- */
+  .arg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .arg{
+    border:1px solid var(--line);border-radius:16px;padding:20px;
+    background:linear-gradient(165deg,rgba(255,255,255,.06),rgba(255,255,255,.015));
+    transition:transform .28s cubic-bezier(.2,.8,.3,1),border-color .28s,background .28s;
+    display:flex;flex-direction:column;gap:11px;
+  }
+  .arg:hover{transform:translateY(-6px);border-color:var(--line-strong);background:linear-gradient(165deg,rgba(255,255,255,.1),rgba(255,255,255,.03))}
+  .arg.hit{border-color:rgba(255,194,32,.5);box-shadow:0 0 0 1px rgba(255,194,32,.22),0 30px 60px -40px rgba(255,194,32,.5)}
+  .mono-badge{
+    width:46px;height:46px;border-radius:13px;display:grid;place-items:center;
+    font-weight:800;font-size:.86rem;letter-spacing:-.03em;
+    background:linear-gradient(140deg,rgba(0,113,220,.4),rgba(139,92,246,.3));
+    border:1px solid var(--line-strong);color:#dce7ff;
+  }
+  .arg.hit .mono-badge{background:linear-gradient(140deg,var(--spark),#ff9f1c);color:#1a1200;border-color:transparent}
+  .arg h4{margin:0;font-size:.95rem;letter-spacing:-.015em;line-height:1.3}
+  .arg p{margin:0;font-size:.82rem;color:var(--ink-dim);flex:1}
+  .arg .lm{font-size:.78rem;font-weight:700;color:var(--walmart-soft)}
+  .arg.hit .lm{color:var(--spark)}
+  .badge-hit{
+    align-self:flex-start;font-size:.62rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+    background:var(--spark);color:#1a1200;border-radius:999px;padding:3px 9px;
+  }
+
+  /* ---------- stats band ---------- */
+  .band{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+    border:1px solid var(--line);border-radius:22px;padding:26px;
+    background:linear-gradient(120deg,rgba(0,113,220,.16),rgba(139,92,246,.12),rgba(45,212,191,.08));
+    backdrop-filter:blur(12px);
+  }
+  .band .n{font-size:clamp(2rem,4.4vw,3rem);font-weight:800;letter-spacing:-.04em;line-height:1;
+    background:linear-gradient(120deg,#fff,#9dc9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .band .l{font-size:.83rem;color:var(--ink-dim);margin-top:8px}
+
+  /* ---------- table ---------- */
+  .tbl-wrap{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:rgba(0,0,0,.22)}
+  table{width:100%;border-collapse:collapse;font-size:.84rem}
+  th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;background:rgba(255,255,255,.03)}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:rgba(255,255,255,.035)}
+  td.mono,th.mono{font-family:var(--mono);font-size:.76rem}
+  .yes{color:var(--teal);font-weight:700}
+  .no{color:#ff9b9b;font-weight:700}
+
+  /* ---------- faq ---------- */
+  details{
+    border:1px solid var(--line);border-radius:14px;background:var(--glass);
+    margin-bottom:11px;overflow:hidden;transition:border-color .25s,background .25s;
+  }
+  details[open]{border-color:var(--line-strong);background:var(--glass-2)}
+  summary{
+    cursor:pointer;list-style:none;padding:17px 20px;font-size:.94rem;font-weight:600;
+    display:flex;align-items:center;gap:12px;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::after{
+    content:"+";margin-left:auto;font-size:1.15rem;font-weight:400;color:var(--walmart-soft);
+    transition:transform .28s;
+  }
+  details[open] summary::after{transform:rotate(45deg)}
+  details .body{padding:0 20px 19px;color:var(--ink-dim);font-size:.88rem}
+  details .body code{font-family:var(--mono);font-size:.78rem;background:rgba(255,255,255,.07);padding:2px 6px;border-radius:5px;color:#cfe0ff}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--line);padding:44px 0 60px;margin-top:24px}
+  .foot-grid{display:flex;justify-content:space-between;gap:26px;flex-wrap:wrap}
+  footer .small{font-size:.78rem;color:var(--ink-faint);max-width:56ch}
+  footer .mono{font-size:.74rem;color:var(--ink-faint);word-break:break-all}
+
+  /* ---------- reveal ---------- */
+  .rv{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.8,.3,1),transform .7s cubic-bezier(.2,.8,.3,1)}
+  .rv.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    .rv{opacity:1;transform:none;transition:none}
+    html{scroll-behavior:auto}
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width:960px){
+    .g3,.arg-grid,.band{grid-template-columns:repeat(2,1fr)}
+    .meta{grid-template-columns:repeat(2,1fr)}
+    .mock-panel{grid-template-columns:1fr}
+    .panel-menu{border-right:0;border-bottom:1px solid var(--line)}
+  }
+  @media (max-width:720px){
+    .nav-links{display:none}
+    .nav-links.open{
+      display:flex;flex-direction:column;align-items:stretch;
+      position:absolute;top:70px;left:12px;right:12px;
+      background:rgba(8,13,30,.96);backdrop-filter:blur(18px);
+      border:1px solid var(--line-strong);border-radius:16px;padding:12px;gap:4px;
+    }
+    .nav-links.open .nav-cta{margin-left:0;text-align:center}
+    .burger{display:block}
+    .g3,.g2,.arg-grid,.band{grid-template-columns:1fr}
+    .meta{grid-template-columns:1fr}
+    section{padding:56px 0}
+    .hero{padding:48px 0 30px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav class="nav" id="nav">
+  <div class="wrap nav-in">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 18V7l4 5 4-5v11"/><path d="M16 18V7l4 11"/>
+        </svg>
+      </span>
+      <span>Mind2Web<small>Case Report · web_navigation</small></span>
+    </div>
+    <button class="burger" id="burger" aria-label="Toggle navigation">☰</button>
+    <div class="nav-links" id="navlinks">
+      <a href="#overview">Overview</a>
+      <a href="#trajectory">Trajectory</a>
+      <a href="#outcome">Outcome</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#faq">Notes &amp; Caveats</a>
+      <span class="nav-cta">careers.walmart · human-annotator</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow rv"><span class="dot"></span>Mind2Web · Info / Job · 3 recorded actions</span>
+    <h1 class="rv">Open page with information about Associate Resource Groups for Diversity and Inclusion.</h1>
+    <p class="lede rv">
+      A recorded human demonstration on <b>careers.walmart</b>. The annotator hovered the top-nav
+      <b>Culture</b> menu, clicked <b>Diversity &amp; Inclusion</b>, and then clicked the
+      <b>African American Business Resource Group</b> logo inside the destination page's
+      “Associate Resource Groups” grid.
+    </p>
+
+    <div class="cta-row rv">
+      <a class="btn btn-primary" href="#trajectory">Walk the trajectory →</a>
+      <a class="btn btn-ghost" href="#outcome">See the destination page</a>
+    </div>
+
+    <div class="stat-row rv">
+      <div class="pill"><div class="k">Website</div><div class="v">careers.walmart</div></div>
+      <div class="pill"><div class="k">Actions</div><div class="v">3 <small>· hover + 2 clicks</small></div></div>
+      <div class="pill"><div class="k">Candidates</div><div class="v">847 <small>across steps</small></div></div>
+      <div class="pill"><div class="k">Source model</div><div class="v">human-annotator</div></div>
+      <div class="pill"><div class="k">Task success</div><div class="v" style="color:#2dd4bf">Reached</div></div>
+    </div>
+
+    <!-- browser mock -->
+    <div class="mock rv">
+      <div class="mock-bar">
+        <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="url">careers.walmart — header navigation</span>
+      </div>
+      <div class="mock-body">
+        <div class="site-head">
+          <span class="site-logo">✳ Careers</span>
+          <span class="menu-item">All Career Areas</span>
+          <span class="menu-item">Locations</span>
+          <span class="menu-item on">Culture</span>
+          <span class="menu-item">Impact</span>
+          <span class="menu-item">Students</span>
+          <span class="menu-item">Military</span>
+          <span class="menu-item">Login</span>
+        </div>
+        <div class="mock-panel">
+          <div class="panel-menu">
+            <div class="panel-label">Culture — expanded on hover</div>
+            <div class="subitem"><span class="step-no">1</span> Values</div>
+            <div class="subitem"><span class="step-no">1</span> History</div>
+            <div class="subitem target"><span class="step-no">2</span> Diversity &amp; Inclusion</div>
+            <div class="subitem"><span class="step-no">1</span> Working at Walmart</div>
+          </div>
+          <div class="panel-body">
+            <div class="kicker">Destination section</div>
+            <h4>Associate Resource Groups</h4>
+            <p>Nine associate-led groups rendered as a logo grid. The recorded third action lands on the first tile.</p>
+            <div class="ghost-row">
+              <div class="ghost-card hit">African American BRG<br><span class="mono" style="font-size:.62rem">node 10724</span></div>
+              <div class="ghost-card">Asian Pacific</div>
+              <div class="ghost-card">FAVOR</div>
+              <div class="ghost-card">Hispanic Latino</div>
+              <div class="ghost-card">inABLE</div>
+              <div class="ghost-card">PRIDE</div>
+            </div>
+          </div>
+        </div>
+        <div class="pathbar">
+          <span class="chip">1 · HOVER Culture</span><span class="arw">→</span>
+          <span class="chip">2 · CLICK Diversity &amp; Inclusion</span><span class="arw">→</span>
+          <span class="chip">3 · CLICK African American BRG logo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= OVERVIEW ================= -->
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-kicker">Case overview</div>
+      <h2 class="sec">One task, three moves, one destination page.</h2>
+      <p>The case is an upstream Mind2Web navigation demonstration. There is no agent model in the loop — the
+        trajectory is the ground-truth human annotation, which is why the metadata reports
+        <code class="mono">model: human-annotator</code>.</p>
+    </div>
+
+    <div class="grid g3">
+      <div class="card rv">
+        <div class="ico">🎯</div>
+        <h3>Task intent</h3>
+        <p>Find and open the page that carries Associate Resource Group information for Diversity &amp; Inclusion.</p>
+        <div class="kv">subdomain: Job · domain: Info</div>
+      </div>
+      <div class="card rv">
+        <div class="ico">🧭</div>
+        <h3>Navigation strategy</h3>
+        <p>No search box, no direct URL. The annotator opens the mega-menu and walks the Culture branch of the header.</p>
+        <div class="kv">top nav → submenu → in-page grid</div>
+      </div>
+      <div class="card rv">
+        <div class="ico">🖼️</div>
+        <h3>Final target</h3>
+        <p>An <span class="mono">&lt;img&gt;</span> inside an anchor — the African American Business Resource Group logo tile.</p>
+        <div class="kv">alt="African American Business Resource Group Logo"</div>
+      </div>
+      <div class="card rv">
+        <div class="ico">📐</div>
+        <h3>Observation format</h3>
+        <p>Each step ships a pruned accessibility-style DOM (<span class="mono">cleaned_html</span>) plus ranked positive and negative candidate nodes.</p>
+        <div class="kv">trajectory_format: mind2web-json</div>
+      </div>
+      <div class="card rv">
+        <div class="ico">🧪</div>
+        <h3>Candidate pool</h3>
+        <p>342 / 342 / 163 candidates across the three steps, dominated by anchors, list items and divs.</p>
+        <div class="kv">847 total · 2 positive labels recorded</div>
+      </div>
+      <div class="card rv">
+        <div class="ico">🔗</div>
+        <h3>References</h3>
+        <p>No oversized reference files and no media assets accompany this case; nothing external was loaded.</p>
+        <div class="kv">references: [] · media_refs: absent</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRAJECTORY ================= -->
+<section id="trajectory">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-kicker">Recorded trajectory</div>
+      <h2 class="sec">Step by step, as annotated.</h2>
+      <p>Action strings are reproduced verbatim from <span class="mono">action_reprs</span>. Geometry comes from the
+        recorded candidate bounding boxes; it describes the viewport at capture time.</p>
+    </div>
+
+    <div class="timeline">
+
+      <div class="tstep card rv">
+        <div class="thead">
+          <span class="op hover">HOVER</span>
+          <h3>[link] Culture</h3>
+          <span class="tag">step 0 · uid 80db931c</span>
+        </div>
+        <p style="color:var(--ink-dim);font-size:.9rem;margin:0">
+          The annotator hovers the <b>Culture</b> top-level menu entry to reveal its dropdown. The recorded
+          operation normalises the hover to <span class="mono">op: "CLICK"</span> with an empty value, while
+          <span class="mono">original_op</span> preserves <span class="mono">"HOVER"</span>.
+        </p>
+        <div class="meta">
+          <div><div class="k">Backend node</div><div class="v">298</div></div>
+          <div><div class="k">Bounding box</div><div class="v">666.84, 15.59 · 103×28.8</div></div>
+          <div><div class="k">Class</div><div class="v">main-menu__item-text</div></div>
+          <div><div class="k">Candidates</div><div class="v">1 pos / 341 neg</div></div>
+        </div>
+      </div>
+
+      <div class="tstep card rv">
+        <div class="thead">
+          <span class="op click">CLICK</span>
+          <h3>[link] Diversity &amp; Inclusion</h3>
+          <span class="tag">step 1 · uid 513ac4eb</span>
+        </div>
+        <p style="color:var(--ink-dim);font-size:.9rem;margin:0">
+          The <b>Diversity &amp; Inclusion</b> entry inside the expanded Culture submenu is clicked, loading the
+          destination page. This is the only step where no positive candidate metadata was written out.
+        </p>
+        <div class="meta">
+          <div><div class="k">Element in DOM</div><div class="v">a · node 6703 (text 7120)</div></div>
+          <div><div class="k">Bounding box</div><div class="v">not recorded</div></div>
+          <div><div class="k">Siblings</div><div class="v">Values · History · Working at Walmart</div></div>
+          <div><div class="k">Candidates</div><div class="v">0 pos / 342 neg</div></div>
+        </div>
+        <div class="warn">
+          <b>Annotation gap.</b> The link is present in the cleaned DOM and its text is recoverable, but the
+          positive candidate list for this step is empty — no node id, class, or bounding box for the
+          ground-truth target of step 1. Treat that step's geometry as unknown.
+        </div>
+      </div>
+
+      <div class="tstep final card rv">
+        <div class="thead">
+          <span class="op click">CLICK</span>
+          <h3>[img] African American Business Resource Group Logo</h3>
+          <span class="tag">step 2 · uid 62b48ee0</span>
+        </div>
+        <p style="color:var(--ink-dim);font-size:.9rem;margin:0">
+          On the loaded Diversity &amp; Inclusion page, the annotator clicks the first tile of the
+          <b>Associate Resource Groups</b> grid — the African American Business Resource Group logo, wrapped in
+          an anchor that also carries a “Learn More” affordance.
+        </p>
+        <div class="meta">
+          <div><div class="k">Backend node</div><div class="v">10724</div></div>
+          <div><div class="k">Bounding box</div><div class="v">143.95, 3786.5 · 206×181.3</div></div>
+          <div><div class="k">Alt text</div><div class="v">African American Business Resource Group Logo</div></div>
+          <div><div class="k">Candidates</div><div class="v">1 pos / 162 neg</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="card rv" style="margin-top:20px">
+      <h3>Reading the geometry</h3>
+      <p>The first action sits at <span class="mono">y ≈ 15.6</span> — pinned in the sticky header. The final
+        target sits at <span class="mono">y ≈ 3786.5</span> with a width of 206 px. So the destination page is a
+        long scroll, and the Associate Resource Groups grid lives far below the fold rather than at the top of
+        the landing view. The recorded page shows the grid laid out in three columns at roughly
+        <span class="mono">x = 144 / 536 / 929</span>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= OUTCOME ================= -->
+<section id="outcome">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-kicker">Destination page</div>
+      <h2 class="sec">The Diversity &amp; Inclusion page, reconstructed from the final observation.</h2>
+      <p>Content below is taken from the cleaned DOM of the last step. The page opens on the hero
+        <b>“All walks moving as one”</b>, then moves through inclusion messaging, an executive quote, an
+        equality-index stat band, and finally the Associate Resource Groups grid that the task asks for.</p>
+    </div>
+
+    <div class="grid g2 rv" style="margin-bottom:20px">
+      <div class="card">
+        <div class="ico">📣</div>
+        <h3>Bring your whole self to work</h3>
+        <p>“Inclusion is the key to growing our business. By fostering a workplace culture where everyone is
+          and feels included, everyone wins.”</p>
+        <div class="kv">section heading + supporting copy</div>
+      </div>
+      <div class="card">
+        <div class="ico">💬</div>
+        <h3>Executive quote</h3>
+        <p>“That’s the essence of our mission to create an inclusive culture where all associates work together
+          to deliver on our shared purpose.” — Ben Hasan, Chief Diversity &amp; Inclusion Officer.</p>
+        <div class="kv">blockquote · node 11361</div>
+      </div>
+    </div>
+
+    <div class="band rv" style="margin-bottom:36px">
+      <div>
+        <div class="n">50</div>
+        <div class="l">Top 50 Ranking — Diversity Inc.</div>
+      </div>
+      <div>
+        <div class="n">100</div>
+        <div class="l">Score — Disability Equality Index</div>
+      </div>
+      <div>
+        <div class="n">100</div>
+        <div class="l">Human Rights Campaign Corporate Equality Index</div>
+      </div>
+    </div>
+
+    <div class="sec-head rv" style="margin-bottom:22px">
+      <div class="sec-kicker">Associate Resource Groups</div>
+      <h2 class="sec" style="font-size:clamp(1.3rem,2.4vw,1.7rem)">Nine groups, nine tiles</h2>
+      <p>The recorded third action lands on the first tile. Descriptions are quoted from the page DOM.</p>
+    </div>
+
+    <div class="arg-grid">
+      <article class="arg hit rv">
+        <span class="badge-hit">Recorded target</span>
+        <div class="mono-badge">AABRG</div>
+        <h4>African American Business Resource Group</h4>
+        <p>The African American Business Resource Group’s mission is to be a strategic partner to promote a
+          culture of inclusion through our associate development, business thought leadership, and community
+          engagement.</p>
+        <span class="lm">Learn More →</span>
+      </article>
+
+      <article class="arg rv">
+        <div class="mono-badge">APAN</div>
+        <h4>Asian Pacific Associates Network</h4>
+        <p>…Pacific Islander associates and their allies, and to make Walmart the employer of choice for Asian
+          and Pacific Islander talent who can influence and contribute to business results and the community.</p>
+        <span class="lm">Learn More →</span>
+      </article>
+
+      <article class="arg rv">
+        <div class="mono-badge">FAVOR</div>
+        <h4>Favor Work Faith</h4>
+        <p>FAVOR’s purpose is to promote understanding, acceptance and inclusion by encouraging associates to
+          appropriately integrate their faith at work.</p>
+        <span class="lm">Learn More →</span>
+      </article>
+
+      <article class="arg rv">
+        <div class="mono-badge">HLARG</div>
+        <h4>Hispanic Latino Associate Resource Group</h4>
+        <p>The Hispanic Latino Associate Resource Group’s mission is to support Hispanic Latino associates by
+          creating access to development opportunities, and serve our customers and community.</p>
+        <span class="lm">Learn More →</span>
+      </article>
+
+      <article class="arg rv">
+        <div class="mono-badge">inABLE</div>
+        <h4>inABLE Associate Resource Group</h4>
+        <p>At Walmart, we strive to be the employer and retailer of choice for people whose lives are touched by
+          disabilities. inABLE leads grassroots efforts to create an inclusive environment in our stores and
+          clubs, in our workspaces, and online.</p>
+        <span class="lm">Learn More →</span>
+      </article>
+
+      <article class="arg rv">
+        <div class="mono-badge">PRIDE</div>
+        <h4>PRIDE Associate Resource Group</h4>
+        <p>PRIDE’s mission is to be a source of PRIDE in the LGBT and ally community by championing our
+          customers, counseling our business, providing a community for our associates.</p>
+        <span class="lm">Learn More →</span>
+      </article>
+
+      <article class="arg rv">
+        <div class="mono-badge">SERVE</div>
+        <h4>Serve</h4>
+        <p>Serve Walmart and its associates, customers and communities through engagement, support and
+          empowerment of military service members (past and present); their families and supporters.</p>
+        <span class="lm">Learn More →</span>
+      </article>
+
+      <article class="arg rv">
+        <div class="mono-badge">TV</div>
+        <h4>Tribal Voices</h4>
+        <p>The purpose and mission of Tribal Voices focuses on enhancing the quality of the lives of Native
+          American and Alaskan Native associates, businesses, and customers. We strive to act as a positive
+          influence in the communities we serve.</p>
+        <span class="lm">Learn More →</span>
+      </article>
+
+      <article class="arg rv">
+        <div class="mono-badge">WRC</div>
+        <h4>Women’s Resource Community</h4>
+        <p>The Women’s Resource Community strives to help Connect, Develop and Advocate for associates by
+          supporting inclusion with a focus on our associates, communities and business.</p>
+        <span class="lm">Learn More →</span>
+      </article>
+    </div>
+
+    <p class="rv" style="color:var(--ink-faint);font-size:.82rem;margin-top:18px">
+      The page also carries an embedded YouTube player (“Walmart associates show their Pride in San Francisco”,
+      <span class="mono">aria-label="Hero-Diversity-Pride-San-Francisco"</span>) and a closing non-discrimination
+      statement. No video or image file exists in the case directory, so nothing is embedded here — the tile
+      marks above are typographic stand-ins for the logo images, whose alt text is preserved.
+    </p>
+  </div>
+</section>
+
+<!-- ================= EVIDENCE ================= -->
+<section id="evidence">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-kicker">Evidence &amp; provenance</div>
+      <h2 class="sec">What the record actually contains.</h2>
+      <p>Numbers below are counted directly from <span class="mono">trajectory.json</span>. They describe the
+        annotation, not a model's performance — no agent attempted this task in this record.</p>
+    </div>
+
+    <div class="tbl-wrap rv">
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Action</th>
+            <th>Operation</th>
+            <th>Positive</th>
+            <th>Negative</th>
+            <th>Target node</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">0</td>
+            <td>[link] Culture</td>
+            <td class="mono">HOVER → CLICK</td>
+            <td class="yes">1</td>
+            <td class="mono">341</td>
+            <td class="mono">a · 298</td>
+          </tr>
+          <tr>
+            <td class="mono">1</td>
+            <td>[link] Diversity &amp; Inclusion</td>
+            <td class="mono">CLICK</td>
+            <td class="no">0</td>
+            <td class="mono">342</td>
+            <td class="mono">unlabelled</td>
+          </tr>
+          <tr>
+            <td class="mono">2</td>
+            <td>[img] African American Business Resource Group Logo</td>
+            <td class="mono">CLICK</td>
+            <td class="yes">1</td>
+            <td class="mono">162</td>
+            <td class="mono">img · 10724</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g3 rv" style="margin-top:20px">
+      <div class="card">
+        <div class="ico">📦</div>
+        <h3>Case id</h3>
+        <p class="mono" style="font-size:.78rem">02_test_domain_test_domain_4_57</p>
+        <div class="kv">annotation_id d9fead04-01dc-47f1-a0df-b51655167d3b</div>
+      </div>
+      <div class="card">
+        <div class="ico">🔐</div>
+        <h3>Trajectory hash</h3>
+        <p class="mono" style="font-size:.72rem;word-break:break-all">bd44e427efe70e8d22a1161f904b5f67a1992f6d4de04fc750ff5fd58437c886</p>
+      </div>
+      <div class="card">
+        <div class="ico">🗂️</div>
+        <h3>Provenance</h3>
+        <p class="mono" style="font-size:.76rem">trajs/web_navigation/02_test_domain_test_domain_4_57.json</p>
+        <div class="kv">source: upstream · benchmark: Mind2Web</div>
+      </div>
+    </div>
+
+    <div class="card rv" style="margin-top:20px">
+      <h3>Completeness check</h3>
+      <p>All three steps carry a <span class="mono">cleaned_html</span> snapshot, so page state is verifiable end to
+        end. Two of three steps carry positive candidate metadata. No field was stripped
+        (<span class="mono">stripped_fields: []</span>), and the case lists no oversized reference files. The
+        <span class="mono">raw_text.jsonl</span> companion stores the same fields with the three
+        <span class="mono">cleaned_html</span> records elided as oversized (89,031 / 89,153 / 44,750 characters),
+        which is why the full DOM is read from the trajectory itself.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-kicker">Notes &amp; caveats</div>
+      <h2 class="sec">Honest footnotes.</h2>
+      <p>Everything uncertain about this record is stated here rather than smoothed over.</p>
+    </div>
+
+    <details class="rv" open>
+      <summary>Was the task actually completed?</summary>
+      <div class="body">
+        Yes, as far as the record shows. The third action lands on the African American Business Resource Group
+        logo inside the Associate Resource Groups grid of the Diversity &amp; Inclusion page — the page the task
+        asks for. The caveat: the trajectory stores DOM snapshots, not URLs or HTTP status. Success is inferred
+        from the post-action DOM, and the final click targets a logo tile rather than a text link, so the
+        “open page” reading rests on the destination page's own content being present in the last observation.
+      </div>
+    </details>
+
+    <details class="rv">
+      <summary>Why does step 1 have zero positive candidates?</summary>
+      <div class="body">
+        The <span class="mono">Diversity &amp; Inclusion</span> anchor is clearly in the cleaned DOM of that step
+        (the submenu under Culture), and its label text is recoverable. But
+        <span class="mono">pos_candidates</span> is empty and no candidate in the step is flagged
+        <span class="mono">is_original_target</span>. So the ground-truth node id, class and bounding box for
+        that step are simply absent — this is an annotation gap, not evidence that the element was missing.
+      </div>
+    </details>
+
+    <details class="rv">
+      <summary>What does <code>original_op: "HOVER"</code> with <code>op: "CLICK"</code> mean?</summary>
+      <div class="body">
+        Mind2Web keeps two fields. <span class="mono">original_op</span> records what the annotator physically
+        did — a hover, needed to expand the Culture mega-menu — while <span class="mono">op</span> records the
+        normalised interaction the dataset uses for training, which maps the hover onto a click. Reading only
+        the normalised field would hide the fact that the submenu had to be revealed first.
+      </div>
+    </details>
+
+    <details class="rv">
+      <summary>Are there screenshots or video for this case?</summary>
+      <div class="body">
+        No. The case directory holds only <span class="mono">case_meta.json</span>,
+        <span class="mono">trajectory.json</span>, <span class="mono">raw_text.jsonl</span> and the task
+        statement. <span class="mono">references</span> is empty and there are no
+        <span class="mono">media_refs</span>. The only video artefact is the YouTube embed described in the
+        destination page's DOM, cited here as plain text and deliberately not loaded.
+      </div>
+    </details>
+
+    <details class="rv">
+      <summary>Are the quoted page strings exact?</summary>
+      <div class="body">
+        They are reproduced from the extracted text nodes. The extraction drops some inline spacing and
+        punctuation — for example the source renders “everyone is…and feels…included” as
+        <span class="mono">everyone isand feelsincluded</span>, and some sentences start mid-clause where the
+        markup splits them. Where a string looked like a truncation artifact (the Asian Pacific tile) it is shown
+        with a leading ellipsis rather than silently completed.
+      </div>
+    </details>
+
+    <details class="rv">
+      <summary>Is this a model run?</summary>
+      <div class="body">
+        No. <span class="mono">model</span> is <span class="mono">human-annotator</span> and the metadata note
+        reads “human demonstration trajectory; no agent model”. Nothing in this report should be read as an
+        agent success or failure rate.
+      </div>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <div class="brand" style="margin-bottom:14px">
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 18V7l4 5 4-5v11"/><path d="M16 18V7l4 11"/>
+          </svg>
+        </span>
+        <span>Mind2Web<small>Case Report · web_navigation</small></span>
+      </div>
+      <p class="small">Report generated from the recorded trajectory only. No external resources, fonts, scripts
+        or media were loaded; all styling and interaction are inline in this document.</p>
+    </div>
+    <div style="min-width:260px">
+      <p class="mono" style="margin:0 0 8px">task: Open page with information about Associate Resource Groups for Diversity and Inclusion.</p>
+      <p class="mono" style="margin:0 0 8px">website: careers.walmart · domain: Info / Job</p>
+      <p class="mono" style="margin:0">sha256: bd44e427…58437c886</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // sticky nav state
+  var nav = document.getElementById('nav');
+  function onScroll(){
+    if (window.scrollY > 12) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  }
+  onScroll();
+  window.addEventListener('scroll', onScroll, {passive:true});
+
+  // mobile menu
+  var burger = document.getElementById('burger');
+  var links = document.getElementById('navlinks');
+  burger.addEventListener('click', function(){ links.classList.toggle('open'); });
+  links.addEventListener('click', function(e){
+    if (e.target.tagName === 'A') links.classList.remove('open');
+  });
+
+  // scroll reveal
+  var rv = Array.prototype.slice.call(document.querySelectorAll('.rv'));
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting){
+          en.target.classList.add('in');
+          io.unobserve(en.target);
+        }
+      });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:0.08});
+    rv.forEach(function(el, i){
+      el.style.transitionDelay = Math.min(i % 6, 4) * 60 + 'ms';
+      io.observe(el);
+    });
+  } else {
+    rv.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  // pointer-tracked glow on cards
+  document.querySelectorAll('.card').forEach(function(card){
+    card.addEventListener('pointermove', function(e){
+      var r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+      card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+  });
+
+  // smooth anchor offset for sticky nav
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var t = document.querySelector(a.getAttribute('href'));
+      if (!t) return;
+      e.preventDefault();
+      var y = t.getBoundingClientRect().top + window.scrollY - 84;
+      window.scrollTo({top:y, behavior:'smooth'});
+    });
+  });
+</script>
+</body>
+</html>

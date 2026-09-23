@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mechanistic DPO Reproduction Case</title>
+  <style>
+    :root {
+      --ink: #1b211c;
+      --muted: #5a655e;
+      --faint: #d9ded6;
+      --paper: #f6f4ec;
+      --panel: #fffdf6;
+      --panel-2: #ece9de;
+      --moss: #586f4b;
+      --moss-dark: #2f4834;
+      --rust: #a24f2b;
+      --cobalt: #2f5f8f;
+      --amber: #d5a72f;
+      --rose: #b66b69;
+      --shadow: 0 18px 45px rgba(44, 48, 40, .12);
+      --mono: "Courier New", "Nimbus Mono PS", monospace;
+      --body: Georgia, "Times New Roman", serif;
+      --display: "Trebuchet MS", "Gill Sans", Verdana, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(213, 167, 47, .18), transparent 28rem),
+        linear-gradient(90deg, rgba(47, 72, 52, .05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(47, 72, 52, .05) 1px, transparent 1px),
+        var(--paper);
+      background-size: auto, 34px 34px, 34px 34px, auto;
+      color: var(--ink);
+      font-family: var(--body);
+      line-height: 1.55;
+    }
+
+    a { color: inherit; }
+    .wrap { width: min(1180px, calc(100vw - 36px)); margin: 0 auto; }
+
+    header {
+      min-height: 92vh;
+      display: grid;
+      align-items: end;
+      padding: 28px 0 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topline {
+      position: absolute;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      width: min(1180px, calc(100vw - 36px));
+      font-family: var(--display);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--moss-dark);
+    }
+
+    .stamp {
+      border: 1px solid var(--moss-dark);
+      padding: 7px 10px;
+      background: rgba(255, 253, 246, .72);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(310px, .9fr);
+      gap: 34px;
+      align-items: end;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 820px;
+      font-family: var(--display);
+      font-size: clamp(46px, 8.2vw, 112px);
+      line-height: .89;
+      letter-spacing: 0;
+      font-weight: 900;
+      color: var(--moss-dark);
+    }
+
+    .subtitle {
+      margin: 22px 0 0;
+      max-width: 720px;
+      font-size: clamp(18px, 2vw, 25px);
+      color: #30382f;
+    }
+
+    .thesis-mark {
+      min-height: 470px;
+      position: relative;
+      border-left: 2px solid var(--moss-dark);
+      border-bottom: 2px solid var(--moss-dark);
+      padding: 28px 0 0 24px;
+    }
+
+    .axis-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .curve {
+      position: absolute;
+      inset: 44px 0 34px 20px;
+    }
+
+    .curve svg { width: 100%; height: 100%; overflow: visible; }
+    .curve path {
+      fill: none;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .curve .pre { stroke: var(--rust); }
+    .curve .post { stroke: var(--cobalt); stroke-dasharray: 8 8; }
+    .curve .gate { stroke: var(--moss-dark); stroke-width: 1.5; opacity: .55; }
+    .node {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--rust);
+      box-shadow: 0 0 0 7px rgba(162, 79, 43, .12);
+    }
+    .node.b { background: var(--cobalt); box-shadow: 0 0 0 7px rgba(47, 95, 143, .12); }
+    .node.n1 { left: 31%; top: 38%; }
+    .node.n2 { right: 18%; top: 57%; }
+    .legend {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: min(280px, 90%);
+      background: rgba(255, 253, 246, .82);
+      border: 1px solid var(--faint);
+      padding: 14px;
+      font-family: var(--display);
+      font-size: 13px;
+    }
+    .legend div { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .swatch { width: 28px; height: 3px; background: var(--rust); display: inline-block; }
+    .swatch.dash { background: repeating-linear-gradient(90deg, var(--cobalt) 0 8px, transparent 8px 14px); }
+
+    main { padding: 30px 0 80px; }
+    section { margin: 70px 0; }
+    .section-head {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 26px;
+      align-items: start;
+      margin-bottom: 24px;
+      border-top: 2px solid var(--ink);
+      padding-top: 18px;
+    }
+    .kicker {
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--rust);
+    }
+    h2 {
+      font-family: var(--display);
+      font-size: clamp(28px, 4vw, 54px);
+      line-height: 1;
+      margin: 0;
+      color: var(--moss-dark);
+    }
+    h3 {
+      font-family: var(--display);
+      font-size: 20px;
+      margin: 0 0 8px;
+      color: var(--moss-dark);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--ink);
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow);
+    }
+    .metric {
+      background: var(--panel);
+      padding: 20px;
+      min-height: 128px;
+    }
+    .metric strong {
+      display: block;
+      font-family: var(--display);
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1;
+      color: var(--moss-dark);
+    }
+    .metric span {
+      display: block;
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+      gap: 26px;
+    }
+    .panel {
+      background: rgba(255, 253, 246, .86);
+      border: 1px solid var(--faint);
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(44, 48, 40, .07);
+    }
+    .panel p { margin: 0 0 14px; }
+    .panel p:last-child { margin-bottom: 0; }
+
+    .callout {
+      border-left: 5px solid var(--rust);
+      background: rgba(162, 79, 43, .08);
+      padding: 16px 18px;
+      font-family: var(--display);
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .stage {
+      position: relative;
+      min-height: 250px;
+      background: var(--panel);
+      border: 1px solid var(--faint);
+      padding: 20px 18px;
+      overflow: hidden;
+    }
+    .stage::before {
+      content: attr(data-step);
+      position: absolute;
+      right: 12px;
+      top: 4px;
+      font-family: var(--display);
+      font-size: 64px;
+      line-height: 1;
+      color: rgba(88, 111, 75, .12);
+      font-weight: 900;
+    }
+    .stage ul {
+      margin: 16px 0 0;
+      padding-left: 18px;
+    }
+    .stage li { margin: 8px 0; }
+
+    .artifact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .artifact {
+      padding: 18px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--faint);
+      min-height: 178px;
+    }
+    .artifact code, .mono {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--moss-dark);
+      overflow-wrap: anywhere;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--ink);
+      border: 1px solid var(--ink);
+    }
+    .status {
+      background: var(--panel);
+      padding: 18px;
+    }
+    .status b {
+      display: block;
+      font-family: var(--display);
+      margin-bottom: 6px;
+    }
+    .pass { color: var(--moss-dark); }
+    .warn { color: var(--rust); }
+
+    .timeline-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 18px;
+    }
+    button {
+      font: 700 12px var(--display);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--moss-dark);
+      background: var(--panel);
+      border: 1px solid var(--moss);
+      padding: 9px 12px;
+      cursor: pointer;
+    }
+    button[aria-pressed="true"] {
+      background: var(--moss-dark);
+      color: var(--panel);
+    }
+    button:focus-visible, summary:focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 2px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+    .event {
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+    .event .idx {
+      background: var(--moss-dark);
+      color: var(--panel);
+      display: grid;
+      place-items: center;
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+    .event-body {
+      background: rgba(255, 253, 246, .9);
+      border: 1px solid var(--faint);
+      padding: 14px 16px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 3px 8px;
+      margin-right: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      background: rgba(47, 95, 143, .12);
+      color: var(--cobalt);
+    }
+    .tag.tool { background: rgba(162, 79, 43, .12); color: var(--rust); }
+    .tag.final { background: rgba(88, 111, 75, .16); color: var(--moss-dark); }
+    .event-body p { margin: 8px 0 0; }
+    .event[hidden] { display: none; }
+
+    details {
+      background: var(--panel);
+      border: 1px solid var(--faint);
+      padding: 0;
+    }
+    summary {
+      cursor: pointer;
+      padding: 16px 18px;
+      font-family: var(--display);
+      font-weight: 800;
+      color: var(--moss-dark);
+    }
+    pre {
+      margin: 0;
+      padding: 0 18px 18px;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #283127;
+    }
+
+    .footer-note {
+      margin-top: 70px;
+      padding-top: 20px;
+      border-top: 1px solid var(--faint);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      header { min-height: auto; padding-top: 82px; }
+      .hero-grid, .two-col, .section-head { grid-template-columns: 1fr; }
+      .thesis-mark { min-height: 310px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .pipeline, .artifact-grid, .status-strip { grid-template-columns: 1fr; }
+      .event { grid-template-columns: 54px 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .wrap, .topline { width: min(100% - 24px, 1180px); }
+      .topline { align-items: flex-start; flex-direction: column; }
+      h1 { font-size: 44px; }
+      .metrics { grid-template-columns: 1fr; }
+      .panel, .stage, .artifact, .metric { padding: 16px; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .stage, .artifact, .metric, .panel, .event {
+        animation: rise .55s both;
+      }
+      .stage:nth-child(2), .artifact:nth-child(2), .metric:nth-child(2) { animation-delay: .05s; }
+      .stage:nth-child(3), .artifact:nth-child(3), .metric:nth-child(3) { animation-delay: .1s; }
+      .stage:nth-child(4), .artifact:nth-child(4), .metric:nth-child(4) { animation-delay: .15s; }
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topline">
+      <div class="stamp">PaperBench / reproduction case</div>
+      <div>Collected 2026-07-11 · exit code 0 · gpt-5.6-sol</div>
+    </div>
+    <div class="wrap hero-grid">
+      <div>
+        <div class="kicker">01_mechanistic-understanding</div>
+        <h1>Alignment as a bypass, not a deletion.</h1>
+        <p class="subtitle">A Codex trajectory that builds a runnable GPT-2 reproduction of Lee et al.'s mechanistic DPO toxicity study: probe, toxic vectors, PPLM preference data, DPO, interventions, and analysis artifacts.</p>
+      </div>
+      <div class="thesis-mark" aria-label="Stylized residual stream diagram">
+        <div class="axis-label">residual stream / toxic-vector region</div>
+        <div class="curve">
+          <svg viewBox="0 0 420 330" role="img" aria-label="Pre-DPO path crosses a toxic activation region while post-DPO path curves around it">
+            <path class="gate" d="M72 258 C150 177 183 74 304 48"></path>
+            <path class="gate" d="M95 295 C172 214 232 145 344 96"></path>
+            <path class="pre" d="M25 282 C96 211 121 154 178 145 C246 135 267 195 386 74"></path>
+            <path class="post" d="M24 282 C98 221 137 203 189 217 C257 235 290 171 386 74"></path>
+          </svg>
+        </div>
+        <span class="node n1"></span>
+        <span class="node b n2"></span>
+        <div class="legend">
+          <div><span class="swatch"></span> GPT-2 path triggers toxic value vectors</div>
+          <div><span class="swatch dash"></span> DPO model routes around the trigger region</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section aria-labelledby="case-snapshot">
+      <div class="section-head">
+        <div class="kicker">Snapshot</div>
+        <h2 id="case-snapshot">What This Case Contains</h2>
+      </div>
+      <div class="metrics">
+        <div class="metric"><strong>419.3s</strong><span>recorded trajectory duration</span></div>
+        <div class="metric"><strong>70</strong><span>Codex JSONL response items</span></div>
+        <div class="metric"><strong>24,576</strong><span>target PPLM preference pairs</span></div>
+        <div class="metric"><strong>0</strong><span>metadata reference files to follow</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="assignment">
+      <div class="section-head">
+        <div class="kicker">Task</div>
+        <h2 id="assignment">Reproduce the GPT-2 Portion of the Paper</h2>
+      </div>
+      <div class="two-col">
+        <div class="panel">
+          <h3>Original request</h3>
+          <p>The agent was asked to reproduce <em>A Mechanistic Understanding of Alignment Algorithms: A Case Study on DPO and Toxicity</em>, following clarifications in the addendum and saving complete runnable code under <span class="mono">workspace/output/</span>.</p>
+          <p>The addendum narrowed scope to GPT-2 because Llama 2 access requires permission. It also required the preference-pair dataset reproduction, a corrected SVD orientation, a two-output toxicity probe matrix, and a Hugging Face toxicity model in place of Perspective API.</p>
+        </div>
+        <div class="panel">
+          <h3>Paper mechanism</h3>
+          <p>The target result is not just lower toxicity. The paper argues that DPO leaves toxic value-vector capabilities largely intact, while changing how residual streams reach the MLP key regions that activate those vectors.</p>
+          <div class="callout">The reproduction therefore needs both behavioral metrics and mechanistic artifacts: toxic-vector rankings, interventions, unalignment, parameter shifts, activation traces, and residual-space plots.</div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="pipeline">
+      <div class="section-head">
+        <div class="kicker">Implementation</div>
+        <h2 id="pipeline">The Built Pipeline</h2>
+      </div>
+      <div class="pipeline">
+        <article class="stage" data-step="01">
+          <h3>Probe and vectors</h3>
+          <p>A frozen GPT-2 Medium model feeds mean final residuals into a two-class linear toxicity probe.</p>
+          <ul>
+            <li>Jigsaw 90:10 split</li>
+            <li><span class="mono">W_toxic[:, 1]</span> direction</li>
+            <li>top MLP value-vector ranking</li>
+            <li>corrected transposed SVD</li>
+          </ul>
+        </article>
+        <article class="stage" data-step="02">
+          <h3>Preference data</h3>
+          <p>Wikitext prompts receive greedy GPT-2 continuations as chosen responses and probe-guided PPLM continuations as rejected responses.</p>
+          <ul>
+            <li>24,576 pairs</li>
+            <li>20 prompt tokens</li>
+            <li>20 continuation tokens</li>
+            <li>checkpointed JSONL resume</li>
+          </ul>
+        </article>
+        <article class="stage" data-step="03">
+          <h3>DPO and metrics</h3>
+          <p>The model trains full-parameter DPO against a frozen reference, then evaluates toxicity, perplexity, and token-bag F1.</p>
+          <ul>
+            <li>RMSProp, beta 0.1</li>
+            <li>batch size 4</li>
+            <li>gradient clipping 10.0</li>
+            <li>patience 10</li>
+          </ul>
+        </article>
+        <article class="stage" data-step="04">
+          <h3>Mechanistic analysis</h3>
+          <p>Post-training scripts compare weights, trace activations, plot residual shifts, and test toxic-key scaling.</p>
+          <ul>
+            <li>residual subtraction interventions</li>
+            <li>toxic-key unalignment</li>
+            <li>Figure 2, 4, and 5 analogs</li>
+            <li>saved tensors and JSON metrics</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="artifacts">
+      <div class="section-head">
+        <div class="kicker">Files</div>
+        <h2 id="artifacts">Output Surface</h2>
+      </div>
+      <div class="artifact-grid">
+        <div class="artifact">
+          <h3>Command entrypoint</h3>
+          <p><code>run_all.sh</code> changes into the output directory and runs <code>python -m mech_dpo.cli all --config configs/paper.yaml</code>.</p>
+        </div>
+        <div class="artifact">
+          <h3>Configuration</h3>
+          <p><code>configs/paper.yaml</code> encodes GPT-2 Medium, public datasets, 24,576 pairs, DPO hyperparameters, and analysis settings. <code>configs/smoke.yaml</code> reduces counts for plumbing checks.</p>
+        </div>
+        <div class="artifact">
+          <h3>Core modules</h3>
+          <p><code>probe.py</code>, <code>vectors.py</code>, <code>pplm.py</code>, <code>dpo.py</code>, <code>evaluation.py</code>, and <code>analysis.py</code> cover the reproduction stages.</p>
+        </div>
+        <div class="artifact">
+          <h3>Expected artifacts</h3>
+          <p>Probe checkpoints, vector rankings, preference pairs, DPO model weights, evaluation JSON, generated text, activation traces, and analysis figures are saved under the configured artifact directory.</p>
+        </div>
+        <div class="artifact">
+          <h3>Tests</h3>
+          <p><code>tests/test_core.py</code> checks sequence log-prob masking, DPO margin behavior, corrected SVD dimensions, and multiset F1.</p>
+        </div>
+        <div class="artifact">
+          <h3>Documentation</h3>
+          <p><code>README.md</code> describes installation, staged commands, smoke configuration, result map, assumptions, and toxicity-handling notes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="validation">
+      <div class="section-head">
+        <div class="kicker">Verification</div>
+        <h2 id="validation">What Ran, What Did Not</h2>
+      </div>
+      <div class="status-strip">
+        <div class="status">
+          <b class="pass">Static checks passed</b>
+          <p>Python compilation and shell syntax validation completed after removing generated <span class="mono">__pycache__</span> files.</p>
+        </div>
+        <div class="status">
+          <b class="warn">Runtime smoke blocked</b>
+          <p>The environment lacked declared dependencies including <span class="mono">transformers</span> and <span class="mono">pytest</span>, so model-backed tests could not execute.</p>
+        </div>
+        <div class="status">
+          <b class="warn">Network/model access unavailable</b>
+          <p>A GitHub remote probe failed with DNS resolution, and full execution would need Hugging Face model and dataset downloads.</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="trajectory">
+      <div class="section-head">
+        <div class="kicker">Trajectory</div>
+        <h2 id="trajectory">Condensed Work Log</h2>
+      </div>
+      <div class="timeline-controls" aria-label="Filter timeline">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="read">Read</button>
+        <button type="button" data-filter="build">Build</button>
+        <button type="button" data-filter="verify">Verify</button>
+      </div>
+      <div class="timeline">
+        <article class="event" data-kind="read">
+          <div class="idx">07</div>
+          <div class="event-body">
+            <span class="tag">message</span><span class="tag">read</span>
+            <p>The agent announced it would read the paper, addendum, blacklist, and local recovery context before mapping the required experiments.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="read">
+          <div class="idx">11-15</div>
+          <div class="event-body">
+            <span class="tag tool">tool</span><span class="tag">read</span>
+            <p>It read the 603-line paper, 30-line addendum, empty blacklist, and case file list. This established the GPT-2-only scope and required mechanistic outputs.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="read">
+          <div class="idx">17-22</div>
+          <div class="event-body">
+            <span class="tag tool">tool</span><span class="tag">read</span>
+            <p>The trajectory records a web lookup of the authors' repository page and a failed <span class="mono">git ls-remote</span> attempt because the host could not be resolved.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="build">
+          <div class="idx">24-34</div>
+          <div class="event-body">
+            <span class="tag tool">tool</span><span class="tag">build</span>
+            <p>The agent created the output package structure, project metadata, configs, common utilities, data loading, probe training, DPO training, and PPLM preference generation.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="build">
+          <div class="idx">36-44</div>
+          <div class="event-body">
+            <span class="tag tool">tool</span><span class="tag">build</span>
+            <p>It added vector extraction with GPT-2 Conv1D orientation handling, residual interventions, key scaling, analysis figures, and the CLI command router.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="verify">
+          <div class="idx">46-56</div>
+          <div class="event-body">
+            <span class="tag tool">tool</span><span class="tag">verify</span>
+            <p>Initial test execution failed because <span class="mono">pytest</span> and <span class="mono">transformers</span> were missing. The agent patched dataset splitting, toxicity head selection, and token-window behavior during review.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="verify">
+          <div class="idx">61-69</div>
+          <div class="event-body">
+            <span class="tag tool">tool</span><span class="tag">verify</span>
+            <p>Final validation ran Python compilation and shell syntax checks, removed pycache artifacts, and marked the implementation and documentation steps complete.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="verify">
+          <div class="idx">70</div>
+          <div class="event-body">
+            <span class="tag final">final</span><span class="tag">outcome</span>
+            <p>The final answer reported a complete GPT-2 reproduction, static validation success, unavailable runtime smoke execution, and no use of blacklisted resources.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="details">
+      <div class="section-head">
+        <div class="kicker">Details</div>
+        <h2 id="details">Case Metadata and Command Map</h2>
+      </div>
+      <div class="two-col">
+        <details open>
+          <summary>Metadata</summary>
+          <pre>{
+  "id": "01_mechanistic-understanding",
+  "domain": "paper_reproduction",
+  "benchmark": "PaperBench",
+  "source": "regen",
+  "collected": "2026-07-11",
+  "model": "gpt-5.6-sol",
+  "duration_s": 419.3,
+  "exit_code": 0,
+  "trajectory_format": "codex-jsonl",
+  "references": []
+}</pre>
+        </details>
+        <details open>
+          <summary>CLI stages</summary>
+          <pre>mech-dpo probe
+mech-dpo vectors
+mech-dpo preferences
+mech-dpo dpo
+mech-dpo evaluate
+mech-dpo interventions
+mech-dpo unalign
+mech-dpo analysis</pre>
+        </details>
+      </div>
+      <p class="footer-note">This presentation is self-contained. It cites paths and results present in the assigned case directory, but loads no external fonts, images, scripts, stylesheets, audio, or video.</p>
+    </section>
+  </main>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll('[data-filter]'));
+    const events = Array.from(document.querySelectorAll('.event'));
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        events.forEach((event) => {
+          event.hidden = filter !== 'all' && event.dataset.kind !== filter;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

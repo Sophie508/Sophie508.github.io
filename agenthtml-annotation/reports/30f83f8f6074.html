@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>05_task_58994 · Spreadsheet LOOKUP Size Code</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --paper: #fffcf6;
+    --ink: #1c2430;
+    --muted: #5d6b7c;
+    --line: #d7d0c3;
+    --accent: #0f6b5c;
+    --accent-soft: #d8efe9;
+    --warn: #9a3412;
+    --warn-soft: #ffedd5;
+    --code-bg: #1e293b;
+    --code-ink: #e2e8f0;
+    --assistant: #143d66;
+    --tool: #5b21b6;
+    --ok: #166534;
+    --ok-soft: #dcfce7;
+    --chip: #eef2ff;
+    --shadow: 0 10px 30px rgba(28, 36, 48, 0.08);
+    --radius: 14px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    color: var(--ink);
+    background:
+      radial-gradient(circle at top left, #e7f6f2 0, transparent 28%),
+      radial-gradient(circle at top right, #fff1df 0, transparent 24%),
+      var(--bg);
+    line-height: 1.55;
+  }
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+  header.hero {
+    background: linear-gradient(135deg, #0f6b5c 0%, #174f7a 55%, #1e293b 100%);
+    color: #f8fafc;
+    border-radius: 22px;
+    padding: 28px 30px;
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+  }
+  header.hero h1 {
+    margin: 0 0 8px;
+    font-size: 1.7rem;
+    letter-spacing: -0.02em;
+  }
+  header.hero p {
+    margin: 0;
+    opacity: 0.92;
+    max-width: 70ch;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .meta-card {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .meta-card .k {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.75;
+  }
+  .meta-card .v {
+    display: block;
+    margin-top: 2px;
+    font-weight: 650;
+    font-size: 0.95rem;
+    word-break: break-word;
+  }
+  nav.toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 22px;
+  }
+  nav.toc a {
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 0.9rem;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+  }
+  nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+  section {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  section h2 {
+    margin: 0 0 12px;
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+  }
+  section h3 {
+    margin: 18px 0 8px;
+    font-size: 1.02rem;
+  }
+  p { margin: 0 0 10px; }
+  .muted { color: var(--muted); }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--chip);
+    border: 1px solid #c7d2fe;
+    color: #312e81;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .chip.ok { background: var(--ok-soft); border-color: #86efac; color: var(--ok); }
+  .chip.warn { background: var(--warn-soft); border-color: #fdba74; color: var(--warn); }
+  .chip.accent { background: var(--accent-soft); border-color: #99d5c8; color: var(--accent); }
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 820px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+  table.sheet {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin: 8px 0 4px;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+  table.sheet th, table.sheet td {
+    border: 1px solid var(--line);
+    padding: 7px 9px;
+    vertical-align: top;
+    text-align: left;
+  }
+  table.sheet th {
+    background: #eef6f3;
+    color: #134e4a;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  table.sheet td.addr {
+    font-family: var(--mono);
+    color: var(--muted);
+    width: 3.2rem;
+    background: #faf7f1;
+  }
+  table.sheet tr.highlight td {
+    background: #fff7ed;
+  }
+  table.sheet tr.answer td {
+    background: #ecfdf5;
+    font-weight: 650;
+  }
+  code, .mono {
+    font-family: var(--mono);
+    font-size: 0.9em;
+  }
+  pre {
+    margin: 10px 0;
+    padding: 14px 16px;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 12px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.84rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  pre .cmt { color: #94a3b8; }
+  pre .str { color: #86efac; }
+  pre .fn { color: #93c5fd; }
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 12px 14px;
+    border-radius: 0 12px 12px 0;
+    margin: 12px 0;
+  }
+  .callout.warn {
+    border-left-color: #ea580c;
+    background: var(--warn-soft);
+  }
+  .callout strong { color: inherit; }
+  .timeline {
+    position: relative;
+    margin: 8px 0 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  .timeline > li {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 0 0 12px;
+    background: #fff;
+  }
+  .timeline .step-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .badge.assistant { background: #dbeafe; color: var(--assistant); }
+  .badge.tool { background: #ede9fe; color: var(--tool); }
+  .badge.final { background: var(--ok-soft); color: var(--ok); }
+  .badge.user { background: #ffe4e6; color: #9f1239; }
+  .ts {
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-family: var(--mono);
+  }
+  .step-title {
+    font-weight: 700;
+    flex: 1 1 auto;
+  }
+  details {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 8px 12px;
+    background: #fbfaf7;
+    margin-top: 8px;
+  }
+  details summary {
+    cursor: pointer;
+    font-weight: 650;
+    color: #334155;
+  }
+  .formula-box {
+    background: #0f172a;
+    color: #f8fafc;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    overflow-x: auto;
+  }
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 820px) {
+    .compare { grid-template-columns: 1fr; }
+  }
+  .compare .box {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff;
+  }
+  .compare .box h4 {
+    margin: 0 0 8px;
+    font-size: 0.92rem;
+  }
+  .arrow {
+    display: inline-block;
+    margin: 0 6px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .footer-note {
+    margin-top: 18px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  .kbd {
+    font-family: var(--mono);
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    padding: 1px 6px;
+    font-size: 0.85em;
+  }
+  ul.clean { margin: 8px 0 8px 1.1rem; padding: 0; }
+  ul.clean li { margin: 4px 0; }
+  .pill-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .pill-step {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .pill-step .n {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>Extract size codes from SKU strings with Excel LOOKUP</h1>
+      <p>
+        Case <strong>05_task_58994</strong> from SpreadsheetBench: replace a broken
+        external <span class="mono">VLOOKUP</span> on <span class="mono">Sheet1!F8</span>
+        with a hyphen-bounded partial-match formula that maps embedded size codes
+        (for example <span class="mono">750</span> inside <span class="mono">FG:LA-750-00506</span>)
+        to human-readable type labels such as <span class="mono">750ml</span>.
+      </p>
+      <div class="meta-grid">
+        <div class="meta-card"><span class="k">Domain</span><span class="v">spreadsheet_office</span></div>
+        <div class="meta-card"><span class="k">Benchmark</span><span class="v">SpreadsheetBench</span></div>
+        <div class="meta-card"><span class="k">Model</span><span class="v">gpt-5.6-sol</span></div>
+        <div class="meta-card"><span class="k">Duration</span><span class="v">25.3s</span></div>
+        <div class="meta-card"><span class="k">Exit code</span><span class="v">0</span></div>
+        <div class="meta-card"><span class="k">Trajectory</span><span class="v">codex-jsonl · 13 events</span></div>
+        <div class="meta-card"><span class="k">Collected</span><span class="v">2026-07-11</span></div>
+        <div class="meta-card"><span class="k">Answer cell</span><span class="v">Sheet1!F8</span></div>
+      </div>
+    </header>
+
+    <nav class="toc" aria-label="Sections">
+      <a href="#task">Task</a>
+      <a href="#data">Workbook data</a>
+      <a href="#problem">Broken formula</a>
+      <a href="#solution">Solution</a>
+      <a href="#explain">Formula walkthrough</a>
+      <a href="#trajectory">Agent trajectory</a>
+      <a href="#files">Artifacts</a>
+    </nav>
+
+    <section id="task">
+      <h2>Task statement</h2>
+      <div class="chip-row">
+        <span class="chip accent">openpyxl write-back</span>
+        <span class="chip">Answer: Sheet1!F8</span>
+        <span class="chip warn">Original F8 showed #REF!</span>
+        <span class="chip ok">Expected: LOOKUP partial match → 750ml</span>
+      </div>
+      <p>
+        The user has SKU-like strings in the pattern <strong>What:Who-Size-SKU</strong>
+        (example <code>FG:BJ-155-00310</code>). They want the middle <strong>Size</strong>
+        component mapped to a gallon/type label using a local lookup table on Sheet1
+        (<code>A8:A18</code> codes → <code>B8:B18</code> labels). Plain
+        <code>VLOOKUP</code> failed because the lookup key is only a substring of the
+        SKU, not the whole cell value.
+      </p>
+      <p>
+        Additional questions embedded in the prompt:
+      </p>
+      <ul class="clean">
+        <li>What formula can extract/filter the size and display the mapped type?</li>
+        <li>Explain <code>=LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)</code> — is <code>-search</code> a separate formula?</li>
+        <li>How to adjust the formula when the lookup table lives on another worksheet?</li>
+      </ul>
+      <div class="callout">
+        <strong>Harness requirement:</strong> load <code>input.xlsx</code> with openpyxl,
+        write the correct formula/value into the answer cell(s), save
+        <code>output.xlsx</code>, and print what was written.
+      </div>
+    </section>
+
+    <section id="data">
+      <h2>Workbook snapshot</h2>
+      <p class="muted">
+        Two sheets. Sheet1 holds the size lattice and target cell; Sheet2 is sample item/description data (not required for the answer).
+      </p>
+
+      <div class="two-col">
+        <div>
+          <h3>Sheet1 — lookup grid + target</h3>
+          <table class="sheet" aria-label="Sheet1 data">
+            <thead>
+              <tr><th>Cell</th><th>Value</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="addr">A7</td><td>Partial SKU</td></tr>
+              <tr><td class="addr">B7</td><td>Type</td></tr>
+              <tr><td class="addr">A8</td><td>155</td></tr>
+              <tr><td class="addr">B8</td><td>1/2bbl 15.5gal</td></tr>
+              <tr class="highlight"><td class="addr">E8</td><td><code>FG:LA-750-00506</code></td></tr>
+              <tr class="answer"><td class="addr">F8 (in)</td><td><code>=VLOOKUP(E8,[1]!Table3[#Data],2,FALSE)</code> / displayed as #REF!</td></tr>
+              <tr class="answer"><td class="addr">F8 (out)</td><td><code>=LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)</code></td></tr>
+              <tr><td class="addr">A9 / B9</td><td>750 → 750ml</td></tr>
+              <tr><td class="addr">A10 / B10</td><td>011 → 11gal</td></tr>
+              <tr><td class="addr">A11 / B11</td><td>022 → 22oz</td></tr>
+              <tr><td class="addr">A12 / B12</td><td>024 → Costco 24pk</td></tr>
+              <tr><td class="addr">A13 / B13</td><td>416 → 16oz 4pk</td></tr>
+              <tr><td class="addr">A14 / B14</td><td>516 → 5.16gal</td></tr>
+              <tr><td class="addr">A15 / B15</td><td>616 → 16oz 6pk</td></tr>
+              <tr><td class="addr">A16 / B16</td><td>775 → 1/4bbl 7.75gal</td></tr>
+              <tr><td class="addr">A17 / B17</td><td>005 → 5 gal</td></tr>
+              <tr><td class="addr">A18 / B18</td><td>475 → 375ml</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>Sheet2 — item catalog (context)</h3>
+          <table class="sheet" aria-label="Sheet2 data">
+            <thead>
+              <tr><th>Item</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>FG</td><td>Finished Goods</td></tr>
+              <tr><td>FG:BJ-750-00310</td><td>750ml</td></tr>
+              <tr><td>FG:BJ-155-PK301</td><td>1/2 BBL 15.5Gal (other keg)</td></tr>
+              <tr><td>FG:BJ-155-PK310</td><td>1/2 BBL 15.5Gal (Port)</td></tr>
+              <tr><td>FG:BJ-516-PK305</td><td>1/6 BBL 5.16 Gal (OTHER KEG)</td></tr>
+              <tr><td>FG:BJ-750-00301</td><td>Grand Cru</td></tr>
+              <tr><td>FG:BJ-750-00301E</td><td>(Display)</td></tr>
+              <tr><td>FG:BJ-750-00303</td><td>Abbey Normal</td></tr>
+            </tbody>
+          </table>
+          <div class="callout" style="margin-top:14px">
+            <strong>Match logic for E8:</strong><br />
+            <code>FG:LA-750-00506</code>
+            <span class="arrow">→</span> find size token <code>750</code>
+            (as <code>-750-</code>)
+            <span class="arrow">→</span> map via B9 to <strong>750ml</strong>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="problem">
+      <h2>Why the original approach failed</h2>
+      <div class="compare">
+        <div class="box">
+          <h4>Broken / original F8</h4>
+          <pre>=VLOOKUP(E8,[1]!Table3[#Data],2,FALSE)
+// prompt also shows external path:
+// VLOOKUP(E8,'C:/Users/jesse/Desktop/2020 Monthly Sales Info.xlsx'!Table3[#数据],2,FALSE)</pre>
+          <ul class="clean">
+            <li>Exact-match lookup on the entire SKU string, not the embedded size.</li>
+            <li>Depends on an external workbook / table reference that is missing → <code>#REF!</code>.</li>
+            <li>Even with a local table of size codes, full-string VLOOKUP would miss substring matches.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>Required behavior</h4>
+          <ul class="clean">
+            <li>Scan each size code in <code>$A$8:$A$18</code>.</li>
+            <li>Treat a hit only when the code appears as a hyphen-bounded token (avoids matching inside longer numbers).</li>
+            <li>Return the corresponding label from <code>$B$8:$B$18</code>.</li>
+            <li>Optionally qualify ranges with another sheet name when the lattice lives elsewhere.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="solution">
+      <h2>Solution written by the agent</h2>
+      <p>
+        Final value stored in <code>Sheet1!F8</code> (and verified after save):
+      </p>
+      <div class="formula-box">=LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)</div>
+      <div class="chip-row" style="margin-top:12px">
+        <span class="chip ok">Calculated Excel result: 750ml</span>
+        <span class="chip accent">Exit 0 · 25.3s</span>
+      </div>
+
+      <h3>solve.py</h3>
+      <pre><span class="fn">from</span> openpyxl <span class="fn">import</span> load_workbook
+
+input_path = <span class="str">".../workspace/input.xlsx"</span>
+output_path = <span class="str">".../workspace/output.xlsx"</span>
+
+workbook = load_workbook(input_path)
+sheet = workbook[<span class="str">"Sheet1"</span>]
+
+<span class="cmt"># Find a size code from A8:A18 surrounded by hyphens in E8, then return
+# its corresponding description from B8:B18.</span>
+sheet[<span class="str">"F8"</span>] = <span class="str">'=LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)'</span>
+
+workbook.save(output_path)
+print(f<span class="str">"Sheet1!F8 = {sheet['F8'].value}"</span>)</pre>
+
+      <h3>Cross-sheet variant (answered in final response)</h3>
+      <div class="formula-box">=LOOKUP(2,1/(ISNUMBER(SEARCH("-"&Sheet2!$A$8:$A$18&"-",E8))),Sheet2!$B$8:$B$18)</div>
+      <p class="muted" style="margin-top:10px">
+        Same logic; only the range references gain a sheet qualifier.
+      </p>
+    </section>
+
+    <section id="explain">
+      <h2>Formula walkthrough</h2>
+      <p>
+        The user wondered whether <code>-search</code> was some extra formula.
+        It is not: <code>SEARCH</code> is a normal Excel function, and the hyphens are
+        string concatenations around each candidate code.
+      </p>
+      <div class="pill-steps">
+        <div class="pill-step">
+          <div><span class="n">1</span><strong>Build needles</strong></div>
+          <p class="muted" style="margin:6px 0 0">
+            <code>"-" & $A$8:$A$18 & "-"</code> turns <code>750</code> into
+            <code>-750-</code>, <code>155</code> into <code>-155-</code>, and so on.
+          </p>
+        </div>
+        <div class="pill-step">
+          <div><span class="n">2</span><strong>SEARCH each needle</strong></div>
+          <p class="muted" style="margin:6px 0 0">
+            <code>SEARCH(needle, E8)</code> returns a start position or <code>#VALUE!</code>
+            if absent. For <code>FG:LA-750-00506</code>, only <code>-750-</code> hits.
+          </p>
+        </div>
+        <div class="pill-step">
+          <div><span class="n">3</span><strong>ISNUMBER → mask</strong></div>
+          <p class="muted" style="margin:6px 0 0">
+            Numeric positions become <code>TRUE</code>; failures become <code>FALSE</code>.
+          </p>
+        </div>
+        <div class="pill-step">
+          <div><span class="n">4</span><strong>1/mask array</strong></div>
+          <p class="muted" style="margin:6px 0 0">
+            <code>1/TRUE</code> → <code>1</code>; <code>1/FALSE</code> → <code>#DIV/0!</code>.
+            LOOKUP ignores errors while scanning.
+          </p>
+        </div>
+        <div class="pill-step">
+          <div><span class="n">5</span><strong>LOOKUP(2, …)</strong></div>
+          <p class="muted" style="margin:6px 0 0">
+            Looking for <code>2</code> in an array of ones/errors overshoots; LOOKUP returns
+            the last 1’s corresponding result from <code>$B$8:$B$18</code> — here <code>750ml</code>.
+          </p>
+        </div>
+      </div>
+      <div class="callout warn" style="margin-top:14px">
+        <strong>Boundary trick:</strong> wrapping codes in hyphens prevents accidental
+        substring collisions (for example matching bare <code>5</code> inside
+        <code>155</code>) and aligns with the SKU’s <code>Who-Size-SKU</code> dash separators.
+      </div>
+    </section>
+
+    <section id="trajectory">
+      <h2>Agent trajectory</h2>
+      <p class="muted">
+        Format: codex-jsonl · model backend gpt-5.6-sol · no screenshots/media in this case.
+        Developer/system preamble events omitted for clarity; interactive work began after the user task.
+      </p>
+
+      <ol class="timeline">
+        <li>
+          <div class="step-head">
+            <span class="badge user">User</span>
+            <span class="step-title">Task prompt delivered</span>
+            <span class="ts">2026-07-11T22:11:34.162Z</span>
+          </div>
+          <p>
+            SpreadsheetBench instruction with Sheet1/Sheet2 dump, broken VLOOKUP, LOOKUP
+            syntax question, cross-sheet adjustment, and openpyxl I/O contract targeting
+            <code>Sheet1!F8</code>.
+          </p>
+          <details>
+            <summary>Show prompt excerpt</summary>
+            <pre>Task: I have a column with values formatted as 'What:Who-Size-SKU'
+(e.g., 'FG:BJ-155-00310'), and I need to extract the 'Size' component...
+What formula can I use... explain ... LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)
+... how would I adjust the formula if the data I need to reference is on a different worksheet?
+
+The answer should be placed at cell(s): 'Sheet1'!F8
+
+Write Python code using openpyxl to load input.xlsx, solve, save output.xlsx, then print final values.</pre>
+          </details>
+        </li>
+
+        <li>
+          <div class="step-head">
+            <span class="badge assistant">Assistant</span>
+            <span class="step-title">Plan: inspect workbook, then write formula</span>
+            <span class="ts">2026-07-11T22:11:38.683Z</span>
+          </div>
+          <p>
+            “I’ll inspect the workbook layout, then write the cross-sheet lookup formula
+            into <code>Sheet1!F8</code> and save the requested output file.”
+          </p>
+        </li>
+
+        <li>
+          <div class="step-head">
+            <span class="badge tool">Tool · exec</span>
+            <span class="step-title">Dump input.xlsx with openpyxl</span>
+            <span class="ts">2026-07-11T22:11:39.xxx → 22:11:40s</span>
+          </div>
+          <p>
+            Listed both sheets and non-empty rows. Confirmed F8’s broken external structured
+            reference and the local size lattice in A8:B18.
+          </p>
+          <details>
+            <summary>Command / key output</summary>
+            <pre>python - <<'PY'
+from openpyxl import load_workbook
+p='input.xlsx'
+wb=load_workbook(p, data_only=False)
+print(wb.sheetnames)
+for s in wb.sheetnames:
+    ws=wb[s]
+    print(s, ws.max_row, ws.max_column)
+    for row in ws.iter_rows():
+        vals=[c.value for c in row]
+        if any(v is not None for v in vals): print(row[0].row, vals)
+PY
+
+# → sheets ['Sheet2', 'Sheet1']
+# Sheet1 row 8:
+# ['155','1/2bbl 15.5gal', None, None, 'FG:LA-750-00506',
+#  '=VLOOKUP(E8,[1]!Table3[#Data],2,FALSE)']</pre>
+          </details>
+        </li>
+
+        <li>
+          <div class="step-head">
+            <span class="badge assistant">Assistant</span>
+            <span class="step-title">Interpretation of E8</span>
+            <span class="ts">2026-07-11T22:11:44.354Z</span>
+          </div>
+          <p>
+            Confirmed <code>E8 = FG:LA-750-00506</code>, embedded size <code>750</code>,
+            mapped label <code>750ml</code>. Chose hyphen-bounded SEARCH array formula over
+            exact-match VLOOKUP.
+          </p>
+        </li>
+
+        <li>
+          <div class="step-head">
+            <span class="badge tool">Tool · exec</span>
+            <span class="step-title">Write solve.py, run it, verify output.xlsx</span>
+            <span class="ts">2026-07-11T22:11:51.006Z → 22:11:51.723Z</span>
+          </div>
+          <p>
+            Applied a patch creating <code>solve.py</code>, executed it, then re-opened
+            <code>output.xlsx</code> to verify F8.
+          </p>
+          <details open>
+            <summary>Tool result</summary>
+            <pre>Script completed
+Wall time 0.7 seconds
+Sheet1!F8 = =LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)
+Verified: =LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)</pre>
+          </details>
+        </li>
+
+        <li>
+          <div class="step-head">
+            <span class="badge final">Final answer</span>
+            <span class="step-title">Deliver formula, evaluation, and cross-sheet form</span>
+            <span class="ts">2026-07-11T22:11:57.643Z</span>
+          </div>
+          <p>
+            Reported artifacts <code>output.xlsx</code> and <code>solve.py</code>, stated that
+            Excel evaluates F8 to <strong>750ml</strong>, clarified that <code>SEARCH</code>
+            is a function (not “-search”), and gave the Sheet2-qualified variant.
+          </p>
+          <details>
+            <summary>Full final message</summary>
+            <pre>Created output.xlsx and the generating script solve.py.
+
+Sheet1!F8 contains:
+
+=LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)
+
+Its calculated result in Excel is 750ml.
+
+SEARCH is a function, not “-search.” The "-"&...&"-" expression surrounds
+each lookup code with hyphens, so 750 is searched as -750-.
+
+If the lookup table were on Sheet2, the references would become:
+
+=LOOKUP(2,1/(ISNUMBER(SEARCH("-"&Sheet2!$A$8:$A$18&"-",E8))),Sheet2!$B$8:$B$18)</pre>
+          </details>
+        </li>
+      </ol>
+    </section>
+
+    <section id="files">
+      <h2>Case artifacts</h2>
+      <div class="two-col">
+        <div>
+          <h3>Under case directory</h3>
+          <ul class="clean">
+            <li><code>case_meta.json</code> — id, model, duration, trajectory_format</li>
+            <li><code>trajectory.jsonl</code> — 13 codex-jsonl events</li>
+            <li><code>workspace/prompt.txt</code> — task statement</li>
+            <li><code>workspace/input.xlsx</code> — starting workbook</li>
+            <li><code>workspace/output.xlsx</code> — solved workbook (F8 formula written)</li>
+            <li><code>workspace/solve.py</code> — openpyxl writer used by the agent</li>
+          </ul>
+          <p class="muted">references: none (empty list in case_meta.json). No screenshots/frames/media_refs.</p>
+        </div>
+        <div>
+          <h3>Outcome summary</h3>
+          <table class="sheet">
+            <thead><tr><th>Field</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Status</td><td>Success (exit 0)</td></tr>
+              <tr><td>Answer cell</td><td>Sheet1!F8</td></tr>
+              <tr><td>Formula family</td><td>Array LOOKUP + SEARCH</td></tr>
+              <tr><td>Semantic result</td><td>750ml</td></tr>
+              <tr><td>Explains SEARCH?</td><td>Yes</td></tr>
+              <tr><td>Cross-sheet form?</td><td>Yes</td></tr>
+              <tr><td>Duration</td><td>25.3 seconds</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer-note">
+      Self-contained case render for <span class="kbd">05_task_58994</span> ·
+      domain spreadsheet_office · generated from local case files only · no external assets
+    </p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case 04_task_15027 - Spreadsheet Formula Repair</title>
+  <style>
+    :root {
+      --paper: #f7f3e8;
+      --ink: #1e2420;
+      --muted: #66716b;
+      --grid: #b9c4b7;
+      --grid-dark: #6f836f;
+      --cell: #fffdf6;
+      --cell-alt: #eef4e8;
+      --formula: #195f42;
+      --formula-soft: #dcebdc;
+      --trace: #2f5f93;
+      --trace-soft: #dfe8f4;
+      --warn: #9b4f22;
+      --shadow: 0 18px 50px rgba(27, 40, 33, 0.13);
+      --mono: "SFMono-Regular", "Cascadia Mono", "Roboto Mono", Consolas, monospace;
+      --body: "Aptos", "Segoe UI", Arial, sans-serif;
+      --display: Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      background:
+        linear-gradient(90deg, rgba(25, 95, 66, 0.045) 1px, transparent 1px) 0 0 / 38px 38px,
+        linear-gradient(rgba(25, 95, 66, 0.04) 1px, transparent 1px) 0 0 / 38px 38px,
+        var(--paper);
+      color: var(--ink);
+      font-family: var(--body);
+      line-height: 1.45;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+      gap: 28px;
+      align-items: end;
+      min-height: 430px;
+      padding: 26px 0 24px;
+      border-bottom: 2px solid var(--grid-dark);
+    }
+
+    .case-kicker {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      color: var(--formula);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .case-kicker::before {
+      content: "";
+      width: 34px;
+      height: 10px;
+      background:
+        linear-gradient(90deg, var(--formula) 0 8px, transparent 8px 13px, var(--formula) 13px 21px, transparent 21px 26px, var(--formula) 26px 34px);
+    }
+
+    h1 {
+      margin: 20px 0 16px;
+      max-width: 830px;
+      font-family: var(--display);
+      font-size: clamp(42px, 8vw, 92px);
+      line-height: 0.9;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 680px;
+      margin: 0;
+      color: #435048;
+      font-size: clamp(16px, 2vw, 20px);
+    }
+
+    .answer-strip {
+      position: relative;
+      align-self: stretch;
+      display: grid;
+      align-content: end;
+      gap: 14px;
+      padding: 22px;
+      background: var(--ink);
+      color: #f8f2df;
+      box-shadow: var(--shadow);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .answer-strip::before {
+      content: "E1";
+      position: absolute;
+      top: -22px;
+      right: 12px;
+      color: rgba(248, 242, 223, 0.08);
+      font-family: var(--display);
+      font-size: 164px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .answer-label {
+      position: relative;
+      color: #b6d7c3;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .answer-formula {
+      position: relative;
+      margin: 0;
+      padding: 16px;
+      border: 1px solid rgba(226, 238, 218, 0.3);
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+      font-family: var(--mono);
+      font-size: clamp(16px, 2.2vw, 23px);
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .hero-meta {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .hero-meta span {
+      padding-top: 8px;
+      border-top: 1px solid rgba(226, 238, 218, 0.32);
+      color: #dce8d4;
+    }
+
+    .section {
+      padding: 34px 0;
+      border-bottom: 1px solid rgba(111, 131, 111, 0.4);
+    }
+
+    .section-head {
+      display: flex;
+      gap: 18px;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(23px, 3vw, 34px);
+      line-height: 1.05;
+      font-family: var(--display);
+      letter-spacing: 0;
+    }
+
+    .section-note {
+      max-width: 520px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 12px 0 18px;
+    }
+
+    .segmented {
+      display: inline-grid;
+      grid-template-columns: repeat(2, minmax(104px, 1fr));
+      border: 1px solid var(--grid-dark);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--cell);
+    }
+
+    .segmented button {
+      border: 0;
+      border-right: 1px solid var(--grid-dark);
+      padding: 9px 12px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .segmented button:last-child { border-right: 0; }
+    .segmented button[aria-pressed="true"] {
+      background: var(--formula);
+      color: #fff;
+    }
+
+    .segmented button:focus-visible,
+    .copy-button:focus-visible {
+      outline: 3px solid #d79232;
+      outline-offset: 2px;
+    }
+
+    .copy-button {
+      border: 1px solid var(--grid-dark);
+      border-radius: 6px;
+      background: #fffaf0;
+      color: var(--formula);
+      padding: 9px 12px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .grid-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--grid-dark);
+      border-radius: 6px;
+      box-shadow: var(--shadow);
+      background: var(--cell);
+    }
+
+    table.sheet {
+      width: 100%;
+      min-width: 850px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    .sheet th,
+    .sheet td {
+      border: 1px solid var(--grid);
+      padding: 10px 9px;
+      vertical-align: top;
+      min-height: 44px;
+      overflow-wrap: anywhere;
+    }
+
+    .sheet th {
+      background: #d8e3d2;
+      color: #243129;
+      font-family: var(--mono);
+      font-size: 12px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .row-head {
+      width: 46px;
+      background: #d8e3d2;
+      color: #243129;
+      font-family: var(--mono);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .label-cell {
+      width: 190px;
+      background: #e8eee2;
+      font-weight: 700;
+      color: #2f3b33;
+    }
+
+    .target-cell {
+      position: relative;
+      background: #173a2b;
+      color: #ffffff;
+      box-shadow: inset 0 0 0 3px #d79232;
+      font-family: var(--mono);
+      font-weight: 700;
+    }
+
+    .formula-cell {
+      background: var(--formula-soft);
+      color: #0f4e34;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .blank { color: #a0aaa4; }
+    .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .formula-card {
+      border: 1px solid var(--grid-dark);
+      border-radius: 6px;
+      padding: 18px;
+      background: var(--cell);
+      box-shadow: 0 10px 30px rgba(27, 40, 33, 0.08);
+    }
+
+    .formula-card h3 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-family: var(--mono);
+      color: var(--muted);
+    }
+
+    .formula-card code {
+      display: block;
+      padding: 14px;
+      min-height: 72px;
+      background: #f2efe3;
+      border-left: 6px solid var(--warn);
+      color: #352a20;
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .formula-card.correct code {
+      border-left-color: var(--formula);
+      background: #edf5ea;
+      color: #103d2b;
+    }
+
+    .reason {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .trace-layout {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .stats {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stat {
+      border: 1px solid var(--grid-dark);
+      border-radius: 6px;
+      padding: 14px;
+      background: #fffaf0;
+    }
+
+    .stat strong {
+      display: block;
+      font-family: var(--display);
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 14px;
+      align-items: stretch;
+      border: 1px solid rgba(47, 95, 147, 0.32);
+      border-radius: 6px;
+      background: var(--trace-soft);
+      overflow: hidden;
+    }
+
+    .step-num {
+      display: grid;
+      place-items: center;
+      background: var(--trace);
+      color: #ffffff;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .step-body {
+      padding: 13px 14px 13px 0;
+    }
+
+    .step-title {
+      margin: 0 0 4px;
+      font-weight: 800;
+    }
+
+    .step-copy {
+      margin: 0;
+      color: #4d5961;
+      font-size: 14px;
+    }
+
+    .code-panel {
+      border: 1px solid var(--grid-dark);
+      border-radius: 6px;
+      background: #16231c;
+      color: #e9f2df;
+      overflow: hidden;
+    }
+
+    .code-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      background: #24382d;
+      color: #cfe5d1;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .footer-note {
+      padding: 22px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 850px) {
+      .hero,
+      .comparison,
+      .trace-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: 0;
+      }
+
+      .answer-strip {
+        min-height: 250px;
+      }
+
+      .section-head {
+        display: grid;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .shell {
+        width: min(100% - 20px, 1180px);
+        padding-top: 14px;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      .answer-strip {
+        padding: 16px;
+      }
+
+      .hero-meta,
+      .segmented {
+        grid-template-columns: 1fr;
+      }
+
+      .segmented button {
+        border-right: 0;
+        border-bottom: 1px solid var(--grid-dark);
+      }
+
+      .segmented button:last-child {
+        border-bottom: 0;
+      }
+
+      .step {
+        grid-template-columns: 64px minmax(0, 1fr);
+      }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .target-cell {
+        animation: settle 900ms ease-out both;
+      }
+
+      @keyframes settle {
+        from { box-shadow: inset 0 0 0 0 #d79232; }
+        to { box-shadow: inset 0 0 0 3px #d79232; }
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <div class="case-kicker">SpreadsheetBench / 04_task_15027</div>
+        <h1 id="page-title">Find the last live quota.</h1>
+        <p>
+          The task asked the agent to shorten an array-style lookup for cell E1. The useful
+          answer keeps the intent intact: scan B6:H6 and return the last non-zero daily quota.
+        </p>
+      </div>
+      <aside class="answer-strip" aria-label="Final answer">
+        <div class="answer-label">Formula written to E1</div>
+        <p class="answer-formula" id="finalFormula">=LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)</p>
+        <div class="hero-meta">
+          <span>Model: gpt-5.6-sol</span>
+          <span>Duration: 34.8s</span>
+          <span>Exit code: 0</span>
+          <span>Collected: 2026-07-11</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" aria-labelledby="sheet-title">
+      <div class="section-head">
+        <h2 id="sheet-title">Workbook Surface</h2>
+        <p class="section-note">
+          A reconstructed Sheet1 view. Toggle the row formulas to see why E1 only needs
+          to identify the final non-zero result in the daily quota row.
+        </p>
+      </div>
+      <div class="controls" aria-label="Workbook controls">
+        <div class="segmented" role="group" aria-label="Sheet display mode">
+          <button type="button" data-mode="values" aria-pressed="true">Values</button>
+          <button type="button" data-mode="formulas" aria-pressed="false">Formulas</button>
+        </div>
+        <button type="button" class="copy-button" id="copyFormula">Copy E1 formula</button>
+      </div>
+      <div class="grid-wrap">
+        <table class="sheet" aria-label="Reconstructed spreadsheet">
+          <thead>
+            <tr>
+              <th></th>
+              <th>A</th>
+              <th>B</th>
+              <th>C</th>
+              <th>D</th>
+              <th>E</th>
+              <th>F</th>
+              <th>G</th>
+              <th>H</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-head">1</td>
+              <td class="label-cell">TEXTILES</td>
+              <td>DAILY QUOTA TO DATE</td>
+              <td class="blank"></td>
+              <td>►►►►►</td>
+              <td class="target-cell" data-value="1008.3333333333334" data-formula="=LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)">1008.3333333333334</td>
+              <td class="blank"></td>
+              <td class="blank"></td>
+              <td class="blank"></td>
+            </tr>
+            <tr>
+              <td class="row-head">2</td>
+              <td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td>
+              <td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td>
+            </tr>
+            <tr>
+              <td class="row-head">3</td>
+              <td class="label-cell">WEEK'S QUOTA ↓↓</td>
+              <td>2014-07-01</td>
+              <td>2014-07-02</td>
+              <td>2014-07-03</td>
+              <td>2014-07-04</td>
+              <td>2014-07-05</td>
+              <td>2014-07-06</td>
+              <td>2014-07-07</td>
+            </tr>
+            <tr>
+              <td class="row-head">4</td>
+              <td class="numeric">7000</td>
+              <td>Sunday</td>
+              <td>Monday</td>
+              <td>Tuesday</td>
+              <td>Wednesday</td>
+              <td>Thursday</td>
+              <td>Friday</td>
+              <td>Saturday</td>
+            </tr>
+            <tr>
+              <td class="row-head">5</td>
+              <td class="label-cell">SOLD ►►►►►►</td>
+              <td class="numeric">950</td>
+              <td class="numeric">953</td>
+              <td class="blank"></td>
+              <td class="blank"></td>
+              <td class="blank"></td>
+              <td class="blank"></td>
+              <td class="blank"></td>
+            </tr>
+            <tr>
+              <td class="row-head">6</td>
+              <td class="label-cell">DAILY QUOTA TO DATE ►►►►►</td>
+              <td class="numeric formula-cell" data-value="1000" data-formula="=IF(B5=0,0,A4/7)">1000</td>
+              <td class="numeric formula-cell" data-value="1008.3333333333334" data-formula="=IF(C5=0,0,B7/6)">1008.3333333333334</td>
+              <td class="numeric formula-cell" data-value="0" data-formula="=IF(D5=0,0,C7/5)">0</td>
+              <td class="numeric formula-cell" data-value="0" data-formula="=IF(E5=0,0,D7/4)">0</td>
+              <td class="numeric formula-cell" data-value="0" data-formula="=IF(F5=0,0,E7/3)">0</td>
+              <td class="numeric formula-cell" data-value="0" data-formula="=IF(G5=0,0,F7/2)">0</td>
+              <td class="numeric formula-cell" data-value="0" data-formula="=IF(H5=0,0,G7)">0</td>
+            </tr>
+            <tr>
+              <td class="row-head">7</td>
+              <td class="label-cell">WEEK'S REMAINING TO DATE ►►</td>
+              <td class="numeric formula-cell" data-value="6050" data-formula="=A4-B5">6050</td>
+              <td class="numeric formula-cell" data-value="5097" data-formula="=B7-C5">5097</td>
+              <td class="numeric formula-cell" data-value="5097" data-formula="=C7-D5">5097</td>
+              <td class="numeric formula-cell" data-value="5097" data-formula="=D7-E5">5097</td>
+              <td class="numeric formula-cell" data-value="5097" data-formula="=E7-F5">5097</td>
+              <td class="numeric formula-cell" data-value="5097" data-formula="=F7-G5">5097</td>
+              <td class="numeric formula-cell" data-value="5097" data-formula="=G7-H5">5097</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="formula-title">
+      <div class="section-head">
+        <h2 id="formula-title">Formula Choice</h2>
+        <p class="section-note">
+          The submitted correction is shorter because LOOKUP naturally returns the last valid
+          match from a vector, avoiding an explicit INDEX, MAX, IF, and COLUMN construction.
+        </p>
+      </div>
+      <div class="comparison">
+        <article class="formula-card">
+          <h3>Rejected answer</h3>
+          <code>INDEX($B$6:$H$6,,MAX(IF($B$6:$H$6&lt;&gt;0,COLUMN($B$6:$H$6)-COLUMN($B$6)+1)))</code>
+          <p class="reason">Works like a manual position finder, but it is longer than needed for this row lookup.</p>
+        </article>
+        <article class="formula-card correct">
+          <h3>Written answer</h3>
+          <code>=LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)</code>
+          <p class="reason">The divisor creates valid 1s for non-zero cells and errors for zero cells; LOOKUP(2, ...) returns the last valid quota.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="trace-title">
+      <div class="section-head">
+        <h2 id="trace-title">Agent Trajectory</h2>
+        <p class="section-note">
+          The codex-jsonl trace shows a direct inspect, patch, verify loop with no external references
+          and a successful exit.
+        </p>
+      </div>
+      <div class="trace-layout">
+        <aside class="stats" aria-label="Run statistics">
+          <div class="stat"><strong>14</strong><span>jsonl records</span></div>
+          <div class="stat"><strong>3</strong><span>tool calls</span></div>
+          <div class="stat"><strong>1</strong><span>answer cell</span></div>
+        </aside>
+        <div class="timeline">
+          <article class="step">
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <p class="step-title">Inspect workbook formulas</p>
+              <p class="step-copy">The agent loaded input.xlsx with openpyxl and found B6:H6 formulas plus an existing array formula in E1.</p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <p class="step-title">Patch solve.py</p>
+              <p class="step-copy">The script writes the shorter LOOKUP expression to E1 and saves output.xlsx.</p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <p class="step-title">Verify the saved workbook</p>
+              <p class="step-copy">A final load of output.xlsx confirmed E1 contains =LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6).</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="code-title">
+      <div class="section-head">
+        <h2 id="code-title">Submitted Code</h2>
+        <p class="section-note">The solve.py file created during the run is short and deterministic.</p>
+      </div>
+      <div class="code-panel">
+        <div class="code-title">
+          <span>workspace/solve.py</span>
+          <span>openpyxl</span>
+        </div>
+        <pre><code>from openpyxl import load_workbook
+
+
+INPUT_PATH = "/Users/julia/Git/agentHTML/trajs_regen/spreadsheet_office/04_task_15027/workspace/input.xlsx"
+OUTPUT_PATH = "/Users/julia/Git/agentHTML/trajs_regen/spreadsheet_office/04_task_15027/workspace/output.xlsx"
+
+
+wb = load_workbook(INPUT_PATH)
+ws = wb["Sheet1"]
+
+# Return the last non-zero daily quota from B6:H6 without an array-entered formula.
+ws["E1"] = "=LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)"
+
+wb.save(OUTPUT_PATH)
+print(f"E1={ws['E1'].value}")</code></pre>
+      </div>
+      <p class="footer-note">
+        References listed in case_meta.json: none. Media references: none.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const modeButtons = document.querySelectorAll("[data-mode]");
+    const switchableCells = document.querySelectorAll("[data-value][data-formula]");
+    const finalFormula = document.getElementById("finalFormula").textContent;
+    const copyButton = document.getElementById("copyFormula");
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const mode = button.dataset.mode;
+        modeButtons.forEach((item) => {
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+        switchableCells.forEach((cell) => {
+          cell.textContent = mode === "formulas" ? cell.dataset.formula : cell.dataset.value;
+        });
+      });
+    });
+
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(finalFormula);
+        copyButton.textContent = "Copied";
+      } catch {
+        copyButton.textContent = "Copy unavailable";
+      }
+      window.setTimeout(() => {
+        copyButton.textContent = "Copy E1 formula";
+      }, 1600);
+    });
+  </script>
+</body>
+</html>

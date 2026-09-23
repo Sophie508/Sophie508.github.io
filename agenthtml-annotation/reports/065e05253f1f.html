@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClinTox Multitask — Drug Toxicity & FDA Approval Prediction</title>
+<style>
+/* ==================== Reset & Base ==================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0e1a;
+  --bg-alt: #0f1524;
+  --surface: rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.10);
+  --border-strong: rgba(255,255,255,0.18);
+  --text: #e8eef5;
+  --text-dim: #8b9bb4;
+  --text-faint: #5a6b85;
+  --accent: #00d9a3;
+  --accent-2: #4fc3f7;
+  --accent-3: #b388ff;
+  --danger: #ff5c7c;
+  --warn: #ffb74d;
+  --grad-hero: linear-gradient(135deg, #00d9a3 0%, #4fc3f7 50%, #b388ff 100%);
+  --grad-card: linear-gradient(145deg, rgba(0,217,163,0.06), rgba(79,195,247,0.04));
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 20px 60px rgba(0,0,0,0.35);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "Fira Code", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+/* ==================== Background ambient ==================== */
+.ambient {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(0,217,163,0.12), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(79,195,247,0.10), transparent 55%),
+    radial-gradient(ellipse 70% 60% at 50% 100%, rgba(179,136,255,0.08), transparent 60%),
+    var(--bg);
+}
+
+/* ==================== Nav ==================== */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 2rem; height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background .35s ease, backdrop-filter .35s ease, border-color .35s ease;
+  border-bottom: 1px solid transparent;
+}
+.nav.scrolled {
+  background: rgba(10,14,26,0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom-color: var(--border);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: .6rem;
+  font-weight: 700; font-size: 1.1rem; letter-spacing: -.02em;
+}
+.nav-logo .logo-mark {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--grad-hero);
+  display: grid; place-items: center;
+  font-size: 1.1rem; color: #0a0e1a; font-weight: 900;
+  box-shadow: 0 4px 20px rgba(0,217,163,0.35);
+}
+.nav-links {
+  display: flex; align-items: center; gap: 2rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: .92rem; color: var(--text-dim); font-weight: 500;
+  transition: color .25s ease;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  display: flex; align-items: center; gap: 1rem;
+}
+.nav-cta .btn-ghost {
+  font-size: .9rem; color: var(--text-dim); padding: .5rem 1rem;
+  border-radius: 8px; transition: color .25s ease; cursor: pointer; border: none; background: none;
+}
+.nav-cta .btn-ghost:hover { color: var(--text); }
+
+/* ==================== Buttons ==================== */
+.btn {
+  display: inline-flex; align-items: center; gap: .55rem;
+  padding: .8rem 1.6rem; border-radius: 10px;
+  font-size: .95rem; font-weight: 600; cursor: pointer;
+  border: 1px solid transparent; transition: all .3s ease;
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--grad-hero);
+  color: #0a0e1a;
+  box-shadow: 0 8px 30px rgba(0,217,163,0.30);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,217,163,0.45);
+}
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+.btn-sm { padding: .55rem 1.1rem; font-size: .85rem; }
+
+/* ==================== Hero ==================== */
+.hero {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 120px 2rem 4rem; text-align: center; position: relative;
+}
+.hero-inner { max-width: 860px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .4rem 1rem; border-radius: 100px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: .82rem; color: var(--text-dim); margin-bottom: 2rem;
+}
+.hero-badge .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 12px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+.hero h1 {
+  font-size: clamp(2.4rem, 6vw, 4.2rem); font-weight: 800;
+  line-height: 1.08; letter-spacing: -.035em; margin-bottom: 1.5rem;
+}
+.hero h1 .grad {
+  background: var(--grad-hero);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero p.sub {
+  font-size: clamp(1.05rem, 2vw, 1.25rem); color: var(--text-dim);
+  max-width: 640px; margin: 0 auto 2.5rem; line-height: 1.65;
+}
+.hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.hero-metrics {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem; margin-top: 3.5rem; max-width: 720px; margin-left: auto; margin-right: auto;
+}
+.hero-metric {
+  text-align: center; padding: 1.2rem .5rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); backdrop-filter: blur(10px);
+}
+.hero-metric .val {
+  font-size: 1.8rem; font-weight: 800; letter-spacing: -.02em;
+  background: var(--grad-hero); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-metric .label {
+  font-size: .75rem; color: var(--text-faint); margin-top: .25rem; text-transform: uppercase; letter-spacing: .05em;
+}
+
+/* ==================== Section base ==================== */
+.section { padding: 5rem 2rem; max-width: 1200px; margin: 0 auto; }
+.section-tag {
+  display: inline-block; font-size: .8rem; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+}
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700;
+  letter-spacing: -.03em; margin-bottom: 1rem; line-height: 1.15;
+}
+.section-sub {
+  font-size: 1.1rem; color: var(--text-dim); max-width: 620px; margin-bottom: 3rem;
+}
+
+/* ==================== Features ==================== */
+.features-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;
+}
+.feature-card {
+  padding: 2rem; border-radius: var(--radius);
+  background: var(--grad-card); border: 1px solid var(--border);
+  backdrop-filter: blur(10px); transition: all .35s ease;
+  position: relative; overflow: hidden;
+}
+.feature-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--grad-hero); transform: scaleX(0); transform-origin: left;
+  transition: transform .4s ease;
+}
+.feature-card:hover {
+  transform: translateY(-6px); border-color: var(--border-strong);
+  box-shadow: var(--shadow);
+}
+.feature-card:hover::before { transform: scaleX(1); }
+.feature-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: grid; place-items: center; font-size: 1.5rem; margin-bottom: 1.2rem;
+  background: var(--surface); border: 1px solid var(--border);
+}
+.feature-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: .5rem; }
+.feature-card p { font-size: .95rem; color: var(--text-dim); line-height: 1.55; }
+
+/* ==================== How it works ==================== */
+.steps {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.5rem;
+  counter-reset: step;
+}
+.step {
+  position: relative; padding: 2rem 1.5rem; border-radius: var(--radius);
+  background: var(--surface); border: 1px solid var(--border);
+  transition: all .3s ease;
+}
+.step:hover { border-color: var(--accent); background: var(--surface-hover); }
+.step-num {
+  position: absolute; top: -14px; left: 1.5rem;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--grad-hero); color: #0a0e1a;
+  display: grid; place-items: center; font-weight: 800; font-size: .9rem;
+  box-shadow: 0 4px 16px rgba(0,217,163,0.3);
+}
+.step h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem; margin-top: .5rem; }
+.step p { font-size: .88rem; color: var(--text-dim); line-height: 1.5; }
+.step-code { font-family: var(--font-mono); font-size: .8rem; color: var(--accent-2); margin-top: .6rem; }
+
+/* ==================== Results ==================== */
+.results-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;
+}
+.result-card {
+  padding: 2rem; border-radius: var(--radius);
+  background: var(--grad-card); border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+.result-card h3 {
+  font-size: 1.1rem; font-weight: 600; color: var(--text-dim); margin-bottom: .5rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.result-accuracy {
+  font-size: 3rem; font-weight: 800; letter-spacing: -.03em;
+  background: var(--grad-hero); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.5rem;
+}
+.report-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.report-table th {
+  text-align: left; padding: .5rem .75rem; color: var(--text-faint);
+  font-weight: 600; border-bottom: 1px solid var(--border); font-size: .75rem; text-transform: uppercase; letter-spacing: .05em;
+}
+.report-table td { padding: .5rem .75rem; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: var(--font-mono); }
+.report-table tr:last-child td { border-bottom: none; }
+.report-table .cls { color: var(--accent-2); font-weight: 600; }
+.report-table .avg td { color: var(--text-faint); font-style: italic; }
+
+/* ==================== Code block ==================== */
+.code-block {
+  border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--border); background: #0a0e1a; margin-top: 1.5rem;
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .75rem 1.25rem; background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--border);
+}
+.code-dots { display: flex; gap: .5rem; }
+.code-dots span { width: 11px; height: 11px; border-radius: 50%; }
+.code-dots .r { background: #ff5f57; }
+.code-dots .y { background: #febc2e; }
+.code-dots .g { background: #28c840; }
+.code-fname { font-family: var(--font-mono); font-size: .82rem; color: var(--text-faint); }
+.code-block pre {
+  padding: 1.5rem; overflow-x: auto; font-family: var(--font-mono);
+  font-size: .82rem; line-height: 1.65; color: #c8d3e0;
+  max-height: 520px; overflow-y: auto;
+}
+.code-block pre .kw { color: #c792ea; }
+.code-block pre .str { color: #c3e88d; }
+.code-block pre .fn { color: #82aaff; }
+.code-block pre .cm { color: #546e7a; font-style: italic; }
+.code-block pre .nm { color: #f78c6c; }
+.code-block pre .op { color: #89ddff; }
+
+/* ==================== Data preview ==================== */
+.data-preview {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;
+}
+.data-card {
+  padding: 1.5rem; border-radius: var(--radius);
+  background: var(--surface); border: 1px solid var(--border);
+}
+.data-card h4 { font-size: .95rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+.data-card .row-count { font-family: var(--font-mono); color: var(--accent); font-size: .85rem; }
+.dist-row { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: .85rem; }
+.dist-row:last-child { border-bottom: none; }
+.dist-label { font-family: var(--font-mono); color: var(--text-dim); }
+.dist-bar-wrap { flex: 1; max-width: 140px; margin: 0 1rem; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
+.dist-bar { height: 100%; border-radius: 3px; background: var(--grad-hero); }
+.dist-count { font-family: var(--font-mono); color: var(--text); font-weight: 600; }
+
+/* ==================== FAQ ==================== */
+.faq-item {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  margin-bottom: 1rem; overflow: hidden; background: var(--surface);
+  transition: border-color .3s ease;
+}
+.faq-item[open] { border-color: var(--accent); }
+.faq-item summary {
+  padding: 1.25rem 1.5rem; font-weight: 600; font-size: 1rem;
+  cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: '+'; font-size: 1.4rem; color: var(--accent); font-weight: 300; transition: transform .3s ease;
+}
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item .faq-body {
+  padding: 0 1.5rem 1.25rem; color: var(--text-dim); font-size: .92rem; line-height: 1.6;
+}
+
+/* ==================== Footer ==================== */
+.footer {
+  border-top: 1px solid var(--border); padding: 3rem 2rem 2rem;
+  text-align: center; margin-top: 2rem;
+}
+.footer-logo { font-weight: 700; font-size: 1.1rem; margin-bottom: .5rem; display: inline-flex; align-items: center; gap: .5rem; }
+.footer-logo .logo-mark { width: 28px; height: 28px; font-size: .85rem; border-radius: 7px; }
+.footer p { color: var(--text-faint); font-size: .85rem; margin-top: .5rem; }
+.footer-meta { display: flex; gap: 1.5rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+.footer-meta span { font-size: .8rem; color: var(--text-faint); font-family: var(--font-mono); }
+
+/* ==================== Animations ==================== */
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+/* ==================== Responsive ==================== */
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .results-grid { grid-template-columns: 1fr; }
+  .data-preview { grid-template-columns: 1fr; }
+  .hero-metrics { grid-template-columns: repeat(2, 1fr); }
+  .section { padding: 4rem 1.25rem; }
+  .hero { padding: 100px 1.25rem 3rem; }
+}
+@media (max-width: 480px) {
+  .hero-metrics { grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .hero-metric .val { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<!-- ==================== Nav ==================== -->
+<nav class="nav" id="nav">
+  <div class="nav-logo">
+    <span class="logo-mark">⚙</span>
+    <span>ClinTox<span style="color:var(--text-faint)">·</span>Multitask</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#data">Dataset</a></li>
+    <li><a href="#code">Code</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="nav-cta">
+    <button class="btn-ghost" onclick="document.getElementById('results').scrollIntoView({behavior:'smooth'})">View Results</button>
+    <a class="btn btn-primary btn-sm" href="#code">View Code</a>
+  </div>
+</nav>
+
+<!-- ==================== Hero ==================== -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge reveal">
+      <span class="dot"></span>
+      ScienceAgentBench · gpt-5.6-sol · Completed in 50.9s
+    </div>
+    <h1 class="reveal">
+      Predicting Drug Toxicity &<br>
+      <span class="grad">FDA Approval</span> Simultaneously
+    </h1>
+    <p class="sub reveal">
+      A multitask classifier trained on the ClinTox dataset — converting SMILES molecular
+      strings into hashed numerical features and predicting both clinical toxicity and FDA
+      approval status in a single model.
+    </p>
+    <div class="hero-cta reveal">
+      <a class="btn btn-primary" href="#results">See Performance →</a>
+      <a class="btn btn-secondary" href="#how">How it Works</a>
+    </div>
+    <div class="hero-metrics reveal">
+      <div class="hero-metric"><div class="val">96.97%</div><div class="label">FDA Approval Acc</div></div>
+      <div class="hero-metric"><div class="val">95.62%</div><div class="label">Toxicity Acc</div></div>
+      <div class="hero-metric"><div class="val">1,484</div><div class="label">Molecules</div></div>
+      <div class="hero-metric"><div class="val">16,384</div><div class="label">Features</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Features ==================== -->
+<section class="section" id="features">
+  <div class="section-tag reveal">Capabilities</div>
+  <h2 class="section-title reveal">Everything needed for multitask molecular prediction</h2>
+  <p class="section-sub reveal">A dependency-free pipeline that transforms raw SMILES into competitive dual-task predictions without requiring specialized cheminformatics libraries.</p>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">🧬</div>
+      <h3>SMILES N-Gram Hashing</h3>
+      <p>Character n-grams (2–5 chars) are hashed into a 16,384-dimensional sparse vector using scikit-learn's HashingVectorizer — capturing recurring atoms, bonds, and ring markers without RDKit.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🎯</div>
+      <h3>Multitask Classification</h3>
+      <p>MultiOutputClassifier wraps two LogisticRegression heads sharing the same feature matrix, jointly predicting FDA_APPROVED and CT_TOX from a single featurization pass.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">⚖️</div>
+      <h3>Class Balancing</h3>
+      <p>Built-in class_weight="balanced" prevents the rare toxic (CT_TOX=1) and non-approved classes from being drowned by the majority — critical for imbalanced drug data.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🔒</div>
+      <h3>No Data Leakage</h3>
+      <p>HashingVectorizer is stateless, so it cannot memorize or leak test-set vocabulary. The featurizer is fit-free and applies identically to train and test.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">📊</div>
+      <h3>Rich Prediction Output</h3>
+      <p>Predictions CSV includes true labels, predicted labels, and positive-class probabilities for both tasks — supporting thresholding and downstream analysis.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">⚡</div>
+      <h3>Fast & Reproducible</h3>
+      <p>Entire training and evaluation completes in under 3 seconds with a fixed random_state=42, producing deterministic, reproducible results every run.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== How it works ==================== -->
+<section class="section" id="how">
+  <div class="section-tag reveal">Pipeline</div>
+  <h2 class="section-title reveal">From SMILES strings to dual predictions</h2>
+  <p class="section-sub reveal">Five stages turn raw molecular data into evaluated multitask predictions.</p>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">1</div>
+      <h4>Load & Validate</h4>
+      <p>Read train (1,187 rows) and test (297 rows) CSVs, validate required columns and check for missing values.</p>
+      <div class="step-code">pd.read_csv()</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">2</div>
+      <h4>Featurize SMILES</h4>
+      <p>Hash character n-grams (2–5) into 16,384-dim L2-normalized sparse vectors — no chemistry dependencies.</p>
+      <div class="step-code">HashingVectorizer</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">3</div>
+      <h4>Train Multitask</h4>
+      <p>Fit MultiOutputClassifier with class-balanced LogisticRegression (liblinear, max_iter=2000) on shared features.</p>
+      <div class="step-code">model.fit(X_train, Y)</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">4</div>
+      <h4>Evaluate</h4>
+      <p>Predict on test set and compute per-task accuracy and full classification reports with precision, recall, F1.</p>
+      <div class="step-code">accuracy_score()</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">5</div>
+      <h4>Save Predictions</h4>
+      <p>Export 297-row CSV with true labels, predictions, and positive-class probabilities for both tasks.</p>
+      <div class="step-code">output.to_csv()</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Results ==================== -->
+<section class="section" id="results">
+  <div class="section-tag reveal">Evaluation</div>
+  <h2 class="section-title reveal">Test set performance</h2>
+  <p class="section-sub reveal">Results on 297 held-out molecules from the ClinTox test split, with full per-class breakdown.</p>
+  <div class="results-grid">
+    <div class="result-card reveal">
+      <h3>💊 FDA_APPROVED</h3>
+      <div class="result-accuracy">96.97%</div>
+      <table class="report-table">
+        <tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th><th>Support</th></tr>
+        <tr><td class="cls">0</td><td>0.7143</td><td>0.9524</td><td>0.8163</td><td>21</td></tr>
+        <tr><td class="cls">1</td><td>0.9963</td><td>0.9710</td><td>0.9835</td><td>276</td></tr>
+        <tr class="avg"><td>macro avg</td><td>0.8553</td><td>0.9617</td><td>0.8999</td><td>297</td></tr>
+        <tr class="avg"><td>weighted avg</td><td>0.9763</td><td>0.9697</td><td>0.9717</td><td>297</td></tr>
+      </table>
+    </div>
+    <div class="result-card reveal">
+      <h3>⚠️ CT_TOX</h3>
+      <div class="result-accuracy">95.62%</div>
+      <table class="report-table">
+        <tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th><th>Support</th></tr>
+        <tr><td class="cls">0</td><td>0.9924</td><td>0.9597</td><td>0.9758</td><td>273</td></tr>
+        <tr><td class="cls">1</td><td>0.6667</td><td>0.9167</td><td>0.7719</td><td>24</td></tr>
+        <tr class="avg"><td>macro avg</td><td>0.8295</td><td>0.9382</td><td>0.8739</td><td>297</td></tr>
+        <tr class="avg"><td>weighted avg</td><td>0.9661</td><td>0.9562</td><td>0.9593</td><td>297</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="result-card reveal" style="margin-top:1.5rem">
+    <h3>📋 Sample Predictions</h3>
+    <div style="overflow-x:auto;margin-top:1rem">
+      <table class="report-table">
+        <tr><th>SMILES (truncated)</th><th>FDA true</th><th>FDA pred</th><th>CT_TOX true</th><th>CT_TOX pred</th><th>FDA prob</th><th>CT_TOX prob</th></tr>
+        <tr><td class="cls" style="font-size:.78rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">C1C(N(C2=C(N1)NC(=NC2=O)N)C=O)CNC3=CC=C(C=C3)...</td><td>0</td><td>0</td><td>1</td><td>1</td><td>0.061</td><td>0.943</td></tr>
+        <tr><td class="cls" style="font-size:.78rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">C[C@@H]1CC[C@H]2[C@H]([C@H](O[C@H]3[C@@]24...</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0.739</td><td>0.395</td></tr>
+        <tr><td class="cls" style="font-size:.78rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Cc1cnc(s1)NC(=O)C2=C(c3ccccc3S(=O)(=O)N2C)O</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0.928</td><td>0.088</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Dataset ==================== -->
+<section class="section" id="data">
+  <div class="section-tag reveal">Data</div>
+  <h2 class="section-title reveal">ClinTox dataset overview</h2>
+  <p class="section-sub reveal">Two binary targets describe each molecule's clinical trial toxicity outcome and FDA approval status.</p>
+  <div class="data-preview">
+    <div class="data-card reveal">
+      <h4>Training Set <span class="row-count">1,187 rows</span></h4>
+      <div class="dist-row">
+        <span class="dist-label">FDA=1, CT_TOX=0</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="width:92.5%"></div></div>
+        <span class="dist-count">1,099</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label">FDA=0, CT_TOX=1</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="width:6.1%"></div></div>
+        <span class="dist-count">73</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label">FDA=1, CT_TOX=1</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="width:1.3%"></div></div>
+        <span class="dist-count">15</span>
+      </div>
+    </div>
+    <div class="data-card reveal">
+      <h4>Test Set <span class="row-count">297 rows</span></h4>
+      <div class="dist-row">
+        <span class="dist-label">FDA=1, CT_TOX=0</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="width:91.9%"></div></div>
+        <span class="dist-count">273</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label">FDA=0, CT_TOX=1</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="width:7.1%"></div></div>
+        <span class="dist-count">21</span>
+      </div>
+      <div class="dist-row">
+        <span class="dist-label">FDA=1, CT_TOX=1</span>
+        <div class="dist-bar-wrap"><div class="dist-bar" style="width:1.0%"></div></div>
+        <span class="dist-count">3</span>
+      </div>
+    </div>
+  </div>
+  <div class="data-card reveal" style="margin-top:1.5rem">
+    <h4>🧪 Example SMILES Molecules</h4>
+    <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--accent-2);line-height:1.8;margin-top:.5rem;overflow-x:auto">
+      <div>c1nc2c(nc(nc2n1[C@H]3[C@H]([C@@H]([C@H](O3)COP(=O)([O-])[O-])O)O)F)N</div>
+      <div>CC(C)(C)[NH2+]C[C@@H](COc1ccccc1C2CCCC2)O</div>
+      <div>C[C@@H](CN1CC(=O)NC(=O)C1)[NH+]2CC(=O)NC(=O)C2</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Code ==================== -->
+<section class="section" id="code">
+  <div class="section-tag reveal">Implementation</div>
+  <h2 class="section-title reveal">The complete training script</h2>
+  <p class="section-sub reveal">A single self-contained Python file — no chemistry libraries, no GPU, no fuss.</p>
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+      <span class="code-fname">train_clintox_multitask.py</span>
+    </div>
+    <pre><span class="cm">"""Train and evaluate a multitask classifier on the ClinTox dataset.
+
+SMILES are represented by character n-gram hashing, which requires no chemistry-
+specific dependency. Both output classifiers consume the same molecular feature
+matrix and are fitted together through scikit-learn's MultiOutputClassifier.
+"""</span>
+
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> sklearn.feature_extraction.text <span class="kw">import</span> HashingVectorizer
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> accuracy_score, classification_report
+<span class="kw">from</span> sklearn.multioutput <span class="kw">import</span> MultiOutputClassifier
+
+
+ROOT = Path(__file__).resolve().parent
+TRAIN_CSV = ROOT / <span class="str">"clintox"</span> / <span class="str">"clintox_train.csv"</span>
+TEST_CSV = ROOT / <span class="str">"clintox"</span> / <span class="str">"clintox_test.csv"</span>
+PREDICTIONS_CSV = ROOT / <span class="str">"clintox"</span> / <span class="str">"clintox_test_predictions.csv"</span>
+TARGETS = [<span class="str">"FDA_APPROVED"</span>, <span class="str">"CT_TOX"</span>]
+
+
+<span class="kw">def</span> <span class="fn">load_data</span>(path: Path) -> pd.DataFrame:
+    <span class="cm">"""Load a ClinTox split and validate the required columns."""</span>
+    data = pd.read_csv(path)
+    required = {<span class="str">"smiles"</span>, *TARGETS}
+    missing = required.difference(data.columns)
+    <span class="kw">if</span> missing:
+        <span class="kw">raise</span> ValueError(<span class="str">f"{path} is missing columns: {sorted(missing)}"</span>)
+    <span class="kw">if</span> data[list(required)].isna().<span class="fn">any</span>().<span class="fn">any</span>():
+        <span class="kw">raise</span> ValueError(<span class="str">f"{path} contains missing SMILES or target values"</span>)
+    <span class="kw">return</span> data
+
+
+<span class="kw">def</span> <span class="fn">main</span>() -> <span class="kw">None</span>:
+    train = <span class="fn">load_data</span>(TRAIN_CSV)
+    test = <span class="fn">load_data</span>(TEST_CSV)
+
+    <span class="cm"># Local SMILES patterns function similarly to hashed substructure features.</span>
+    <span class="cm"># HashingVectorizer is stateless, so it cannot leak test-set information.</span>
+    featurizer = <span class="fn">HashingVectorizer</span>(
+        analyzer=<span class="str">"char"</span>,
+        ngram_range=(<span class="nm">2</span>, <span class="nm">5</span>),
+        n_features=<span class="nm">2</span> ** <span class="nm">14</span>,
+        alternate_sign=<span class="kw">False</span>,
+        norm=<span class="str">"l2"</span>,
+        lowercase=<span class="kw">False</span>,
+    )
+    x_train = featurizer.<span class="fn">transform</span>(train[<span class="str">"smiles"</span>])
+    x_test = featurizer.<span class="fn">transform</span>(test[<span class="str">"smiles"</span>])
+    y_train = train[TARGETS].<span class="fn">astype</span>(<span class="kw">int</span>)
+    y_test = test[TARGETS].<span class="fn">astype</span>(<span class="kw">int</span>)
+
+    <span class="cm"># Class balancing prevents the rare toxic/non-approved classes from being</span>
+    <span class="cm"># ignored. MultiOutputClassifier fits one head per task on shared features.</span>
+    model = <span class="fn">MultiOutputClassifier</span>(
+        <span class="fn">LogisticRegression</span>(
+            class_weight=<span class="str">"balanced"</span>,
+            solver=<span class="str">"liblinear"</span>,
+            max_iter=<span class="nm">2000</span>,
+            random_state=<span class="nm">42</span>,
+        )
+    )
+    model.<span class="fn">fit</span>(x_train, y_train)
+    predictions = model.<span class="fn">predict</span>(x_test)
+
+    <span class="fn">print</span>(<span class="str">f"Training rows: {len(train):,}; test rows: {len(test):,}"</span>)
+    <span class="fn">print</span>(<span class="str">f"Hashed feature dimensions: {x_train.shape[1]:,}"</span>)
+    <span class="kw">for</span> index, target <span class="kw">in</span> <span class="fn">enumerate</span>(TARGETS):
+        accuracy = <span class="fn">accuracy_score</span>(y_test.iloc[:, index], predictions[:, index])
+        <span class="fn">print</span>(<span class="str">f"\n{target} accuracy: {accuracy:.4f}"</span>)
+        <span class="fn">print</span>(<span class="fn">classification_report</span>(..., digits=<span class="nm">4</span>, zero_division=<span class="nm">0</span>))
+
+    output = pd.DataFrame({
+        <span class="str">"smiles"</span>: test[<span class="str">"smiles"</span>],
+        <span class="str">"FDA_APPROVED_true"</span>: y_test[<span class="str">"FDA_APPROVED"</span>],
+        <span class="str">"FDA_APPROVED_pred"</span>: predictions[:, <span class="nm">0</span>],
+        <span class="str">"CT_TOX_true"</span>: y_test[<span class="str">"CT_TOX"</span>],
+        <span class="str">"CT_TOX_pred"</span>: predictions[:, <span class="nm">1</span>],
+    })
+    <span class="kw">for</span> index, target <span class="kw">in</span> <span class="fn">enumerate</span>(TARGETS):
+        output[<span class="str">f"{target}_probability"</span>] = model.estimators_[index].<span class="fn">predict_proba</span>(x_test)[:, <span class="nm">1</span>]
+
+    PREDICTIONS_CSV.parent.<span class="fn">mkdir</span>(parents=<span class="kw">True</span>, exist_ok=<span class="kw">True</span>)
+    output.<span class="fn">to_csv</span>(PREDICTIONS_CSV, index=<span class="kw">False</span>)
+    <span class="fn">print</span>(<span class="str">f"Predictions saved to: {PREDICTIONS_CSV}"</span>)
+
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="fn">main</span>()</pre>
+  </div>
+</section>
+
+<!-- ==================== FAQ ==================== -->
+<section class="section" id="faq">
+  <div class="section-tag reveal">FAQ</div>
+  <h2 class="section-title reveal">Common questions</h2>
+  <p class="section-sub reveal">Technical details about the approach and design decisions.</p>
+  <div style="max-width:760px;margin:0 auto">
+    <details class="faq-item reveal">
+      <summary>Why use character n-gram hashing instead of molecular fingerprints?</summary>
+      <div class="faq-body">RDKit was not available in the execution environment. Character n-gram hashing via HashingVectorizer captures recurring SMILES patterns — atoms, bonds, ring markers, and local substructures — as a sparse vector without any chemistry-specific dependency. It's stateless (no fit step), so there's zero risk of vocabulary leakage from test to train.</div>
+    </details>
+    <details class="faq-item reveal">
+      <summary>How does multitask learning work here?</summary>
+      <div class="faq-body">scikit-learn's MultiOutputClassifier wraps a separate LogisticRegression estimator for each target column. Both heads consume the identical feature matrix, so the featurization is shared while the decision boundaries are independent. This is a lightweight form of multitask learning — shared representation, separate task heads.</div>
+    </details>
+    <details class="faq-item reveal">
+      <summary>Why is class_weight="balanced" important?</summary>
+      <div class="faq-body">The ClinTox dataset is heavily imbalanced: only ~6% of molecules are toxic (CT_TOX=1) and ~8% are non-FDA-approved. Without balancing, the model would achieve high accuracy by always predicting the majority class, ignoring the rare but clinically critical toxic/non-approved cases. Balanced class weights reweight the loss to give minority classes equal influence.</div>
+    </details>
+    <details class="faq-item reveal">
+      <summary>What's in the predictions CSV?</summary>
+      <div class="faq-body">The output file (297 rows, 7 columns) contains: the original SMILES string, true and predicted labels for both FDA_APPROVED and CT_TOX, plus positive-class probabilities for each task. The probabilities enable custom thresholding — e.g., lowering the CT_TOX decision threshold to increase recall on toxic compounds at the cost of precision.</div>
+    </details>
+    <details class="faq-item reveal">
+      <summary>How long does training take?</summary>
+      <div class="faq-body">The entire pipeline — data loading, featurization, multitask training, evaluation, and prediction export — completes in under 3 seconds on a standard CPU. No GPU or specialized hardware is required. The run used a fixed random_state=42 for full reproducibility.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ==================== Footer ==================== -->
+<footer class="footer">
+  <div class="footer-logo">
+    <span class="logo-mark">⚙</span>
+    ClinTox · Multitask
+  </div>
+  <p>Multitask drug toxicity & FDA approval prediction on the ClinTox dataset.</p>
+  <div class="footer-meta">
+    <span>Benchmark: ScienceAgentBench</span>
+    <span>Model: gpt-5.6-sol</span>
+    <span>Duration: 50.9s</span>
+    <span>Exit: 0</span>
+  </div>
+</footer>
+
+<script>
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 30) {
+    nav.classList.add('scrolled');
+  } else {
+    nav.classList.remove('scrolled');
+  }
+});
+
+// Reveal on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Stagger hero reveals
+const heroEls = document.querySelectorAll('.hero .reveal');
+heroEls.forEach((el, i) => {
+  el.style.transitionDelay = (i * 0.12) + 's';
+});
+</script>
+</body>
+</html>

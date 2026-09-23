@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spreadsheet Case 04_task_15027</title>
+  <style>
+    :root {
+      --ink: #16211b;
+      --muted: #657069;
+      --paper: #f7f3ea;
+      --paper-2: #eee6d5;
+      --line: #d7cfbd;
+      --green: #276c4b;
+      --green-2: #9bc7a7;
+      --blue: #2d5f8f;
+      --red: #b34b3f;
+      --gold: #d99e36;
+      --white: #fffaf0;
+      --shadow: 0 18px 48px rgba(34, 43, 34, .15);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(22,33,27,.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(22,33,27,.045) 1px, transparent 1px),
+        radial-gradient(circle at 12% 20%, rgba(217,158,54,.16), transparent 30%),
+        radial-gradient(circle at 86% 12%, rgba(45,95,143,.14), transparent 28%),
+        var(--paper);
+      background-size: 34px 34px, 34px 34px, auto, auto, auto;
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.5;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .16;
+      background-image:
+        repeating-linear-gradient(120deg, transparent 0 7px, rgba(22,33,27,.18) 8px, transparent 9px);
+      mix-blend-mode: multiply;
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page { position: relative; z-index: 1; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 16px clamp(18px, 4vw, 58px);
+      border-bottom: 1px solid transparent;
+      background: rgba(247, 243, 234, .72);
+      backdrop-filter: blur(14px);
+      transition: border-color .25s ease, box-shadow .25s ease, background .25s ease;
+    }
+
+    .nav.is-scrolled {
+      border-bottom-color: rgba(22,33,27,.16);
+      box-shadow: 0 10px 30px rgba(22,33,27,.08);
+      background: rgba(247, 243, 234, .9);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border: 2px solid var(--ink);
+      background:
+        linear-gradient(90deg, transparent 49%, var(--ink) 50%, transparent 51%),
+        linear-gradient(0deg, transparent 49%, var(--ink) 50%, transparent 51%),
+        var(--green-2);
+      box-shadow: 4px 4px 0 var(--gold);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .nav-links a,
+    .button {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+
+    .nav-links a:hover { background: rgba(22,33,27,.07); color: var(--ink); }
+
+    .button {
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-weight: 800;
+      color: var(--white);
+      background: var(--ink);
+      box-shadow: 5px 5px 0 rgba(39,108,75,.38);
+    }
+
+    .button:hover { transform: translate(-2px, -2px); }
+
+    .button.secondary {
+      color: var(--ink);
+      background: transparent;
+      border-color: rgba(22,33,27,.28);
+      box-shadow: none;
+    }
+
+    section { padding: clamp(48px, 8vw, 92px) clamp(18px, 5vw, 72px); }
+
+    .hero {
+      min-height: calc(100vh - 72px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(420px, .82fr);
+      align-items: center;
+      gap: clamp(32px, 5vw, 72px);
+      padding-top: clamp(40px, 6vw, 70px);
+      padding-bottom: 32px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 16px;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 38px;
+      height: 2px;
+      background: var(--green);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 850px;
+      margin-bottom: 22px;
+      font-size: clamp(48px, 8vw, 112px);
+      line-height: .88;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    h2 {
+      font-size: clamp(32px, 4.5vw, 62px);
+      line-height: .95;
+      margin-bottom: 14px;
+    }
+
+    h3 {
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-size: 15px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .lead {
+      max-width: 680px;
+      color: #3e4a43;
+      font-size: clamp(18px, 2vw, 23px);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .case-card {
+      position: relative;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: rgba(255,250,240,.9);
+      box-shadow: 12px 12px 0 rgba(22,33,27,.12), var(--shadow);
+      overflow: hidden;
+      animation: liftIn .7s ease both;
+    }
+
+    .case-card::before {
+      content: "";
+      display: block;
+      height: 30px;
+      border-bottom: 2px solid var(--ink);
+      background:
+        linear-gradient(90deg, var(--red) 0 28px, transparent 28px 36px, var(--gold) 36px 64px, transparent 64px 72px, var(--green) 72px 100px, transparent 100px),
+        var(--paper-2);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--line);
+      border-top: 1px solid var(--line);
+    }
+
+    .metric {
+      padding: 18px;
+      background: rgba(255,250,240,.92);
+    }
+
+    .metric span {
+      display: block;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 24px;
+      line-height: 1.05;
+    }
+
+    .formula-strip {
+      padding: 18px;
+      border-top: 1px solid var(--line);
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+      background: #203128;
+      color: #eaffd8;
+    }
+
+    .sheet-wrap {
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    .section-head p {
+      max-width: 560px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .spreadsheet {
+      overflow-x: auto;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      min-width: 920px;
+      border-collapse: collapse;
+      font-family: "Courier New", monospace;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #c9c0ae;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #26352c;
+      color: #f7f3ea;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    td:first-child { background: #efe6d1; font-weight: 700; }
+    .answer-cell { background: #dff1da; outline: 3px solid var(--green); outline-offset: -3px; }
+    .zero { color: #a0998b; }
+    .sold { color: var(--blue); font-weight: 700; }
+
+    .feature-band {
+      background: rgba(255,250,240,.55);
+      border-top: 1px solid rgba(22,33,27,.12);
+      border-bottom: 1px solid rgba(22,33,27,.12);
+    }
+
+    .features {
+      max-width: 1220px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature {
+      min-height: 220px;
+      padding: 24px;
+      border: 1px solid rgba(22,33,27,.18);
+      border-radius: var(--radius);
+      background: rgba(255,250,240,.78);
+      box-shadow: 0 12px 26px rgba(22,33,27,.08);
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease;
+    }
+
+    .feature:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 22px 42px rgba(22,33,27,.14);
+      background: var(--white);
+    }
+
+    .feature .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 18px;
+      border: 2px solid var(--ink);
+      background: var(--gold);
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-weight: 900;
+    }
+
+    .feature p { color: var(--muted); margin-bottom: 0; }
+
+    .trace {
+      max-width: 1220px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: .84fr 1.16fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: rgba(255,250,240,.86);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-inner { padding: 24px; }
+
+    .code {
+      margin: 0;
+      padding: 22px;
+      overflow-x: auto;
+      border-radius: 0 0 var(--radius) var(--radius);
+      background: #1d2a24;
+      color: #f0f8dd;
+      font-family: "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .panel-title {
+      padding: 15px 20px;
+      border-bottom: 2px solid var(--ink);
+      background: var(--paper-2);
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid rgba(22,33,27,.16);
+      border-radius: var(--radius);
+      background: rgba(247,243,234,.72);
+    }
+
+    .step-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      background: var(--green);
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-weight: 900;
+    }
+
+    .step p { margin-bottom: 0; color: var(--muted); }
+
+    .proof {
+      max-width: 1220px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    details {
+      border: 1px solid rgba(22,33,27,.2);
+      border-radius: var(--radius);
+      background: rgba(255,250,240,.84);
+      overflow: hidden;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 18px 20px;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      font-weight: 900;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; float: right; font-size: 20px; line-height: 1; }
+    details[open] summary::after { content: "-"; }
+    details p { padding: 0 20px 20px; color: var(--muted); margin: 0; }
+
+    .footer {
+      padding: 34px clamp(18px, 5vw, 72px);
+      border-top: 2px solid var(--ink);
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      color: var(--muted);
+      font-size: 13px;
+      background: rgba(255,250,240,.72);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: reveal .72s ease forwards;
+    }
+
+    .delay-1 { animation-delay: .12s; }
+    .delay-2 { animation-delay: .22s; }
+    .delay-3 { animation-delay: .32s; }
+
+    @keyframes reveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes liftIn {
+      from { opacity: 0; transform: translateY(18px) rotate(-1deg); }
+      to { opacity: 1; transform: translateY(0) rotate(0); }
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .trace,
+      .proof {
+        grid-template-columns: 1fr;
+      }
+
+      .hero { min-height: auto; }
+      .features { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .case-card { max-width: 680px; }
+    }
+
+    @media (max-width: 720px) {
+      .nav { align-items: flex-start; }
+      .nav-links { display: none; }
+      section { padding-left: 16px; padding-right: 16px; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .footer { display: block; }
+      h1 { font-size: clamp(44px, 15vw, 72px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="nav" aria-label="Case navigation">
+      <a class="brand" href="#top" aria-label="Case overview">
+        <span class="brand-mark" aria-hidden="true"></span>
+        SpreadsheetBench
+      </a>
+      <div class="nav-links">
+        <a href="#sheet">Sheet</a>
+        <a href="#solution">Solution</a>
+        <a href="#trace">Trace</a>
+        <a class="button" href="#proof">Verify</a>
+      </div>
+    </nav>
+
+    <main id="top">
+      <section class="hero">
+        <div>
+          <p class="eyebrow reveal">Case 04_task_15027 / spreadsheet_office</p>
+          <h1 class="reveal delay-1">Finding the last live quota without the long array formula.</h1>
+          <p class="lead reveal delay-2">The task asks for a shorter Excel formula in <strong>E1</strong>. The trajectory resolved it by replacing the provided array-style answer with a compact LOOKUP expression that returns the final non-zero value across <strong>B6:H6</strong>.</p>
+          <div class="hero-actions reveal delay-3">
+            <a class="button" href="#solution">View formula</a>
+            <a class="button secondary" href="#trace">Read execution trace</a>
+          </div>
+        </div>
+
+        <aside class="case-card" aria-label="Case summary">
+          <div class="summary-grid">
+            <div class="metric">
+              <span>Model</span>
+              <strong>gpt-5.6-sol</strong>
+            </div>
+            <div class="metric">
+              <span>Run time</span>
+              <strong>34.8s</strong>
+            </div>
+            <div class="metric">
+              <span>Exit code</span>
+              <strong>0</strong>
+            </div>
+            <div class="metric">
+              <span>Collected</span>
+              <strong>2026-07-11</strong>
+            </div>
+          </div>
+          <div class="formula-strip">E1 = LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)</div>
+        </aside>
+      </section>
+
+      <section id="sheet" class="sheet-wrap">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Workbook Context</p>
+            <h2>The important cells</h2>
+          </div>
+          <p>The visible workbook is a weekly textiles quota tracker. B6:H6 contains daily quota-to-date formulas, and E1 should mirror the latest non-zero quota value.</p>
+        </div>
+
+        <div class="spreadsheet" role="region" aria-label="Spreadsheet preview" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>E</th>
+                <th>F</th>
+                <th>G</th>
+                <th>H</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>TEXTILES</td>
+                <td>DAILY QUOTA TO DATE</td>
+                <td></td>
+                <td>&gt;&gt;&gt;&gt;&gt;</td>
+                <td class="answer-cell">1008.3333333333334</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>WEEK'S QUOTA</td>
+                <td>2014-07-01</td>
+                <td>2014-07-02</td>
+                <td>2014-07-03</td>
+                <td>2014-07-04</td>
+                <td>2014-07-05</td>
+                <td>2014-07-06</td>
+                <td>2014-07-07</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>7000</td>
+                <td>Sunday</td>
+                <td>Monday</td>
+                <td>Tuesday</td>
+                <td>Wednesday</td>
+                <td>Thursday</td>
+                <td>Friday</td>
+                <td>Saturday</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>SOLD &gt;&gt;&gt;&gt;&gt;&gt;</td>
+                <td class="sold">950</td>
+                <td class="sold">953</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>DAILY QUOTA TO DATE</td>
+                <td>1000</td>
+                <td class="answer-cell">1008.3333333333334</td>
+                <td class="zero">0</td>
+                <td class="zero">0</td>
+                <td class="zero">0</td>
+                <td class="zero">0</td>
+                <td class="zero">0</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>WEEK'S REMAINING TO DATE</td>
+                <td>6050</td>
+                <td>5097</td>
+                <td>5097</td>
+                <td>5097</td>
+                <td>5097</td>
+                <td>5097</td>
+                <td>5097</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="solution" class="feature-band">
+        <div class="section-head sheet-wrap">
+          <div>
+            <p class="eyebrow">Formula Decision</p>
+            <h2>Why this works</h2>
+          </div>
+          <p>The submitted wrong answer used INDEX, MAX, IF, and COLUMN to locate the last non-zero position. LOOKUP can perform the same last-match behavior with less formula machinery.</p>
+        </div>
+        <div class="features">
+          <article class="feature">
+            <span class="num">1</span>
+            <h3>Target range</h3>
+            <p><code>B6:H6&lt;&gt;0</code> produces a truth map for the quota row, separating real daily quota values from trailing zeroes.</p>
+          </article>
+          <article class="feature">
+            <span class="num">2</span>
+            <h3>Last match</h3>
+            <p><code>LOOKUP(2,1/(...))</code> searches for a value larger than any 1 in the lookup vector and lands on the last valid numeric entry.</p>
+          </article>
+          <article class="feature">
+            <span class="num">3</span>
+            <h3>Returned value</h3>
+            <p>The return vector is <code>B6:H6</code>, so the formula writes the latest non-zero quota-to-date value into <code>E1</code>.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="trace">
+        <div class="section-head sheet-wrap">
+          <div>
+            <p class="eyebrow">Execution Trace</p>
+            <h2>What the agent did</h2>
+          </div>
+          <p>The trajectory contains fourteen JSONL events: setup messages, one workbook inspection, one file patch, one verification run, and a final response.</p>
+        </div>
+
+        <div class="trace">
+          <div class="panel">
+            <div class="panel-title">Run steps</div>
+            <div class="panel-inner timeline">
+              <div class="step">
+                <div class="step-icon">A</div>
+                <div>
+                  <h3>Inspect formulas</h3>
+                  <p>Loaded <code>input.xlsx</code> with openpyxl and printed rows 1-7. This exposed the formulas in <code>B6:H6</code> and the existing array formula object at <code>E1</code>.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-icon">B</div>
+                <div>
+                  <h3>Patch solver</h3>
+                  <p>Created <code>solve.py</code>, loaded the workbook, assigned the shortened formula to <code>Sheet1!E1</code>, and saved <code>output.xlsx</code>.</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-icon">C</div>
+                <div>
+                  <h3>Verify output</h3>
+                  <p>Ran the solver and re-opened the output workbook with <code>data_only=False</code>; verification printed the same formula from <code>E1</code>.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-title">Written solver</div>
+            <pre class="code"><code>from openpyxl import load_workbook
+
+INPUT_PATH = "/Users/julia/Git/agentHTML/trajs_regen/spreadsheet_office/04_task_15027/workspace/input.xlsx"
+OUTPUT_PATH = "/Users/julia/Git/agentHTML/trajs_regen/spreadsheet_office/04_task_15027/workspace/output.xlsx"
+
+wb = load_workbook(INPUT_PATH)
+ws = wb["Sheet1"]
+
+# Return the last non-zero daily quota from B6:H6 without an array-entered formula.
+ws["E1"] = "=LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)"
+
+wb.save(OUTPUT_PATH)
+print(f"E1={ws['E1'].value}")</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="proof" class="feature-band">
+        <div class="section-head sheet-wrap">
+          <div>
+            <p class="eyebrow">Audit Notes</p>
+            <h2>Case facts</h2>
+          </div>
+          <p>No large external references were listed in <code>case_meta.json</code>. The only local case files are the prompt, trajectory, workbook pair, and generated solver.</p>
+        </div>
+
+        <div class="proof">
+          <details open>
+            <summary>Final value printed</summary>
+            <p><code>E1==LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)</code>, followed by verification: <code>=LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)</code>.</p>
+          </details>
+          <details>
+            <summary>Original wrong answer</summary>
+            <p><code>INDEX($B$6:$H$6,,MAX(IF($B$6:$H$6&lt;&gt;0,COLUMN($B$6:$H$6)-COLUMN($B$6)+1)))</code></p>
+          </details>
+          <details>
+            <summary>Metadata</summary>
+            <p>Benchmark: SpreadsheetBench. Domain: spreadsheet_office. Trajectory format: codex-jsonl. SHA-256: <code>86ef6d551bc17f8decba1dfc5fe4ac55bddcf76ef542cbad34a05fc0ffca82ea</code>.</p>
+          </details>
+          <details>
+            <summary>Answer cell</summary>
+            <p>The requested output location was <code>E1</code>. The solution did not alter the quota row formulas in <code>B6:H6</code>; it replaced the summary formula only.</p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Self-contained HTML presentation for 04_task_15027</span>
+      <span>References listed in metadata: none</span>
+    </footer>
+  </div>
+
+  <script>
+    const nav = document.querySelector('.nav');
+    const updateNav = () => {
+      nav.classList.toggle('is-scrolled', window.scrollY > 8);
+    };
+    updateNav();
+    window.addEventListener('scroll', updateNav, { passive: true });
+  </script>
+</body>
+</html>

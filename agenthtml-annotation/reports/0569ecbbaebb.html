@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Package Pulse — Case 05</title>
+  <style>
+    :root {
+      --paper: #f4f0e6;
+      --paper-2: #e9e2d3;
+      --ink: #171915;
+      --muted: #66685f;
+      --rule: rgba(23, 25, 21, .17);
+      --acid: #c8ff35;
+      --acid-deep: #98c900;
+      --rust: #d95e3f;
+      --white: #fffdf7;
+      --shadow: 0 18px 50px rgba(39, 36, 26, .12);
+      --mono: "SFMono-Regular", "Cascadia Mono", "Liberation Mono", monospace;
+      --serif: Charter, "Bitstream Charter", "Iowan Old Style", Georgia, serif;
+      --sans: "Avenir Next", Avenir, "Trebuchet MS", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(200,255,53,.16), transparent 24rem),
+        linear-gradient(rgba(23,25,21,.026) 1px, transparent 1px),
+        var(--paper);
+      background-size: auto, 100% 32px, auto;
+      font-family: var(--sans);
+      line-height: 1.5;
+    }
+
+    button, summary { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--rust); outline-offset: 3px; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid transparent;
+      transition: background .25s, border-color .25s, box-shadow .25s;
+    }
+    .topbar.scrolled {
+      background: rgba(244,240,230,.88);
+      backdrop-filter: blur(16px);
+      border-color: var(--rule);
+      box-shadow: 0 8px 30px rgba(23,25,21,.06);
+    }
+    .nav {
+      width: min(1240px, calc(100% - 40px));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-family: var(--mono);
+      font-size: .76rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .brand-mark {
+      width: 29px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1.5px solid var(--ink);
+      background: var(--acid);
+      transform: rotate(-4deg);
+      box-shadow: 3px 3px 0 var(--ink);
+      font-size: .72rem;
+    }
+    .navlinks { display: flex; gap: 24px; margin-left: auto; }
+    .navlinks a {
+      font-size: .82rem;
+      font-weight: 650;
+      text-decoration: none;
+      color: var(--muted);
+    }
+    .navlinks a:hover { color: var(--ink); }
+    .nav-cta {
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--white);
+      border-radius: 100px;
+      padding: 9px 15px;
+      font-family: var(--mono);
+      font-size: .72rem;
+      text-decoration: none;
+    }
+
+    main { overflow: clip; }
+    .hero {
+      width: min(1240px, calc(100% - 40px));
+      min-height: 680px;
+      margin: 0 auto;
+      padding: 82px 0 72px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.14fr) minmax(360px, .86fr);
+      gap: clamp(46px, 8vw, 120px);
+      align-items: center;
+      position: relative;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--mono);
+      font-size: .73rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 34px; height: 8px; background: var(--acid); border: 1px solid var(--ink); }
+    h1 {
+      margin: 24px 0 20px;
+      font-family: var(--serif);
+      font-size: clamp(4rem, 8.2vw, 7.2rem);
+      line-height: .86;
+      letter-spacing: -.065em;
+      font-weight: 700;
+    }
+    h1 em { display: block; color: var(--rust); font-weight: 400; }
+    .hero-copy p {
+      max-width: 630px;
+      font-family: var(--serif);
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      color: #4d5049;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .btn {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: 1.5px solid var(--ink);
+      border-radius: 4px;
+      padding: 10px 17px;
+      font-size: .82rem;
+      font-weight: 750;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .18s, box-shadow .18s;
+    }
+    .btn:hover { transform: translate(-2px,-2px); box-shadow: 4px 4px 0 var(--ink); }
+    .btn.primary { background: var(--acid); }
+    .btn.secondary { background: transparent; }
+
+    .query-card {
+      position: relative;
+      background: var(--ink);
+      color: var(--white);
+      padding: 28px;
+      border-radius: 3px;
+      box-shadow: 15px 15px 0 var(--acid), var(--shadow);
+      transform: rotate(1.2deg);
+    }
+    .query-card::before {
+      content: "QUERY / 01";
+      position: absolute;
+      right: -30px;
+      top: 46px;
+      color: var(--ink);
+      font: 700 .68rem var(--mono);
+      letter-spacing: .15em;
+      transform: rotate(90deg);
+    }
+    .terminal-dots { display: flex; gap: 6px; margin-bottom: 24px; }
+    .terminal-dots i { width: 8px; height: 8px; border-radius: 50%; background: #73766e; }
+    .terminal-dots i:first-child { background: var(--rust); }
+    .query-card .label { color: var(--acid); font: 700 .68rem var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .query-card blockquote { margin: 13px 0 28px; font: 1.5rem/1.3 var(--serif); }
+    .microgrid { display: grid; grid-template-columns: repeat(3,1fr); border-top: 1px solid #42443f; }
+    .microgrid div { padding-top: 18px; }
+    .microgrid strong { display: block; font: 700 1.1rem var(--mono); color: var(--acid); }
+    .microgrid span { font-size: .62rem; text-transform: uppercase; letter-spacing: .1em; color: #9c9f96; }
+
+    .section { width: min(1240px, calc(100% - 40px)); margin: 0 auto; padding: 94px 0; }
+    .section-heading { display: grid; grid-template-columns: 130px minmax(0,1fr); gap: 28px; align-items: start; margin-bottom: 44px; }
+    .kicker { font: 700 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding-top: 10px; }
+    h2 { margin: 0; max-width: 830px; font: 600 clamp(2.4rem,5vw,4.6rem)/.98 var(--serif); letter-spacing: -.045em; }
+    h2 span { background: linear-gradient(transparent 62%, var(--acid) 62%); }
+
+    .results-shell { background: var(--white); border: 1px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); }
+    .result-row {
+      display: grid;
+      grid-template-columns: 72px minmax(240px,1.4fr) minmax(190px,.8fr) minmax(210px,1fr);
+      align-items: center;
+      gap: 20px;
+      min-height: 108px;
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--rule);
+      transition: background .2s;
+    }
+    .result-row:last-child { border-bottom: 0; }
+    .result-row:hover { background: rgba(200,255,53,.11); }
+    .rank { font: 700 2rem var(--serif); }
+    .package strong { display: block; font: 700 clamp(.95rem,1.7vw,1.2rem) var(--mono); overflow-wrap: anywhere; }
+    .package small, .project small { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
+    .version { display: inline-block; margin-top: 7px; padding: 4px 8px; background: var(--paper-2); border-radius: 2px; font: 700 .77rem var(--mono); }
+    .stars strong { font: 700 clamp(1.2rem,2.5vw,1.75rem) var(--mono); }
+    .bar { width: 100%; height: 7px; margin-top: 9px; background: var(--paper-2); overflow: hidden; }
+    .bar i { display: block; height: 100%; width: var(--w); background: var(--rust); transform-origin: left; animation: grow .9s cubic-bezier(.22,1,.36,1) both; }
+    .project { font: .82rem var(--mono); overflow-wrap: anywhere; }
+    .tie { display: inline-block; margin-left: 7px; padding: 2px 6px; background: var(--acid); border: 1px solid var(--ink); font-size: .6rem; font-weight: 800; text-transform: uppercase; }
+    @keyframes grow { from { transform: scaleX(0); } }
+
+    .method-section { background: var(--ink); color: var(--white); }
+    .method-wrap { width: min(1240px, calc(100% - 40px)); margin: 0 auto; padding: 96px 0; }
+    .method-section .kicker { color: #aeb1a8; }
+    .method-section h2 span { color: var(--ink); }
+    .steps { display: grid; grid-template-columns: repeat(4,1fr); margin-top: 48px; border: 1px solid #464941; }
+    .step { min-height: 254px; padding: 26px; border-right: 1px solid #464941; position: relative; }
+    .step:last-child { border-right: 0; }
+    .step-no { font: 700 .72rem var(--mono); color: var(--acid); }
+    .step h3 { margin: 48px 0 12px; font: 500 1.5rem var(--serif); }
+    .step p { margin: 0; color: #adafa8; font-size: .86rem; }
+    .step code { color: var(--acid); font: .78rem var(--mono); }
+    .connector { position: absolute; top: 30px; right: -8px; z-index: 2; width: 15px; height: 15px; border-radius: 50%; background: var(--acid); border: 3px solid var(--ink); }
+
+    .evidence-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 24px; }
+    .fact-stack { display: grid; gap: 14px; }
+    .fact { padding: 24px; border: 1px solid var(--ink); background: rgba(255,253,247,.56); }
+    .fact strong { display: block; font: 600 2.1rem var(--serif); letter-spacing: -.03em; }
+    .fact span { color: var(--muted); font-size: .78rem; }
+    .fact.accent { background: var(--acid); }
+    .code-card { background: #20221e; color: #e8eadf; padding: 0; border-radius: 3px; overflow: hidden; box-shadow: var(--shadow); }
+    .code-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #42443f; font: .7rem var(--mono); color: #a9aca2; }
+    .copy { border: 1px solid #55584f; background: transparent; color: #dfe1d8; padding: 6px 9px; border-radius: 3px; cursor: pointer; font: .68rem var(--mono); }
+    pre { margin: 0; padding: 22px; overflow: auto; font: .75rem/1.68 var(--mono); tab-size: 2; }
+    .kw { color: #c8ff35; } .str { color: #f4a890; } .com { color: #8e9287; }
+
+    .trace { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .trace-card { padding: 28px; border: 1px solid var(--ink); background: var(--white); }
+    .trace-card h3 { margin: 0 0 18px; font: 600 1.7rem var(--serif); }
+    .trace-list { list-style: none; padding: 0; margin: 0; }
+    .trace-list li { display: grid; grid-template-columns: 62px 16px 1fr; gap: 12px; align-items: start; padding: 13px 0; border-top: 1px solid var(--rule); font-size: .82rem; }
+    .time { font: .68rem var(--mono); color: var(--muted); }
+    .status-dot { width: 10px; height: 10px; margin-top: 3px; border-radius: 50%; background: var(--rust); }
+    .status-dot.ok { background: var(--acid-deep); }
+    .status-dot.info { background: #83877c; }
+    .failure-note { margin-top: 22px; padding: 17px; background: #f4d8cf; border-left: 4px solid var(--rust); font-size: .8rem; }
+
+    .caveats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    details { border: 1px solid var(--ink); background: rgba(255,253,247,.7); }
+    summary { cursor: pointer; list-style: none; min-height: 100px; padding: 22px; font: 600 1.15rem var(--serif); }
+    summary::-webkit-details-marker { display:none; }
+    summary::after { content: "+"; float: right; font: 700 1.3rem var(--mono); }
+    details[open] summary::after { content: "−"; }
+    details p { margin: 0; padding: 0 22px 22px; color: var(--muted); font-size: .83rem; }
+
+    .provenance { padding: 34px; background: var(--paper-2); border: 1px solid var(--rule); }
+    .provenance-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
+    .prov-label { display: block; margin-bottom: 7px; font: 700 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .prov-value { font: .8rem/1.5 var(--mono); overflow-wrap: anywhere; }
+    .references { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--rule); }
+    .references code { display: block; margin-top: 8px; font: .7rem/1.6 var(--mono); overflow-wrap: anywhere; }
+
+    footer { border-top: 1px solid var(--ink); }
+    .footer-inner { width: min(1240px, calc(100% - 40px)); margin: 0 auto; padding: 34px 0 48px; display: flex; justify-content: space-between; gap: 20px; font: .68rem var(--mono); color: var(--muted); }
+    .toast { position: fixed; left: 50%; bottom: 26px; z-index: 30; transform: translate(-50%, 20px); padding: 11px 16px; background: var(--ink); color: var(--white); font: .72rem var(--mono); opacity: 0; pointer-events: none; transition: .2s; }
+    .toast.show { opacity: 1; transform: translate(-50%,0); }
+
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) {
+      .navlinks { display: none; }
+      .nav-cta { margin-left: auto; }
+      .hero { grid-template-columns: 1fr; padding-top: 58px; }
+      .query-card { max-width: 620px; transform: none; }
+      .section-heading { grid-template-columns: 1fr; gap: 8px; }
+      .result-row { grid-template-columns: 48px 1fr 1fr; }
+      .project { grid-column: 2 / -1; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .step:nth-child(2) { border-right: 0; }
+      .step:nth-child(-n+2) { border-bottom: 1px solid #464941; }
+      .connector { display: none; }
+      .evidence-grid, .trace { grid-template-columns: 1fr; }
+      .caveats { grid-template-columns: 1fr; }
+      .provenance-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 580px) {
+      .topbar { height: 60px; }
+      .nav, .hero, .section, .method-wrap, .footer-inner { width: min(100% - 28px, 1240px); }
+      .brand span:last-child { display: none; }
+      .hero { min-height: auto; padding-bottom: 62px; }
+      h1 { font-size: clamp(3.5rem, 19vw, 5rem); }
+      .query-card { padding: 22px; box-shadow: 8px 8px 0 var(--acid); }
+      .result-row { grid-template-columns: 36px 1fr; gap: 12px; padding: 20px 16px; }
+      .stars, .project { grid-column: 2; }
+      .steps { grid-template-columns: 1fr; }
+      .step { min-height: 210px; border-right: 0; border-bottom: 1px solid #464941; }
+      .step:last-child { border-bottom: 0; }
+      .provenance-grid { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" id="topbar">
+    <nav class="nav" aria-label="Case navigation">
+      <a class="brand" href="#top"><span class="brand-mark">05</span><span>Package Pulse / Case File</span></a>
+      <div class="navlinks">
+        <a href="#answer">Answer</a><a href="#method">Method</a><a href="#trace">Trace</a><a href="#caveats">Caveats</a>
+      </div>
+      <a class="nav-cta" href="#provenance">View provenance</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy reveal">
+        <span class="eyebrow">DataAgentBench · NPM ecosystem</span>
+        <h1>Stars, sorted.<em>Releases, resolved.</em></h1>
+        <p>A forensic readout of one agent run: isolate every package’s latest release, connect it to its GitHub project, then surface the five most-starred results.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#answer">See the ranking <span aria-hidden="true">↓</span></a>
+          <a class="btn secondary" href="#method">Audit the method</a>
+        </div>
+      </div>
+      <aside class="query-card reveal" aria-label="Original analysis question">
+        <div class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+        <span class="label">Original question</span>
+        <blockquote>“Considering only the latest release versions for each distinct NPM package, which packages are the top 5 most popular based on GitHub stars?”</blockquote>
+        <div class="microgrid">
+          <div><strong>16,614</strong><span>packages</span></div>
+          <div><strong>2</strong><span>databases</span></div>
+          <div><strong>5</strong><span>winners</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="answer">
+      <div class="section-heading reveal">
+        <div class="kicker">01 / Answer</div>
+        <h2>The top five, using each package’s <span>latest release.</span></h2>
+      </div>
+      <div class="results-shell reveal" role="table" aria-label="Top five NPM package releases by GitHub stars">
+        <div class="result-row" role="row">
+          <div class="rank" role="cell">01</div>
+          <div class="package" role="cell"><strong>@dylanvann/svelte</strong><span class="version">v3.25.4</span></div>
+          <div class="stars" role="cell"><strong>73,499</strong><small> GitHub stars</small><div class="bar"><i style="--w:100%"></i></div></div>
+          <div class="project" role="cell"><small>mapped project</small><br>sveltejs/svelte</div>
+        </div>
+        <div class="result-row" role="row">
+          <div class="rank" role="cell">02</div>
+          <div class="package" role="cell"><strong>@dumc11/tailwindcss</strong><span class="version">v0.4.0</span></div>
+          <div class="stars" role="cell"><strong>73,464</strong><small> GitHub stars</small><div class="bar"><i style="--w:99.95%"></i></div></div>
+          <div class="project" role="cell"><small>mapped project</small><br>tailwindcss/tailwindcss</div>
+        </div>
+        <div class="result-row" role="row">
+          <div class="rank" role="cell">03</div>
+          <div class="package" role="cell"><strong>@dman777/shadow-dom-quill-temp</strong><span class="version">v1.0.0</span></div>
+          <div class="stars" role="cell"><strong>42,407</strong><small> GitHub stars</small><div class="bar"><i style="--w:57.7%"></i></div></div>
+          <div class="project" role="cell"><small>mapped project</small><br>quilljs/quill</div>
+        </div>
+        <div class="result-row" role="row">
+          <div class="rank" role="cell">04</div>
+          <div class="package" role="cell"><strong>@dothq/styled-components</strong><span class="version">v1.0.0</span></div>
+          <div class="stars" role="cell"><strong>39,660</strong><small> GitHub stars</small><span class="tie">tie</span><div class="bar"><i style="--w:54%"></i></div></div>
+          <div class="project" role="cell"><small>mapped project</small><br>styled-components/styled-components</div>
+        </div>
+        <div class="result-row" role="row">
+          <div class="rank" role="cell">05</div>
+          <div class="package" role="cell"><strong>@dynasty/styled-components</strong><span class="version">v3.2.1</span></div>
+          <div class="stars" role="cell"><strong>39,660</strong><small> GitHub stars</small><span class="tie">tie</span><div class="bar"><i style="--w:54%"></i></div></div>
+          <div class="project" role="cell"><small>mapped project</small><br>styled-components/styled-components</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-section" id="method">
+      <div class="method-wrap">
+        <div class="section-heading reveal">
+          <div class="kicker">02 / Method</div>
+          <h2>Two stores. One join path. <span>Four moves.</span></h2>
+        </div>
+        <div class="steps reveal">
+          <article class="step"><span class="step-no">STEP 01</span><i class="connector"></i><h3>Inspect schemas</h3><p>Identify <code>packageinfo</code>, <code>project_packageversion</code>, and <code>project_info</code>.</p></article>
+          <article class="step"><span class="step-no">STEP 02</span><i class="connector"></i><h3>Resolve latest</h3><p>Keep rows where <code>IsRelease</code> is true; retain the greatest registry <code>Ordinal</code> per package.</p></article>
+          <article class="step"><span class="step-no">STEP 03</span><i class="connector"></i><h3>Parse popularity</h3><p>Extract project names and integer star counts from the descriptive <code>Project_Information</code> text.</p></article>
+          <article class="step"><span class="step-no">STEP 04</span><h3>Map &amp; rank</h3><p>Match exact package versions to projects, deduplicate packages by their highest-star mapping, then sort descending.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="evidence">
+      <div class="section-heading reveal">
+        <div class="kicker">03 / Evidence</div>
+        <h2>The run’s <span>computational footprint.</span></h2>
+      </div>
+      <div class="evidence-grid">
+        <div class="fact-stack reveal">
+          <div class="fact accent"><strong>661,372</strong><span>NPM release rows scanned in SQLite</span></div>
+          <div class="fact"><strong>597,602</strong><span>package–project relations in DuckDB</span></div>
+          <div class="fact"><strong>8,381</strong><span>distinct mapped projects reported</span></div>
+          <div class="fact"><strong>2.6 sec</strong><span>successful final analysis command runtime</span></div>
+        </div>
+        <div class="code-card reveal">
+          <div class="code-head"><span>analysis.py · distilled from trajectory</span><button class="copy" id="copyCode" type="button">Copy snippet</button></div>
+          <pre id="code"><span class="com"># Latest release = greatest registry ordinal</span>
+latest = {}
+<span class="kw">for</span> name, version, raw <span class="kw">in</span> sqlite_rows:
+    info = json.loads(raw)
+    <span class="kw">if</span> info.get(<span class="str">"IsRelease"</span>):
+        ordinal = info.get(<span class="str">"Ordinal"</span>, -1)
+        <span class="kw">if</span> name <span class="kw">not in</span> latest <span class="kw">or</span> ordinal &gt; latest[name][0]:
+            latest[name] = (ordinal, version)
+
+<span class="com"># Keep the strongest project mapping per package</span>
+best = {}
+<span class="kw">for</span> stars, name, version, project <span class="kw">in</span> mapped_rows:
+    <span class="kw">if</span> name <span class="kw">not in</span> best <span class="kw">or</span> stars &gt; best[name][0]:
+        best[name] = (stars, version, project)
+
+answer = sorted(
+    ((v[0], n, v[1], v[2]) <span class="kw">for</span> n, v <span class="kw">in</span> best.items()),
+    key=<span class="kw">lambda</span> x: (-x[0], x[1])
+)[:5]</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="trace">
+      <div class="section-heading reveal">
+        <div class="kicker">04 / Trace</div>
+        <h2>A resilient run with a <span>rough start.</span></h2>
+      </div>
+      <div class="trace">
+        <article class="trace-card reveal">
+          <h3>Execution timeline</h3>
+          <ol class="trace-list">
+            <li><span class="time">22:17:33</span><i class="status-dot info"></i><span>Plan announced: inspect schema, connect releases to stars, rank five.</span></li>
+            <li><span class="time">23:26:47</span><i class="status-dot"></i><span>Heredoc rejected because the read-only shell could not create a temporary file.</span></li>
+            <li><span class="time">23:26:53</span><i class="status-dot ok"></i><span>Inline Python successfully returned both database schemas.</span></li>
+            <li><span class="time">23:26:54</span><i class="status-dot"></i><span>SQLite aggregation hit a disk I/O error.</span></li>
+            <li><span class="time">23:27:06</span><i class="status-dot ok"></i><span><code>temp_store=memory</code> enabled; counts and samples completed.</span></li>
+            <li><span class="time">23:27:35</span><i class="status-dot ok"></i><span>Final Python analysis printed the top five in 2.6 seconds.</span></li>
+            <li><span class="time">23:27:41</span><i class="status-dot ok"></i><span>Concise final answer delivered.</span></li>
+          </ol>
+        </article>
+        <article class="trace-card reveal">
+          <h3>Recovery pattern</h3>
+          <ol class="trace-list">
+            <li><span class="time">FAIL 01</span><i class="status-dot"></i><span>Shell heredoc needed a temporary file unavailable in the read-only workspace.</span></li>
+            <li><span class="time">FIX 01</span><i class="status-dot ok"></i><span>Changed command shape to <code>python -c</code>, preserving read-only operation.</span></li>
+            <li><span class="time">FAIL 02</span><i class="status-dot"></i><span>A SQLite grouping operation attempted disk-backed temporary storage.</span></li>
+            <li><span class="time">FIX 02</span><i class="status-dot ok"></i><span>Opened SQLite in immutable mode and set <code>PRAGMA temp_store=memory</code>.</span></li>
+          </ol>
+          <div class="failure-note"><strong>Trajectory-level observation:</strong> the case metadata reports 4,211.3 seconds total, while the recorded timestamps show most elapsed time occurred before the first tool call. The computation itself was brief once execution began.</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="caveats">
+      <div class="section-heading reveal">
+        <div class="kicker">05 / Caveats</div>
+        <h2>What to remember before <span>reusing the result.</span></h2>
+      </div>
+      <div class="caveats reveal">
+        <details open><summary>Stars live in prose</summary><p>The DuckDB schema has no dedicated numeric star field. The analysis uses regular expressions against <code>Project_Information</code>; unseen sentence forms could be skipped or misread.</p></details>
+        <details><summary>Packages ≠ projects</summary><p>Ranking is package-centric, but popularity comes from mapped repositories. Two different packages in positions four and five both inherit 39,660 stars from the same styled-components project.</p></details>
+        <details><summary>“Latest” means ordinal</summary><p>The run defines the latest release as the row with the greatest registry <code>Ordinal</code> among rows marked <code>IsRelease</code>, rather than comparing semantic versions or publish timestamps.</p></details>
+      </div>
+    </section>
+
+    <section class="section" id="provenance">
+      <div class="section-heading reveal">
+        <div class="kicker">06 / Provenance</div>
+        <h2>Case identity and <span>source boundaries.</span></h2>
+      </div>
+      <div class="provenance reveal">
+        <div class="provenance-grid">
+          <div><span class="prov-label">Case ID</span><span class="prov-value">05_DEPS_DEV_V1_query1</span></div>
+          <div><span class="prov-label">Benchmark</span><span class="prov-value">DataAgentBench · data_analysis</span></div>
+          <div><span class="prov-label">Model / backend</span><span class="prov-value">gpt-5.6-sol</span></div>
+          <div><span class="prov-label">Outcome</span><span class="prov-value">Exit code 0 · 4,211.3 s</span></div>
+          <div><span class="prov-label">Collected</span><span class="prov-value">2026-07-11</span></div>
+          <div><span class="prov-label">Trajectory</span><span class="prov-value">codex-jsonl · 27 events</span></div>
+          <div><span class="prov-label">SHA-256</span><span class="prov-value">14bc7e599a7093fa4eaa936c788f42131543e75fc16ce35552f99cef205c353b</span></div>
+          <div><span class="prov-label">Release rule</span><span class="prov-value">max VersionInfo.Ordinal where IsRelease</span></div>
+        </div>
+        <div class="references">
+          <span class="prov-label">Reference-only datasets (not embedded in this case)</span>
+          <code>trajs_regen/data_analysis/05_DEPS_DEV_V1_query1/workspace/data/package_query.db — 538,877,952 bytes · SQLite</code>
+          <code>trajs_regen/data_analysis/05_DEPS_DEV_V1_query1/workspace/data/project_query.db — 11,022,336 bytes · DuckDB</code>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-inner"><span>PACKAGE PULSE / AN AGENT TRAJECTORY CASE FILE</span><span>SELF-CONTAINED · NO EXTERNAL ASSETS</span></div></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite">Snippet copied</div>
+
+  <script>
+    const topbar = document.getElementById('topbar');
+    const onScroll = () => topbar.classList.toggle('scrolled', window.scrollY > 18);
+    onScroll();
+    addEventListener('scroll', onScroll, { passive: true });
+
+    const reveal = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          reveal.unobserve(entry.target);
+        }
+      });
+    }, { threshold: .12 });
+    document.querySelectorAll('.reveal').forEach((el, index) => {
+      el.style.transitionDelay = `${Math.min(index % 4, 3) * 55}ms`;
+      reveal.observe(el);
+    });
+
+    document.getElementById('copyCode').addEventListener('click', async () => {
+      const text = document.getElementById('code').innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1600);
+      } catch (_) {
+        document.getElementById('copyCode').textContent = 'Select & copy';
+      }
+    });
+  </script>
+</body>
+</html>

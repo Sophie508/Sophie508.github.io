@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Case 03_test_domain_test_domain_2_85 — Allrecipes: Save a coffee mocha recipe</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1c2024; --muted:#5d6670;
+    --line:#e2e6ea; --accent:#c0392b; --accent-soft:#fdecea;
+    --blue:#2b5f9e; --blue-soft:#eaf1fa; --green:#2e7d4f; --green-soft:#e8f6ee;
+    --amber:#9a6a00; --amber-soft:#fdf3dd; --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;font-size:15px;}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 22px 72px;}
+  header.hero{background:linear-gradient(135deg,#1c2024 0%,#3a2b28 55%,#7d2d24 100%);
+    color:#fff;border-radius:16px;padding:30px 30px 26px;box-shadow:0 6px 24px rgba(20,25,30,.18);}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.72;margin:0 0 8px;}
+  h1{font-size:26px;line-height:1.25;margin:0 0 10px;font-weight:650;}
+  .task{font-size:17px;margin:14px 0 0;padding:12px 16px;background:rgba(255,255,255,.10);
+    border-left:3px solid #ffb4a8;border-radius:0 8px 8px 0;}
+  .task b{font-weight:650}
+  .hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+  .hbadge{font-size:12px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.22);}
+  h2{font-size:18px;margin:34px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);}
+  h3{font-size:15px;margin:20px 0 8px;}
+  p{margin:8px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
+  .card .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:4px;}
+  .card .val{font-size:15px;font-weight:600;word-break:break-word;}
+  .mono{font-family:var(--mono);font-size:12.5px;}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;overflow:hidden;font-size:14px;}
+  th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#f0f2f5;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+  tr:last-child td{border-bottom:none;}
+  .path{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0 4px;}
+  .node{background:var(--blue-soft);border:1px solid #c8dcf2;color:var(--blue);
+    border-radius:8px;padding:7px 12px;font-size:13.5px;font-weight:600;}
+  .node.final{background:var(--green-soft);border-color:#bfe3cd;color:var(--green);}
+  .node.home{background:#eef0f3;border-color:#d8dde3;color:var(--muted);}
+  .arrow{color:#9aa4ae;font-size:15px;}
+  .step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px 14px 18px;margin:0 0 14px;}
+  .step::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:12px 0 0 12px;background:var(--accent);}
+  .step.s5::before{background:var(--green);}
+  .step-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:6px;}
+  .stepnum{font-size:12px;font-weight:700;color:#fff;background:var(--accent);border-radius:6px;padding:2px 8px;}
+  .step.s5 .stepnum{background:var(--green);}
+  .op{font-size:11px;font-weight:700;letter-spacing:.05em;padding:2px 8px;border-radius:6px;}
+  .op.hover{background:var(--amber-soft);color:var(--amber);border:1px solid #ecd9a8;}
+  .op.click{background:var(--blue-soft);color:var(--blue);border:1px solid #c8dcf2;}
+  .repr{font-family:var(--mono);font-size:13.5px;font-weight:600;}
+  .ctx{font-size:13.5px;color:var(--muted);margin:4px 0 8px;}
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:2px 12px;font-size:13.5px;}
+  .kv dt{color:var(--muted);}
+  .kv dd{margin:0;word-break:break-word;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+  .chip{font-size:11.5px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);background:#f7f8fa;color:var(--muted);}
+  .chip.pos{background:var(--green-soft);border-color:#bfe3cd;color:var(--green);}
+  .chip.warn{background:var(--amber-soft);border-color:#ecd9a8;color:var(--amber);}
+  .note{background:var(--amber-soft);border:1px solid #ecd9a8;border-left:4px solid var(--amber);
+    border-radius:8px;padding:12px 15px;font-size:14px;margin:12px 0;}
+  .note.blue{background:var(--blue-soft);border-color:#c8dcf2;border-left-color:var(--blue);}
+  .note b{font-weight:650}
+  ul.clean{margin:8px 0;padding-left:20px;}
+  ul.clean li{margin:5px 0;}
+  code{font-family:var(--mono);font-size:12.5px;background:#eef0f3;border:1px solid var(--line);border-radius:5px;padding:1px 5px;}
+  footer{margin-top:34px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px;}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);margin:8px 0 0;}
+  .legend span::before{content:"●";margin-right:5px;color:var(--accent);}
+  .legend span.g::before{color:var(--green);} .legend span.b::before{color:var(--blue);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <p class="kicker">Mind2Web · Web Navigation · Human Demonstration Trajectory</p>
+  <h1>Allrecipes — Save a coffee mocha recipe</h1>
+  <p class="task"><b>Task:</b> Save a coffee mocha recipe.</p>
+  <div class="hero-badges">
+    <span class="hbadge">Case 03_test_domain_test_domain_2_85</span>
+    <span class="hbadge">website: allrecipes</span>
+    <span class="hbadge">domain: Info / Cooking</span>
+    <span class="hbadge">5 recorded actions</span>
+    <span class="hbadge">outcome: completed</span>
+  </div>
+</header>
+
+<h2>Case metadata</h2>
+<div class="grid">
+  <div class="card"><div class="lbl">Benchmark / Source</div><div class="val">Mind2Web · upstream</div></div>
+  <div class="card"><div class="lbl">Trajectory format</div><div class="val">mind2web-json</div></div>
+  <div class="card"><div class="lbl">Recorder</div><div class="val">human-annotator<br/><span class="mono" style="font-weight:400">no agent model</span></div></div>
+  <div class="card"><div class="lbl">Annotation ID</div><div class="val mono">547ed17c-da34-4a20-93cd-24a3603f4ccf</div></div>
+  <div class="card"><div class="lbl">Provenance</div><div class="val mono">trajs/web_navigation/03_test_domain_test_domain_2_85.json</div></div>
+  <div class="card"><div class="lbl">Stripped fields</div><div class="val">none</div></div>
+</div>
+<p style="margin-top:12px" class="mono">SHA-256 (trajectory.json): af0436e6db5344f724a7c3d9a8a6f1b495e8fefd941213b5beaf89e180a87c7b</p>
+<p><b>References / media:</b> the case declares no reference files and no media refs. The case directory contains only
+<code>case_meta.json</code>, <code>trajectory.json</code>, <code>raw_text.jsonl</code> and <code>task/task_statement.md</code> — there are no screenshots, frames or images, so nothing visual is embedded. (<code>raw_text.jsonl</code> marks the five per-step HTML records as <em>omitted oversized records</em>: 55k–119k characters each; the full data lives in <code>trajectory.json</code>.)</p>
+
+<h2>Recorded navigation path</h2>
+<div class="path">
+  <span class="node home">Allrecipes home</span><span class="arrow">→</span>
+  <span class="node">hover “Meals”</span><span class="arrow">→</span>
+  <span class="node">Drinks</span><span class="arrow">→</span>
+  <span class="node">Coffee Drinks</span><span class="arrow">→</span>
+  <span class="node">Mochas</span><span class="arrow">→</span>
+  <span class="node final">Save Recipe (Mexican Mocha)</span>
+</div>
+<p class="ctx">The human navigated a three-level recipe taxonomy (Drinks → Coffee Drinks → Mochas) and then saved a recipe
+directly from the Mochas listing via the card-level <b>Save Recipe</b> button, rather than opening a recipe page first.</p>
+
+<h2>Step-by-step record</h2>
+<p class="ctx">Each Mind2Web record holds the observation (a cleaned accessibility/HTML tree) of the page on which the action was taken,
+the operation, and positive/negative target-element candidates. Observations are snapshots, so the same page can recur with different node IDs.</p>
+
+<div class="step s1">
+  <div class="step-head">
+    <span class="stepnum">STEP 1</span>
+    <span class="op hover">HOVER → recorded as CLICK</span>
+    <span class="repr">[link] MEALS</span>
+  </div>
+  <div class="ctx">Page: Allrecipes homepage (template <code>homeTemplate_1-0</code>). Reveals the “Meals” navigation mega-menu.</div>
+  <dl class="kv">
+    <dt>Target</dt><dd><code>a</code> — node <code>99</code>, text “Meals”, box <span class="mono">127,110,47,18</span>, clickable</dd>
+    <dt>Operation</dt><dd><code>original_op = HOVER</code> · <code>op = CLICK</code> (hover normalized to a click-style operation in the recorded op field)</dd>
+    <dt>Target flags</dt><dd>original target ✔ · top-level target ✔</dd>
+  </dl>
+  <div class="chips"><span class="chip pos">1 positive candidate</span><span class="chip">233 negative candidates</span><span class="chip">observation ≈ 65k chars</span></div>
+</div>
+
+<div class="step s2">
+  <div class="step-head">
+    <span class="stepnum">STEP 2</span>
+    <span class="op click">CLICK</span>
+    <span class="repr">[link] Drinks</span>
+  </div>
+  <div class="ctx">Page: still the homepage template. Opens the <b>Drinks</b> taxonomy from the revealed menu.</div>
+  <dl class="kv">
+    <dt>Target</dt><dd>link “Drinks” within the “Meals” mega-menu (e.g. node <code>9869</code> in this observation’s tree)</dd>
+    <dt>Operation</dt><dd><code>original_op = CLICK</code> · <code>op = CLICK</code></dd>
+  </dl>
+  <div class="chips"><span class="chip warn">0 positive candidates — positive target missing in record</span><span class="chip">234 negative candidates</span><span class="chip">observation ≈ 66k chars</span></div>
+</div>
+
+<div class="step s3">
+  <div class="step-head">
+    <span class="stepnum">STEP 3</span>
+    <span class="op click">CLICK</span>
+    <span class="repr">[link] COFFEE DRINKS</span>
+  </div>
+  <div class="ctx">Page: <b>Drinks</b> taxonomy listing (template <code>taxonomyScTemplate_1-0</code>, taxlevel-2, <code>&lt;h1&gt;</code> “Drinks”).</div>
+  <dl class="kv">
+    <dt>Target</dt><dd><code>a</code> — node <code>17091</code>, id <code>taxonomy-nodes__link_1-0-4</code>, class <code>taxonomy-nodes__link</code>, text “Coffee Drinks”, box <span class="mono">649,796,111,18</span></dd>
+    <dt>Operation</dt><dd><code>CLICK</code></dd>
+    <dt>Target flags</dt><dd>original target ✘ · top-level target ✔</dd>
+  </dl>
+  <div class="chips"><span class="chip pos">1 positive candidate</span><span class="chip">388 negative candidates</span><span class="chip">observation ≈ 117k chars</span></div>
+</div>
+
+<div class="step s4">
+  <div class="step-head">
+    <span class="stepnum">STEP 4</span>
+    <span class="op click">CLICK</span>
+    <span class="repr">[link] MOCHAS</span>
+  </div>
+  <div class="ctx">Page: <b>Coffee Drinks</b> taxonomy listing (taxonomyScTemplate, taxlevel-3, <code>&lt;h1&gt;</code> “Coffee Drinks”).</div>
+  <dl class="kv">
+    <dt>Target</dt><dd><code>a</code> — node <code>25001</code>, id <code>taxonomy-nodes__link_1-0-1</code>, class <code>taxonomy-nodes__link</code>, text “Mochas”, box <span class="mono">447,480,60,18</span></dd>
+    <dt>Operation</dt><dd><code>CLICK</code></dd>
+    <dt>Target flags</dt><dd>original target ✘ · top-level target ✔</dd>
+  </dl>
+  <div class="chips"><span class="chip pos">1 positive candidate</span><span class="chip">319 negative candidates</span><span class="chip">observation ≈ 105k chars</span></div>
+</div>
+
+<div class="step s5">
+  <div class="step-head">
+    <span class="stepnum">STEP 5 · FINAL</span>
+    <span class="op click">CLICK</span>
+    <span class="repr">[button] Save Recipe</span>
+  </div>
+  <div class="ctx">Page: <b>Mochas</b> taxonomy listing (taxonomyScTemplate, taxlevel-4, <code>&lt;h1&gt;</code> “Mochas”).
+    Breadcrumb: Recipes → Drinks Recipes → Coffee Drinks Recipes. Intro text:
+    <em>“Chocolate lovers and coffee lovers, you're in luck. Frozen, hot, or iced, these mocha drink recipes will satisfy.”</em></div>
+  <dl class="kv">
+    <dt>Target</dt><dd><code>button</code> — node <code>30584</code>, id <code>mntl-save__link_1-0</code>, class <code>comp mntl-save__link mntl-button</code>,
+      <code>aria-label = "Save Recipe"</code>, visible text “Save”, box <span class="mono">338.66,594,48,48</span></dd>
+    <dt>Card saved</dt><dd>first recipe card in the listing — <b>“Mexican Mocha”</b> (image alt: “Mexican Mocha with whipped cream”).
+      The listing also shows Chocolate-y Iced Mocha, 3-Minute Mochaccino, Blended Mocha Drink, Iced Mocha Frapp, Starbucks Mocha Frappuccino Replica, Iced Mocha Cola, Mocha Coffee Cooler, Orange Mocha, and others.</dd>
+    <dt>Operation</dt><dd><code>CLICK</code></dd>
+    <dt>Target flags</dt><dd>original target ✔ · top-level target ✔</dd>
+  </dl>
+  <div class="chips"><span class="chip pos">1 positive candidate</span><span class="chip">193 negative candidates</span><span class="chip">observation ≈ 61k chars</span></div>
+</div>
+
+<h2>Outcome</h2>
+<div class="note blue">
+  <b>Completed.</b> The demonstration terminates on the fifth action, clicking the <b>Save Recipe</b> button on the
+  “Mexican Mocha” recipe card while browsing the <i>Mochas</i> listing — a coffee-mocha recipe, satisfying the task
+  “Save a coffee mocha recipe.” The recorded action set ends there; no post-action confirmation state (e.g. a
+  “saved” badge, sign-in prompt, or account requirement) is captured in the trajectory.
+</div>
+
+<h2>Action summary table</h2>
+<table>
+  <thead>
+    <tr><th>#</th><th>Action (repr)</th><th>Op</th><th>Target element</th><th>Page / heading</th><th>Pos / Neg</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td class="mono">[link] MEALS → HOVER</td><td>HOVER</td><td class="mono">a#99 “Meals”</td><td>Home (homeTemplate)</td><td>1 / 233</td></tr>
+    <tr><td>2</td><td class="mono">[link] Drinks → CLICK</td><td>CLICK</td><td class="mono">a “Drinks” (menu)</td><td>Home (homeTemplate)</td><td>0 / 234</td></tr>
+    <tr><td>3</td><td class="mono">[link] COFFEE DRINKS → CLICK</td><td>CLICK</td><td class="mono">a#17091 taxonomy-nodes__link</td><td>Drinks (taxlevel-2)</td><td>1 / 388</td></tr>
+    <tr><td>4</td><td class="mono">[link] MOCHAS → CLICK</td><td>CLICK</td><td class="mono">a#25001 taxonomy-nodes__link</td><td>Coffee Drinks (taxlevel-3)</td><td>1 / 319</td></tr>
+    <tr><td>5</td><td class="mono">[button] Save Recipe → CLICK</td><td>CLICK</td><td class="mono">button#30584 aria-label=“Save Recipe”</td><td>Mochas (taxlevel-4)</td><td>1 / 193</td></tr>
+  </tbody>
+</table>
+
+<h2>Data fidelity &amp; uncertainty</h2>
+<ul class="clean">
+  <li><b>Step 2 has no positive candidate.</b> The record for the “Drinks” click contains 234 negative candidates and an empty
+    <code>pos_candidates</code> list, so the exact ground-truth target node for that step is not recoverable from this field alone.
+    The action representation (<code>[link] Drinks → CLICK</code>) and the page tree identify it as the “Drinks” menu link.</li>
+  <li><b>Hover recorded as click.</b> Step 1’s <code>original_op</code> is <code>HOVER</code> while its <code>op</code> is
+    <code>CLICK</code>; the action representation preserves the hover. This is a recording normalization, not a second action.</li>
+  <li><b>No URLs captured.</b> The trajectory stores cleaned HTML trees and element metadata, not page URLs or screenshots.
+    The page identities above (Drinks / Coffee Drinks / Mochas, taxonomy levels 2–4) are inferred from the template IDs
+    (<code>taxonomyScTemplate_1-0</code>, taxlevel-2/3/4), the <code>&lt;h1&gt;</code> headings and the breadcrumb text.</li>
+  <li><b>Target attribution for steps 3–4.</b> Their positive candidates are flagged <code>is_original_target: false</code> but
+    <code>is_top_level_target: true</code>, i.e. the annotated clickable ancestor rather than the raw inner node — expected for
+    Mind2Web’s top-level target selection.</li>
+  <li><b>Which recipe was saved.</b> The save button carries the first-in-list id <code>mntl-save__link_1-0</code> and sits on the
+    first card, “Mexican Mocha”. The task only asks for “a coffee mocha recipe”, so this card satisfies it; the trajectory does not
+    record any later selection or confirmation.</li>
+  <li><b>No visual evidence.</b> Because the case contains no images, all reconstruction rests on the HTML trees and element
+    metadata. <code>raw_text.jsonl</code> omits the five large HTML records (55k–119k chars each) and keeps only excerpts; the
+    complete objects were read from <code>trajectory.json</code>.</li>
+</ul>
+
+<footer>
+  Report generated from the recorded case artifacts only (<code>case_meta.json</code>, <code>trajectory.json</code>,
+  <code>task/task_statement.md</code>, <code>raw_text.jsonl</code>). This describes a completed human demonstration; no task
+  was re-executed. No external resources are referenced.
+</footer>
+
+</div>
+</body>
+</html>

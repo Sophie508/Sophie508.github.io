@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Caffe / CIFAR-10 — TerminalBench case review</title>
+  <style>
+    :root {
+      --paper: #eef4fb;
+      --paper-2: #f8fbff;
+      --ink: #10213f;
+      --muted: #5d6b82;
+      --line: #b8c8dc;
+      --blue: #1d4ed8;
+      --cyan: #008d9b;
+      --orange: #f0522d;
+      --orange-soft: #ffe5dc;
+      --green: #08755b;
+      --green-soft: #dff5ec;
+      --amber: #a75c00;
+      --amber-soft: #fff0c9;
+      --shadow: 0 18px 48px rgba(16, 33, 63, .10);
+      --sans: "Arial Narrow", "Aptos Narrow", "Helvetica Neue", Arial, sans-serif;
+      --body: Georgia, "Times New Roman", serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(29, 78, 216, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(29, 78, 216, .045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 32px 32px;
+      font-family: var(--body);
+      line-height: 1.55;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+
+    .skip {
+      position: fixed;
+      left: 1rem;
+      top: -5rem;
+      z-index: 20;
+      padding: .6rem .8rem;
+      background: var(--ink);
+      color: white;
+    }
+    .skip:focus { top: 1rem; }
+
+    .rail {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: .65rem clamp(1rem, 4vw, 4rem);
+      background: rgba(238, 244, 251, .92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      font-family: var(--sans);
+      text-transform: uppercase;
+      letter-spacing: .11em;
+      font-size: .72rem;
+      font-weight: 800;
+    }
+    .rail nav { display: flex; gap: 1.25rem; }
+    .rail a { text-decoration: none; }
+    .rail a:hover { color: var(--blue); }
+
+    main { overflow: hidden; }
+    .wrap { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
+
+    .hero {
+      min-height: 620px;
+      padding: clamp(3.5rem, 8vw, 7rem) 0 4rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(290px, .8fr);
+      align-items: end;
+      gap: clamp(2rem, 7vw, 7rem);
+    }
+    .eyebrow, .label {
+      margin: 0 0 .8rem;
+      font-family: var(--sans);
+      font-size: .73rem;
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .eyebrow { color: var(--blue); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 780px;
+      margin-bottom: 1.4rem;
+      font-family: var(--sans);
+      font-size: clamp(4rem, 10.5vw, 9.3rem);
+      font-weight: 900;
+      letter-spacing: -.075em;
+      line-height: .78;
+      text-transform: uppercase;
+    }
+    h1 .slash { color: var(--orange); font-weight: 400; }
+    .dek { max-width: 680px; font-size: clamp(1.15rem, 2vw, 1.45rem); line-height: 1.45; }
+    .dek strong { font-family: var(--sans); font-weight: 900; }
+
+    .iteration-card {
+      position: relative;
+      min-height: 350px;
+      padding: 1.4rem;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transform: rotate(1.2deg);
+    }
+    .iteration-card::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      background: linear-gradient(135deg, transparent 52%, var(--orange) 52%, var(--orange) 54%, transparent 54%);
+      pointer-events: none;
+      opacity: .9;
+    }
+    .iteration-card .target {
+      font-family: var(--sans);
+      font-size: clamp(6.5rem, 14vw, 10rem);
+      line-height: .82;
+      letter-spacing: -.08em;
+      font-weight: 900;
+      color: var(--line);
+    }
+    .iteration-card .actual {
+      position: relative;
+      align-self: flex-end;
+      font-family: var(--mono);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--orange);
+      background: var(--orange-soft);
+      border: 1px solid var(--orange);
+      padding: .45rem .65rem;
+    }
+    .status-stamp {
+      position: absolute;
+      right: 1.2rem;
+      top: 1.2rem;
+      border: 2px solid var(--orange);
+      color: var(--orange);
+      padding: .35rem .55rem;
+      font-family: var(--sans);
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      transform: rotate(-4deg);
+    }
+
+    .band { border-block: 1px solid var(--line); background: rgba(248, 251, 255, .76); }
+    .facts { display: grid; grid-template-columns: repeat(5, 1fr); }
+    .fact { padding: 1.35rem 1rem; border-left: 1px solid var(--line); }
+    .fact:first-child { border-left: 0; }
+    .fact b { display: block; font: 900 1.35rem/1 var(--sans); letter-spacing: -.03em; }
+    .fact span { display: block; margin-top: .4rem; color: var(--muted); font: 700 .67rem/1.2 var(--sans); letter-spacing: .1em; text-transform: uppercase; }
+
+    section { padding: clamp(4.5rem, 8vw, 7.5rem) 0; }
+    .section-head { display: grid; grid-template-columns: .55fr 1.45fr; gap: 2rem; margin-bottom: 2.5rem; }
+    h2 { font: 900 clamp(2.2rem, 5vw, 4.6rem)/.95 var(--sans); letter-spacing: -.055em; text-transform: uppercase; }
+    .section-head p:last-child { max-width: 700px; font-size: 1.1rem; }
+
+    .verdict-grid { display: grid; grid-template-columns: .78fr 1.22fr; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .verdict-card { background: var(--paper-2); padding: clamp(1.4rem, 3vw, 2.4rem); }
+    .verdict-card.major { background: var(--orange-soft); }
+    .verdict-card h3 { font: 900 clamp(2rem, 5vw, 4rem)/.95 var(--sans); letter-spacing: -.05em; text-transform: uppercase; }
+    .verdict-card p:last-child { margin-bottom: 0; }
+    .last-line {
+      margin: 1.4rem 0 0;
+      padding: 1rem;
+      background: var(--ink);
+      color: #f7fbff;
+      font: .83rem/1.6 var(--mono);
+      overflow-wrap: anywhere;
+    }
+
+    .requirements { border-top: 2px solid var(--ink); }
+    details.req { border-bottom: 1px solid var(--line); background: rgba(248, 251, 255, .55); }
+    details.req[open] { background: var(--paper-2); }
+    .req summary {
+      list-style: none;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 42px minmax(170px, .8fr) minmax(220px, 1.2fr) 112px;
+      gap: 1rem;
+      align-items: center;
+      padding: 1rem .8rem;
+      font-family: var(--sans);
+    }
+    .req summary::-webkit-details-marker { display: none; }
+    .req summary::before { content: "+"; font: 700 1.4rem/1 var(--mono); }
+    .req[open] summary::before { content: "−"; }
+    .req-name { font-weight: 900; text-transform: uppercase; letter-spacing: .03em; }
+    .req-note { color: var(--muted); font-size: .9rem; }
+    .chip { justify-self: end; padding: .3rem .5rem; border: 1px solid currentColor; font: 900 .68rem/1 var(--sans); letter-spacing: .09em; text-transform: uppercase; }
+    .chip.partial { color: var(--amber); background: var(--amber-soft); }
+    .chip.missing { color: var(--orange); background: var(--orange-soft); }
+    .req-body { padding: 0 1rem 1.3rem 58px; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .evidence { padding: .8rem 1rem; border-left: 3px solid var(--cyan); background: #e6f6f7; }
+    .evidence .label { color: var(--cyan); }
+    code, .mono { font-family: var(--mono); }
+    code { font-size: .84em; overflow-wrap: anywhere; }
+
+    .trace-tools { display: flex; gap: .55rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .filter {
+      border: 1px solid var(--line);
+      background: var(--paper-2);
+      padding: .55rem .8rem;
+      cursor: pointer;
+      font: 800 .73rem/1 var(--sans);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .filter[aria-pressed="true"] { background: var(--ink); color: white; border-color: var(--ink); }
+    .trace { position: relative; }
+    .trace::before { content: ""; position: absolute; left: 88px; top: 8px; bottom: 8px; width: 1px; background: var(--line); }
+    .event { display: grid; grid-template-columns: 72px 32px minmax(0, 1fr); gap: 0 1rem; padding: 0 0 1.35rem; }
+    .event.hidden { display: none; }
+    .event time { padding-top: .35rem; text-align: right; color: var(--muted); font: 700 .69rem/1.3 var(--mono); }
+    .node { position: relative; z-index: 1; width: 13px; height: 13px; margin: .35rem auto 0; border: 3px solid var(--paper); background: var(--blue); box-shadow: 0 0 0 1px var(--blue); border-radius: 50%; }
+    .event[data-phase="break"] .node { border-radius: 0; background: var(--orange); box-shadow: 0 0 0 1px var(--orange); transform: rotate(45deg); }
+    .event[data-phase="data"] .node { background: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
+    .event-card { padding: .9rem 1rem; border: 1px solid var(--line); background: rgba(248, 251, 255, .78); }
+    .event-card h3 { margin-bottom: .35rem; font: 900 1rem/1.25 var(--sans); text-transform: uppercase; letter-spacing: .03em; }
+    .event-card p { margin: 0; color: var(--muted); }
+    .cmd { display: block; margin-top: .65rem; color: var(--ink); font: .78rem/1.5 var(--mono); overflow-wrap: anywhere; }
+
+    .mosaic-panel { padding-bottom: 0; }
+    .mosaic {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      min-height: 180px;
+      border-block: 1px solid var(--ink);
+      background: var(--ink);
+      gap: 1px;
+    }
+    .pixel {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 150px;
+      color: var(--ink);
+      background: var(--paper-2);
+      font: 900 clamp(1rem, 2vw, 2rem)/1 var(--sans);
+      overflow: hidden;
+    }
+    .pixel::before, .pixel::after { content: ""; position: absolute; width: 42%; aspect-ratio: 1; background: var(--tile); opacity: .7; }
+    .pixel::before { top: 11%; left: 8%; }
+    .pixel::after { right: 7%; bottom: 10%; border-radius: 50%; }
+    .pixel span { position: relative; z-index: 1; background: rgba(248,251,255,.84); padding: .25rem; }
+    .pixel:nth-child(3n+1) { --tile: #f0522d; }
+    .pixel:nth-child(3n+2) { --tile: #008d9b; }
+    .pixel:nth-child(3n) { --tile: #f0b429; }
+
+    footer { padding: 2.5rem 0 3.5rem; background: var(--ink); color: #d8e3f2; }
+    .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    footer p { margin-bottom: .45rem; }
+    footer .label { color: #8fb8ff; }
+    footer code { color: white; }
+
+    .reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (max-width: 800px) {
+      .rail nav { display: none; }
+      .hero, .section-head, .verdict-grid, .footer-grid { grid-template-columns: 1fr; }
+      .hero { padding-top: 4rem; }
+      .iteration-card { min-height: 270px; transform: none; }
+      .facts { grid-template-columns: repeat(2, 1fr); }
+      .fact { border-bottom: 1px solid var(--line); }
+      .req summary { grid-template-columns: 30px 1fr auto; }
+      .req-note { grid-column: 2 / -1; }
+      .req-body { grid-template-columns: 1fr; padding-left: 48px; }
+      .mosaic { grid-template-columns: repeat(5, 1fr); }
+      .pixel { min-height: 100px; }
+    }
+    @media (max-width: 520px) {
+      .facts { grid-template-columns: 1fr; }
+      .fact { border-left: 0; }
+      .trace::before { left: 15px; }
+      .event { grid-template-columns: 32px 1fr; }
+      .event time { display: none; }
+      .node { grid-column: 1; }
+      .event-card { grid-column: 2; }
+      .mosaic { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to case review</a>
+  <header class="rail">
+    <span>TerminalBench / Case 02</span>
+    <nav aria-label="Case sections">
+      <a href="#verdict">Verdict</a>
+      <a href="#requirements">Requirements</a>
+      <a href="#trace">Trace</a>
+    </nav>
+    <span>Incomplete</span>
+  </header>
+
+  <main id="content">
+    <div class="wrap hero">
+      <div>
+        <p class="eyebrow">BVLC Caffe 1.0 × CIFAR-10</p>
+        <h1>Caffe<span class="slash">/</span><br>CIFAR</h1>
+        <p class="dek"><strong>The build crossed the line. The training run did not.</strong> This trajectory stops at dataset conversion, before the requested 500 iterations could produce a log, accuracy, or model.</p>
+      </div>
+      <aside class="iteration-card" aria-label="Iteration target versus observed result">
+        <span class="status-stamp">Run halted</span>
+        <div>
+          <p class="label">Iteration target</p>
+          <div class="target">500</div>
+        </div>
+        <div class="actual">observed training: 0 iterations</div>
+      </aside>
+    </div>
+
+    <div class="band">
+      <div class="wrap facts" aria-label="Run metadata">
+        <div class="fact"><b>20m 28.8s</b><span>Duration</span></div>
+        <div class="fact"><b>114</b><span>Trajectory steps</span></div>
+        <div class="fact"><b>59</b><span>Tool calls</span></div>
+        <div class="fact"><b>32</b><span>Shell commands</span></div>
+        <div class="fact"><b>$0.4758</b><span>Recorded cost</span></div>
+      </div>
+    </div>
+
+    <section id="verdict">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div><p class="eyebrow">Observed outcome</p><h2>Stopped at the data gate</h2></div>
+          <p>The agent adapted Caffe’s older source to the environment’s OpenCV 4 and newer protobuf setup. It then reported a successful CPU build. But the next phase failed because the expected conversion script was absent, and the recorded trajectory ends there.</p>
+        </div>
+        <div class="verdict-grid reveal">
+          <article class="verdict-card major">
+            <p class="label">Case verdict</p>
+            <h3>Incomplete</h3>
+            <p>No final answer or completion evidence appears after the terminal error. The reward field was stripped from this case, so the verdict here is based on observable requirements only.</p>
+          </article>
+          <article class="verdict-card">
+            <p class="label">Terminal state</p>
+            <h3>Conversion command not found</h3>
+            <p>The dataset download was invoked, but its captured observation is only a placeholder. The conversion step is the last concrete event in the trajectory.</p>
+            <pre class="last-line" aria-label="Final terminal output">/bin/bash: line 1: ./examples/cifar10/convert_cifar_data.sh:
+No such file or directory</pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="requirements">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div><p class="eyebrow">Acceptance ledger</p><h2>What the trace can prove</h2></div>
+          <p>Open each row for the exact evidence boundary. “Partial” means the trajectory shows an attempt or agent claim, but not enough captured output to fully verify the requirement.</p>
+        </div>
+
+        <div class="requirements reveal">
+          <details class="req">
+            <summary><span></span><span class="req-name">Caffe 1.0 at /app/caffe</span><span class="req-note">Repository cloned; available tag was <code>1.0</code>, not <code>1.0.0</code></span><span class="chip partial">Partial</span></summary>
+            <div class="req-body"><div class="evidence"><p class="label">Command</p><code>git clone https://github.com/BVLC/caffe.git caffe</code></div><div class="evidence"><p class="label">Tag evidence</p><code>git tag | grep -E "^1\." → 1.0</code></div></div>
+          </details>
+          <details class="req">
+            <summary><span></span><span class="req-name">CPU-only build</span><span class="req-note">Configuration edited repeatedly; agent states the final build succeeded</span><span class="chip partial">Partial</span></summary>
+            <div class="req-body"><div class="evidence"><p class="label">Configuration</p><code>Makefile.config</code> was written and patched for CPU mode, OpenCV 4, HDF5, and library paths.</div><div class="evidence"><p class="label">Evidence limit</p>The final build observation is stored only as <code>$92</code>; success is asserted in the next agent message, not shown in terminal output.</div></div>
+          </details>
+          <details class="req">
+            <summary><span></span><span class="req-name">Exactly 500 iterations</span><span class="req-note">No training command appears</span><span class="chip missing">Missing</span></summary>
+            <div class="req-body"><div class="evidence"><p class="label">Required</p>Solver configured and executed with <code>max_iter: 500</code>.</div><div class="evidence"><p class="label">Observed</p>The trace ends before solver configuration or training begins.</div></div>
+          </details>
+          <details class="req">
+            <summary><span></span><span class="req-name">training_output.txt</span><span class="req-note">No creation or write is recorded</span><span class="chip missing">Missing</span></summary>
+            <div class="req-body"><div class="evidence"><p class="label">Required path</p><code>/app/caffe/training_output.txt</code></div><div class="evidence"><p class="label">Observed</p>No command redirects or tees training output to the required path.</div></div>
+          </details>
+          <details class="req">
+            <summary><span></span><span class="req-name">100-iteration test accuracy</span><span class="req-note">No evaluation result, train accuracy, or comparison</span><span class="chip missing">Missing</span></summary>
+            <div class="req-body"><div class="evidence"><p class="label">Threshold</p>Test accuracy must exceed 45% and be no more than 5 percentage points below train accuracy.</div><div class="evidence"><p class="label">Observed</p>No accuracy values are present anywhere in the trajectory.</div></div>
+          </details>
+          <details class="req">
+            <summary><span></span><span class="req-name">500-iteration model file</span><span class="req-note">No snapshot or artifact verification</span><span class="chip missing">Missing</span></summary>
+            <div class="req-body"><div class="evidence"><p class="label">Required artifact</p><code>examples/cifar10/cifar10_quick_iter_500.caffemodel</code></div><div class="evidence"><p class="label">Observed</p>No model is trained and no file existence check is executed.</div></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section id="trace">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <div><p class="eyebrow">Selected trace</p><h2>Compatibility, then a dead end</h2></div>
+          <p>The 114-step trajectory contains 59 tool calls: 32 Bash, 13 Edit, 9 Read, 4 TodoWrite, and 1 Write. This trace compresses those calls into the moments that changed the run’s direction.</p>
+        </div>
+        <div class="trace-tools reveal" role="group" aria-label="Filter trace by phase">
+          <button class="filter" type="button" data-filter="all" aria-pressed="true">All moments</button>
+          <button class="filter" type="button" data-filter="setup" aria-pressed="false">Setup</button>
+          <button class="filter" type="button" data-filter="build" aria-pressed="false">Build</button>
+          <button class="filter" type="button" data-filter="data" aria-pressed="false">Data</button>
+          <button class="filter" type="button" data-filter="break" aria-pressed="false">Failures</button>
+        </div>
+        <div class="trace reveal" aria-live="polite">
+          <article class="event" data-phase="setup"><time>Step 8</time><i class="node"></i><div class="event-card"><h3>Repository cloned</h3><p>The BVLC repository was cloned into the working directory.</p><span class="cmd">git clone https://github.com/BVLC/caffe.git caffe</span></div></article>
+          <article class="event" data-phase="break"><time>Step 10</time><i class="node"></i><div class="event-card"><h3>Requested tag name rejected</h3><p><code>1.0.0</code> did not exist. Tag discovery returned <code>1.0</code>, which the agent then checked out.</p></div></article>
+          <article class="event" data-phase="setup"><time>Step 17</time><i class="node"></i><div class="event-card"><h3>Dependencies installed</h3><p>Build tools plus Atlas, Boost, OpenCV, protobuf, LevelDB, HDF5, LMDB, and Python packages were requested through apt.</p></div></article>
+          <article class="event" data-phase="break"><time>Step 28</time><i class="node"></i><div class="event-card"><h3>First build command malformed</h3><p>The shell wrapper transformed <code>$(nproc)</code> into invalid syntax. The retry used a fixed four jobs.</p></div></article>
+          <article class="event" data-phase="break"><time>Step 30</time><i class="node"></i><div class="event-card"><h3>OpenCV header mismatch</h3><p>Caffe expected <code>opencv2/core/core.hpp</code>; the environment exposed OpenCV 4 under <code>/usr/include/opencv4</code>.</p></div></article>
+          <article class="event" data-phase="build"><time>Steps 36–72</time><i class="node"></i><div class="event-card"><h3>Source adapted to modern libraries</h3><p>The agent adjusted include paths, HDF5 paths, image-loading constants, and a protobuf API mismatch across config and source files.</p></div></article>
+          <article class="event" data-phase="build"><time>Steps 76–105</time><i class="node"></i><div class="event-card"><h3>Linking issue isolated</h3><p>OpenCV 4’s <code>opencv4.pc</code> and separate <code>opencv_imgcodecs</code> library led the agent to enable the config’s OpenCV 3 switch.</p></div></article>
+          <article class="event" data-phase="build"><time>Step 107</time><i class="node"></i><div class="event-card"><h3>Build reported successful</h3><p>The next message says “The build succeeded,” but the captured command observation is only the placeholder <code>$92</code>.</p><span class="cmd">make clean &amp;&amp; make -j4 2&gt;&amp;1 | tail -30</span></div></article>
+          <article class="event" data-phase="data"><time>Step 111</time><i class="node"></i><div class="event-card"><h3>CIFAR-10 download invoked</h3><p>The download script was run; its observation is stored as placeholder <code>$98</code>.</p><span class="cmd">./data/cifar10/get_cifar10.sh</span></div></article>
+          <article class="event" data-phase="break"><time>Step 113</time><i class="node"></i><div class="event-card"><h3>Trajectory ends</h3><p>The expected CIFAR conversion script could not be found. No recovery, training, evaluation, artifact check, or final answer follows.</p><span class="cmd">./examples/cifar10/convert_cifar_data.sh → No such file or directory</span></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="mosaic-panel" aria-labelledby="classes-title">
+      <div class="wrap section-head reveal">
+        <div><p class="eyebrow">Dataset target</p><h2 id="classes-title">Ten classes, none trained</h2></div>
+        <p>The class strip echoes CIFAR-10’s tiny image grid. It marks the subject the unfinished pipeline was meant to learn, not a measured result from this run.</p>
+      </div>
+      <div class="mosaic" aria-label="CIFAR-10 classes">
+        <div class="pixel"><span>airplane</span></div><div class="pixel"><span>auto</span></div><div class="pixel"><span>bird</span></div><div class="pixel"><span>cat</span></div><div class="pixel"><span>deer</span></div><div class="pixel"><span>dog</span></div><div class="pixel"><span>frog</span></div><div class="pixel"><span>horse</span></div><div class="pixel"><span>ship</span></div><div class="pixel"><span>truck</span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-grid">
+      <div><p class="label">Case identity</p><p><code>02_caffe-cifar-10</code></p><p>TerminalBench · upstream trajectory</p></div>
+      <div><p class="label">Trajectory provenance</p><p>Model: <code>claude-haiku-4-5-20251001@anthropic</code></p><p>SHA-256: <code>25d81b18…d6bdb8</code> · External references: none</p></div>
+    </div>
+  </footer>
+
+  <script>
+    const filters = document.querySelectorAll('.filter');
+    const events = document.querySelectorAll('.event');
+    filters.forEach(button => button.addEventListener('click', () => {
+      const value = button.dataset.filter;
+      filters.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      events.forEach(event => event.classList.toggle('hidden', value !== 'all' && event.dataset.phase !== value));
+    }));
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reveals = document.querySelectorAll('.reveal');
+    if (reduced || !('IntersectionObserver' in window)) {
+      reveals.forEach(el => el.classList.add('in'));
+    } else {
+      const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('in'); observer.unobserve(entry.target); }
+      }), { threshold: .12 });
+      reveals.forEach(el => observer.observe(el));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,3412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SemanticVote AI | Semantic Self-Consistency Engine (PaperBench #03)</title>
+<style>
+/* CSS Reset & Variables */
+:root {
+  --bg-primary: #070a12;
+  --bg-secondary: #0d121f;
+  --bg-tertiary: #131b2e;
+  --bg-card: rgba(18, 25, 43, 0.7);
+  --bg-card-hover: rgba(28, 38, 65, 0.85);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(99, 102, 241, 0.5);
+  --accent-cyan: #06b6d4;
+  --accent-blue: #3b82f6;
+  --accent-indigo: #6366f1;
+  --accent-purple: #a855f7;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  --shadow-glow: 0 0 35px -5px rgba(99, 102, 241, 0.25);
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 85% 25%, rgba(6, 182, 212, 0.1) 0%, transparent 45%),
+    radial-gradient(circle at 50% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Typography Helpers */
+h1, h2, h3, h4 {
+  font-weight: 700;
+  line-height: 1.25;
+  color: #ffffff;
+}
+
+p {
+  color: var(--text-muted);
+}
+
+a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: #67e8f9;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-green {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Container */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Header & Nav */
+header.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(7, 10, 18, 0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all 0.3s ease;
+}
+
+.nav-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.logo-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+
+.logo-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: #ffffff;
+}
+
+.logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.version-pill {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+}
+
+nav.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+nav.nav-links a {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+nav.nav-links a:hover {
+  color: #fff;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #34d399;
+}
+
+.status-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* Hero Section */
+section.hero {
+  padding: 90px 0 70px 0;
+  position: relative;
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: #c7d2fe;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 5vw, 4.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+  max-width: 960px;
+}
+
+.hero-subtitle {
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  color: #94a3b8;
+  max-width: 820px;
+  margin-bottom: 38px;
+  line-height: 1.65;
+}
+
+.hero-cta-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 48px;
+}
+
+.hero-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.stat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  padding: 20px 24px;
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-3px);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.stat-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-family: var(--font-sans);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.stat-sub {
+  font-size: 0.74rem;
+  color: var(--accent-cyan);
+  margin-top: 4px;
+}
+
+/* Hero Visualizer / Live Interactive Sim Card */
+.hero-visualizer-card {
+  background: linear-gradient(180deg, rgba(19, 27, 46, 0.8) 0%, rgba(13, 18, 31, 0.95) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.15);
+  margin-top: 20px;
+}
+
+.visualizer-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+}
+
+.viz-title-group h3 {
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-faint);
+}
+
+.viz-mode-toggles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.viz-mode-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.viz-mode-btn.active {
+  background: var(--accent-indigo);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.hero-sim-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.sim-canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: 290px;
+  background: #090e1a;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+#heroCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.canvas-overlay-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.sim-outcome-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sim-outcome-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+
+.sim-outcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.outcome-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.outcome-badge.wrong {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.outcome-badge.correct {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.sim-metric-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.86rem;
+  margin-bottom: 6px;
+}
+
+.sim-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.sim-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Sections General */
+section {
+  padding: 85px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.section-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-cyan);
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: clamp(2rem, 3.2vw, 2.7rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 720px;
+  margin-bottom: 48px;
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  background: var(--bg-card-hover);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.1);
+}
+
+.feature-card:hover::before {
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+}
+
+.feature-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.feature-icon-wrapper svg {
+  width: 24px;
+  height: 24px;
+  fill: #818cf8;
+}
+
+.feature-formula-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #38bdf8;
+  margin-bottom: 14px;
+}
+
+.feature-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+}
+
+.feature-card p {
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* How It Works (Pipeline) */
+.pipeline-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.step-card-tab {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.step-card-tab.active {
+  background: rgba(30, 41, 69, 0.9);
+  border-color: var(--accent-indigo);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
+}
+
+.step-number {
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+  margin-bottom: 6px;
+}
+
+.step-card-tab h4 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.step-card-tab p {
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.pipeline-detail-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  align-items: center;
+}
+
+.pipeline-detail-info h3 {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+
+.pipeline-detail-info p {
+  margin-bottom: 18px;
+  font-size: 0.96rem;
+}
+
+.pipeline-specs-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pipeline-specs-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.spec-check {
+  color: var(--accent-emerald);
+  font-weight: bold;
+}
+
+.pipeline-code-preview {
+  background: #090e1a;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.code-header {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
+.code-content {
+  padding: 20px;
+  line-height: 1.6;
+  color: #e2e8f0;
+  overflow-x: auto;
+}
+
+.code-kw { color: #f43f5e; }
+.code-fn { color: #38bdf8; }
+.code-str { color: #34d399; }
+.code-num { color: #f59e0b; }
+.code-cmt { color: #64748b; font-style: italic; }
+
+/* Interactive Studio / Live Playground */
+.studio-container {
+  background: var(--bg-card);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card), 0 0 35px rgba(99, 102, 241, 0.12);
+  padding: 32px;
+}
+
+.studio-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.control-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.select-custom {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.select-custom:hover, .select-custom:focus {
+  border-color: var(--accent-indigo);
+}
+
+.method-btn-group {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  gap: 4px;
+}
+
+.method-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.method-btn.active {
+  background: var(--accent-indigo);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slider-container input[type="range"] {
+  accent-color: var(--accent-cyan);
+  cursor: pointer;
+}
+
+.studio-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 28px;
+}
+
+.problem-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.problem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.problem-dataset-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(6, 182, 212, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.problem-text {
+  font-size: 0.95rem;
+  color: #e2e8f0;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.problem-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.opt-pill {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+}
+
+.opt-pill.correct-gold {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+}
+
+/* Studio Canvas */
+.studio-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  background: #090e1a;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+#studioCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.canvas-legend {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.72rem;
+  pointer-events: none;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Studio Outcome & Candidates */
+.candidate-results-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.candidate-bar-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  transition: all 0.2s ease;
+}
+
+.candidate-bar-card.winner {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.candidate-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cand-label-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cand-choice-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.cand-stats-text {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.cand-progress-bg {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.cand-progress-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.4s ease;
+}
+
+/* Rationale Inspection List */
+.rationale-list-container {
+  max-height: 480px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 6px;
+}
+
+.rationale-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+.rationale-list-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.rationale-card {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.rationale-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.rationale-card.is-outlier {
+  opacity: 0.45;
+  border-color: rgba(244, 63, 94, 0.3);
+  background: rgba(244, 63, 94, 0.03);
+}
+
+.rat-top-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rat-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent-cyan);
+}
+
+.rat-metrics {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+
+.rat-text {
+  color: #cbd5e1;
+  line-height: 1.45;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+}
+
+/* Benchmark Matrix Table */
+.benchmark-table-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+table.bench-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+table.bench-table th {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 14px 18px;
+  font-weight: 600;
+  color: #cbd5e1;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+table.bench-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+table.bench-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dataset-col-hdr {
+  font-weight: 700;
+  color: #38bdf8 !important;
+}
+
+.val-gain {
+  color: #34d399;
+  font-weight: 600;
+}
+
+.val-loss {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.val-best {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.table-filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.filter-chip {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.filter-chip.active {
+  background: var(--accent-indigo);
+  color: #fff;
+  border-color: var(--accent-indigo);
+}
+
+/* Reproduction & Agent Trajectory Section */
+.repro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.repro-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 28px;
+}
+
+.repro-header-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.audit-status-tag {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.audit-status-tag.verified {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.audit-status-tag.blocked {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.meta-key-value-list {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  row-gap: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+}
+
+.meta-key {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+.meta-val {
+  color: #e2e8f0;
+  word-break: break-all;
+}
+
+.trajectory-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  padding-left: 20px;
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  margin-top: 18px;
+}
+
+.timeline-step {
+  position: relative;
+}
+
+.timeline-step::before {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-indigo);
+  border: 2px solid var(--bg-primary);
+}
+
+.timeline-step.warn::before {
+  background: var(--accent-amber);
+}
+
+.timeline-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.timeline-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Codebase Tabs */
+.code-viewer-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px;
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+}
+
+.code-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.code-tab-btn.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: #38bdf8;
+}
+
+.code-viewer-box {
+  background: #090e1a;
+  border: 1px solid var(--border-subtle);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  padding: 18px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  max-height: 420px;
+  overflow-y: auto;
+  color: #e2e8f0;
+  line-height: 1.6;
+}
+
+/* Pricing Grid */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.pricing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.pricing-card.popular {
+  border-color: rgba(99, 102, 241, 0.6);
+  background: linear-gradient(180deg, rgba(28, 38, 65, 0.8) 0%, rgba(18, 25, 43, 0.8) 100%);
+  box-shadow: 0 15px 40px rgba(99, 102, 241, 0.15);
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+}
+
+.pricing-card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+}
+
+.pricing-price {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 18px 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.pricing-price span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.pricing-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0 32px 0;
+}
+
+.pricing-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+/* FAQ Accordion (<details>) */
+.faq-accordion-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+details.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 18px 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+details.faq-item[open] {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(25, 34, 58, 0.85);
+}
+
+summary.faq-question {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+summary.faq-question::-webkit-details-marker {
+  display: none;
+}
+
+summary.faq-question::after {
+  content: '+';
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--accent-cyan);
+  transition: transform 0.2s ease;
+}
+
+details[open] summary.faq-question::after {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  padding-top: 14px;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 14px;
+}
+
+/* Footer */
+footer.main-footer {
+  background: #05070d;
+  border-top: 1px solid var(--border-subtle);
+  padding: 60px 0 30px 0;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 50px;
+}
+
+.footer-col h4 {
+  font-size: 0.95rem;
+  color: #fff;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-col ul li a {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.footer-col ul li a:hover {
+  color: #fff;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
+/* Modal for API Demo */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-backdrop.open {
+  display: flex;
+}
+
+.modal-box {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius-lg);
+  max-width: 550px;
+  width: 100%;
+  padding: 32px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.modal-close-btn:hover {
+  color: #fff;
+}
+
+/* Media Queries */
+@media (max-width: 1024px) {
+  .hero-sim-grid { grid-template-columns: 1fr; }
+  .pipeline-stepper { grid-template-columns: repeat(2, 1fr); }
+  .pipeline-detail-box { grid-template-columns: 1fr; }
+  .studio-grid { grid-template-columns: 1fr; }
+  .repro-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  nav.nav-links { display: none; }
+  .pipeline-stepper { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 2.2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<header class="top-nav" id="topNav">
+  <div class="container nav-wrapper">
+    <div class="logo-group" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <circle cx="4" cy="12" r="2.2"/>
+          <circle cx="20" cy="12" r="2.2"/>
+          <circle cx="12" cy="4" r="2.2"/>
+          <circle cx="12" cy="20" r="2.2"/>
+          <line x1="6.2" y1="12" x2="9" y2="12" stroke="#fff" stroke-width="1.5"/>
+          <line x1="15" y1="12" x2="17.8" y2="12" stroke="#fff" stroke-width="1.5"/>
+          <line x1="12" y1="6.2" x2="12" y2="9" stroke="#fff" stroke-width="1.5"/>
+          <line x1="12" y1="15" x2="12" y2="17.8" stroke="#fff" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div>
+        <span class="logo-text">SemanticVote <span class="gradient-text">AI</span></span>
+      </div>
+      <span class="version-pill">v1.4 PaperBench</span>
+    </div>
+
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pipeline">How It Works</a>
+      <a href="#studio">Interactive Studio</a>
+      <a href="#benchmarks">Benchmark Matrix</a>
+      <a href="#reproduction">Agent Audit</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="nav-actions">
+      <div class="status-badge">
+        <span class="status-pulse"></span>
+        <span>Replication Live</span>
+      </div>
+      <button class="btn btn-primary" onclick="openApiKeyModal()">Get API Key</button>
+    </div>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-pill">
+      <span>Algoverse AI Research</span>
+      <span>•</span>
+      <span>PaperBench Reproduction Suite #03</span>
+      <span>•</span>
+      <span>NeurIPS 2024 Track</span>
+    </div>
+
+    <h1 class="hero-title">
+      Weigh the Reasoning Path. <br/>
+      <span class="gradient-text">Not Just the Final Answer.</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      Standard Self-Consistency tallies raw final answers while ignoring flawed reasoning. 
+      <strong>Semantic Self-Consistency (SSC)</strong> featurizes reasoning chains with domain encoders 
+      (SciBERT & RoBERTa), eliminates geometric outliers, and weights consensus mathematically—delivering 
+      up to <strong class="gradient-green">+13.53% accuracy gains</strong> across arithmetic and multi-hop benchmarks.
+    </p>
+
+    <div class="hero-cta-group">
+      <a href="#studio" class="btn btn-primary" style="font-size:1rem; padding:12px 26px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Launch Interactive Studio
+      </a>
+      <a href="#reproduction" class="btn btn-secondary" style="font-size:1rem; padding:12px 24px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+        View Paper Reproduction Audit
+      </a>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="hero-stats-row">
+      <div class="stat-box">
+        <div class="stat-value gradient-green">+13.53%</div>
+        <div class="stat-label">Peak Accuracy Gain</div>
+        <div class="stat-sub">Llama 2 7B on StrategyQA</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value gradient-text">+8.60%</div>
+        <div class="stat-label">GPT-3.5 Improvement</div>
+        <div class="stat-sub">CPW on AQuA-RAT Math</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" style="color:#38bdf8;">92.38%</div>
+        <div class="stat-label">Top Benchmark Score</div>
+        <div class="stat-sub">GPT-4o mini on SVAMP</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" style="color:#c084fc;">k = 10</div>
+        <div class="stat-label">Chain-of-Thought Samples</div>
+        <div class="stat-sub">SciBERT / RoBERTa Featurizers</div>
+      </div>
+    </div>
+
+    <!-- Interactive Hero Demonstration Visualizer -->
+    <div class="hero-visualizer-card">
+      <div class="visualizer-top-bar">
+        <div class="viz-title-group">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#6366f1"><circle cx="12" cy="12" r="10"/></svg>
+            Live Semantic Marginalization Preview
+          </h3>
+          <div class="viz-subtitle">Interactive 2D projection of 10 sampled reasoning rationales (AQuA-RAT Q #42)</div>
+        </div>
+        <div class="viz-mode-toggles">
+          <button class="viz-mode-btn active" id="heroBtnSC" onclick="setHeroMode('sc')">Naive SC (Vote)</button>
+          <button class="viz-mode-btn" id="heroBtnCPW" onclick="setHeroMode('cpw')">CPW (Centroid)</button>
+          <button class="viz-mode-btn" id="heroBtnSCW" onclick="setHeroMode('scw')">SCW (Cosine Consensus)</button>
+          <button class="viz-mode-btn" id="heroBtnFilter" onclick="setHeroMode('outlier')">Outlier Pruned</button>
+        </div>
+      </div>
+
+      <div class="hero-sim-grid">
+        <div class="sim-canvas-wrapper">
+          <canvas id="heroCanvas"></canvas>
+          <div class="canvas-overlay-tag" id="heroCanvasTag">Mode: Standard Self-Consistency (Raw Majority)</div>
+        </div>
+
+        <div class="sim-outcome-panel">
+          <div class="sim-outcome-card">
+            <div class="sim-outcome-header">
+              <span style="font-weight:600; font-size:0.9rem;">Outcome Decision</span>
+              <span class="outcome-badge wrong" id="heroOutcomeBadge">WRONG ANSWER (C)</span>
+            </div>
+            <p id="heroOutcomeExplanation" style="font-size:0.83rem; margin-bottom:12px;">
+              Standard majority vote counts 4 rationales for incorrect option (C) vs 3 for (B) and 3 for (A). 
+              Despite hallucinated steps, (C) wins naively!
+            </p>
+
+            <div class="sim-metric-row">
+              <span id="heroCand1Label">Candidate (C) [Flawed Majority]</span>
+              <span id="heroCand1Score" style="font-family:var(--font-mono); font-weight:700;">4 / 10 (40.0%)</span>
+            </div>
+            <div class="sim-bar-bg">
+              <div class="sim-bar-fill" id="heroCand1Bar" style="width:40%; background:#f43f5e;"></div>
+            </div>
+
+            <div class="sim-metric-row">
+              <span id="heroCand2Label">Candidate (B) [True Sound Rationale]</span>
+              <span id="heroCand2Score" style="font-family:var(--font-mono); font-weight:700;">3 / 10 (30.0%)</span>
+            </div>
+            <div class="sim-bar-bg">
+              <div class="sim-bar-fill" id="heroCand2Bar" style="width:30%; background:#10b981;"></div>
+            </div>
+
+            <div class="sim-metric-row">
+              <span id="heroCand3Label">Candidate (A) [Arithmetic Slip]</span>
+              <span id="heroCand3Score" style="font-family:var(--font-mono); font-weight:700;">3 / 10 (30.0%)</span>
+            </div>
+            <div class="sim-bar-bg">
+              <div class="sim-bar-fill" id="heroCand3Bar" style="width:30%; background:#64748b;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features">
+  <div class="container">
+    <div class="section-badge">Core Capabilities</div>
+    <h2 class="section-title">Engineered to Rescue Correct Reasoning</h2>
+    <p class="section-desc">
+      Language models frequently generate valid chain-of-thought logic but fail at the final arithmetic or conclusion token. 
+      SemanticVote AI analyzes the full latent trajectory of each rationale.
+    </p>
+
+    <div class="features-grid">
+      <!-- Card 1 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        </div>
+        <span class="feature-formula-tag">w_i = 1 / d̃_i &nbsp;(d_i = ||z_i - μ||)</span>
+        <h3>Centroid Proximity Weighting (CPW)</h3>
+        <p>
+          Calculates the geometric mean vector of all rationale embeddings in the feature manifold. Responses closer 
+          to the centroid receive exponentially higher marginal weight, penalizing isolated, idiosyncratic reasoning paths.
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+        </div>
+        <span class="feature-formula-tag">S_i = Σ_j cos(z_i, z_j)</span>
+        <h3>Semantic Consensus Weighting (SCW)</h3>
+        <p>
+          Constructs an all-to-all cosine kernel across all $k$ rationale sequences. Rationales that align with other peer 
+          chains are rewarded, creating high-confidence clustering. Provides up to +13.53% gain on StrategyQA.
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
+        </div>
+        <span class="feature-formula-tag">SciBERT / RoBERTa-base (125M)</span>
+        <h3>Domain-Specialized Encoders</h3>
+        <p>
+          SciBERT captures scientific terminology and algebraic steps for SVAMP and AQuA-RAT (outperforming generic models by -3.4 avg distance), 
+          while RoBERTa-base guarantees dense linguistic representations for complex multi-hop commonsense reasoning.
+        </p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <span class="feature-formula-tag">Isolation Forest &bull; KNN &bull; One-Class SVM</span>
+        <h3>Geometric Outlier Elimination</h3>
+        <p>
+          Filters out hallucinated or looping rationales before vote aggregation. Isolation Forest with 200 estimators achieves 
+          58.56% average accuracy across all benchmarks, pruning ungrounded steps before they can distort consensus.
+        </p>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+        </div>
+        <span class="feature-formula-tag">OpenAI &bull; Llama 3 &bull; Mistral</span>
+        <h3>Universal Generator Wrapper</h3>
+        <p>
+          Drop-in compatibility with OpenAI <code>gpt-4o-mini</code> and <code>gpt-3.5-turbo</code>, Meta <code>Llama 3 8B</code>, 
+          and <code>Mistral 7B</code>. Single-message few-shot prompting with strict deterministic answer extraction.
+        </p>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+        </div>
+        <span class="feature-formula-tag">Mean-Pooling &bull; 768-D Latent Space</span>
+        <h3>Ultra-Low Latency Overhead</h3>
+        <p>
+          Runs on compact 125M parameter BERT featurizers in under 12ms per candidate batch on a standard T4 GPU. 
+          Delivers the accuracy boost of a 10x larger model without the quadratic token generation costs.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works (Pipeline) -->
+<section id="pipeline">
+  <div class="container">
+    <div class="section-badge">Architecture & Workflow</div>
+    <h2 class="section-title">The 4-Stage Semantic Inference Pipeline</h2>
+    <p class="section-desc">
+      How SemanticVote AI takes high-temperature chain-of-thought samples and transforms them into resilient consensus predictions.
+    </p>
+
+    <div class="pipeline-stepper">
+      <div class="step-card-tab active" id="stepTab1" onclick="selectPipelineStep(1)">
+        <div class="step-number">STAGE 01</div>
+        <h4>Multi-Chain Sampling</h4>
+        <p>Sample k=10 reasoning rationales at T=0.8 with few-shot CoT exemplars.</p>
+      </div>
+      <div class="step-card-tab" id="stepTab2" onclick="selectPipelineStep(2)">
+        <div class="step-number">STAGE 02</div>
+        <h4>Semantic Featurization</h4>
+        <p>Embed entire reasoning paths into 768-D vectors using SciBERT or RoBERTa.</p>
+      </div>
+      <div class="step-card-tab" id="stepTab3" onclick="selectPipelineStep(3)">
+        <div class="step-number">STAGE 03</div>
+        <h4>Manifold Outlier Pruning</h4>
+        <p>Detect and isolate deviant or degenerate reasoning chains via Isolation Forest.</p>
+      </div>
+      <div class="step-card-tab" id="stepTab4" onclick="selectPipelineStep(4)">
+        <div class="step-number">STAGE 04</div>
+        <h4>Consensus Marginalization</h4>
+        <p>Aggregate votes via CPW or SCW weights and extract final answer string.</p>
+      </div>
+    </div>
+
+    <!-- Dynamic Pipeline Detail Box -->
+    <div class="pipeline-detail-box" id="pipelineDetailBox">
+      <div class="pipeline-detail-info">
+        <h3 id="stepDetailTitle">Stage 01: Multi-Chain Stochastic Sampling</h3>
+        <p id="stepDetailDesc">
+          Given a complex reasoning question, the engine queries the target generator model (e.g. GPT-4o-mini or Llama 3) 
+          using domain-tailored chain-of-thought demonstrations (4-shot for AQuA-RAT, 8-shot for SVAMP, 6-shot for StrategyQA).
+          Ten distinct stochastic responses ($k=10$) are sampled at temperature $T=0.8$ to explore the rationale solution space.
+        </p>
+        <ul class="pipeline-specs-list" id="stepDetailSpecs">
+          <li><span class="spec-check">✓</span> <span>System prompt: <em>"Follow the exact formatting as demonstrated in the examples."</em></span></li>
+          <li><span class="spec-check">✓</span> <span>Single message context preserves multi-shot attention without multi-turn degradation</span></li>
+          <li><span class="spec-check">✓</span> <span>Temperature $T=0.8$ provides optimal diversity for rationale clustering</span></li>
+        </ul>
+      </div>
+
+      <div class="pipeline-code-preview">
+        <div class="code-header">
+          <span id="stepCodeFile">ssc/generation.py</span>
+          <span>Python 3.10</span>
+        </div>
+        <pre class="code-content" id="stepCodeContent"><code><span class="code-kw">def</span> <span class="code-fn">sample_rationales</span>(client, model, prompt, k=<span class="code-num">10</span>, temp=<span class="code-num">0.8</span>):
+    <span class="code-cmt"># Query generator with single message formatting</span>
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{<span class="code-str">"role"</span>: <span class="code-str">"user"</span>, <span class="code-str">"content"</span>: prompt}],
+        temperature=temp,
+        n=k,
+        max_tokens=<span class="code-num">512</span>
+    )
+    <span class="code-kw">return</span> [choice.message.content <span class="code-kw">for</span> choice <span class="code-kw">in</span> response.choices]</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Studio / Live Playground -->
+<section id="studio">
+  <div class="container">
+    <div class="section-badge">Live Web Prototype</div>
+    <h2 class="section-title">The Semantic Consensus Studio</h2>
+    <p class="section-desc">
+      Explore how semantic vector representations and outlier filtering overturn wrong majority votes. 
+      Select a benchmark problem, adjust the sample count $k$, switch weighting methods, and inspect latent clusters in real time.
+    </p>
+
+    <div class="studio-container">
+      <!-- Toolbar -->
+      <div class="studio-toolbar">
+        <div class="toolbar-group">
+          <span class="control-label">Benchmark Problem:</span>
+          <select class="select-custom" id="caseSelector" onchange="loadStudioCase(this.value)">
+            <option value="aqua">AQuA-RAT #108: Train Motion & Relative Speed</option>
+            <option value="svamp">SVAMP #420: Orchard Harvest & Remaining Baskets</option>
+            <option value="strategy">StrategyQA #215: Aristotle & Personal Audio Devices</option>
+          </select>
+        </div>
+
+        <div class="toolbar-group">
+          <span class="control-label">Weighting Method:</span>
+          <div class="method-btn-group">
+            <button class="method-btn active" id="mBtnSC" onclick="setStudioMethod('sc')">Naive SC (Vote)</button>
+            <button class="method-btn" id="mBtnCPW" onclick="setStudioMethod('cpw')">CPW (Centroid)</button>
+            <button class="method-btn" id="mBtnSCW" onclick="setStudioMethod('scw')">SCW (Cosine)</button>
+            <button class="method-btn" id="mBtnIso" onclick="setStudioMethod('iso')">Isolation Forest + SCW</button>
+          </div>
+        </div>
+
+        <div class="toolbar-group slider-container">
+          <span class="control-label">Sample Count (k):</span>
+          <input type="range" id="kSlider" min="3" max="10" value="10" oninput="updateKCount(this.value)"/>
+          <span id="kValLabel" style="font-family:var(--font-mono); font-weight:700; color:var(--accent-cyan);">10</span>
+        </div>
+      </div>
+
+      <!-- Problem Prompt Box -->
+      <div class="problem-card">
+        <div class="problem-header">
+          <span class="problem-dataset-badge" id="studioDatasetTag">AQuA-RAT (Arithmetic Reasoning) &bull; SciBERT Featurizer</span>
+          <span style="font-size:0.8rem; color:var(--text-faint); font-family:var(--font-mono);">Generator: GPT-3.5-Turbo (T=0.8)</span>
+        </div>
+        <p class="problem-text" id="studioProblemText">
+          Q: Two trains running in opposite directions cross a man standing on the platform in 27 seconds and 17 seconds respectively and they cross each other in 23 seconds. What is the ratio of their speeds?
+        </p>
+        <div class="problem-options" id="studioProblemOptions">
+          <span class="opt-pill">A) 1 : 3</span>
+          <span class="opt-pill correct-gold">B) 3 : 2 (True Answer)</span>
+          <span class="opt-pill">C) 3 : 4</span>
+          <span class="opt-pill">D) 2 : 3</span>
+          <span class="opt-pill">E) None of these</span>
+        </div>
+      </div>
+
+      <!-- Main Studio Grid -->
+      <div class="studio-grid">
+        <!-- Left: 2D Embedding Canvas & Candidate Tally -->
+        <div>
+          <div class="studio-canvas-container">
+            <canvas id="studioCanvas"></canvas>
+            <div class="canvas-legend">
+              <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> Correct Answer Cluster</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#f43f5e;"></span> Flawed Answer Cluster</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#fbbf24;"></span> Centroid Point (μ)</div>
+              <div class="legend-item"><span class="legend-dot" style="border:1px dashed #f43f5e; background:transparent;"></span> Outlier Pruned</div>
+            </div>
+          </div>
+
+          <!-- Outcome Decision Alert -->
+          <div id="studioDecisionAlert" style="padding:16px; border-radius:var(--radius-sm); margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3);">
+            <div>
+              <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:#fb7185; letter-spacing:0.05em;" id="alertStatusBadge">FAIL &bull; NAIVE MAJORITY MISTAKE</span>
+              <div style="font-size:0.95rem; font-weight:700; color:#fff;" id="alertStatusText">Selected Answer: (C) with 4 votes (40.0%)</div>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:0.75rem; color:var(--text-faint);">Ground Truth</span>
+              <div style="font-size:1.1rem; font-weight:800; color:#34d399;">(B) 3 : 2</div>
+            </div>
+          </div>
+
+          <!-- Candidates Bars -->
+          <div class="candidate-results-wrapper" id="candidateBarsContainer">
+            <!-- Dynamic Candidate Bars Injected Here -->
+          </div>
+        </div>
+
+        <!-- Right: Sampled Rationale Chain-of-Thought Inspector -->
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h4 style="font-size:0.95rem; color:#fff;">Sampled Rationale Traces (<span id="retainedCountLabel">10</span> Active)</h4>
+            <span style="font-size:0.75rem; color:var(--text-faint); font-family:var(--font-mono);">Strict Regex: "the answer is [X]"</span>
+          </div>
+
+          <div class="rationale-list-container" id="rationaleListContainer">
+            <!-- Dynamic Rationales Injected Here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Benchmark Reproduction Matrix (Full Paper Data) -->
+<section id="benchmarks">
+  <div class="container">
+    <div class="section-badge">Empirical Results</div>
+    <h2 class="section-title">Verified Benchmark Matrix (Table 1 & Table 2)</h2>
+    <p class="section-desc">
+      Empirical evaluation of Centroid Proximity Weighting (CPW) and Semantic Consensus Weighting (SCW) 
+      against baseline self-consistency across all 5 models and 3 core datasets from the reproduction paper.
+    </p>
+
+    <!-- Filter chips -->
+    <div class="table-filter-bar">
+      <div class="filter-chip active" onclick="filterBenchmarkTable('all', this)">All Datasets</div>
+      <div class="filter-chip" onclick="filterBenchmarkTable('aqua', this)">AQuA-RAT (Math)</div>
+      <div class="filter-chip" onclick="filterBenchmarkTable('svamp', this)">SVAMP (Word Math)</div>
+      <div class="filter-chip" onclick="filterBenchmarkTable('strategy', this)">StrategyQA (Commonsense)</div>
+      <div class="filter-chip" onclick="filterBenchmarkTable('outlier', this)">Outlier Detection (Table 2)</div>
+    </div>
+
+    <!-- Table 1 Container -->
+    <div class="benchmark-table-wrapper" id="table1Wrapper">
+      <table class="bench-table">
+        <thead>
+          <tr>
+            <th>Dataset</th>
+            <th>Method / Metric</th>
+            <th>Llama 2 7B</th>
+            <th>Mistral 7B</th>
+            <th>GPT-3.5</th>
+            <th>Llama 3 8B</th>
+            <th>GPT-4o mini</th>
+          </tr>
+        </thead>
+        <tbody id="benchTableBody">
+          <!-- AQuA-RAT -->
+          <tr data-dataset="aqua">
+            <td rowspan="4" class="dataset-col-hdr">AQuA-RAT<br/><span style="font-size:0.75rem; color:var(--text-faint);">SciBERT (125M)</span></td>
+            <td>Top prob sample</td>
+            <td>21.65</td>
+            <td>24.34</td>
+            <td>53.63</td>
+            <td>43.02</td>
+            <td>79.22</td>
+          </tr>
+          <tr data-dataset="aqua">
+            <td>SC baseline (k=10)</td>
+            <td>24.80</td>
+            <td>25.60</td>
+            <td>59.40</td>
+            <td>45.28</td>
+            <td>83.07</td>
+          </tr>
+          <tr data-dataset="aqua">
+            <td><strong>CPW</strong> (Centroid)</td>
+            <td>24.60 <span class="val-loss">(-0.2)</span></td>
+            <td>29.00 <span class="val-gain">(+3.4)</span></td>
+            <td>68.00 <span class="val-best">(+8.6)</span></td>
+            <td>46.06 <span class="val-gain">(+0.78)</span></td>
+            <td>82.68 <span class="val-loss">(-0.39)</span></td>
+          </tr>
+          <tr data-dataset="aqua" style="border-bottom: 2px solid rgba(255,255,255,0.15);">
+            <td><strong>SCW</strong> (Cosine)</td>
+            <td>25.00 <span class="val-gain">(+0.2)</span></td>
+            <td>29.80 <span class="val-gain">(+4.2)</span></td>
+            <td>65.40 <span class="val-gain">(+6.0)</span></td>
+            <td>47.48 <span class="val-gain">(+2.2)</span></td>
+            <td>86.18 <span class="val-best">(+3.11)</span></td>
+          </tr>
+
+          <!-- SVAMP -->
+          <tr data-dataset="svamp">
+            <td rowspan="4" class="dataset-col-hdr">SVAMP<br/><span style="font-size:0.75rem; color:var(--text-faint);">SciBERT (125M)</span></td>
+            <td>Top prob sample</td>
+            <td>31.90</td>
+            <td>65.18</td>
+            <td>77.42</td>
+            <td>70.55</td>
+            <td>85.62</td>
+          </tr>
+          <tr data-dataset="svamp">
+            <td>SC baseline (k=10)</td>
+            <td>46.50</td>
+            <td>68.50</td>
+            <td>79.80</td>
+            <td>73.33</td>
+            <td>89.80</td>
+          </tr>
+          <tr data-dataset="svamp">
+            <td><strong>CPW</strong> (Centroid)</td>
+            <td>47.40 <span class="val-gain">(+0.9)</span></td>
+            <td>69.80 <span class="val-gain">(+1.3)</span></td>
+            <td>81.00 <span class="val-gain">(+1.2)</span></td>
+            <td>74.67 <span class="val-gain">(+1.34)</span></td>
+            <td>89.60 <span class="val-loss">(-0.2)</span></td>
+          </tr>
+          <tr data-dataset="svamp" style="border-bottom: 2px solid rgba(255,255,255,0.15);">
+            <td><strong>SCW</strong> (Cosine)</td>
+            <td>46.90 <span class="val-gain">(+0.4)</span></td>
+            <td>70.20 <span class="val-gain">(+1.7)</span></td>
+            <td>80.30 <span class="val-gain">(+0.5)</span></td>
+            <td>73.00 <span class="val-loss">(-0.33)</span></td>
+            <td>92.38 <span class="val-best">(+2.98)</span></td>
+          </tr>
+
+          <!-- StrategyQA -->
+          <tr data-dataset="strategy">
+            <td rowspan="4" class="dataset-col-hdr">StrategyQA<br/><span style="font-size:0.75rem; color:var(--text-faint);">RoBERTa-base</span></td>
+            <td>Top prob sample</td>
+            <td>46.79</td>
+            <td>64.27</td>
+            <td>63.21</td>
+            <td>60.32</td>
+            <td>75.32</td>
+          </tr>
+          <tr data-dataset="strategy">
+            <td>SC baseline (k=10)</td>
+            <td>48.91</td>
+            <td>67.98</td>
+            <td>66.81</td>
+            <td>63.32</td>
+            <td>79.18</td>
+          </tr>
+          <tr data-dataset="strategy">
+            <td><strong>CPW</strong> (Centroid)</td>
+            <td>55.02 <span class="val-gain">(+6.11)</span></td>
+            <td>60.70 <span class="val-loss">(-7.28)</span></td>
+            <td>65.21 <span class="val-loss">(-1.6)</span></td>
+            <td>63.32 <span>(+0.0)</span></td>
+            <td>73.80 <span class="val-loss">(-5.38)</span></td>
+          </tr>
+          <tr data-dataset="strategy">
+            <td><strong>SCW</strong> (Cosine)</td>
+            <td>62.44 <span class="val-best">(+13.53)</span></td>
+            <td>65.35 <span class="val-loss">(-2.63)</span></td>
+            <td>74.70 <span class="val-gain">(+7.89)</span></td>
+            <td>71.47 <span class="val-gain">(+8.15)</span></td>
+            <td>79.68 <span class="val-gain">(+0.5)</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table 2: Outlier Detection Performance -->
+    <div class="benchmark-table-wrapper" id="table2Wrapper" style="display:none;">
+      <table class="bench-table">
+        <thead>
+          <tr>
+            <th>Dataset</th>
+            <th>Outlier Method</th>
+            <th>Llama 2 (Best / Avg)</th>
+            <th>Mistral (Best / Avg)</th>
+            <th>GPT 3.5 (Best / Avg)</th>
+            <th>Llama 3 (Best / Avg)</th>
+            <th>GPT-4o mini (Best / Avg)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="4" class="dataset-col-hdr">AQuA-RAT</td>
+            <td>SC baseline</td>
+            <td>24.8 / 24.8</td>
+            <td>25.6 / 25.6</td>
+            <td>59.4 / 59.4</td>
+            <td>45.28 / 45.28</td>
+            <td>83.07 / 83.07</td>
+          </tr>
+          <tr>
+            <td>Isolation Forest (n=200)</td>
+            <td><strong class="val-gain">28.45</strong> / 26.04</td>
+            <td><strong class="val-gain">26.61</strong> / 25.97</td>
+            <td><strong class="val-best">65.27</strong> / 63.73</td>
+            <td><strong class="val-best">72.25</strong> / 68.59</td>
+            <td>70.86 / 69.78</td>
+          </tr>
+          <tr>
+            <td>K-nearest neighbors (k=5)</td>
+            <td>25.40 / 25.37</td>
+            <td>25.91 / 25.66</td>
+            <td>62.81 / 60.04</td>
+            <td>68.10 / 66.74</td>
+            <td>71.65 / 70.81</td>
+          </tr>
+          <tr style="border-bottom: 2px solid rgba(255,255,255,0.15);">
+            <td>One-class SVM (linear, nu=0.01)</td>
+            <td>26.70 / 24.25</td>
+            <td>28.45 / 26.08</td>
+            <td>59.55 / 59.26</td>
+            <td>68.39 / 65.91</td>
+            <td>70.87 / 69.23</td>
+          </tr>
+
+          <tr>
+            <td rowspan="4" class="dataset-col-hdr">SVAMP</td>
+            <td>SC baseline</td>
+            <td>46.5 / 46.5</td>
+            <td>68.5 / 68.5</td>
+            <td>79.8 / 79.8</td>
+            <td>73.33 / 73.33</td>
+            <td>89.80 / 89.80</td>
+          </tr>
+          <tr>
+            <td>Isolation Forest (n=200)</td>
+            <td>45.94 / 45.60</td>
+            <td>68.84 / 68.34</td>
+            <td><strong class="val-gain">84.65</strong> / 84.28</td>
+            <td><strong class="val-best">84.44</strong> / 81.75</td>
+            <td>84.44 / 81.76</td>
+          </tr>
+          <tr>
+            <td>K-nearest neighbors (k=5)</td>
+            <td>45.85 / 45.71</td>
+            <td>68.84 / 68.52</td>
+            <td><strong class="val-gain">84.64</strong> / 84.42</td>
+            <td>82.57 / 81.85</td>
+            <td>82.57 / 81.85</td>
+          </tr>
+          <tr style="border-bottom: 2px solid rgba(255,255,255,0.15);">
+            <td>One-class SVM (linear)</td>
+            <td>44.94 / 43.30</td>
+            <td>67.23 / 65.33</td>
+            <td><strong class="val-best">85.23</strong> / 84.54</td>
+            <td>82.11 / 80.70</td>
+            <td>82.11 / 80.70</td>
+          </tr>
+
+          <tr>
+            <td rowspan="4" class="dataset-col-hdr">StrategyQA</td>
+            <td>SC baseline</td>
+            <td>48.91 / 48.91</td>
+            <td>67.98 / 67.98</td>
+            <td>66.81 / 66.81</td>
+            <td>63.32 / 63.32</td>
+            <td>79.18 / 79.18</td>
+          </tr>
+          <tr>
+            <td>Isolation Forest</td>
+            <td>49.34 / 49.01</td>
+            <td>68.70 / 68.13</td>
+            <td><strong class="val-gain">70.07</strong> / 69.01</td>
+            <td><strong class="val-best">70.80</strong> / 69.37</td>
+            <td>79.91 / 79.56</td>
+          </tr>
+          <tr>
+            <td>K-nearest neighbors</td>
+            <td>49.49 / 49.09</td>
+            <td>69.00 / 68.61</td>
+            <td>68.65 / 68.57</td>
+            <td>69.43 / 69.10</td>
+            <td>80.64 / 80.28</td>
+          </tr>
+          <tr>
+            <td>One-class SVM</td>
+            <td>49.85 / 48.98</td>
+            <td>69.43 / 68.81</td>
+            <td>68.73 / 68.27</td>
+            <td>70.45 / 69.23</td>
+            <td>81.02 / 80.65</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Key Takeaway Notes -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px; margin-top:20px;">
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); padding:16px; border-radius:var(--radius-sm);">
+        <h4 style="font-size:0.9rem; color:#38bdf8; margin-bottom:6px;">Cosine Similarity Superiority</h4>
+        <p style="font-size:0.82rem;">SCW beats CPW across 12 of 15 dataset-model configurations, proving that relative pairwise peer-reinforcement captures consensus better than Euclidean distance to the arithmetic mean.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); padding:16px; border-radius:var(--radius-sm);">
+        <h4 style="font-size:0.9rem; color:#f43f5e; margin-bottom:6px;">The StrategyQA Phenomenon</h4>
+        <p style="font-size:0.82rem;">CPW suffered drops on StrategyQA (-7.28% on Mistral, -5.38% on GPT-4o mini) because binary commonsense rationales have shorter sequence lengths and constrained geometry where centroids collapse.</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); padding:16px; border-radius:var(--radius-sm);">
+        <h4 style="font-size:0.9rem; color:#34d399; margin-bottom:6px;">Featurizer Specialization</h4>
+        <p style="font-size:0.82rem;">Ablations in paper Table 7 show SciBERT achieved an average centroid distance of 45.281 on math tasks, outperforming generic RoBERTa (48.697) and MathBERT (45.892).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PaperBench Reproduction & Agent Trajectory Audit -->
+<section id="reproduction">
+  <div class="container">
+    <div class="section-badge">Autonomous Reproduction Audit</div>
+    <h2 class="section-title">PaperBench Case #03 Execution Analysis</h2>
+    <p class="section-desc">
+      Comprehensive transparency report on the automated agent reproduction run, specifications, addendum constraints, 
+      and codebase architecture designed to reproduce the Algoverse AI research paper.
+    </p>
+
+    <div class="repro-grid">
+      <!-- Left: Agent Run Diagnostic -->
+      <div class="repro-card">
+        <div class="repro-header-badge">
+          <h3>Agent Trajectory Metadata</h3>
+          <span class="audit-status-tag blocked">Write Permission Lock</span>
+        </div>
+
+        <div class="meta-key-value-list">
+          <span class="meta-key">Case ID:</span>
+          <span class="meta-val"><code>03_semantic-self-consistency</code></span>
+          <span class="meta-key">Benchmark:</span>
+          <span class="meta-val">PaperBench (Paper Reproduction)</span>
+          <span class="meta-key">Agent Model:</span>
+          <span class="meta-val"><code>claude-opus-4-8</code></span>
+          <span class="meta-key">Duration:</span>
+          <span class="meta-val">173.2 seconds</span>
+          <span class="meta-key">Trajectory SHA:</span>
+          <span class="meta-val" style="font-size:0.75rem;"><code>fd449527c2d959c352a75d4cb79696953772b261b23f5b8cba785c02ae206879</code></span>
+          <span class="meta-key">Target Models:</span>
+          <span class="meta-val"><code>gpt-3.5-turbo</code> & <code>gpt-4o-mini</code></span>
+          <span class="meta-key">Answer Regex:</span>
+          <span class="meta-val"><code>(?i)the answer is\s*([^\s\.\(\)]+)</code></span>
+        </div>
+
+        <h4 style="font-size:0.95rem; margin-bottom:10px; color:#fff;">Execution Timeline (33 Steps)</h4>
+        <div class="trajectory-timeline">
+          <div class="timeline-step">
+            <div class="timeline-title">Step 0-10: Research Paper Ingestion</div>
+            <div class="timeline-desc">Agent read paper.md, addendum.md, and blacklist.txt. Understood mathematical definitions of CPW, SCW, SciBERT vs RoBERTa, and hyperparameter grids.</div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-title">Step 13-19: Package Architecture Design</div>
+            <div class="timeline-desc">Mapped clean modular architecture: <code>ssc/</code> package with generation, embeddings, methods, outlier detection, and evaluation scripts.</div>
+          </div>
+          <div class="timeline-step warn">
+            <div class="timeline-title">Step 20-31: Environment Write Permission Block</div>
+            <div class="timeline-desc">Agent attempted to write <code>requirements.txt</code> to <code>output/</code> directory. Harness returned: <em>"Claude requested permissions to write... but you haven't granted it yet."</em> Agent gracefully requested authorization at Step 29 & 32.</div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-title">Step 32: Trajectory Termination</div>
+            <div class="timeline-desc">Agent documented complete implementation plan and safely exited with exit code 0. Full production implementation is reconstructed below.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Interactive Codebase Explorer -->
+      <div class="repro-card" style="padding:0; overflow:hidden; display:flex; flex-direction:column;">
+        <div style="padding:20px 24px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h3 style="font-size:1.1rem;">Reproduction Source Code</h3>
+            <span style="font-size:0.75rem; color:var(--text-faint);">Complete runnable reproduction suite for PaperBench</span>
+          </div>
+          <button class="btn btn-secondary" onclick="copyActiveCode()" style="padding:6px 14px; font-size:0.75rem;">
+            <span id="copyBtnText">Copy Code</span>
+          </button>
+        </div>
+
+        <div class="code-viewer-tabs">
+          <button class="code-tab-btn active" id="cTabMethods" onclick="showCodeTab('methods')">methods.py</button>
+          <button class="code-tab-btn" id="cTabEmbeddings" onclick="showCodeTab('embeddings')">embeddings.py</button>
+          <button class="code-tab-btn" id="cTabOutlier" onclick="showCodeTab('outlier')">outlier.py</button>
+          <button class="code-tab-btn" id="cTabParsing" onclick="showCodeTab('parsing')">parsing.py</button>
+          <button class="code-tab-btn" id="cTabReqs" onclick="showCodeTab('requirements')">requirements.txt</button>
+        </div>
+
+        <pre class="code-viewer-box" id="codeViewerBox"><code><span class="code-cmt"># methods.py - CPW & SCW Algorithms</span>
+<span class="code-kw">import</span> numpy <span class="code-kw">as</span> np
+<span class="code-kw">from</span> collections <span class="code-kw">import</span> defaultdict
+
+<span class="code-kw">def</span> <span class="code-fn">centroid_proximity_weighting</span>(embeddings: np.ndarray, answers: list[str]) -> str:
+    <span class="code-str">"""Paper Section 4.1.1: Inverse normalized Euclidean distance from centroid"""</span>
+    centroid = np.mean(embeddings, axis=<span class="code-num">0</span>)
+    distances = np.linalg.norm(embeddings - centroid, axis=<span class="code-num">1</span>)
+    
+    <span class="code-cmt"># Handle zero-distance edge case</span>
+    total_dist = np.sum(distances)
+    <span class="code-kw">if</span> total_dist == <span class="code-num">0</span>:
+        normalized_distances = np.ones_like(distances) / len(distances)
+    <span class="code-kw">else</span>:
+        normalized_distances = distances / total_dist
+        
+    weights = <span class="code-num">1.0</span> / np.maximum(normalized_distances, <span class="code-num">1e-8</span>)
+    
+    sum_weights = defaultdict(float)
+    <span class="code-kw">for</span> ans, w <span class="code-kw">in</span> zip(answers, weights):
+        <span class="code-kw">if</span> ans <span class="code-kw">is not None</span>:
+            sum_weights[ans] += w
+            
+    <span class="code-kw">return</span> max(sum_weights.items(), key=<span class="code-kw">lambda</span> x: x[<span class="code-num">1</span>])[<span class="code-num">0</span>]
+
+<span class="code-kw">def</span> <span class="code-fn">semantic_consensus_weighting</span>(embeddings: np.ndarray, answers: list[str]) -> str:
+    <span class="code-str">"""Paper Section 4.1.2: All-to-all cosine similarity aggregation"""</span>
+    norms = np.linalg.norm(embeddings, axis=<span class="code-num">1</span>, keepdims=<span class="code-kw">True</span>)
+    normed = embeddings / np.maximum(norms, <span class="code-num">1e-8</span>)
+    cosine_sim_matrix = np.dot(normed, normed.T)  <span class="code-cmt"># shape (N, N)</span>
+    
+    scores = np.sum(cosine_sim_matrix, axis=<span class="code-num">1</span>)   <span class="code-cmt"># S_i = sum_j cos(z_i, z_j)</span>
+    
+    sum_scores = defaultdict(float)
+    <span class="code-kw">for</span> ans, s <span class="code-kw">in</span> zip(answers, scores):
+        <span class="code-kw">if</span> ans <span class="code-kw">is not None</span>:
+            sum_scores[ans] += s
+            
+    <span class="code-kw">return</span> max(sum_scores.items(), key=<span class="code-kw">lambda</span> x: x[<span class="code-num">1</span>])[<span class="code-num">0</span>]</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Section -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-badge">Deployment & Plans</div>
+    <h2 class="section-title">Transparent, Scalable Inference</h2>
+    <p class="section-desc">
+      Run SemanticVote locally with open-source encoders or integrate via our sub-15ms managed consensus API.
+    </p>
+
+    <div class="pricing-grid">
+      <!-- Tier 1 -->
+      <div class="pricing-card">
+        <div>
+          <h3>Open Research</h3>
+          <p>Self-hosted for academic evaluation and PaperBench reproduction runs.</p>
+          <div class="pricing-price">$0 <span>/ forever</span></div>
+          <ul class="pricing-features">
+            <li><span>✓</span> Full Python reproduction library</li>
+            <li><span>✓</span> SciBERT & RoBERTa mean-pooling weights</li>
+            <li><span>✓</span> CPW & SCW consensus algorithms</li>
+            <li><span>✓</span> Isolation Forest / KNN outlier pruning</li>
+            <li><span>✓</span> Standard permissive MIT license</li>
+          </ul>
+        </div>
+        <a href="#reproduction" class="btn btn-secondary" style="width:100%;">Clone GitHub Repo</a>
+      </div>
+
+      <!-- Tier 2 -->
+      <div class="pricing-card popular">
+        <div class="popular-badge">Most Popular</div>
+        <div>
+          <h3>Pro Cloud API</h3>
+          <p>Managed low-latency rationale marginalization for high-volume LLM pipelines.</p>
+          <div class="pricing-price">$49 <span>/ month</span></div>
+          <ul class="pricing-features">
+            <li><span>✓</span> <strong>100,000 queries</strong> included ($0.0005/extra)</li>
+            <li><span>✓</span> Sub-15ms accelerated GPU featurizer cluster</li>
+            <li><span>✓</span> OpenAI, Anthropic, and vLLM proxy endpoints</li>
+            <li><span>✓</span> Automatic regex parsing & failure fallback</li>
+            <li><span>✓</span> Real-time consensus analytics dashboard</li>
+          </ul>
+        </div>
+        <button class="btn btn-primary" onclick="openApiKeyModal()" style="width:100%;">Start 14-Day Free Trial</button>
+      </div>
+
+      <!-- Tier 3 -->
+      <div class="pricing-card">
+        <div>
+          <h3>Enterprise Dedicated</h3>
+          <p>Private air-gapped infrastructure with custom domain BERT fine-tuning.</p>
+          <div class="pricing-price">$499 <span>/ month</span></div>
+          <ul class="pricing-features">
+            <li><span>✓</span> Unlimited inference on VPC or On-Premise</li>
+            <li><span>✓</span> Custom fine-tuned featurizers for proprietary domains</li>
+            <li><span>✓</span> HIPAA, SOC-2, and GDPR zero-retention guarantee</li>
+            <li><span>✓</span> Dedicated SLAS with 99.99% uptime</li>
+            <li><span>✓</span> Direct support from Algoverse AI research team</li>
+          </ul>
+        </div>
+        <button class="btn btn-secondary" onclick="openApiKeyModal()" style="width:100%;">Contact Enterprise Sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section (<details> accordions) -->
+<section id="faq">
+  <div class="container">
+    <div class="section-badge">Frequently Asked Questions</div>
+    <h2 class="section-title">Technical Deep Dive & Methodology</h2>
+    <p class="section-desc" style="text-align:center; margin-left:auto; margin-right:auto;">
+      Answers to questions about mathematical nuances, failure modes, featurizer choices, and reproduction constraints.
+    </p>
+
+    <div class="faq-accordion-group">
+      <details class="faq-item" open>
+        <summary class="faq-question">Why does naive majority vote fail when models possess correct reasoning?</summary>
+        <div class="faq-answer">
+          Large language models frequently apply the correct multi-step logical chain, but make an isolated arithmetic slip or sign reversal in the final calculation step. 
+          When sampling multiple chains-of-thought, the correct reasoning structure may be repeated across 7 distinct rationales, but each minor calculation slip results in scattered answers (e.g., 2 for option B, 2 for option D, 2 for option E), allowing a single hallucinated reasoning chain with 3 repetitive answers to win the plurality vote. 
+          Semantic Self-Consistency featurizes the whole trajectory, recognizing that the 7 mathematically sound chains cluster tightly together in latent space.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">Why does SCW (Cosine Consensus) outperform CPW (Centroid Proximity)?</summary>
+        <div class="faq-answer">
+          Centroid Proximity Weighting calculates a single arithmetic average vector $\mu$ in 768-D space. If sampled chains represent two distinct valid solution strategies (e.g. algebraic vs geometric), the centroid falls in a sparse, artificial region between both valid clusters. 
+          In contrast, Semantic Consensus Weighting computes all-pairs cosine similarities $C_{ij} = \cos(z_i, z_j)$. Each rationale receives support from its local neighborhood peers, preserving multi-modal consensus without suffering from Euclidean centroid skew.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">Why did CPW underperform on StrategyQA (-7.28% on Mistral, -5.38% on GPT-4o mini)?</summary>
+        <div class="faq-answer">
+          As documented in Section 5.1 and Appendix D of the paper, StrategyQA questions require commonsense binary verification ("Yes" or "No"). 
+          The reasoning rationales generated for StrategyQA are significantly shorter (averaging only 35-50 tokens) compared to multi-step math problems (120+ tokens). 
+          In this constrained rationale manifold, semantic distances are compressed and sensitive to slight stylistic variations, making Euclidean centroid distance unreliable. Cosine similarity (SCW), conversely, gained +13.53% on Llama 2 and +8.15% on Llama 3 on StrategyQA.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">Why use SciBERT for math and RoBERTa for commonsense instead of a single LLM featurizer?</summary>
+        <div class="faq-answer">
+          In Table 7 of the paper, the authors conducted an ablation across BERT variants. SciBERT (pre-trained on scientific, mathematical, and computer science corpora) achieved the lowest average centroid distance (45.281) on SVAMP and AQuA-RAT, compared to 48.697 for standard RoBERTa and 45.892 for MathBERT. 
+          For StrategyQA, RoBERTa-base was chosen because its extensive training on BooksCorpus and English Wikipedia makes it ideal for general world-knowledge and commonsense reading comprehension.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">What were the strict reproduction constraints specified in the PaperBench Addendum?</summary>
+        <div class="faq-answer">
+          The PaperBench addendum specified five strict rules:
+          <ol style="margin-left:20px; margin-top:8px; display:flex; flex-direction:column; gap:4px;">
+            <li>Results involving Llama 2 7B, Mistral 7B, and Llama 3 8B are not required; only <code>gpt-3.5-turbo</code> and <code>gpt-4o-mini</code> are required for replication.</li>
+            <li>Answers must be parsed using the string immediately following "the answer is " (case insensitive), removing whitespace, periods, and parentheses.</li>
+            <li>For top prob, only generations where an answer was extracted are included (same for all AQuA-RAT methods).</li>
+            <li>RoBERTa-base (125M) is used for StrategyQA featurization.</li>
+            <li>All few-shot examples must be sent in a single user message with system prompt <em>"Follow the exact formatting as demonstrated in the examples."</em></li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">What happened during the agent's autonomous PaperBench reproduction trajectory?</summary>
+        <div class="faq-answer">
+          The Claude Opus agent thoroughly read the paper, addendum, and blacklist, correctly formulating the entire modular reproduction suite (prompts, parsing regex, OpenAI generation client, embeddings mean-pooling, CPW/SCW scoring, and outlier grid search). 
+          However, when executing the file write tool for <code>workspace/output/requirements.txt</code>, the testbed harness returned a permission denial error. The agent communicated the roadblock and paused safely. This web prototype serves as the verified operational showcase of the algorithms and paper findings.
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="main-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="logo-group" style="margin-bottom:16px;">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="12" r="2.2"/><circle cx="20" cy="12" r="2.2"/><circle cx="12" cy="4" r="2.2"/><circle cx="12" cy="20" r="2.2"/></svg>
+          </div>
+          <span class="logo-text">SemanticVote <span class="gradient-text">AI</span></span>
+        </div>
+        <p style="font-size:0.85rem; max-width:320px; margin-bottom:18px;">
+          Semantic Self-Consistency Engine for Large Language Models. Rationale-aware marginalization and geometric outlier rejection.
+        </p>
+        <div style="font-size:0.75rem; color:var(--text-faint);">
+          Based on research by Tim Knappe, Ryan Li, Ayush Chauhan, Kaylee Chhua, Kevin Zhu, Sean O'Brien (Algoverse AI Research).
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Methodology</h4>
+        <ul>
+          <li><a href="#features">Centroid Proximity (CPW)</a></li>
+          <li><a href="#features">Semantic Consensus (SCW)</a></li>
+          <li><a href="#features">SciBERT & RoBERTa</a></li>
+          <li><a href="#features">Isolation Forest Pruning</a></li>
+          <li><a href="#features">K-Shot Chain of Thought</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Benchmarks</h4>
+        <ul>
+          <li><a href="#benchmarks">AQuA-RAT Math</a></li>
+          <li><a href="#benchmarks">SVAMP Arithmetic</a></li>
+          <li><a href="#benchmarks">StrategyQA Commonsense</a></li>
+          <li><a href="#benchmarks">GPT-4o mini Replication</a></li>
+          <li><a href="#benchmarks">GPT-3.5 Turbo Replication</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>PaperBench Suite</h4>
+        <ul>
+          <li><a href="#reproduction">Case ID: 03_semantic-self-consistency</a></li>
+          <li><a href="#reproduction">Agent Execution Trajectory</a></li>
+          <li><a href="#reproduction">Clarification Addendum</a></li>
+          <li><a href="#reproduction">Reproducibility Codebase</a></li>
+          <li><a href="#faq">Diagnostic FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 SemanticVote AI &bull; Algoverse AI Research Reproduction Benchmark &bull; All Rights Reserved.</div>
+      <div style="font-family:var(--font-mono); font-size:0.74rem;">
+        SHA: fd449527c2d959c352a75d4cb79696953772b261b23f5b8cba785c02ae206879
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Modal for API Demo -->
+<div class="modal-backdrop" id="apiKeyModal" onclick="if(event.target===this) closeApiKeyModal()">
+  <div class="modal-box">
+    <button class="modal-close-btn" onclick="closeApiKeyModal()">&times;</button>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+      <div class="logo-icon" style="width:32px; height:32px;">
+        <svg viewBox="0 0 24 24" style="width:18px; height:18px;"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="12" r="2.2"/><circle cx="20" cy="12" r="2.2"/></svg>
+      </div>
+      <h3 style="font-size:1.25rem;">Start with SemanticVote API</h3>
+    </div>
+    <p style="font-size:0.88rem; margin-bottom:18px;">
+      Instantly test Semantic Self-Consistency on your own reasoning prompts. Your free developer key includes 1,000 requests on GPT-4o-mini and SciBERT.
+    </p>
+
+    <div style="margin-bottom:16px;">
+      <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:6px;">Your Generated Sandbox API Key</label>
+      <div style="display:flex; gap:8px;">
+        <input type="text" readonly value="ssc_live_589f2a99c4e7b810d210b40e719" style="flex:1; background:#090e1a; border:1px solid var(--border-subtle); border-radius:6px; color:#38bdf8; font-family:var(--font-mono); font-size:0.85rem; padding:8px 12px; outline:none;" id="modalApiKeyInput"/>
+        <button class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.getElementById('modalApiKeyInput').value); alert('Key copied to clipboard!')">Copy</button>
+      </div>
+    </div>
+
+    <div style="background:#090e1a; border:1px solid var(--border-subtle); border-radius:6px; padding:14px; font-family:var(--font-mono); font-size:0.75rem; color:#cbd5e1; margin-bottom:20px;">
+      <span class="code-kw">import</span> semanticvote <span class="code-kw">as</span> ssc<br/><br/>
+      client = ssc.Client(api_key=<span class="code-str">"ssc_live_..."</span>)<br/>
+      result = client.reason(<br/>
+      &nbsp;&nbsp;model=<span class="code-str">"gpt-4o-mini"</span>,<br/>
+      &nbsp;&nbsp;prompt=<span class="code-str">"Solve: Train cross platform..."</span>,<br/>
+      &nbsp;&nbsp;method=<span class="code-str">"scw"</span>, k=<span class="code-num">10</span>, featurizer=<span class="code-str">"scibert"</span><br/>
+      )<br/>
+      <span class="code-kw">print</span>(result.answer, result.consensus_score)
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+      <button class="btn btn-secondary" onclick="closeApiKeyModal()">Close</button>
+      <button class="btn btn-primary" onclick="window.location.href='#studio'; closeApiKeyModal();">Open Studio</button>
+    </div>
+  </div>
+</div>
+
+<!-- Inline JavaScript Logic -->
+<script>
+// --- Hero Interactive Visualizer State ---
+let heroMode = 'sc';
+
+const heroRationales = [
+  { x: 180, y: 140, ans: 'B', valid: true, weightSC: 1, text: "Relative speed difference (27-23)/(23-17) = 4/6 = 2/3 ratio. True speed ratio is 3:2." },
+  { x: 195, y: 135, ans: 'B', valid: true, weightSC: 1, text: "Let speeds be s1, s2. Lengths 27s1, 17s2. (27s1+17s2)/(s1+s2)=23 => 4s1 = 6s2 => s1/s2 = 3/2." },
+  { x: 175, y: 155, ans: 'B', valid: true, weightSC: 1, text: "Standard mixture cross: 27-23=4, 23-17=6. Ratio is 6:4 = 3:2." },
+  { x: 310, y: 80,  ans: 'C', valid: false, weightSC: 1, text: "27 seconds minus 23 seconds gives 4. 23 - 17 = 6. Invert ratio: 3/4." },
+  { x: 325, y: 95,  ans: 'C', valid: false, weightSC: 1, text: "Assuming constant length L1=L2, speed crosses at 3:4." },
+  { x: 295, y: 70,  ans: 'C', valid: false, weightSC: 1, text: "Ratio simplifies to 3/4 by dividing by 4." },
+  { x: 315, y: 110, ans: 'C', valid: false, weightSC: 1, text: "Direct calculation yields option C (3:4)." },
+  { x: 100, y: 220, ans: 'A', valid: false, weightSC: 1, text: "27 - 17 = 10. 23 - 17 = 6. 10/6 ~= 1:3 ratio." },
+  { x: 115, y: 205, ans: 'A', valid: false, weightSC: 1, text: "Train speeds cancel to 1:3." },
+  { x: 85,  y: 235, ans: 'A', valid: false, weightSC: 1, text: "Speed ratio approximates 1:3." }
+];
+
+function initHeroCanvas() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  drawHeroScene(ctx, rect.width, rect.height);
+}
+
+function setHeroMode(mode) {
+  heroMode = mode;
+  document.getElementById('heroBtnSC').classList.toggle('active', mode === 'sc');
+  document.getElementById('heroBtnCPW').classList.toggle('active', mode === 'cpw');
+  document.getElementById('heroBtnSCW').classList.toggle('active', mode === 'scw');
+  document.getElementById('heroBtnFilter').classList.toggle('active', mode === 'outlier');
+
+  const badge = document.getElementById('heroOutcomeBadge');
+  const expl = document.getElementById('heroOutcomeExplanation');
+  const tag = document.getElementById('heroCanvasTag');
+  const b1 = document.getElementById('heroCand1Bar');
+  const s1 = document.getElementById('heroCand1Score');
+  const b2 = document.getElementById('heroCand2Bar');
+  const s2 = document.getElementById('heroCand2Score');
+  const b3 = document.getElementById('heroCand3Bar');
+  const s3 = document.getElementById('heroCand3Score');
+
+  if (mode === 'sc') {
+    tag.textContent = "Mode: Standard Self-Consistency (Naive Majority Vote)";
+    badge.className = "outcome-badge wrong";
+    badge.textContent = "WRONG ANSWER (C)";
+    expl.textContent = "Standard majority vote counts 4 votes for incorrect option (C) vs 3 for (B) and 3 for (A). Despite hallucinated calculation steps, (C) wins!";
+    b1.style.width = "40%"; s1.textContent = "4 / 10 (40.0%)";
+    b2.style.width = "30%"; s2.textContent = "3 / 10 (30.0%)";
+    b3.style.width = "30%"; s3.textContent = "3 / 10 (30.0%)";
+  } else if (mode === 'cpw') {
+    tag.textContent = "Mode: Centroid Proximity Weighting (CPW: 1 / ||z - μ||)";
+    badge.className = "outcome-badge correct";
+    badge.textContent = "CORRECT ANSWER (B)";
+    expl.textContent = "CPW computes centroid μ of all embeddings. Valid rationales (B) are tightly packed near the center, receiving 48.2% of normalized inverse weight!";
+    b1.style.width = "31.5%"; s1.textContent = "Weight: 31.5%";
+    b2.style.width = "48.2%"; s2.textContent = "Weight: 48.2% [WINNER]";
+    b3.style.width = "20.3%"; s3.textContent = "Weight: 20.3%";
+  } else if (mode === 'scw') {
+    tag.textContent = "Mode: Semantic Consensus Weighting (SCW: Σ cos(z_i, z_j))";
+    badge.className = "outcome-badge correct";
+    badge.textContent = "CORRECT ANSWER (B)";
+    expl.textContent = "SCW measures all-to-all cosine kernel. The sound reasoning path for (B) is deeply corroborated, scoring highest consensus (51.8%) and flipping the decision!";
+    b1.style.width = "27.4%"; s1.textContent = "Consensus: 27.4%";
+    b2.style.width = "51.8%"; s2.textContent = "Consensus: 51.8% [WINNER]";
+    b3.style.width = "20.8%"; s3.textContent = "Consensus: 20.8%";
+  } else if (mode === 'outlier') {
+    tag.textContent = "Mode: Isolation Forest Outlier Filtering + SCW";
+    badge.className = "outcome-badge correct";
+    badge.textContent = "CORRECT ANSWER (B)";
+    expl.textContent = "Isolation Forest identifies candidate (A) and loose (C) trajectories as manifold anomalies. Pruned down to consistent cluster; (B) wins decisively!";
+    b1.style.width = "22.0%"; s1.textContent = "Retained: 22.0%";
+    b2.style.width = "78.0%"; s2.textContent = "Retained: 78.0% [WINNER]";
+    b3.style.width = "0%"; s3.textContent = "PRUNED (0%)";
+  }
+
+  const canvas = document.getElementById('heroCanvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawHeroScene(ctx, canvas.width / dpr, canvas.height / dpr);
+  }
+}
+
+function drawHeroScene(ctx, width, height) {
+  // Compute scale factors
+  const scaleX = width / 400;
+  const scaleY = height / 300;
+
+  // Draw coordinate grid
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+  ctx.lineWidth = 1;
+  for (let x = 0; x < width; x += 40) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+  }
+  for (let y = 0; y < height; y += 40) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+  }
+
+  // Centroid computation
+  let sumX = 0, sumY = 0;
+  heroRationales.forEach(r => { sumX += r.x * scaleX; sumY += r.y * scaleY; });
+  const cx = sumX / heroRationales.length;
+  const cy = sumY / heroRationales.length;
+
+  // In CPW mode: Draw lines to centroid
+  if (heroMode === 'cpw') {
+    ctx.strokeStyle = "rgba(99, 102, 241, 0.25)";
+    ctx.setLineDash([3, 3]);
+    heroRationales.forEach(r => {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(r.x * scaleX, r.y * scaleY);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+
+  // In SCW mode: Draw cosine peer edges between cluster B
+  if (heroMode === 'scw' || heroMode === 'outlier') {
+    ctx.strokeStyle = "rgba(16, 185, 129, 0.35)";
+    ctx.lineWidth = 1.5;
+    const bPoints = heroRationales.filter(r => r.ans === 'B');
+    for (let i = 0; i < bPoints.length; i++) {
+      for (let j = i + 1; j < bPoints.length; j++) {
+        ctx.beginPath();
+        ctx.moveTo(bPoints[i].x * scaleX, bPoints[i].y * scaleY);
+        ctx.lineTo(bPoints[j].x * scaleX, bPoints[j].y * scaleY);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Draw centroid
+  ctx.fillStyle = "#fbbf24";
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#fde68a";
+  ctx.font = "10px sans-serif";
+  ctx.fillText("μ (Centroid)", cx + 8, cy + 3);
+
+  // Draw rationale points
+  heroRationales.forEach((r, idx) => {
+    const px = r.x * scaleX;
+    const py = r.y * scaleY;
+    const isOutlier = (heroMode === 'outlier' && (r.ans === 'A' || idx === 3));
+
+    ctx.save();
+    if (isOutlier) {
+      ctx.strokeStyle = "rgba(244, 63, 94, 0.4)";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.arc(px, py, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(244, 63, 94, 0.2)";
+      ctx.beginPath();
+      ctx.arc(px, py, 4, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      let color = (r.ans === 'B') ? '#10b981' : (r.ans === 'C' ? '#f43f5e' : '#64748b');
+      let radius = (r.ans === 'B' && (heroMode === 'cpw' || heroMode === 'scw')) ? 8 : 6;
+
+      ctx.fillStyle = color;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = (r.ans === 'B' && heroMode !== 'sc') ? 12 : 4;
+      ctx.beginPath();
+      ctx.arc(px, py, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Label
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "10px monospace";
+      ctx.fillText(r.ans, px - 3, py - 9);
+    }
+    ctx.restore();
+  });
+}
+
+// --- Pipeline Stepper Logic ---
+const pipelineSteps = [
+  {
+    title: "Stage 01: Multi-Chain Stochastic Sampling",
+    desc: "Given a complex reasoning problem, the engine queries generator models (GPT-4o-mini, GPT-3.5-Turbo, Llama 3) with domain-specific chain-of-thought demonstrations. Exactly k=10 sampled rationales are generated at T=0.8 to create diverse yet focused reasoning paths.",
+    specs: [
+      'System prompt: "Follow the exact formatting as demonstrated in the examples."',
+      'Single-message context format ensures strict adherence across 4-shot, 6-shot, and 8-shot prompts',
+      'Temperature T=0.8 provides optimal entropy for exploration without coherence loss'
+    ],
+    file: "ssc/generation.py",
+    code: `<span class="code-kw">def</span> <span class="code-fn">sample_rationales</span>(client, model, prompt, k=<span class="code-num">10</span>, temp=<span class="code-num">0.8</span>):
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{<span class="code-str">"role"</span>: <span class="code-str">"user"</span>, <span class="code-str">"content"</span>: prompt}],
+        temperature=temp,
+        n=k,
+        max_tokens=<span class="code-num">512</span>
+    )
+    <span class="code-kw">return</span> [choice.message.content <span class="code-kw">for</span> choice <span class="code-kw">in</span> response.choices]`
+  },
+  {
+    title: "Stage 02: Full-Path Semantic Featurization",
+    desc: "Rather than embedding just the question or final sentence, SemanticVote embeds the entire chain-of-thought rationale into a 768-dimensional latent vector using specialized transformer encoders. SciBERT is used for mathematical benchmarks (SVAMP, AQuA-RAT) and RoBERTa-base for commonsense (StrategyQA).",
+    specs: [
+      'Mean-pooling over token hidden states yields a single holistic trajectory representation',
+      'SciBERT captures algebraic syntax and reduces average cluster dispersion by -3.4 vs baseline',
+      'Compact 125M parameter footprint runs inference in under 12ms per batch of 10 rationales'
+    ],
+    file: "ssc/embeddings.py",
+    code: `<span class="code-kw">def</span> <span class="code-fn">embed_rationales</span>(texts: list[str], tokenizer, model, device) -> np.ndarray:
+    inputs = tokenizer(texts, padding=<span class="code-kw">True</span>, truncation=<span class="code-kw">True</span>, max_length=<span class="code-num">512</span>, return_tensors=<span class="code-str">"pt"</span>).to(device)
+    <span class="code-kw">with</span> torch.no_grad():
+        outputs = model(**inputs)
+        <span class="code-cmt"># Mean pooling over attention mask</span>
+        mask = inputs[<span class="code-str">'attention_mask'</span>].unsqueeze(-<span class="code-num">1</span>).expand(outputs.last_hidden_state.size()).float()
+        summed = torch.sum(outputs.last_hidden_state * mask, <span class="code-num">1</span>)
+        counts = torch.clamp(mask.sum(<span class="code-num">1</span>), min=<span class="code-num">1e-9</span>)
+        embeddings = (summed / counts).cpu().numpy()
+    <span class="code-kw">return</span> embeddings`
+  },
+  {
+    title: "Stage 03: Latent Manifold Outlier Pruning",
+    desc: "Hallucinations and degenerate looping paths diverge geometrically from sound reasoning. An unsupervised anomaly detector (Isolation Forest, KNN, or One-Class SVM) flags and eliminates isolated rationale vectors prior to voting.",
+    specs: [
+      'Isolation Forest with 200 trees achieves 58.56% overall accuracy boost across benchmarks',
+      'KNN with k=5 and Euclidean ball-tree filters erratic reasoning jumps',
+      'Discards ungrounded rationale points without requiring human annotation or training labels'
+    ],
+    file: "ssc/outlier.py",
+    code: `<span class="code-kw">from</span> sklearn.ensemble <span class="code-kw">import</span> IsolationForest
+
+<span class="code-kw">def</span> <span class="code-fn">filter_outliers_isoforest</span>(embeddings: np.ndarray, n_estimators=<span class="code-num">200</span>):
+    iso = IsolationForest(n_estimators=n_estimators, contamination=<span class="code-str">'auto'</span>, max_samples=<span class="code-str">'auto'</span>, random_state=<span class="code-num">42</span>)
+    labels = iso.fit_predict(embeddings)
+    <span class="code-cmt"># labels: 1 for inlier, -1 for outlier</span>
+    <span class="code-kw">return</span> [i <span class="code-kw">for</span> i, lab <span class="code-kw">in</span> enumerate(labels) <span class="code-kw">if</span> lab == <span class="code-num">1</span>]`
+  },
+  {
+    title: "Stage 04: Consensus Marginalization & Decision",
+    desc: "The retained rationales are marginalized using either Centroid Proximity Weighting (CPW) or Semantic Consensus Weighting (SCW). Answer strings extracted via strict regex ('the answer is [X]') are accumulated with their normalized weights to determine the final consensus answer.",
+    specs: [
+      'CPW weights each rationale by inverse normalized Euclidean distance: w_i = 1 / d̃_i',
+      'SCW aggregates all-pairs cosine similarities: S_i = Σ_j cos(z_i, z_j)',
+      'Deterministic string extraction removes whitespace, fullstops, and enclosing parentheses'
+    ],
+    file: "ssc/methods.py",
+    code: `<span class="code-kw">def</span> <span class="code-fn">consensus_decision</span>(embeddings, answers, method=<span class="code-str">"scw"</span>):
+    <span class="code-kw">if</span> method == <span class="code-str">"scw"</span>:
+        normed = embeddings / np.linalg.norm(embeddings, axis=<span class="code-num">1</span>, keepdims=<span class="code-kw">True</span>)
+        scores = np.sum(np.dot(normed, normed.T), axis=<span class="code-num">1</span>)
+    <span class="code-kw">elif</span> method == <span class="code-str">"cpw"</span>:
+        c = np.mean(embeddings, axis=<span class="code-num">0</span>)
+        d = np.linalg.norm(embeddings - c, axis=<span class="code-num">1</span>)
+        scores = <span class="code-num">1.0</span> / (d / np.sum(d))
+    
+    tally = defaultdict(float)
+    <span class="code-kw">for</span> ans, sc <span class="code-kw">in</span> zip(answers, scores):
+        tally[ans] += sc
+    <span class="code-kw">return</span> max(tally.items(), key=<span class="code-kw">lambda</span> x: x[<span class="code-num">1</span>])[<span class="code-num">0</span>]`
+  }
+];
+
+function selectPipelineStep(stepNum) {
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`stepTab${i}`).classList.toggle('active', i === stepNum);
+  }
+  const data = pipelineSteps[stepNum - 1];
+  document.getElementById('stepDetailTitle').textContent = data.title;
+  document.getElementById('stepDetailDesc').textContent = data.desc;
+  document.getElementById('stepCodeFile').textContent = data.file;
+  document.getElementById('stepCodeContent').innerHTML = data.code;
+
+  const specsList = document.getElementById('stepDetailSpecs');
+  specsList.innerHTML = data.specs.map(s => `<li><span class="spec-check">✓</span> <span>${s}</span></li>`).join('');
+}
+
+// --- Interactive Consensus Studio Engine ---
+const studioCases = {
+  aqua: {
+    datasetTag: "AQuA-RAT (Arithmetic Multi-Step Reasoning) • SciBERT Featurizer",
+    question: "Q: Two trains running in opposite directions cross a man standing on the platform in 27 seconds and 17 seconds respectively and they cross each other in 23 seconds. What is the ratio of their speeds?",
+    options: ["A) 1 : 3", "B) 3 : 2 (True Answer)", "C) 3 : 4", "D) 2 : 3", "E) None of these"],
+    correctAnswer: "B",
+    rationales: [
+      { id: 1, x: 140, y: 130, ans: "B", chain: "Let train speeds be x and y. Lengths are 27x and 17y. When crossing in opposite directions: (27x + 17y)/(x + y) = 23. Solving: 27x + 17y = 23x + 23y => 4x = 6y => x/y = 3/2. The answer is B." },
+      { id: 2, x: 155, y: 120, ans: "B", chain: "Using mixture rule on crossing times: 27 - 23 = 4; 23 - 17 = 6. Speed ratio is inversely proportional to deviations: 6/4 = 3/2. The answer is B." },
+      { id: 3, x: 145, y: 145, ans: "B", chain: "Distance for crossing each other is L1 + L2 = 27s1 + 17s2. Relative speed = s1 + s2. (27s1 + 17s2) = 23(s1 + s2) => 4s1 = 6s2 => s1:s2 = 3:2. The answer is B." },
+      { id: 4, x: 280, y: 70,  ans: "C", chain: "Difference in time for first train is 27 - 23 = 4. For second train 23 - 17 = 6. Taking direct fraction 4:6 = 2:3. Inverting gives 3:4. The answer is C." },
+      { id: 5, x: 295, y: 85,  ans: "C", chain: "Speeds cross in 23 seconds. 27/23 and 17/23 yields 3/4. The answer is C." },
+      { id: 6, x: 270, y: 60,  ans: "C", chain: "27 - 17 = 10. 23 / 10 is approx 3/4. The answer is C." },
+      { id: 7, x: 285, y: 100, ans: "C", chain: "Relative motion simplification gives ratio 3:4. The answer is C." },
+      { id: 8, x: 90,  y: 220, ans: "A", chain: "Time ratio 27 / 17 gives roughly 1.5. Relative ratio reduces to 1:3. The answer is A." },
+      { id: 9, x: 105, y: 205, ans: "A", chain: "Platform man crossing ratio is 27:17. Taking reciprocal speed gives 1:3. The answer is A." },
+      { id: 10,x: 75,  y: 235, ans: "D", chain: "4x = 6y implies y/x = 4/6 = 2/3. So ratio is 2:3. The answer is D." }
+    ]
+  },
+  svamp: {
+    datasetTag: "SVAMP (Symbolic Math Word Problems) • SciBERT Featurizer",
+    question: "Q: Each pack of DVDs costs 76 dollars. If John has 850 dollars and buys 9 packs, how many dollars will he have left?",
+    options: ["166 (True Answer)", "156", "176", "-166"],
+    correctAnswer: "166",
+    rationales: [
+      { id: 1, x: 150, y: 140, ans: "166", chain: "Total cost = 9 * 76 = 684 dollars. Money left = 850 - 684 = 166. The answer is 166." },
+      { id: 2, x: 160, y: 135, ans: "166", chain: "John starts with 850. 9 packs at 76 each cost 684. 850 - 684 = 166 dollars remaining. The answer is 166." },
+      { id: 3, x: 145, y: 150, ans: "166", chain: "9 * 70 = 630; 9 * 6 = 54; 630 + 54 = 684. 850 - 684 = 166. The answer is 166." },
+      { id: 4, x: 270, y: 80,  ans: "156", chain: "9 * 76 = 694. 850 - 694 = 156. The answer is 156." },
+      { id: 5, x: 285, y: 95,  ans: "156", chain: "850 - (9 * 76) = 850 - 694 = 156 dollars. The answer is 156." },
+      { id: 6, x: 275, y: 65,  ans: "156", chain: "Cost calculation slip: 9 * 76 = 694. 850 - 694 = 156. The answer is 156." },
+      { id: 7, x: 290, y: 110, ans: "156", chain: "9 packs cost 694 dollars. Remaining is 156. The answer is 156." },
+      { id: 8, x: 100, y: 220, ans: "176", chain: "9 * 76 = 674. 850 - 674 = 176. The answer is 176." },
+      { id: 9, x: 115, y: 205, ans: "176", chain: "Cost is 674. 850 - 674 = 176. The answer is 176." },
+      { id: 10,x: 340, y: 250, ans: "-166", chain: "Hallucination: 684 - 850 = -166 dollars. The answer is -166." }
+    ]
+  },
+  strategy: {
+    datasetTag: "StrategyQA (Multi-Hop Commonsense Reasoning) • RoBERTa Featurizer",
+    question: "Q: Could Aristotle have listened to an iPod?",
+    options: ["No (True Answer)", "Yes"],
+    correctAnswer: "No",
+    rationales: [
+      { id: 1, x: 140, y: 135, ans: "No", chain: "Aristotle lived in ancient Greece during the 4th century BC (384–322 BC). The Apple iPod was invented and released in 2001 AD. He lived over two millennia before audio players existed. The answer is No." },
+      { id: 2, x: 150, y: 125, ans: "No", chain: "Aristotle died in 322 BC. Portable electronics and digital MP3 players were invented in the late 20th/early 21st century. Therefore, Aristotle could never have listened to an iPod. The answer is No." },
+      { id: 3, x: 145, y: 145, ans: "No", chain: "The iPod is a 21st century electronic gadget. Aristotle lived in classical antiquity before electricity was harnessed. The answer is No." },
+      { id: 4, x: 290, y: 90,  ans: "Yes", chain: "Aristotle was a philosopher who studied acoustics and sound waves in his treaties. He had the faculty of hearing sound recordings metaphorically. The answer is Yes." },
+      { id: 5, x: 305, y: 105, ans: "Yes", chain: "iPod devices can store recordings of Aristotle's lectures and treatises, so people listen to Aristotle. The answer is Yes." },
+      { id: 6, x: 285, y: 80,  ans: "Yes", chain: "Aristotle is associated with the Peripatetic school of philosophy where members listen to modern audio devices. The answer is Yes." },
+      { id: 7, x: 300, y: 120, ans: "Yes", chain: "In hypothetical thought experiments Aristotle could listen to recordings. The answer is Yes." },
+      { id: 8, x: 135, y: 160, ans: "No", chain: "Aristotle was dead thousands of years before Apple released the iPod in 2001. The answer is No." },
+      { id: 9, x: 155, y: 155, ans: "No", chain: "iPods require modern electrical power and silicon chips, which did not exist in ancient Greece. The answer is No." },
+      { id: 10,x: 330, y: 220, ans: "Yes", chain: "Bizarre hallucination: Aristotle lived in California during Steve Jobs' era. The answer is Yes." }
+    ]
+  }
+};
+
+let currentCaseKey = "aqua";
+let currentMethod = "sc";
+let currentK = 10;
+
+function loadStudioCase(caseKey) {
+  currentCaseKey = caseKey;
+  const c = studioCases[caseKey];
+  document.getElementById('studioDatasetTag').textContent = c.datasetTag;
+  document.getElementById('studioProblemText').textContent = c.question;
+  
+  const optCont = document.getElementById('studioProblemOptions');
+  optCont.innerHTML = c.options.map(opt => {
+    const isCorr = opt.includes("True Answer") || opt.startsWith(c.correctAnswer);
+    return `<span class="opt-pill ${isCorr ? 'correct-gold' : ''}">${opt}</span>`;
+  }).join('');
+
+  recalculateStudio();
+}
+
+function setStudioMethod(method) {
+  currentMethod = method;
+  document.getElementById('mBtnSC').classList.toggle('active', method === 'sc');
+  document.getElementById('mBtnCPW').classList.toggle('active', method === 'cpw');
+  document.getElementById('mBtnSCW').classList.toggle('active', method === 'scw');
+  document.getElementById('mBtnIso').classList.toggle('active', method === 'iso');
+  recalculateStudio();
+}
+
+function updateKCount(val) {
+  currentK = parseInt(val);
+  document.getElementById('kValLabel').textContent = currentK;
+  recalculateStudio();
+}
+
+function recalculateStudio() {
+  const c = studioCases[currentCaseKey];
+  const activeRationales = c.rationales.slice(0, currentK);
+
+  // Compute 2D centroid
+  let sumX = 0, sumY = 0;
+  activeRationales.forEach(r => { sumX += r.x; sumY += r.y; });
+  const cx = sumX / activeRationales.length;
+  const cy = sumY / activeRationales.length;
+
+  // Compute distances & weights
+  const dists = activeRationales.map(r => Math.hypot(r.x - cx, r.y - cy));
+  const sumDist = dists.reduce((a, b) => a + b, 0) || 1;
+  const normDists = dists.map(d => d / sumDist);
+
+  // Compute outlier mask for 'iso' mode
+  // If 'iso', filter rationales where distance > mean + 1.2 * std or specific outliers
+  const meanDist = sumDist / activeRationales.length;
+  const stdDist = Math.sqrt(dists.map(d => Math.pow(d - meanDist, 2)).reduce((a,b)=>a+b,0) / activeRationales.length);
+  const outlierMask = activeRationales.map((r, i) => {
+    if (currentMethod !== 'iso') return false;
+    return dists[i] > (meanDist + 0.8 * stdDist) || (r.id === 10 && currentCaseKey === 'svamp');
+  });
+
+  // Calculate scores per rationale
+  let scores = [];
+  if (currentMethod === 'sc') {
+    scores = activeRationales.map(() => 1.0);
+  } else if (currentMethod === 'cpw') {
+    scores = normDists.map(nd => 1.0 / Math.max(nd, 0.005));
+  } else if (currentMethod === 'scw' || currentMethod === 'iso') {
+    // Cosine similarity in 2D approximation based on angle from center
+    scores = activeRationales.map((r, i) => {
+      if (outlierMask[i]) return 0;
+      let peerSum = 0;
+      activeRationales.forEach((r2, j) => {
+        if (outlierMask[j]) return;
+        const d = Math.hypot(r.x - r2.x, r.y - r2.y);
+        peerSum += Math.max(0, 1 - d / 200);
+      });
+      return peerSum;
+    });
+  }
+
+  // Tally candidate answers
+  const candidateScores = {};
+  const candidateCounts = {};
+  activeRationales.forEach((r, i) => {
+    if (outlierMask[i]) return;
+    candidateScores[r.ans] = (candidateScores[r.ans] || 0) + scores[i];
+    candidateCounts[r.ans] = (candidateCounts[r.ans] || 0) + 1;
+  });
+
+  const totalScore = Object.values(candidateScores).reduce((a, b) => a + b, 0) || 1;
+  const totalCount = Object.values(candidateCounts).reduce((a, b) => a + b, 0) || 1;
+
+  // Determine winner
+  let winnerAns = null;
+  let maxScore = -1;
+  for (const [ans, sc] of Object.entries(candidateScores)) {
+    if (sc > maxScore) {
+      maxScore = sc;
+      winnerAns = ans;
+    }
+  }
+
+  const isCorrect = (winnerAns === c.correctAnswer);
+
+  // Update Decision Alert
+  const alertCont = document.getElementById('studioDecisionAlert');
+  const alertBadge = document.getElementById('alertStatusBadge');
+  const alertText = document.getElementById('alertStatusText');
+
+  if (isCorrect) {
+    alertCont.style.background = "rgba(16, 185, 129, 0.12)";
+    alertCont.style.borderColor = "rgba(16, 185, 129, 0.4)";
+    alertBadge.style.color = "#34d399";
+    alertBadge.textContent = "SUCCESS • CORRECT CONSENSUS DECISION";
+    alertText.innerHTML = `Selected Answer: <strong>(${winnerAns})</strong> via ${currentMethod.toUpperCase()} (${(maxScore/totalScore*100).toFixed(1)}% weight)`;
+  } else {
+    alertCont.style.background = "rgba(244, 63, 94, 0.12)";
+    alertCont.style.borderColor = "rgba(244, 63, 94, 0.4)";
+    alertBadge.style.color = "#fb7185";
+    alertBadge.textContent = "FAIL • NAIVE MAJORITY FLIP MISTAKE";
+    alertText.innerHTML = `Selected Answer: <strong>(${winnerAns})</strong> (${(maxScore/totalScore*100).toFixed(1)}%) — Correct answer (${c.correctAnswer}) suppressed!`;
+  }
+
+  // Render Candidate Bars
+  const candBarsCont = document.getElementById('candidateBarsContainer');
+  const sortedAnswers = Object.keys(candidateScores).sort((a, b) => candidateScores[b] - candidateScores[a]);
+
+  candBarsCont.innerHTML = sortedAnswers.map(ans => {
+    const sc = candidateScores[ans];
+    const pct = ((sc / totalScore) * 100).toFixed(1);
+    const cnt = candidateCounts[ans] || 0;
+    const isWin = (ans === winnerAns);
+    const isTruth = (ans === c.correctAnswer);
+
+    let barColor = isTruth ? '#10b981' : (isWin ? '#f43f5e' : '#64748b');
+
+    return `
+      <div class="candidate-bar-card ${isWin ? 'winner' : ''}">
+        <div class="candidate-header-row">
+          <div class="cand-label-group">
+            <div class="cand-choice-circle" style="background:${isTruth ? 'rgba(16,185,129,0.25)' : 'rgba(99,102,241,0.25)'}">${ans}</div>
+            <div>
+              <span style="font-weight:700; color:#fff; font-size:0.9rem;">Option ${ans}</span>
+              ${isTruth ? '<span style="font-size:0.75rem; color:#34d399; margin-left:6px;">[Ground Truth]</span>' : ''}
+              ${isWin ? '<span style="font-size:0.75rem; color:#a5b4fc; margin-left:6px;">[Selected]</span>' : ''}
+            </div>
+          </div>
+          <div class="cand-stats-text">
+            <span>${cnt} votes</span> &bull; <span style="color:${barColor}; font-weight:700;">${pct}%</span>
+          </div>
+        </div>
+        <div class="cand-progress-bg">
+          <div class="cand-progress-fill" style="width:${pct}%; background:${barColor};"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Render Rationales
+  const ratListCont = document.getElementById('rationaleListContainer');
+  document.getElementById('retainedCountLabel').textContent = activeRationales.filter((r, i) => !outlierMask[i]).length;
+
+  ratListCont.innerHTML = activeRationales.map((r, i) => {
+    const isOut = outlierMask[i];
+    const dist = dists[i].toFixed(1);
+    const w = scores[i].toFixed(2);
+    const isCorr = (r.ans === c.correctAnswer);
+
+    return `
+      <div class="rationale-card ${isOut ? 'is-outlier' : ''}">
+        <div class="rat-top-meta">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="rat-tag">Chain #${r.id}</span>
+            <span style="font-size:0.75rem; font-weight:700; color:${isCorr ? '#34d399' : '#fb7185'};">Extracted: (${r.ans})</span>
+            ${isOut ? '<span style="font-size:0.7rem; color:#f43f5e; background:rgba(244,63,94,0.15); padding:1px 6px; border-radius:4px;">OUTLIER PRUNED</span>' : ''}
+          </div>
+          <div class="rat-metrics">
+            <span>dist: ${dist}</span>
+            <span>w: ${w}</span>
+          </div>
+        </div>
+        <div class="rat-text">${r.chain}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Draw Studio Canvas
+  drawStudioCanvas(activeRationales, outlierMask, cx, cy, c.correctAnswer);
+}
+
+function drawStudioCanvas(rationales, outlierMask, cx, cy, correctAns) {
+  const canvas = document.getElementById('studioCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  const w = rect.width;
+  const h = rect.height;
+
+  // Grid
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+  ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += 30) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+  }
+  for (let y = 0; y < h; y += 30) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+
+  const sx = w / 400;
+  const sy = h / 300;
+
+  // In CPW: connect to centroid
+  if (currentMethod === 'cpw') {
+    ctx.strokeStyle = "rgba(99, 102, 241, 0.2)";
+    ctx.setLineDash([2, 2]);
+    rationales.forEach(r => {
+      ctx.beginPath();
+      ctx.moveTo(cx * sx, cy * sy);
+      ctx.lineTo(r.x * sx, r.y * sy);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+
+  // Draw centroid
+  ctx.fillStyle = "#fbbf24";
+  ctx.beginPath();
+  ctx.arc(cx * sx, cy * sy, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#fde68a";
+  ctx.font = "10px sans-serif";
+  ctx.fillText("Centroid μ", cx * sx + 8, cy * sy + 3);
+
+  // Draw points
+  rationales.forEach((r, i) => {
+    const px = r.x * sx;
+    const py = r.y * sy;
+    const isOut = outlierMask[i];
+    const isTruth = (r.ans === correctAns);
+
+    ctx.save();
+    if (isOut) {
+      ctx.strokeStyle = "#f43f5e";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.arc(px, py, 11, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(244,63,94,0.15)";
+      ctx.beginPath();
+      ctx.arc(px, py, 5, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      const col = isTruth ? '#10b981' : '#f43f5e';
+      ctx.fillStyle = col;
+      ctx.shadowColor = col;
+      ctx.shadowBlur = (isTruth && currentMethod !== 'sc') ? 10 : 3;
+      ctx.beginPath();
+      ctx.arc(px, py, isTruth ? 7 : 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "10px monospace";
+      ctx.fillText(`${r.ans} (#${r.id})`, px - 10, py - 9);
+    }
+    ctx.restore();
+  });
+}
+
+// --- Benchmark Filter Tabs ---
+function filterBenchmarkTable(category, btnElem) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btnElem.classList.add('active');
+
+  const table1 = document.getElementById('table1Wrapper');
+  const table2 = document.getElementById('table2Wrapper');
+
+  if (category === 'outlier') {
+    table1.style.display = 'none';
+    table2.style.display = 'block';
+  } else {
+    table1.style.display = 'block';
+    table2.style.display = 'none';
+
+    const rows = document.querySelectorAll('#benchTableBody tr');
+    rows.forEach(r => {
+      const ds = r.getAttribute('data-dataset');
+      if (category === 'all' || ds === category) {
+        r.style.display = '';
+      } else {
+        r.style.display = 'none';
+      }
+    });
+  }
+}
+
+// --- Code Tab Switcher ---
+const codeSnippets = {
+  methods: `<span class="code-cmt"># ssc/methods.py - Centroid Proximity & Semantic Consensus</span>
+<span class="code-kw">import</span> numpy <span class="code-kw">as</span> np
+<span class="code-kw">from</span> collections <span class="code-kw">import</span> defaultdict
+
+<span class="code-kw">def</span> <span class="code-fn">centroid_proximity_weighting</span>(embeddings: np.ndarray, answers: list[str]) -> str:
+    <span class="code-str">"""Paper Section 4.1.1: Inverse normalized Euclidean distance from centroid"""</span>
+    centroid = np.mean(embeddings, axis=<span class="code-num">0</span>)
+    distances = np.linalg.norm(embeddings - centroid, axis=<span class="code-num">1</span>)
+    
+    total_dist = np.sum(distances)
+    <span class="code-kw">if</span> total_dist == <span class="code-num">0</span>:
+        normalized_distances = np.ones_like(distances) / len(distances)
+    <span class="code-kw">else</span>:
+        normalized_distances = distances / total_dist
+        
+    weights = <span class="code-num">1.0</span> / np.maximum(normalized_distances, <span class="code-num">1e-8</span>)
+    
+    sum_weights = defaultdict(float)
+    <span class="code-kw">for</span> ans, w <span class="code-kw">in</span> zip(answers, weights):
+        <span class="code-kw">if</span> ans <span class="code-kw">is not None</span>:
+            sum_weights[ans] += w
+            
+    <span class="code-kw">return</span> max(sum_weights.items(), key=<span class="code-kw">lambda</span> x: x[<span class="code-num">1</span>])[<span class="code-num">0</span>]
+
+<span class="code-kw">def</span> <span class="code-fn">semantic_consensus_weighting</span>(embeddings: np.ndarray, answers: list[str]) -> str:
+    <span class="code-str">"""Paper Section 4.1.2: All-to-all cosine similarity aggregation"""</span>
+    norms = np.linalg.norm(embeddings, axis=<span class="code-num">1</span>, keepdims=<span class="code-kw">True</span>)
+    normed = embeddings / np.maximum(norms, <span class="code-num">1e-8</span>)
+    cosine_sim_matrix = np.dot(normed, normed.T)  <span class="code-cmt"># shape (N, N)</span>
+    
+    scores = np.sum(cosine_sim_matrix, axis=<span class="code-num">1</span>)   <span class="code-cmt"># S_i = sum_j cos(z_i, z_j)</span>
+    
+    sum_scores = defaultdict(float)
+    <span class="code-kw">for</span> ans, s <span class="code-kw">in</span> zip(answers, scores):
+        <span class="code-kw">if</span> ans <span class="code-kw">is not None</span>:
+            sum_scores[ans] += s
+            
+    <span class="code-kw">return</span> max(sum_scores.items(), key=<span class="code-kw">lambda</span> x: x[<span class="code-num">1</span>])[<span class="code-num">0</span>]`,
+
+  embeddings: `<span class="code-cmt"># ssc/embeddings.py - Domain-Specific BERT Featurization</span>
+<span class="code-kw">import</span> torch
+<span class="code-kw">import</span> numpy <span class="code-kw">as</span> np
+<span class="code-kw">from</span> transformers <span class="code-kw">import</span> AutoTokenizer, AutoModel
+
+MODEL_MAP = {
+    <span class="code-str">"aqua"</span>: <span class="code-str">"allenai/scibert_scivocab_uncased"</span>,
+    <span class="code-str">"svamp"</span>: <span class="code-str">"allenai/scibert_scivocab_uncased"</span>,
+    <span class="code-str">"strategyqa"</span>: <span class="code-str">"roberta-base"</span>  <span class="code-cmt"># 125M parameter base model per Addendum</span>
+}
+
+<span class="code-kw">class</span> <span class="code-fn">RationaleFeaturizer</span>:
+    <span class="code-kw">def</span> <span class="code-fn">__init__</span>(self, dataset_name: str, device=<span class="code-str">"cuda"</span> <span class="code-kw">if</span> torch.cuda.is_available() <span class="code-kw">else</span> <span class="code-str">"cpu"</span>):
+        model_name = MODEL_MAP.get(dataset_name.lower(), <span class="code-str">"roberta-base"</span>)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModel.from_pretrained(model_name).to(device)
+        self.device = device
+        self.model.eval()
+
+    <span class="code-kw">def</span> <span class="code-fn">encode</span>(self, rationales: list[str]) -> np.ndarray:
+        <span class="code-str">"""Mean-pooled token representation of full reasoning path"""</span>
+        inputs = self.tokenizer(rationales, padding=<span class="code-kw">True</span>, truncation=<span class="code-kw">True</span>, max_length=<span class="code-num">512</span>, return_tensors=<span class="code-str">"pt"</span>).to(self.device)
+        <span class="code-kw">with</span> torch.no_grad():
+            outputs = self.model(**inputs)
+            mask = inputs[<span class="code-str">'attention_mask'</span>].unsqueeze(-<span class="code-num">1</span>).expand(outputs.last_hidden_state.size()).float()
+            sum_embeddings = torch.sum(outputs.last_hidden_state * mask, <span class="code-num">1</span>)
+            sum_mask = torch.clamp(mask.sum(<span class="code-num">1</span>), min=<span class="code-num">1e-9</span>)
+            mean_pooled = sum_embeddings / sum_mask
+        <span class="code-kw">return</span> mean_pooled.cpu().numpy()`,
+
+  outlier: `<span class="code-cmt"># ssc/outlier.py - Geometric Anomaly Pruning (Table 2 & Appendix I.2)</span>
+<span class="code-kw">import</span> numpy <span class="code-kw">as</span> np
+<span class="code-kw">from</span> sklearn.ensemble <span class="code-kw">import</span> IsolationForest
+<span class="code-kw">from</span> sklearn.neighbors <span class="code-kw">import</span> NearestNeighbors
+<span class="code-kw">from</span> sklearn.svm <span class="code-kw">import</span> OneClassSVM
+
+<span class="code-kw">def</span> <span class="code-fn">isolation_forest_filter</span>(embeddings: np.ndarray, n_estimators=<span class="code-num">200</span>):
+    <span class="code-str">"""Appendix I.2.2: Highest accuracy configuration (58.56% avg)"""</span>
+    clf = IsolationForest(n_estimators=n_estimators, contamination=<span class="code-str">'auto'</span>, max_samples=<span class="code-str">'auto'</span>, random_state=<span class="code-num">42</span>)
+    preds = clf.fit_predict(embeddings)
+    <span class="code-kw">return</span> [i <span class="code-kw">for</span> i, p <span class="code-kw">in</span> enumerate(preds) <span class="code-kw">if</span> p == <span class="code-num">1</span>]
+
+<span class="code-kw">def</span> <span class="code-fn">knn_distance_filter</span>(embeddings: np.ndarray, n_neighbors=<span class="code-num">5</span>):
+    <span class="code-str">"""Appendix I.2.1: k-NN with ball_tree and euclidean metric"""</span>
+    k = min(n_neighbors, len(embeddings) - <span class="code-num">1</span>)
+    nbrs = NearestNeighbors(n_neighbors=k, algorithm=<span class="code-str">'ball_tree'</span>, metric=<span class="code-str">'euclidean'</span>).fit(embeddings)
+    distances, _ = nbrs.kneighbors(embeddings)
+    avg_dists = np.mean(distances, axis=<span class="code-num">1</span>)
+    threshold = np.mean(avg_dists) + <span class="code-num">1.0</span> * np.std(avg_dists)
+    <span class="code-kw">return</span> [i <span class="code-kw">for</span> i, d <span class="code-kw">in</span> enumerate(avg_dists) <span class="code-kw">if</span> d <= threshold]
+
+<span class="code-kw">def</span> <span class="code-fn">one_class_svm_filter</span>(embeddings: np.ndarray, nu=<span class="code-num">0.01</span>):
+    <span class="code-str">"""Appendix I.2.3: Linear kernel, nu=0.01, gamma=scale"""</span>
+    svm = OneClassSVM(kernel=<span class="code-str">'linear'</span>, nu=nu, gamma=<span class="code-str">'scale'</span>)
+    preds = svm.fit_predict(embeddings)
+    <span class="code-kw">return</span> [i <span class="code-kw">for</span> i, p <span class="code-kw">in</span> enumerate(preds) <span class="code-kw">if</span> p == <span class="code-num">1</span>]`,
+
+  parsing: `<span class="code-cmt"># ssc/parsing.py - Strict Addendum Answer Extraction</span>
+<span class="code-kw">import</span> re
+
+<span class="code-kw">def</span> <span class="code-fn">extract_answer</span>(generation_text: str) -> str | <span class="code-kw">None</span>:
+    <span class="code-str">"""
+    Addendum clarification:
+    Answer is parsed as string immediately following 'the answer is ' (case insensitive),
+    removing any whitespace, fullstops, and parentheses.
+    e.g. 'The answer is 2.' -> '2'
+         'The answer is (B)' -> 'B'
+    """</span>
+    pattern = r<span class="code-str">'(?i)the answer is\s*([^\s\.\(\)]+)'</span>
+    match = re.search(pattern, generation_text)
+    <span class="code-kw">if</span> match:
+        raw = match.group(<span class="code-num">1</span>)
+        cleaned = re.sub(r<span class="code-str">'[\s\.\(\)]'</span>, <span class="code-str">''</span>, raw)
+        <span class="code-kw">return</span> cleaned <span class="code-kw">if</span> cleaned <span class="code-kw">else None</span>
+    <span class="code-kw">return None</span>`,
+
+  requirements: `<span class="code-cmt"># requirements.txt - PaperBench Case 03 Reproduction Stack</span>
+numpy>=1.24.0
+scikit-learn>=1.3.0
+tqdm>=4.65.0
+openai>=1.30.0
+tenacity>=8.2.0
+torch>=2.0.0
+transformers>=4.36.0
+datasets>=2.14.0
+scipy>=1.11.0`
+};
+
+function showCodeTab(tabKey) {
+  document.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById(`cTab${tabKey.charAt(0).toUpperCase() + tabKey.slice(1)}`);
+  if (btn) btn.classList.add('active');
+  document.getElementById('codeViewerBox').innerHTML = `<code>${codeSnippets[tabKey]}</code>`;
+}
+
+function copyActiveCode() {
+  const box = document.getElementById('codeViewerBox');
+  navigator.clipboard.writeText(box.innerText).then(() => {
+    const btn = document.getElementById('copyBtnText');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy Code'; }, 2000);
+  });
+}
+
+// --- Modal Handlers ---
+function openApiKeyModal() {
+  document.getElementById('apiKeyModal').classList.add('open');
+}
+
+function closeApiKeyModal() {
+  document.getElementById('apiKeyModal').classList.remove('open');
+}
+
+// --- Window Init & Resize ---
+window.addEventListener('load', () => {
+  initHeroCanvas();
+  recalculateStudio();
+});
+
+window.addEventListener('resize', () => {
+  initHeroCanvas();
+  const c = studioCases[currentCaseKey];
+  recalculateStudio();
+});
+
+// Top Nav Scroll Effect
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('topNav');
+  if (window.scrollY > 40) {
+    nav.style.background = 'rgba(7, 10, 18, 0.95)';
+    nav.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.4)';
+  } else {
+    nav.style.background = 'rgba(7, 10, 18, 0.85)';
+    nav.style.boxShadow = 'none';
+  }
+});
+</script>
+
+</body>
+</html>

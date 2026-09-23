@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DKPES Random Forest Case</title>
+  <style>
+    :root {
+      --ink: #11100d;
+      --paper: #f5efe2;
+      --bone: #fffaf0;
+      --panel: rgba(255, 250, 240, 0.78);
+      --line: rgba(17, 16, 13, 0.16);
+      --green: #1f6f50;
+      --acid: #c7e96b;
+      --rust: #b44b32;
+      --blue: #315f8d;
+      --shadow: 0 24px 70px rgba(17, 16, 13, 0.16);
+      --mono: "Courier New", Courier, monospace;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: Verdana, Geneva, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(17,16,13,.045) 1px, transparent 1px) 0 0 / 36px 36px,
+        linear-gradient(rgba(17,16,13,.035) 1px, transparent 1px) 0 0 / 36px 36px,
+        radial-gradient(circle at 15% 20%, rgba(199,233,107,.34), transparent 26rem),
+        radial-gradient(circle at 86% 12%, rgba(49,95,141,.22), transparent 22rem),
+        linear-gradient(135deg, #f8f0df 0%, #ece4d4 100%);
+      font-family: var(--sans);
+      line-height: 1.5;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .34;
+      z-index: 0;
+      background-image:
+        repeating-radial-gradient(circle at 0 0, rgba(17,16,13,.08) 0, rgba(17,16,13,.08) 1px, transparent 1px, transparent 4px);
+      mix-blend-mode: multiply;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 16px clamp(18px, 4vw, 58px);
+      border-bottom: 1px solid transparent;
+      transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(245, 239, 226, .86);
+      border-color: var(--line);
+      box-shadow: 0 12px 28px rgba(17,16,13,.08);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border: 2px solid var(--ink);
+      display: grid;
+      place-items: center;
+      background: var(--acid);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    .links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .links a, .button {
+      color: var(--ink);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 13px;
+      background: rgba(255,250,240,.46);
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+    }
+
+    .links a:hover, .button:hover {
+      transform: translateY(-2px);
+      background: var(--bone);
+      border-color: rgba(17,16,13,.42);
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+    }
+
+    section {
+      padding: clamp(56px, 8vw, 108px) clamp(18px, 4vw, 58px);
+    }
+
+    .hero {
+      min-height: 86vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: clamp(28px, 5vw, 72px);
+      align-items: center;
+      padding-top: 44px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      background: rgba(199,233,107,.48);
+      border: 1px solid rgba(17,16,13,.22);
+      padding: 8px 11px;
+      border-radius: 999px;
+    }
+
+    .pulse {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--rust);
+      box-shadow: 0 0 0 0 rgba(180,75,50,.55);
+      animation: ping 1.7s infinite;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(52px, 8.5vw, 118px);
+      line-height: .88;
+      letter-spacing: 0;
+      margin: 26px 0 24px;
+      max-width: 860px;
+    }
+
+    .hero p {
+      font-size: clamp(17px, 2vw, 22px);
+      max-width: 720px;
+      margin: 0 0 28px;
+      color: rgba(17,16,13,.78);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .button.primary {
+      background: var(--ink);
+      color: var(--bone);
+      border-color: var(--ink);
+      box-shadow: 5px 5px 0 var(--acid);
+    }
+
+    .instrument {
+      background: rgba(255,250,240,.72);
+      border: 1px solid rgba(17,16,13,.24);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 2.4vw, 28px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .instrument:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0 58%, rgba(199,233,107,.28) 58% 61%, transparent 61%);
+      pointer-events: none;
+    }
+
+    .plate {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 8px;
+      margin: 22px 0;
+    }
+
+    .well {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 1px solid rgba(17,16,13,.2);
+      background: radial-gradient(circle at 35% 30%, #fff, var(--acid) 38%, rgba(31,111,80,.72) 70%);
+      box-shadow: inset 0 -8px 12px rgba(17,16,13,.12);
+      animation: floatWell 3.8s ease-in-out infinite;
+    }
+    .well:nth-child(3n) { background: radial-gradient(circle at 35% 30%, #fff, #df8a72 40%, var(--rust) 75%); animation-delay: -.9s; }
+    .well:nth-child(4n) { background: radial-gradient(circle at 35% 30%, #fff, #9bb6d1 42%, var(--blue) 74%); animation-delay: -1.5s; }
+
+    .readout {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .readout div {
+      border: 1px solid var(--line);
+      background: rgba(17,16,13,.045);
+      padding: 14px;
+    }
+
+    .readout strong {
+      display: block;
+      font-family: var(--mono);
+      font-size: clamp(22px, 3vw, 34px);
+      line-height: 1;
+    }
+
+    .readout span {
+      display: block;
+      margin-top: 6px;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: rgba(17,16,13,.62);
+    }
+
+    .band {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,250,240,.42);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      font-family: var(--serif);
+      font-size: clamp(34px, 5vw, 68px);
+      line-height: .98;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      margin: 0;
+      max-width: 560px;
+      color: rgba(17,16,13,.7);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid rgba(17,16,13,.18);
+      border-radius: 8px;
+      padding: 22px;
+      box-shadow: 0 10px 28px rgba(17,16,13,.08);
+      transition: transform .22s ease, box-shadow .22s ease, background .22s ease;
+      backdrop-filter: blur(12px);
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 22px 48px rgba(17,16,13,.13);
+      background: rgba(255,250,240,.9);
+    }
+
+    .card .num {
+      font-family: var(--mono);
+      color: var(--rust);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .card h3 {
+      margin: 14px 0 8px;
+      font-family: var(--serif);
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .card p { margin: 0; color: rgba(17,16,13,.7); }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: .75fr 1.25fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,250,240,.62);
+    }
+
+    .step b {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--bone);
+      background: var(--green);
+      font-family: var(--mono);
+    }
+
+    .step h3 {
+      margin: 0 0 4px;
+      font-size: 18px;
+    }
+
+    .step p { margin: 0; color: rgba(17,16,13,.7); }
+
+    .code {
+      overflow: hidden;
+      border: 1px solid rgba(17,16,13,.24);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      background: #171b16;
+      color: #f3f0dc;
+    }
+
+    .codebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      background: #22281f;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(243,240,220,.72);
+    }
+
+    pre {
+      margin: 0;
+      padding: 20px;
+      overflow: auto;
+      max-height: 530px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .token { color: #c7e96b; }
+    .warn { color: #ffb199; }
+    .muted { color: rgba(243,240,220,.58); }
+
+    .status {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .verdict {
+      border: 2px solid var(--ink);
+      background: var(--acid);
+      box-shadow: 7px 7px 0 var(--ink);
+      padding: 24px;
+    }
+
+    .verdict h3 {
+      margin: 0 0 10px;
+      font-family: var(--serif);
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    details {
+      background: rgba(255,250,240,.7);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 10px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      font-family: var(--mono);
+    }
+
+    details p { color: rgba(17,16,13,.72); margin-bottom: 0; }
+
+    footer {
+      padding: 32px clamp(18px, 4vw, 58px) 44px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(17,16,13,.58);
+      border-top: 1px solid var(--line);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      animation: reveal .7s ease forwards;
+    }
+    .delay-1 { animation-delay: .1s; }
+    .delay-2 { animation-delay: .2s; }
+    .delay-3 { animation-delay: .3s; }
+    .delay-4 { animation-delay: .4s; }
+
+    @keyframes reveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes ping {
+      70% { box-shadow: 0 0 0 12px rgba(180,75,50,0); }
+      100% { box-shadow: 0 0 0 0 rgba(180,75,50,0); }
+    }
+
+    @keyframes floatWell {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    @media (max-width: 920px) {
+      .hero, .pipeline, .status {
+        grid-template-columns: 1fr;
+      }
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .section-head {
+        display: block;
+      }
+      .section-head p {
+        margin-top: 14px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      nav {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .links {
+        justify-content: flex-start;
+      }
+      .links a {
+        padding: 8px 10px;
+      }
+      .grid, .readout {
+        grid-template-columns: 1fr;
+      }
+      .plate {
+        grid-template-columns: repeat(5, 1fr);
+      }
+      h1 {
+        font-size: clamp(44px, 17vw, 72px);
+      }
+      section {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <nav id="nav">
+    <div class="brand"><span class="brand-mark">RF</span> DKPES Classifier Case</div>
+    <div class="links">
+      <a href="#dataset">Dataset</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#artifact">Code</a>
+      <a href="#outcome">Outcome</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="reveal">
+        <span class="eyebrow"><span class="pulse"></span> ScienceAgentBench / scientific_computing</span>
+        <h1>Random Forest for signal inhibition.</h1>
+        <p>
+          A compact DKPES modeling task: convert continuous chemical signal inhibition into a median-threshold binary target, train a Random Forest on 15 molecular descriptors, evaluate the test split, and save predictions.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#pipeline">Inspect workflow</a>
+          <a class="button" href="#outcome">View trajectory result</a>
+        </div>
+      </div>
+
+      <aside class="instrument reveal delay-2" aria-label="Dataset instrument summary">
+        <div class="eyebrow">DKPES descriptor plate</div>
+        <div class="plate" aria-hidden="true">
+          <span class="well"></span><span class="well"></span><span class="well"></span><span class="well"></span><span class="well"></span>
+          <span class="well"></span><span class="well"></span><span class="well"></span><span class="well"></span><span class="well"></span>
+          <span class="well"></span><span class="well"></span><span class="well"></span><span class="well"></span><span class="well"></span>
+          <span class="well"></span><span class="well"></span><span class="well"></span><span class="well"></span><span class="well"></span>
+        </div>
+        <div class="readout">
+          <div><strong>200</strong><span>training rows</span></div>
+          <div><strong>50</strong><span>test rows</span></div>
+          <div><strong>15</strong><span>feature columns</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="dataset" class="band">
+      <div class="section-head reveal">
+        <h2>Dataset Snapshot</h2>
+        <p>The prompt specified two CSV files, a continuous target named <strong>Signal-inhibition</strong>, and a binary conversion using the training-set median.</p>
+      </div>
+      <div class="grid">
+        <article class="card reveal delay-1">
+          <span class="num">01 / TARGET</span>
+          <h3>Median split</h3>
+          <p>Training median: <strong>0.494486</strong>. Labels are assigned as <strong>1</strong> for values greater than or equal to the median, otherwise <strong>0</strong>.</p>
+        </article>
+        <article class="card reveal delay-2">
+          <span class="num">02 / BALANCE</span>
+          <h3>Train parity</h3>
+          <p>The train labels split exactly <strong>100 / 100</strong>. The test labels split <strong>22 class 0</strong> and <strong>28 class 1</strong> under the train threshold.</p>
+        </article>
+        <article class="card reveal delay-3">
+          <span class="num">03 / FEATURES</span>
+          <h3>Descriptor set</h3>
+          <p>Ketone, hydroxy, methyl, sulfate, double-bond, sulfur, and Tanimoto-style similarity descriptors form the model input matrix.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <div class="section-head reveal">
+        <h2>Intended Pipeline</h2>
+        <p>The drafted solution covered the requested modeling workflow end to end, including diagnostics, model training, evaluation, and prediction export.</p>
+      </div>
+      <div class="pipeline">
+        <div class="steps">
+          <div class="step reveal delay-1">
+            <b>1</b>
+            <div><h3>Load and explore</h3><p>Read train/test CSVs, report shapes, missing values, and target summary statistics.</p></div>
+          </div>
+          <div class="step reveal delay-2">
+            <b>2</b>
+            <div><h3>Binarize target</h3><p>Compute the training median and apply the same threshold to both train and test labels.</p></div>
+          </div>
+          <div class="step reveal delay-3">
+            <b>3</b>
+            <div><h3>Fit Random Forest</h3><p>Use <code>RandomForestClassifier(n_estimators=200, random_state=42, n_jobs=-1)</code> on the 15 descriptors.</p></div>
+          </div>
+          <div class="step reveal delay-4">
+            <b>4</b>
+            <div><h3>Evaluate and export</h3><p>Planned outputs: accuracy, ROC-AUC, classification report, confusion matrix, feature importances, and a prediction CSV.</p></div>
+          </div>
+        </div>
+
+        <div class="code reveal delay-2" id="artifact">
+          <div class="codebar"><span>dkpes_rf_classifier.py</span><span>drafted in trajectory</span></div>
+          <pre><code><span class="muted"># Core modeling path from the drafted script</span>
+train_df = pd.read_csv(TRAIN_PATH)
+test_df = pd.read_csv(TEST_PATH)
+
+threshold = train_df[TARGET].median()
+y_train = (train_df[TARGET] &gt;= threshold).astype(int)
+y_test = (test_df[TARGET] &gt;= threshold).astype(int)
+
+X_train = train_df[FEATURES]
+X_test = test_df[FEATURES]
+
+clf = RandomForestClassifier(
+    n_estimators=200,
+    max_depth=None,
+    random_state=42,
+    n_jobs=-1,
+)
+clf.fit(X_train, y_train)
+
+y_pred = clf.predict(X_test)
+y_proba = clf.predict_proba(X_test)[:, 1]
+
+print(<span class="token">accuracy_score</span>(y_test, y_pred))
+print(<span class="token">classification_report</span>(y_test, y_pred, digits=4))
+
+out = pd.DataFrame({
+    "index": test_df["index"],
+    "signal_inhibition_true": test_df[TARGET],
+    "y_true": y_test,
+    "y_pred": y_pred,
+    "prob_class1": y_proba,
+})
+out.to_csv(PRED_PATH, index=False)</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="outcome" class="band">
+      <div class="section-head reveal">
+        <h2>Trajectory Outcome</h2>
+        <p>The case completed as a conversation, but the artifact was not written because permission was never granted for the proposed script path.</p>
+      </div>
+      <div class="status">
+        <div class="verdict reveal delay-1">
+          <h3>Permission-blocked write</h3>
+          <p>The assistant attempted to create <code>workspace/dkpes_rf_classifier.py</code> twice. Both write attempts returned the same permission request, so the trajectory ended by presenting the full code and asking for approval.</p>
+        </div>
+        <div class="reveal delay-2">
+          <details open>
+            <summary>Was the model evaluated?</summary>
+            <p>No. The trajectory contains the evaluation code, but no execution output for accuracy, classification report, ROC-AUC, confusion matrix, or saved predictions.</p>
+          </details>
+          <details>
+            <summary>What would have been saved?</summary>
+            <p>A CSV named <code>dkpes_test_predictions.csv</code> with ZINC ID, continuous target, true binary label, predicted label, and class-1 probability.</p>
+          </details>
+          <details>
+            <summary>Case metadata</summary>
+            <p>ID <code>03_dkpes_randomforest</code>; model <code>claude-opus-4-8</code>; collected <code>2026-07-11</code>; duration <code>73.0s</code>; trajectory format <code>claude-jsonl</code>.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head reveal">
+        <h2>Feature Columns</h2>
+        <p>All model inputs were specified explicitly in the prompt and used unchanged in the drafted code.</p>
+      </div>
+      <div class="grid">
+        <article class="card reveal delay-1"><span class="num">STRUCTURAL</span><h3>Functional flags</h3><p>3-Keto, 3-Hydroxy, 12-Keto, 12-Hydroxy, 19-Methyl, 18-Methyl.</p></article>
+        <article class="card reveal delay-2"><span class="num">CHEMISTRY</span><h3>Sulfate and bonds</h3><p>Sulfate-Ester, Sulfate-Oxygens, C4-C5-DB, C6-C7-DB, Sulfur.</p></article>
+        <article class="card reveal delay-3"><span class="num">SIMILARITY</span><h3>Tanimoto metrics</h3><p>TanimotoCombo, ShapeTanimoto, ColorTanimoto, and Overlap.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Self-contained prototype generated from the assigned case files only. No external assets, fonts, scripts, or stylesheets are loaded.
+  </footer>
+
+  <script>
+    const nav = document.getElementById("nav");
+    const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 12);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  </script>
+</body>
+</html>

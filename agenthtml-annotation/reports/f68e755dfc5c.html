@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retail Case Review - 02_gpt-4o-retail_28</title>
+  <style>
+    :root {
+      --ink: #1d2320;
+      --muted: #65706b;
+      --paper: #fbf7ef;
+      --paper-2: #f1eadc;
+      --line: rgba(29, 35, 32, 0.16);
+      --line-strong: rgba(29, 35, 32, 0.32);
+      --green: #0f6b56;
+      --mint: #cde8cf;
+      --gold: #d59b25;
+      --red: #b9433b;
+      --blue: #245d7d;
+      --black: #121512;
+      --shadow: 0 24px 70px rgba(30, 36, 32, 0.14);
+      --radius: 8px;
+      --mono: "SFMono-Regular", "Cascadia Mono", "Liberation Mono", Menlo, monospace;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: "Avenir Next", "Segoe UI", Verdana, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 18%, rgba(205, 232, 207, 0.9), transparent 28rem),
+        radial-gradient(circle at 88% 0%, rgba(213, 155, 37, 0.28), transparent 26rem),
+        linear-gradient(135deg, #fffaf1 0%, #f6efe2 48%, #e8f1e7 100%);
+      font-family: var(--sans);
+      min-height: 100vh;
+    }
+
+    body:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image:
+        linear-gradient(rgba(29, 35, 32, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(29, 35, 32, 0.055) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, #000 0%, transparent 82%);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem clamp(1rem, 4vw, 4rem);
+      border-bottom: 1px solid rgba(29, 35, 32, 0.1);
+      background: rgba(251, 247, 239, 0.72);
+      backdrop-filter: blur(18px);
+      transition: box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .nav.scrolled {
+      background: rgba(251, 247, 239, 0.94);
+      box-shadow: 0 12px 35px rgba(29, 35, 32, 0.09);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 12rem;
+    }
+
+    .mark {
+      width: 2.35rem;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      background: var(--black);
+      color: var(--paper);
+      border-radius: 8px;
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 1.15rem;
+      box-shadow: 6px 6px 0 var(--mint);
+    }
+
+    .brand strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      margin-top: 0.18rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .navlinks {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    .navlinks a, .nav .cta {
+      border: 1px solid transparent;
+      padding: 0.6rem 0.82rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      transition: 160ms ease;
+    }
+
+    .navlinks a:hover {
+      color: var(--ink);
+      border-color: var(--line);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .nav .cta {
+      color: var(--paper);
+      background: var(--green);
+      border-color: var(--green);
+      box-shadow: 0 10px 20px rgba(15, 107, 86, 0.18);
+      white-space: nowrap;
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(22rem, 0.95fr);
+      gap: clamp(2rem, 5vw, 5rem);
+      align-items: center;
+      min-height: calc(100vh - 5rem);
+      padding: clamp(2rem, 5vw, 5rem) clamp(1rem, 4vw, 4rem) 3rem;
+      overflow: hidden;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.44rem 0.72rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.42);
+      color: var(--muted);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pulse {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 0 rgba(15, 107, 86, 0.4);
+      animation: pulse 2.2s infinite;
+    }
+
+    h1 {
+      max-width: 12ch;
+      margin: 1.2rem 0 1rem;
+      font-family: var(--serif);
+      font-size: clamp(3.3rem, 8vw, 8.8rem);
+      line-height: 0.86;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 48rem;
+      color: #3d4741;
+      font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 2rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 3rem;
+      padding: 0.85rem 1.05rem;
+      border-radius: 8px;
+      border: 1px solid var(--line-strong);
+      background: rgba(255, 255, 255, 0.45);
+      color: var(--ink);
+      font-weight: 700;
+      box-shadow: 4px 4px 0 rgba(29, 35, 32, 0.12);
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .button.primary {
+      background: var(--black);
+      color: var(--paper);
+      border-color: var(--black);
+      box-shadow: 6px 6px 0 var(--gold);
+    }
+
+    .button:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 8px 8px 0 rgba(29, 35, 32, 0.14);
+    }
+
+    .hero-card {
+      position: relative;
+      background: rgba(255, 252, 244, 0.72);
+      border: 1px solid rgba(29, 35, 32, 0.17);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(1rem, 2vw, 1.35rem);
+      overflow: hidden;
+    }
+
+    .hero-card:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(125deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+      transform: translateX(-100%);
+      animation: sheen 7s ease-in-out infinite;
+    }
+
+    .receipt-top {
+      position: relative;
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed var(--line-strong);
+    }
+
+    .receipt-top h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+      letter-spacing: 0;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.42rem 0.62rem;
+      border: 1px solid rgba(185, 67, 59, 0.36);
+      border-radius: 999px;
+      background: rgba(185, 67, 59, 0.1);
+      color: var(--red);
+      font-weight: 800;
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+
+    .metric-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .metric {
+      min-height: 8.2rem;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 0.5rem;
+      font-family: var(--serif);
+      font-size: clamp(1.7rem, 4vw, 3rem);
+      line-height: 0.95;
+    }
+
+    .metric small {
+      display: block;
+      margin-top: 0.5rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .section {
+      padding: clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 4rem);
+    }
+
+    .section.alt {
+      background: rgba(18, 21, 18, 0.92);
+      color: var(--paper);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4.5vw, 4.8rem);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      max-width: 38rem;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .alt .section-head p { color: rgba(251, 247, 239, 0.68); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .case-card {
+      position: relative;
+      min-height: 16rem;
+      padding: 1.05rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.44);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+      overflow: hidden;
+    }
+
+    .case-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 22px 44px rgba(29, 35, 32, 0.13);
+      border-color: rgba(29, 35, 32, 0.28);
+    }
+
+    .case-card:after {
+      content: attr(data-step);
+      position: absolute;
+      right: -0.3rem;
+      bottom: -1rem;
+      font-family: var(--serif);
+      font-size: 6rem;
+      color: rgba(29, 35, 32, 0.06);
+      line-height: 1;
+    }
+
+    .case-card h3 {
+      margin: 0.8rem 0;
+      font-size: 1.1rem;
+    }
+
+    .case-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .chip {
+      display: inline-flex;
+      padding: 0.35rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      background: rgba(255, 255, 255, 0.36);
+    }
+
+    .order-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .order {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+      padding: 1rem;
+      border: 1px solid rgba(251, 247, 239, 0.18);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .order .badge {
+      width: 3.25rem;
+      height: 3.25rem;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--mint);
+      color: var(--black);
+      font-family: var(--serif);
+      font-weight: 800;
+    }
+
+    .order.cancel .badge { background: #f0c0b8; }
+    .order h3 { margin: 0 0 0.4rem; }
+    .order p { margin: 0.25rem 0; color: rgba(251, 247, 239, 0.72); line-height: 1.45; }
+    .order strong { color: #fff8e8; }
+
+    .refund {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .refund-total {
+      padding: 1.3rem;
+      border: 1px solid rgba(29, 35, 32, 0.2);
+      border-radius: var(--radius);
+      background: var(--black);
+      color: var(--paper);
+      box-shadow: 8px 8px 0 var(--mint);
+    }
+
+    .refund-total span {
+      display: block;
+      color: rgba(251, 247, 239, 0.66);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.75rem;
+    }
+
+    .refund-total strong {
+      display: block;
+      margin: 0.7rem 0;
+      font-family: var(--serif);
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height: 0.9;
+    }
+
+    .math-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.44);
+      border: 1px solid var(--line);
+    }
+
+    .math-table th, .math-table td {
+      padding: 0.82rem;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    .math-table th {
+      color: var(--muted);
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .math-table tr:last-child td { border-bottom: 0; }
+    .math-table td:last-child { text-align: right; font-family: var(--mono); }
+
+    .warning {
+      margin-top: 1rem;
+      padding: 1rem;
+      border: 1px solid rgba(185, 67, 59, 0.32);
+      background: rgba(185, 67, 59, 0.09);
+      color: #67221d;
+      border-radius: var(--radius);
+      line-height: 1.55;
+    }
+
+    .timeline-shell {
+      display: grid;
+      grid-template-columns: 16rem 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .filters {
+      position: sticky;
+      top: 5.4rem;
+      padding: 1rem;
+      border: 1px solid rgba(251, 247, 239, 0.16);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .filters h3 {
+      margin: 0 0 0.9rem;
+      font-family: var(--serif);
+      font-size: 1.35rem;
+    }
+
+    .filter-button {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.48rem;
+      padding: 0.72rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid rgba(251, 247, 239, 0.15);
+      color: rgba(251, 247, 239, 0.72);
+      background: transparent;
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .filter-button.active, .filter-button:hover {
+      color: var(--paper);
+      background: rgba(251, 247, 239, 0.1);
+      border-color: rgba(251, 247, 239, 0.28);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    details.turn {
+      border: 1px solid rgba(251, 247, 239, 0.14);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.055);
+      overflow: hidden;
+    }
+
+    details.turn[open] { background: rgba(255, 255, 255, 0.08); }
+
+    .turn summary {
+      display: grid;
+      grid-template-columns: 4rem 7rem 1fr;
+      gap: 0.8rem;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .turn summary::-webkit-details-marker { display: none; }
+
+    .turn-index {
+      font-family: var(--mono);
+      color: rgba(251, 247, 239, 0.45);
+      font-size: 0.78rem;
+    }
+
+    .role {
+      display: inline-flex;
+      justify-content: center;
+      padding: 0.3rem 0.5rem;
+      border: 1px solid rgba(251, 247, 239, 0.16);
+      border-radius: 999px;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .role.user { color: #fff0b9; border-color: rgba(213, 155, 37, 0.42); }
+    .role.assistant { color: #bce9da; border-color: rgba(15, 107, 86, 0.48); }
+    .role.tool { color: #b7d7f4; border-color: rgba(36, 93, 125, 0.58); }
+    .role.system { color: #f3b7b1; border-color: rgba(185, 67, 59, 0.46); }
+
+    .summary-text {
+      color: rgba(251, 247, 239, 0.82);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .turn-body {
+      padding: 0 1rem 1rem 12.8rem;
+      color: rgba(251, 247, 239, 0.72);
+      line-height: 1.55;
+    }
+
+    .turn-body pre {
+      margin: 0.6rem 0 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 1.55;
+      color: rgba(251, 247, 239, 0.78);
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(251, 247, 239, 0.1);
+      border-radius: 8px;
+      padding: 0.9rem;
+    }
+
+    .policy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .policy {
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.44);
+    }
+
+    .policy h3 { margin: 0 0 0.7rem; }
+    .policy p { margin: 0; color: var(--muted); line-height: 1.55; }
+
+    .footer {
+      padding: 2rem clamp(1rem, 4vw, 4rem);
+      color: rgba(251, 247, 239, 0.7);
+      background: var(--black);
+      border-top: 1px solid rgba(251, 247, 239, 0.12);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      animation: rise 620ms cubic-bezier(.2, .7, .2, 1) forwards;
+    }
+
+    .delay-1 { animation-delay: 90ms; }
+    .delay-2 { animation-delay: 180ms; }
+    .delay-3 { animation-delay: 270ms; }
+    .delay-4 { animation-delay: 360ms; }
+
+    @keyframes rise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      70% { box-shadow: 0 0 0 10px rgba(15, 107, 86, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(15, 107, 86, 0); }
+    }
+
+    @keyframes sheen {
+      0%, 58% { transform: translateX(-110%); }
+      78%, 100% { transform: translateX(110%); }
+    }
+
+    @media (max-width: 980px) {
+      .hero, .refund, .timeline-shell { grid-template-columns: 1fr; }
+      .cards, .order-grid, .policy-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filters { position: static; }
+      .turn-body { padding-left: 1rem; }
+      .nav { align-items: flex-start; }
+      .navlinks { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .hero { min-height: auto; }
+      .metric-grid, .cards, .order-grid, .policy-grid { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 0.8rem; }
+      .turn summary {
+        grid-template-columns: 3.2rem 1fr;
+      }
+      .summary-text {
+        grid-column: 1 / -1;
+        white-space: normal;
+      }
+      .footer { display: block; }
+      h1 { font-size: clamp(3rem, 17vw, 5rem); }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" aria-label="Case navigation">
+    <a class="brand" href="#top" aria-label="RetailOps Case Review">
+      <span class="mark">R</span>
+      <span><strong>RetailOps Review</strong><span>tau-bench case file</span></span>
+    </a>
+    <div class="navlinks">
+      <a href="#story">Story</a>
+      <a href="#orders">Orders</a>
+      <a href="#refund">Refund</a>
+      <a href="#trace">Trace</a>
+      <a href="#policy">Policy</a>
+    </div>
+    <a class="cta" href="#trace">Inspect Trace</a>
+  </nav>
+
+  <main id="top">
+    <section class="hero">
+      <div class="reveal">
+        <span class="kicker"><span class="pulse"></span> GPT-4o retail trajectory 28</span>
+        <h1>Return desk audit.</h1>
+        <p class="lead">A customer asked to return five delivered items and cancel a pending garden hose. The assistant authenticated the user, retrieved four orders, requested confirmation, executed returns, cancelled a pending order, and calculated the visible refund total.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#refund">Review refund math</a>
+          <a class="button" href="#orders">See affected orders</a>
+        </div>
+      </div>
+
+      <aside class="hero-card reveal delay-2" aria-label="Case snapshot">
+        <div class="receipt-top">
+          <div>
+            <span class="chip">02_gpt-4o-retail_28</span>
+            <h2>Case Snapshot</h2>
+          </div>
+          <span class="status-pill">Discrepancy flagged</span>
+        </div>
+        <div class="metric-grid">
+          <div class="metric">
+            <span>Authenticated user</span>
+            <strong>Isabella</strong>
+            <small>Matched by name and ZIP to user id <code>isabella_johansson_2152</code>.</small>
+          </div>
+          <div class="metric">
+            <span>Orders inspected</span>
+            <strong>4</strong>
+            <small>Three delivered orders and one pending order were checked.</small>
+          </div>
+          <div class="metric">
+            <span>Items returned</span>
+            <strong>5</strong>
+            <small>Skateboard, hose, backpack, keyboard, and pet bed.</small>
+          </div>
+          <div class="metric">
+            <span>Assistant refund</span>
+            <strong>$1,013.51</strong>
+            <small>Computed from five returns plus one pending hose price.</small>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="story">
+      <div class="section-head reveal">
+        <h2>Story Arc</h2>
+        <p>The conversation is a compact customer-service workflow: identity proof, order discovery, confirmation, database updates, and a final arithmetic answer.</p>
+      </div>
+      <div class="cards">
+        <article class="case-card reveal delay-1" data-step="1">
+          <span class="chip">Authenticate</span>
+          <h3>Name plus ZIP</h3>
+          <p>The user provided Isabella Johansson and ZIP 32286. The assistant located <code>isabella_johansson_2152</code> before discussing orders.</p>
+        </article>
+        <article class="case-card reveal delay-2" data-step="2">
+          <span class="chip">Discover</span>
+          <h3>Order IDs unknown</h3>
+          <p>The assistant used profile details to retrieve four orders, then looked up each order before asking the customer which actions to take.</p>
+        </article>
+        <article class="case-card reveal delay-3" data-step="3">
+          <span class="chip">Confirm</span>
+          <h3>Returns approved</h3>
+          <p>The user confirmed returns and gave a cancellation reason: the pending garden hose was no longer needed.</p>
+        </article>
+        <article class="case-card reveal delay-4" data-step="4">
+          <span class="chip">Execute</span>
+          <h3>One broad cancellation</h3>
+          <p>The return calls matched selected items, but the cancellation tool changed the whole pending order to cancelled.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section alt" id="orders">
+      <div class="section-head reveal">
+        <h2>Affected Orders</h2>
+        <p>Each card shows the operational result after the assistant acted. All payments used <code>paypal_3024827</code>.</p>
+      </div>
+      <div class="order-grid">
+        <article class="order reveal delay-1">
+          <div class="badge">W1</div>
+          <div>
+            <h3>#W3792453</h3>
+            <p><strong>Final status:</strong> return requested</p>
+            <p><strong>Returned:</strong> Skateboard, item <code>4293355847</code>, $200.80</p>
+          </div>
+        </article>
+        <article class="order reveal delay-2">
+          <div class="badge">W2</div>
+          <div>
+            <h3>#W7181492</h3>
+            <p><strong>Final status:</strong> return requested</p>
+            <p><strong>Returned:</strong> Garden Hose $96.35 and Backpack $193.38</p>
+          </div>
+        </article>
+        <article class="order reveal delay-3">
+          <div class="badge">W3</div>
+          <div>
+            <h3>#W5565470</h3>
+            <p><strong>Final status:</strong> return requested</p>
+            <p><strong>Returned:</strong> Mechanical Keyboard $231.37 and Pet Bed $196.53</p>
+          </div>
+        </article>
+        <article class="order cancel reveal delay-4">
+          <div class="badge">W4</div>
+          <div>
+            <h3>#W2575533</h3>
+            <p><strong>Final status:</strong> cancelled</p>
+            <p><strong>Requested:</strong> cancel Garden Hose $95.08. <strong>Tool result:</strong> whole order refunded $1,619.34.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="refund">
+      <div class="section-head reveal">
+        <h2>Refund Math</h2>
+        <p>The assistant answered with the arithmetic result returned by the calculator tool. The tool-state refund record for the cancellation is larger.</p>
+      </div>
+      <div class="refund">
+        <div class="refund-total reveal delay-1">
+          <span>Assistant stated total</span>
+          <strong>$1,013.51</strong>
+          <p>Expression used: <code>200.8 + 96.35 + 193.38 + 231.37 + 196.53 + 95.08</code>.</p>
+        </div>
+        <div class="reveal delay-2">
+          <table class="math-table" aria-label="Refund line items">
+            <thead>
+              <tr><th>Line item</th><th>Order</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Skateboard return</td><td>#W3792453</td><td>$200.80</td></tr>
+              <tr><td>Garden Hose return</td><td>#W7181492</td><td>$96.35</td></tr>
+              <tr><td>Backpack return</td><td>#W7181492</td><td>$193.38</td></tr>
+              <tr><td>Mechanical Keyboard return</td><td>#W5565470</td><td>$231.37</td></tr>
+              <tr><td>Pet Bed return</td><td>#W5565470</td><td>$196.53</td></tr>
+              <tr><td>Pending Garden Hose cancellation</td><td>#W2575533</td><td>$95.08</td></tr>
+            </tbody>
+          </table>
+          <div class="warning"><strong>Audit note:</strong> the cancellation tool returned a refund transaction for the full pending order amount, $1,619.34. The assistant message framed the cancellation as only the garden hose and did not account for the full tool-side refund.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="trace">
+      <div class="section-head reveal">
+        <h2>Trace Explorer</h2>
+        <p>Filter the trajectory by role. Tool calls are summarized with payloads that matter for authentication, order lookup, returns, cancellation, and calculation.</p>
+      </div>
+      <div class="timeline-shell">
+        <aside class="filters reveal delay-1" aria-label="Trace filters">
+          <h3>Filter turns</h3>
+          <button class="filter-button active" data-filter="all">All <span>36</span></button>
+          <button class="filter-button" data-filter="user">User <span>6</span></button>
+          <button class="filter-button" data-filter="assistant">Assistant <span>15</span></button>
+          <button class="filter-button" data-filter="tool">Tool <span>13</span></button>
+          <button class="filter-button" data-filter="system">System <span>1</span></button>
+        </aside>
+
+        <div class="timeline reveal delay-2">
+          <details class="turn" data-role="system">
+            <summary><span class="turn-index">00</span><span class="role system">system</span><span class="summary-text">Retail policy supplied: authenticate first, confirm before consequential actions, one tool call at a time.</span></summary>
+            <div class="turn-body">Policy highlights: authenticate by email or name plus ZIP; check status before cancelling or returning; obtain explicit confirmation before updates; refunds for PayPal are processed in 5 to 7 business days.</div>
+          </details>
+          <details class="turn" data-role="user" open>
+            <summary><span class="turn-index">01</span><span class="role user">user</span><span class="summary-text">"Hi, I need to return some items and cancel an order."</span></summary>
+            <div class="turn-body">The initial task statement is broad and contains no identity information or order ids.</div>
+          </details>
+          <details class="turn" data-role="assistant">
+            <summary><span class="turn-index">02</span><span class="role assistant">assistant</span><span class="summary-text">Requests email, or name plus ZIP, for authentication.</span></summary>
+            <div class="turn-body">This follows the policy requirement to authenticate before discussing order details.</div>
+          </details>
+          <details class="turn" data-role="user">
+            <summary><span class="turn-index">03</span><span class="role user">user</span><span class="summary-text">Provides Isabella Johansson and ZIP 32286.</span></summary>
+            <div class="turn-body">Identity data used for <code>find_user_id_by_name_zip</code>.</div>
+          </details>
+          <details class="turn" data-role="tool">
+            <summary><span class="turn-index">04-05</span><span class="role tool">tool</span><span class="summary-text">find_user_id_by_name_zip returns isabella_johansson_2152.</span></summary>
+            <div class="turn-body"><pre>{"first_name":"Isabella","last_name":"Johansson","zip":"32286"} -> "isabella_johansson_2152"</pre></div>
+          </details>
+          <details class="turn" data-role="assistant">
+            <summary><span class="turn-index">06</span><span class="role assistant">assistant</span><span class="summary-text">Confirms authentication and asks for order IDs.</span></summary>
+            <div class="turn-body">The user then says they do not remember the order IDs.</div>
+          </details>
+          <details class="turn" data-role="tool">
+            <summary><span class="turn-index">08-17</span><span class="role tool">tool</span><span class="summary-text">Profile and four order lookups retrieve delivered and pending orders.</span></summary>
+            <div class="turn-body"><pre>get_user_details -> orders ["#W3792453","#W7181492","#W5565470","#W2575533"]
+#W3792453 delivered: Skateboard $200.80
+#W7181492 delivered: Garden Hose $96.35, Backpack $193.38, Bookshelf $473.48, Hiking Boots $260.56, Coffee Maker $238.64
+#W5565470 delivered: Electric Kettle $153.25, Mechanical Keyboard $231.37, Pet Bed $196.53
+#W2575533 pending: Vacuum Cleaner $658.89, Portable Charger $102.07, E-Reader $252.06, Garden Hose $95.08, Office Chair $511.24</pre></div>
+          </details>
+          <details class="turn" data-role="assistant">
+            <summary><span class="turn-index">18</span><span class="role assistant">assistant</span><span class="summary-text">Summarizes the recent orders and asks which to cancel or return from.</span></summary>
+            <div class="turn-body">The assistant lists statuses and item names, enough for the user to select without knowing IDs.</div>
+          </details>
+          <details class="turn" data-role="user" open>
+            <summary><span class="turn-index">19</span><span class="role user">user</span><span class="summary-text">Requests returns and pending hose cancellation.</span></summary>
+            <div class="turn-body">"I want to return the skateboard, garden hose, backpack, keyboard, and bed. Also, cancel the hose in the pending order."</div>
+          </details>
+          <details class="turn" data-role="assistant">
+            <summary><span class="turn-index">20</span><span class="role assistant">assistant</span><span class="summary-text">Lists return details and asks for confirmation plus cancellation reason.</span></summary>
+            <div class="turn-body">The assistant correctly asks for a valid cancellation reason, but writes <code>#5565470</code> without the <code>W</code> in the prose.</div>
+          </details>
+          <details class="turn" data-role="user">
+            <summary><span class="turn-index">21</span><span class="role user">user</span><span class="summary-text">Confirms returns and gives reason: no longer needed.</span></summary>
+            <div class="turn-body">This is the explicit confirmation used before tool-side updates.</div>
+          </details>
+          <details class="turn" data-role="tool" open>
+            <summary><span class="turn-index">22-29</span><span class="role tool">tool</span><span class="summary-text">Three return calls and one cancellation call are executed.</span></summary>
+            <div class="turn-body"><pre>return_delivered_order_items("#W3792453", ["4293355847"], "paypal_3024827") -> return requested
+return_delivered_order_items("#W7181492", ["5753502325","9851293632"], "paypal_3024827") -> return requested
+return_delivered_order_items("#W5565470", ["9570044148","6857426243"], "paypal_3024827") -> return requested
+cancel_pending_order("#W2575533", "no longer needed") -> cancelled, refund $1,619.34</pre></div>
+          </details>
+          <details class="turn" data-role="assistant">
+            <summary><span class="turn-index">30</span><span class="role assistant">assistant</span><span class="summary-text">Reports returns completed and says pending garden hose was cancelled.</span></summary>
+            <div class="turn-body">The message does not mention that the order status is now <code>cancelled</code> for all five pending items.</div>
+          </details>
+          <details class="turn" data-role="user">
+            <summary><span class="turn-index">31</span><span class="role user">user</span><span class="summary-text">Asks for the total refund amount.</span></summary>
+            <div class="turn-body">The assistant uses the calculator tool rather than doing arithmetic inline.</div>
+          </details>
+          <details class="turn" data-role="tool">
+            <summary><span class="turn-index">32-33</span><span class="role tool">tool</span><span class="summary-text">calculate returns 1013.51.</span></summary>
+            <div class="turn-body"><pre>200.8 + 96.35 + 193.38 + 231.37 + 196.53 + 95.08 = 1013.51</pre></div>
+          </details>
+          <details class="turn" data-role="assistant" open>
+            <summary><span class="turn-index">34</span><span class="role assistant">assistant</span><span class="summary-text">Answers: total refund is $1,013.51.</span></summary>
+            <div class="turn-body">The final amount matches the calculator expression but not the tool-side refund transaction produced by the full pending-order cancellation.</div>
+          </details>
+          <details class="turn" data-role="user">
+            <summary><span class="turn-index">35</span><span class="role user">user</span><span class="summary-text">Thanks the assistant and stops.</span></summary>
+            <div class="turn-body">Conversation terminates with <code>###STOP###</code>.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="policy">
+      <div class="section-head reveal">
+        <h2>Policy Check</h2>
+        <p>Key rules that shaped the trajectory and the main review concerns.</p>
+      </div>
+      <div class="policy-grid">
+        <article class="policy reveal delay-1">
+          <span class="chip">Pass</span>
+          <h3>Authentication first</h3>
+          <p>The assistant authenticated by name and ZIP before providing order details.</p>
+        </article>
+        <article class="policy reveal delay-2">
+          <span class="chip">Pass</span>
+          <h3>Action confirmation</h3>
+          <p>The assistant listed return items and requested confirmation before return calls. The user also supplied the cancellation reason.</p>
+        </article>
+        <article class="policy reveal delay-3">
+          <span class="chip">Review</span>
+          <h3>Cancellation scope</h3>
+          <p>The policy describes cancelling a pending order, not a single line item. The user asked to cancel only the hose, but the tool cancelled the full order.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>benchmark: tau-bench / domain: tool_use_customer_service</span>
+    <span>trajectory sha256: df6ddebd6767ef66dbd7ff839d487b42d84687ac725a32e42fe96be9144b2634</span>
+  </footer>
+
+  <script>
+    const nav = document.querySelector(".nav");
+    const filterButtons = Array.from(document.querySelectorAll(".filter-button"));
+    const turns = Array.from(document.querySelectorAll(".turn"));
+
+    window.addEventListener("scroll", () => {
+      nav.classList.toggle("scrolled", window.scrollY > 12);
+    }, { passive: true });
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.filter;
+        filterButtons.forEach((item) => item.classList.toggle("active", item === button));
+        turns.forEach((turn) => {
+          const visible = filter === "all" || turn.dataset.role === filter;
+          turn.style.display = visible ? "" : "none";
+        });
+      });
+    });
+  </script>
+</body>
+</html>

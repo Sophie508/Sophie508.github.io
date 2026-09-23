@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spreadsheet Office Case 04_task_15027</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f7f7f4;
+    --ink: #222522;
+    --muted: #62665f;
+    --line: #d8d8d1;
+    --panel: #ffffff;
+    --accent: #1f6f61;
+    --accent-soft: #e6f2ee;
+    --warn: #8a5a00;
+    --code: #f1f3f0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.45;
+  }
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 18px 48px;
+  }
+  header {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 18px;
+    margin-bottom: 22px;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    letter-spacing: 0;
+  }
+  h2 {
+    margin: 0 0 12px;
+    font-size: 1.1rem;
+  }
+  h3 {
+    margin: 0 0 8px;
+    font-size: 0.98rem;
+  }
+  p { margin: 0 0 10px; }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  .pill {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 999px;
+    padding: 5px 10px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 18px;
+    align-items: start;
+  }
+  section, .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+  .highlight {
+    border-color: #b7d7cf;
+    background: linear-gradient(0deg, #ffffff, #ffffff), var(--accent-soft);
+  }
+  .result {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 12px;
+    background: var(--accent-soft);
+    border: 1px solid #b7d7cf;
+    border-radius: 6px;
+  }
+  .label {
+    color: var(--muted);
+    font-size: 0.86rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  code, pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  code {
+    background: var(--code);
+    border: 1px solid #e0e3dd;
+    border-radius: 4px;
+    padding: 1px 4px;
+  }
+  pre {
+    margin: 10px 0 0;
+    padding: 12px;
+    overflow: auto;
+    background: var(--code);
+    border: 1px solid #e0e3dd;
+    border-radius: 6px;
+    font-size: 0.88rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 8px;
+    vertical-align: top;
+    text-align: left;
+  }
+  th {
+    background: #eceee9;
+    font-weight: 700;
+  }
+  td:first-child, th:first-child {
+    width: 70px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .timeline li {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+  }
+  .timeline li:first-child { border-top: 0; padding-top: 0; }
+  .step {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-grid;
+    place-items: center;
+    background: var(--accent);
+    color: white;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .small { color: var(--muted); font-size: 0.9rem; }
+  .status {
+    display: inline-block;
+    color: #0f5d40;
+    background: #dff0e8;
+    border: 1px solid #b9d9ca;
+    border-radius: 999px;
+    padding: 3px 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .warn { color: var(--warn); }
+  .formula-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .formula-list div {
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fbfbfa;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  button {
+    border: 1px solid #a7bab5;
+    border-radius: 6px;
+    background: #f8fbfa;
+    color: var(--ink);
+    padding: 7px 10px;
+    cursor: pointer;
+    font: inherit;
+  }
+  button:hover { background: #eef7f4; }
+  .copy-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+    .formula-list { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Spreadsheet Office Case 04_task_15027</h1>
+    <div class="meta" aria-label="case metadata">
+      <span class="pill">Domain: spreadsheet_office</span>
+      <span class="pill">Benchmark: SpreadsheetBench</span>
+      <span class="pill">Trajectory: codex-jsonl</span>
+      <span class="pill">Model: gpt-5.6-sol</span>
+      <span class="pill">Duration: 34.8s</span>
+      <span class="pill">Exit code: 0</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <main>
+      <section class="highlight">
+        <h2>Task</h2>
+        <p>The agent had to use <code>openpyxl</code> to load an Excel workbook, replace the answer cell <code>E1</code> with a shorter formula related to the daily quota formulas in <code>B6:H6</code>, save the workbook, and print the final value written.</p>
+        <p class="small">The user identified this as the wrong answer: <code>INDEX($B$6:$H$6,,MAX(IF($B$6:$H$6&lt;&gt;0,COLUMN($B$6:$H$6)-COLUMN($B$6)+1)))</code>.</p>
+      </section>
+
+      <section>
+        <h2>Spreadsheet Snapshot</h2>
+        <table aria-label="provided spreadsheet data">
+          <thead>
+            <tr><th>Cell</th><th>Value or formula</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>A1</td><td>TEXTILES</td></tr>
+            <tr><td>B1</td><td>DAILY QUOTA TO DATE</td></tr>
+            <tr><td>D1</td><td>►►►►►</td></tr>
+            <tr><td>E1</td><td>Initial calculated value shown in prompt: <code>1008.3333333333334</code></td></tr>
+            <tr><td>A4</td><td>7000</td></tr>
+            <tr><td>B5:C5</td><td>Sold values: <code>950</code>, <code>953</code></td></tr>
+            <tr><td>B6:H6</td><td>Daily quota-to-date formulas; only B6 and C6 evaluate to non-zero for the visible data.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Workbook Formula Evidence</h2>
+        <p>The agent inspected <code>input.xlsx</code> and found E1 was an array formula. Its text matched the user-provided long formula.</p>
+        <pre><code>Input E1 array formula:
+=INDEX($B$6:$H$6,,MAX(IF($B$6:$H$6&lt;&gt;0,COLUMN($B$6:$H$6)-COLUMN($B$6)+1)))</code></pre>
+        <div class="formula-list" aria-label="formulas in row 6">
+          <div><strong>B6</strong><br><code>=IF(B5=0,0,A4/7)</code></div>
+          <div><strong>C6</strong><br><code>=IF(C5=0,0,B7/6)</code></div>
+          <div><strong>D6</strong><br><code>=IF(D5=0,0,C7/5)</code></div>
+          <div><strong>E6</strong><br><code>=IF(E5=0,0,D7/4)</code></div>
+          <div><strong>F6</strong><br><code>=IF(F5=0,0,E7/3)</code></div>
+          <div><strong>G6</strong><br><code>=IF(G5=0,0,F7/2)</code></div>
+          <div><strong>H6</strong><br><code>=IF(H5=0,0,G7)</code></div>
+        </div>
+      </section>
+    </main>
+
+    <aside>
+      <section>
+        <h2>Final Answer</h2>
+        <div class="result">
+          <div class="label">Cell E1</div>
+          <div class="copy-row">
+            <code id="formula">=LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)</code>
+            <button type="button" id="copyBtn" aria-label="Copy final formula">Copy</button>
+          </div>
+        </div>
+        <p class="small" style="margin-top:10px">This formula returns the last non-zero value from <code>B6:H6</code>, avoiding the longer array-entered <code>INDEX</code>/<code>MAX</code>/<code>IF</code>/<code>COLUMN</code> construction.</p>
+      </section>
+
+      <section>
+        <h2>Trajectory Summary</h2>
+        <ol class="timeline">
+          <li><span class="step">1</span><div><strong>Inspected workbook formulas.</strong><br><span class="small">Loaded <code>input.xlsx</code> with <code>data_only=False</code> and printed rows 1 through 7.</span></div></li>
+          <li><span class="step">2</span><div><strong>Created solver script.</strong><br><span class="small">Wrote <code>solve.py</code> to load the input workbook, set <code>E1</code>, save <code>output.xlsx</code>, and print the answer.</span></div></li>
+          <li><span class="step">3</span><div><strong>Verified output.</strong><br><span class="small">Ran the script and reopened the saved workbook to confirm <code>E1</code>.</span></div></li>
+          <li><span class="step">4</span><div><strong>Returned result.</strong><br><span class="small">Final response reported <code>E1 = =LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)</code>.</span></div></li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Execution Result</h2>
+        <p><span class="status">Completed</span></p>
+        <pre><code>E1==LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)
+Verified: =LOOKUP(2,1/(B6:H6&lt;&gt;0),B6:H6)</code></pre>
+      </section>
+
+      <section>
+        <h2>Case Files</h2>
+        <p class="small">Files present in the case directory: <code>case_meta.json</code>, <code>trajectory.jsonl</code>, <code>workspace/prompt.txt</code>, <code>workspace/input.xlsx</code>, <code>workspace/output.xlsx</code>, and <code>workspace/solve.py</code>.</p>
+        <p class="small">No external references were listed in <code>case_meta.json</code>. No screenshots, frames, images, video, or audio were provided for this case.</p>
+      </section>
+    </aside>
+  </div>
+</div>
+<script>
+(function () {
+  var btn = document.getElementById('copyBtn');
+  var formula = '=LOOKUP(2,1/(B6:H6<>0),B6:H6)';
+  btn.addEventListener('click', function () {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(formula).then(function () {
+        btn.textContent = 'Copied';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1200);
+      });
+    } else {
+      var area = document.createElement('textarea');
+      area.value = formula;
+      document.body.appendChild(area);
+      area.select();
+      try { document.execCommand('copy'); btn.textContent = 'Copied'; }
+      catch (e) { btn.textContent = 'Copy failed'; }
+      document.body.removeChild(area);
+      setTimeout(function () { btn.textContent = 'Copy'; }, 1200);
+    }
+  });
+}());
+</script>
+</body>
+</html>

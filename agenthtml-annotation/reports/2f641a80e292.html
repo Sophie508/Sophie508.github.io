@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>crack-7z-hash — TerminalBench Case Study</title>
+<style>
+:root {
+  --bg: #0a0e0d;
+  --bg-2: #0f1614;
+  --bg-3: #141c1a;
+  --fg: #c8d8d0;
+  --fg-dim: #7a8f88;
+  --fg-mute: #4a5e58;
+  --accent: #00ff9f;
+  --accent-dim: #00b86f;
+  --warn: #ff6b35;
+  --warn-dim: #cc4a1f;
+  --danger: #ff3850;
+  --gold: #ffcc44;
+  --border: #1a2825;
+  --border-bright: #2a3e3a;
+  --mono: "JetBrains Mono", "Fira Code", "SF Mono", "Menlo", monospace;
+  --serif: "Iowan Old Style", "Palatino Linotype", "Palatino", "Georgia", serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Noise texture overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Scanline effect */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 159, 0.015) 2px,
+    rgba(0, 255, 159, 0.015) 4px
+  );
+}
+
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ─── HERO ─── */
+.hero {
+  position: relative;
+  padding: 6rem 0 4rem;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,255,159,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,159,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero .tag {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  color: var(--accent-dim);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hero .tag::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+.hero h1 {
+  font-family: var(--mono);
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--fg);
+  margin-bottom: 1.5rem;
+}
+
+.hero h1 .accent {
+  color: var(--accent);
+}
+
+.hero h1 .strike {
+  text-decoration: line-through;
+  text-decoration-color: var(--danger);
+  text-decoration-thickness: 2px;
+  color: var(--fg-mute);
+}
+
+.hero .subtitle {
+  font-size: 1.05rem;
+  color: var(--fg-dim);
+  max-width: 600px;
+  margin-bottom: 3rem;
+  font-style: italic;
+}
+
+.hero-meta {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.hero-meta-item {
+  background: var(--bg-2);
+  padding: 1.25rem 1.5rem;
+}
+
+.hero-meta-item .label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: var(--fg-mute);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.hero-meta-item .value {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ─── SECTION GENERIC ─── */
+section.block {
+  padding: 4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  color: var(--accent-dim);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.section-heading {
+  font-family: var(--serif);
+  font-size: 1.85rem;
+  font-weight: 400;
+  color: var(--fg);
+  margin-bottom: 2rem;
+  line-height: 1.2;
+}
+
+.section-heading em {
+  color: var(--accent);
+  font-style: italic;
+}
+
+/* ─── TASK STATEMENT ─── */
+.task-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border-bright);
+  border-left: 3px solid var(--gold);
+  padding: 2rem 2.5rem;
+  border-radius: 2px;
+  position: relative;
+}
+
+.task-card::before {
+  content: "// OBJECTIVE";
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  background: var(--bg);
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  padding: 0 8px;
+}
+
+.task-text {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  color: var(--fg);
+  line-height: 1.8;
+}
+
+.task-text .path { color: var(--accent); }
+.task-text .file { color: var(--gold); }
+
+/* ─── TIMELINE / STEPS ─── */
+.timeline {
+  position: relative;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 0;
+  margin-bottom: 0;
+  position: relative;
+}
+
+.timeline-line {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--border-bright);
+  background: var(--bg);
+  margin-top: 1.5rem;
+  z-index: 3;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.timeline-item.success .timeline-dot {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-dim);
+}
+
+.timeline-item.error .timeline-dot {
+  border-color: var(--danger);
+  background: var(--danger);
+}
+
+.timeline-item.warn .timeline-dot {
+  border-color: var(--warn);
+  background: var(--warn);
+}
+
+.timeline-connector {
+  flex: 1;
+  width: 2px;
+  background: var(--border-bright);
+  margin-top: 4px;
+}
+
+.timeline-item:last-child .timeline-connector {
+  display: none;
+}
+
+.timeline-body {
+  padding: 1.25rem 0 1.75rem 1.5rem;
+}
+
+.timeline-step-num {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  color: var(--fg-mute);
+  margin-bottom: 0.3rem;
+}
+
+.timeline-actor {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-bottom: 0.6rem;
+}
+
+.timeline-actor.agent {
+  background: rgba(0,255,159,0.08);
+  color: var(--accent);
+  border: 1px solid rgba(0,255,159,0.2);
+}
+
+.timeline-actor.user {
+  background: rgba(255,107,53,0.08);
+  color: var(--warn);
+  border: 1px solid rgba(255,107,53,0.2);
+}
+
+.timeline-msg {
+  color: var(--fg-dim);
+  font-size: 0.92rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.55;
+}
+
+.timeline-cmd {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 0.7rem 1rem;
+  color: var(--accent);
+  margin: 0.5rem 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.timeline-obs {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--fg-mute);
+  border-radius: 2px;
+  padding: 0.7rem 1rem;
+  color: var(--fg-dim);
+  margin: 0.5rem 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.timeline-obs.error {
+  border-left-color: var(--danger);
+  color: var(--danger);
+}
+
+.timeline-obs.success {
+  border-left-color: var(--accent);
+  color: var(--fg);
+}
+
+.timeline-obs .highlight {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.timeline-obs .found {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ─── PHASE BREAKDOWN ─── */
+.phases {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.phase-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border-bright);
+  padding: 2rem 1.75rem;
+  border-radius: 2px;
+  position: relative;
+  transition: border-color 0.3s ease;
+}
+
+.phase-card:hover {
+  border-color: var(--accent-dim);
+}
+
+.phase-num {
+  font-family: var(--mono);
+  font-size: 2.5rem;
+  color: var(--border-bright);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.phase-card:hover .phase-num {
+  color: var(--accent-dim);
+}
+
+.phase-title {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--fg);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.phase-desc {
+  font-size: 0.85rem;
+  color: var(--fg-dim);
+  line-height: 1.6;
+}
+
+.phase-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-top: 1rem;
+}
+
+.phase-tag.ok { background: rgba(0,255,159,0.1); color: var(--accent); }
+.phase-tag.fail { background: rgba(255,56,80,0.1); color: var(--danger); }
+.phase-tag.warn { background: rgba(255,204,68,0.1); color: var(--gold); }
+
+/* ─── RESULT BANNER ─── */
+.result {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, var(--bg-2), var(--bg-3));
+  border: 1px solid var(--accent-dim);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.result::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0,255,159,0.06), transparent 70%);
+}
+
+.result-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--accent-dim);
+  text-transform: uppercase;
+  position: relative;
+  z-index: 2;
+}
+
+.result-password {
+  font-family: var(--mono);
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 0 30px rgba(0,255,159,0.3);
+  margin: 0.5rem 0;
+}
+
+.result-secret {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  color: var(--gold);
+  position: relative;
+  z-index: 2;
+  margin-top: 1rem;
+}
+
+.result-secret .arrow {
+  color: var(--fg-mute);
+  margin: 0 0.5rem;
+}
+
+.result-secret .word {
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* ─── STATS GRID ─── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+.stat-cell {
+  background: var(--bg-2);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: var(--mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  color: var(--fg-mute);
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  padding: 3rem 0 4rem;
+  text-align: center;
+}
+
+footer .footer-tag {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--fg-mute);
+  text-transform: uppercase;
+}
+
+footer .footer-line {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--fg-mute);
+  margin-top: 0.5rem;
+}
+
+/* ─── REVEAL ANIMATIONS ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── COLLAPSIBLE ─── */
+.toggle-btn {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-dim);
+  background: none;
+  border: 1px solid var(--border-bright);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 2px;
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.step-filter {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.filter-btn {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--fg-dim);
+  background: var(--bg-2);
+  border: 1px solid var(--border-bright);
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.filter-btn:hover {
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+.filter-btn.active {
+  background: rgba(0,255,159,0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .container { padding: 0 1.25rem; }
+  .hero { padding: 4rem 0 2.5rem; }
+  .hero-meta { grid-template-columns: 1fr 1fr; }
+  .phases { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .timeline-item { grid-template-columns: 40px 1fr; }
+  .timeline-body { padding-left: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .hero-meta { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="container hero-content">
+    <div class="tag">TerminalBench / terminal_devops / Case 04</div>
+    <h1>
+      <span class="strike">sealed</span> <span class="accent">cracked</span><br>
+      7z archive hash
+    </h1>
+    <p class="subtitle">
+      A password-protected 7z archive guards a single secret word. The agent must
+      discover the password, extract the file, and write the answer to disk —
+      using only a bare Linux container and a copy of John the Ripper.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <div class="label">Model</div>
+        <div class="value">claude-haiku-4.5</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="label">Duration</div>
+        <div class="value">9m 24s</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="label">Steps</div>
+        <div class="value">77</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="label">Outcome</div>
+        <div class="value" style="color:var(--accent)">SUCCESS</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TASK STATEMENT ═══ -->
+<section class="block">
+  <div class="container">
+    <div class="section-title">Task Statement</div>
+    <h2 class="section-heading">The <em>objective</em></h2>
+    <div class="task-card">
+      <div class="task-text">
+        You need to create a file called <span class="path">/app/solution.txt</span> with the word found in <span class="file">"secret_file.txt"</span> in the <span class="file">"secrets.7z"</span> archive.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PHASE BREAKDOWN ═══ -->
+<section class="block">
+  <div class="container">
+    <div class="section-title">Execution Phases</div>
+    <h2 class="section-heading">Three <em>phases</em>, one cracked password</h2>
+    <div class="phases">
+      <div class="phase-card reveal">
+        <div class="phase-num">01</div>
+        <div class="phase-title">Environment Setup</div>
+        <p class="phase-desc">
+          Discover the <code style="color:var(--accent);font-family:var(--mono);font-size:0.8rem">secrets.7z</code> archive
+          in <code style="color:var(--accent);font-family:var(--mono);font-size:0.8rem">/app</code>. Install
+          <code style="color:var(--accent);font-family:var(--mono);font-size:0.8rem">p7zip-full</code> and Perl
+          modules needed to extract hashes.
+        </p>
+        <span class="phase-tag ok">Completed</span>
+      </div>
+      <div class="phase-card reveal">
+        <div class="phase-num">02</div>
+        <div class="phase-title">Hash Extraction &amp; Cracking</div>
+        <p class="phase-desc">
+          Run <code style="color:var(--accent);font-family:var(--mono);font-size:0.8rem">7z2john.pl</code> to extract
+          the 7zAES hash, then feed it to John the Ripper with the bundled
+          wordlist. Password recovered: <code style="color:var(--gold);font-family:var(--mono);font-size:0.8rem">1998</code>.
+        </p>
+        <span class="phase-tag ok">Cracked</span>
+      </div>
+      <div class="phase-card reveal">
+        <div class="phase-num">03</div>
+        <div class="phase-title">Extraction &amp; Solution</div>
+        <p class="phase-desc">
+          Extract the archive with the recovered password. Read
+          <code style="color:var(--gold);font-family:var(--mono);font-size:0.8rem">secret_file.txt</code> to find
+          the secret word. Write it to
+          <code style="color:var(--accent);font-family:var(--mono);font-size:0.8rem">/app/solution.txt</code>.
+        </p>
+        <span class="phase-tag ok">Solved</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ RESULT BANNER ═══ -->
+<section class="block">
+  <div class="container">
+    <div class="section-title">Recovered Secrets</div>
+    <h2 class="section-heading">The <em>unlock</em></h2>
+    <div class="result reveal">
+      <div class="result-label">Archive Password</div>
+      <div class="result-password">1998</div>
+      <div class="result-secret">
+        secrets/secret_file.txt
+        <span class="arrow">→</span>
+        <span class="word">honeybear</span>
+      </div>
+      <div style="margin-top:1.5rem;font-family:var(--mono);font-size:0.72rem;color:var(--fg-mute)">
+        /app/solution.txt ✓ written &amp; verified
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat-cell">
+        <div class="stat-value">1.83M</div>
+        <div class="stat-label">Input Tokens</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">1,097</div>
+        <div class="stat-label">Output Tokens</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">$0.19</div>
+        <div class="stat-label">Cost</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">564s</div>
+        <div class="stat-label">Wall Time</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TRAJECTORY TIMELINE ═══ -->
+<section class="block">
+  <div class="container">
+    <div class="section-title">Trajectory</div>
+    <h2 class="section-heading">Step-by-step <em>execution log</em></h2>
+
+    <div class="step-filter">
+      <button class="filter-btn active" data-filter="all">All Steps</button>
+      <button class="filter-btn" data-filter="key">Key Actions</button>
+      <button class="filter-btn" data-filter="error">Errors</button>
+      <button class="filter-btn" data-filter="success">Successes</button>
+    </div>
+
+    <div class="timeline" id="timeline"></div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="container">
+    <div class="footer-tag">TerminalBench · crack-7z-hash · claude-haiku-4.5</div>
+    <div class="footer-line">77 steps · 564s · 1.83M input tokens · password: 1998 · secret: honeybear</div>
+  </div>
+</footer>
+
+<script>
+// ─── Trajectory Data ───
+const steps = [
+  {n:4, type:"user", cat:"key", actor:"user", msg:'Task: "You need to create a file called /app/solution.txt with the word found in secret_file.txt in the secrets.7z archive."'},
+  {n:6, type:"success", cat:"key", actor:"agent", cmd:"ls -la /app", obs:"total 4\ndrwxr-xr-x 1 root root  32 Oct 30 05:49 .\ndrwxr-xr-x 1 root root 129 Nov  4 22:43 ..\ndrwxr-xr-x 1 root root  40 Oct 30 05:46 john\n-rwxr-xr-x 1 root root 215 Jan  1  1970 secrets.7z", msg:"Found secrets.7z (215 bytes) and a john/ directory."},
+  {n:7, type:"error", cat:"error", actor:"agent", cmd:"file /app/secrets.7z", obs:"Exit code 127\n/bin/bash: line 1: file: command not found", msg:"file command not available in minimal container."},
+  {n:9, type:"error", cat:"error", actor:"agent", cmd:"7z x /app/secrets.7z -o/app", obs:"Exit code 127\n/bin/bash: line 1: 7z: command not found", msg:"7z not installed yet."},
+  {n:13, type:"success", cat:"key", actor:"agent", cmd:"apt-get update && apt-get install -y p7zip-full", obs:"p7zip-full installed successfully", msg:"Installing p7zip-full to get the 7z command."},
+  {n:15, type:"error", cat:"error", actor:"agent", cmd:"7z x /app/secrets.7z -o/app", obs:"Enter password (will not be echoed):\nArchives with Errors: 1\nBreak signaled", msg:"Archive is password-protected. Extraction blocked."},
+  {n:17, type:"success", cat:"key", actor:"agent", cmd:"ls -la /app/john/", obs:"John the Ripper directory with run/ subdirectory", msg:"Exploring the john/ directory — a full John the Ripper installation."},
+  {n:21, type:"success", cat:"key", actor:"agent", cmd:'git log -p --all | grep -i "password|secret|7z" | head -20', obs:"+nomoresecrets\n+secrets4u\n+secrets17\n+secrets15\n+secretsex1\n+5secrets\n+9secrets\n+secrets06\n+secretsociety\n+secrets19\n+69secrets\n+secrets18\n+secretspot\n+secretsss\n+secrets89\n+secrets25\n+secrets24\n+chamberofsecrets\n+secrets7\n+2secrets\n+secrets3\n+nosecrets\n+secrets12\n+1secrets\n+secretstory\n+mysecrets\n+toomanysecrets\n+openwall", msg:"Found a list of candidate passwords in the git history of the john repo."},
+  {n:29, type:"warn", cat:"key", actor:"agent", cmd:"bash /tmp/try_passwords.sh (tries 27 candidate passwords via 7z)", obs:'Trying password: nomoresecrets\n...\nSUCCESS with password: nomoresecrets', msg:"Script reported success — but this was a false positive due to exit-code checking bug."},
+  {n:31, type:"error", cat:"error", actor:"agent", cmd:'echo "nomoresecrets" | 7z x /app/secrets.7z -o/app -si', obs:"ERROR: Cannot open encrypted archive. Wrong password?\nE_NOTIMPL : Not implemented", msg:"False positive — password was wrong. The -si flag doesn't work for 7z passwords."},
+  {n:33, type:"error", cat:"error", actor:"agent", cmd:"7z x -pnomoresecrets /app/secrets.7z -o/app", obs:"ERROR: Data Error in encrypted file. Wrong password? : secrets/secret_file.txt\nSub items Errors: 1", msg:"Confirmed: nomoresecrets is not the correct password."},
+  {n:39, type:"error", cat:"error", actor:"agent", cmd:"bash /tmp/crack.sh (brute-force 8 candidates)", obs:"Testing: secrets4u\nTesting: secrets17\n...\nTesting: secrets19\n(all failed)", msg:"None of the git-history candidate passwords worked."},
+  {n:47, type:"error", cat:"error", actor:"agent", cmd:"bash /tmp/test_pw.sh (32 candidates)", obs:"(no output — all failed)", msg:"Extended password list also failed. Time for a different approach."},
+  {n:55, type:"error", cat:"error", actor:"agent", cmd:"cd /app/john/run && perl 7z2john.pl /app/secrets.7z > /tmp/7z.hash", obs:"Can't locate Compress/Raw/Lzma.pm in @INC\nBEGIN failed", msg:"7z2john.pl needs a Perl module that isn't installed."},
+  {n:57, type:"success", cat:"key", actor:"agent", cmd:"apt-get install -y liblzma-dev libcompress-raw-lzma-perl", obs:"Perl module installed", msg:"Installing the missing Perl Lzma module."},
+  {n:59, type:"success", cat:"key", actor:"agent", cmd:"cd /app/john/run && perl 7z2john.pl /app/secrets.7z", obs:"secrets.7z:$7z$2$19$0$$16$7f2aeca3d70f5f1298c191ab0faf61fc$1658180191$16$13$703e06dc09b6c714749d8efc9fa55434$9$00\nATTENTION: the hashes might contain sensitive encrypted data.", msg:"Successfully extracted the 7zAES hash from the archive."},
+  {n:61, type:"error", cat:"error", actor:"agent", cmd:"./john --wordlist=/tmp/wordlist.txt /tmp/7z.hash", obs:"No password hashes loaded (see FAQ)", msg:"John couldn't parse the hash without explicit format specification."},
+  {n:63, type:"success", cat:"key", actor:"agent", cmd:'./john --list=formats | grep -i "7z|archive"', obs:"SCRAM-PBKDF2-SHA1-MongoDB, SCRAM-PBKDF2-SHA256, securezip, 7z, Signal, SIP,\n392 formats", msg:"Confirmed John supports the 7z format."},
+  {n:65, type:"error", cat:"error", actor:"agent", cmd:'echo "secrets.7z:$7z$2$19$0$$16$7f2aeca3d70f5f1298c191ab0faf61fc$1658180191$16$13$703e06dc09b6c714749d8efc9fa55434$9$00" > /tmp/7z.hash && ./john --format=7z --wordlist=/tmp/wordlist.txt /tmp/7z.hash', obs:"(custom wordlist exhausted — no match found)", msg:"Custom wordlist of git-history passwords failed. The password wasn't in there."},
+  {n:67, type:"success", cat:"key", actor:"agent", cmd:"./john --format=7z --wordlist=/app/john/run/password.lst /tmp/7z.hash --fork=8", obs:"Password cracked: 1998", msg:"John the Ripper cracked the password using the bundled wordlist: 1998"},
+  {n:69, type:"success", cat:"key", actor:"agent", cmd:"7z x -p1998 /app/secrets.7z -o/app", obs:"Everything is Ok\nFolders: 1\nFiles: 1\nSize: 9\nCompressed: 215", msg:"Archive extracted successfully with password 1998."},
+  {n:71, type:"success", cat:"key", actor:"agent", cmd:"Read /app/secrets/secret_file.txt", obs:"honeybear", msg:"The secret word is: honeybear"},
+  {n:73, type:"success", cat:"key", actor:"agent", cmd:"Write /app/solution.txt", obs:"File created successfully: /app/solution.txt", msg:"Writing 'honeybear' to /app/solution.txt"},
+  {n:75, type:"success", cat:"key", actor:"agent", cmd:'cat /app/solution.txt && echo "" && ls -la /app/solution.txt', obs:"honeybear\n-rw-r--r-- 1 root root 9 Nov  4 22:52 /app/solution.txt", msg:"Verification: solution.txt contains 'honeybear' (9 bytes). Task complete."},
+];
+
+// ─── Render Timeline ───
+const timeline = document.getElementById('timeline');
+
+function renderTimeline(filter) {
+  timeline.innerHTML = '';
+  const filtered = filter === 'all' ? steps : steps.filter(s => s.cat === filter || (filter === 'success' && s.type === 'success') || (filter === 'error' && s.type === 'error') || (filter === 'key' && s.cat === 'key'));
+
+  filtered.forEach((step, idx) => {
+    const item = document.createElement('div');
+    item.className = `timeline-item ${step.type}`;
+    item.style.animationDelay = `${idx * 0.05}s`;
+
+    let obsHtml = '';
+    if (step.obs) {
+      const obsClass = step.type === 'error' ? 'error' : step.type === 'success' ? 'success' : '';
+      const obsContent = step.obs
+        .replace(/1998/g, '<span class="found">1998</span>')
+        .replace(/honeybear/g, '<span class="highlight">honeybear</span>')
+        .replace(/Everything is Ok/g, '<span class="found">Everything is Ok</span>');
+      obsHtml = `<div class="timeline-obs ${obsClass}">${obsContent}</div>`;
+    }
+
+    let cmdHtml = '';
+    if (step.cmd) {
+      cmdHtml = `<div class="timeline-cmd">$ ${step.cmd}</div>`;
+    }
+
+    item.innerHTML = `
+      <div class="timeline-line">
+        <div class="timeline-dot"></div>
+        <div class="timeline-connector"></div>
+      </div>
+      <div class="timeline-body">
+        <div class="timeline-step-num">STEP ${String(step.n).padStart(2,'0')} / ${String(idx+1).padStart(2,'0')} OF ${filtered.length}</div>
+        <div class="timeline-actor ${step.actor}">${step.actor.toUpperCase()}</div>
+        ${step.msg ? `<div class="timeline-msg">${step.msg}</div>` : ''}
+        ${cmdHtml}
+        ${obsHtml}
+      </div>
+    `;
+    timeline.appendChild(item);
+  });
+}
+
+renderTimeline('all');
+
+// ─── Filter Buttons ───
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTimeline(btn.dataset.filter);
+  });
+});
+
+// ─── Scroll Reveal ───
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

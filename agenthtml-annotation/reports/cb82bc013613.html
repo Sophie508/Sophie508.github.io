@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mind2Web Trajectory: Save a coffee mocha recipe.</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    line-height: 1.6;
+    padding: 0;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #fff;
+    padding: 32px 28px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .header h1 {
+    font-size: 1.7rem;
+    margin-bottom: 8px;
+  }
+  .header .task {
+    font-size: 1.15rem;
+    color: #e0e0e0;
+    margin-bottom: 16px;
+  }
+  .header .task strong {
+    color: #4ecca3;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px 24px;
+    font-size: 0.85rem;
+  }
+  .meta-item {
+    display: flex;
+    gap: 6px;
+  }
+  .meta-item .label {
+    color: #8a8a9a;
+    min-width: 90px;
+  }
+  .meta-item .value {
+    color: #c0c0d0;
+    word-break: break-all;
+  }
+  .section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .section h2 {
+    font-size: 1.25rem;
+    color: #16213e;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e8e8e8;
+  }
+  .task-box {
+    background: #f8f9fa;
+    border-left: 4px solid #4ecca3;
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    font-size: 1.05rem;
+  }
+  .workflow {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .workflow-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+    transition: border-color 0.2s;
+  }
+  .workflow-step:hover {
+    border-color: #4ecca3;
+  }
+  .workflow-step-num {
+    width: 32px;
+    height: 32px;
+    background: #16213e;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .workflow-step-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .workflow-element {
+    background: #e8f4f0;
+    color: #16213e;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  .workflow-arrow {
+    color: #4ecca3;
+    font-size: 1.2rem;
+  }
+  .workflow-action {
+    background: #16213e;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .action-card {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border: 1px solid #e8e8e8;
+  }
+  .action-header {
+    background: #16213e;
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .step-number {
+    background: #4ecca3;
+    color: #16213e;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .action-repr {
+    font-size: 0.95rem;
+    font-family: "SF Mono", Monaco, Consolas, "Courier New", monospace;
+  }
+  .action-details {
+    padding: 18px 20px;
+  }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px 20px;
+  }
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .detail-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #888;
+    font-weight: 600;
+  }
+  .detail-value {
+    font-size: 0.9rem;
+    color: #1a1a2e;
+  }
+  .detail-value.mono {
+    font-family: "SF Mono", Monaco, Consolas, "Courier New", monospace;
+    font-size: 0.8rem;
+    word-break: break-all;
+  }
+  .html-snippet {
+    border-top: 1px solid #e8e8e8;
+    padding: 16px 20px;
+  }
+  .snippet-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .snippet-code {
+    background: #1a1a2e;
+    color: #d4d4d4;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    font-family: "SF Mono", Monaco, Consolas, "Courier New", monospace;
+    max-height: 350px;
+    overflow-y: auto;
+  }
+  .snippet-code code {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .target-highlight {
+    background: rgba(78, 204, 163, 0.35);
+    border-radius: 2px;
+    padding: 1px 0;
+  }
+  .stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .stat-badge {
+    background: #e8f4f0;
+    color: #16213e;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+  .stat-badge strong {
+    color: #4ecca3;
+  }
+  .nav-bar {
+    position: sticky;
+    top: 0;
+    background: rgba(240, 242, 245, 0.95);
+    backdrop-filter: blur(8px);
+    padding: 10px 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #d0d0d8;
+    z-index: 100;
+  }
+  .nav-bar-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .nav-bar a {
+    text-decoration: none;
+    color: #16213e;
+    background: #fff;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    border: 1px solid #d0d0d8;
+    transition: all 0.2s;
+  }
+  .nav-bar a:hover {
+    background: #16213e;
+    color: #fff;
+    border-color: #16213e;
+  }
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+    font-size: 0.82rem;
+  }
+</style>
+</head>
+<body>
+  <div class="nav-bar">
+    <div class="nav-bar-inner">
+      <a href="#overview">Overview</a>
+      <a href="#task">Task</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#trajectory">Trajectory Steps</a>
+      <a href="#step-0">Step 1</a>
+      <a href="#step-1">Step 2</a>
+      <a href="#step-2">Step 3</a>
+      <a href="#step-3">Step 4</a>
+      <a href="#step-4">Step 5</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header" id="overview">
+      <h1>Mind2Web Navigation Trajectory</h1>
+      <div class="task">Task: <strong>Save a coffee mocha recipe.</strong></div>
+      <div class="meta-grid">
+        <div class="meta-item"><span class="label">Case ID:</span><span class="value">03_test_domain_test_domain_2_85</span></div>
+        <div class="meta-item"><span class="label">Website:</span><span class="value">allrecipes</span></div>
+        <div class="meta-item"><span class="label">Domain:</span><span class="value">Info</span></div>
+        <div class="meta-item"><span class="label">Subdomain:</span><span class="value">Cooking</span></div>
+        <div class="meta-item"><span class="label">Benchmark:</span><span class="value">Mind2Web</span></div>
+        <div class="meta-item"><span class="label">Source:</span><span class="value">upstream</span></div>
+        <div class="meta-item"><span class="label">Model:</span><span class="value">human-annotator</span></div>
+        <div class="meta-item"><span class="label">Format:</span><span class="value">mind2web-json</span></div>
+        <div class="meta-item"><span class="label">Annotation ID:</span><span class="value">547ed17c-da34-4a20-93cd-24a3603f4ccf</span></div>
+        <div class="meta-item"><span class="label">Total Steps:</span><span class="value">5</span></div>
+      </div>
+    </div>
+
+    <div class="section" id="task">
+      <h2>Task Statement</h2>
+      <div class="task-box">Save a coffee mocha recipe.</div>
+      <div class="stats">
+        <span class="stat-badge"><strong>5</strong> actions</span>
+        <span class="stat-badge"><strong>1</strong> HOVER action</span>
+        <span class="stat-badge"><strong>4</strong> CLICK actions</span>
+        <span class="stat-badge">Human demonstration trajectory</span>
+      </div>
+    </div>
+
+    <div class="section" id="workflow">
+      <h2>Action Sequence Summary</h2>
+      <div class="workflow">
+        
+        <div class="workflow-step">
+          <div class="workflow-step-num">1</div>
+          <div class="workflow-step-content">
+            <span class="workflow-element">[link]  MEALS</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-action">HOVER</span>
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">2</div>
+          <div class="workflow-step-content">
+            <span class="workflow-element">[link]  Drinks</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-action">CLICK</span>
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">3</div>
+          <div class="workflow-step-content">
+            <span class="workflow-element">[link]  COFFEE DRINKS</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-action">CLICK</span>
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">4</div>
+          <div class="workflow-step-content">
+            <span class="workflow-element">[link]  MOCHAS</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-action">CLICK</span>
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-step-num">5</div>
+          <div class="workflow-step-content">
+            <span class="workflow-element">[button]  Save Recipe</span>
+            <span class="workflow-arrow">&rarr;</span>
+            <span class="workflow-action">CLICK</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="trajectory">
+      <h2 style="font-size: 1.25rem; color: #16213e; margin-bottom: 16px; padding: 0 4px;">Step-by-Step Trajectory Details</h2>
+      
+    <div class="action-card" id="step-0">
+      <div class="action-header">
+        <span class="step-number">Step 1</span>
+        <span class="action-repr">[link]  MEALS -&gt; HOVER</span>
+      </div>
+      <div class="action-details">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Operation</span>
+            <span class="detail-value">HOVER</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Target Tag</span>
+            <span class="detail-value">&lt;a&gt;</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Backend Node ID</span>
+            <span class="detail-value">99</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Bounding Box</span>
+            <span class="detail-value">127,110,47,18</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Positive Candidates</span>
+            <span class="detail-value">1</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Negative Candidates</span>
+            <span class="detail-value">233</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Action UID</span>
+            <span class="detail-value mono">a32110f8-da0c-4cb0-aafd-151670022f66</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Cleaned HTML Length</span>
+            <span class="detail-value">65,189 chars</span>
+          </div>
+        </div>
+      </div>
+      <div class="html-snippet">
+        <div class="snippet-label">DOM Context around target element (from cleaned_html):</div>
+        <pre class="snippet-code"><code>
+                &lt;a backend_node_id=&quot;1772&quot;&gt;
+                    &lt;text backend_node_id=&quot;1773&quot;&gt;Main Dishes&lt;/text&gt;
+                  &lt;/a&gt;
+                &lt;a backend_node_id=&quot;1778&quot;&gt;
+                    &lt;text backend_node_id=&quot;1779&quot;&gt;Sheet Pan Dinners&lt;/text&gt;
+                  &lt;/a&gt;
+                &lt;a backend_node_id=&quot;1784&quot;&gt;
+                    &lt;text backend_node_id=&quot;1785&quot;&gt;View All&lt;/text&gt;
+                  &lt;/a&gt;
+                &lt;/ul&gt;
+            &lt;/li&gt;
+            &lt;li backend_node_id=&quot;1790&quot;&gt;
+              <mark class="target-highlight">&lt;a backend_node_id=&quot;99&quot;&gt;
+                &lt;text backend_node_id=&quot;1792&quot;&gt;Meals&lt;/text&gt;
+              &lt;/a&gt;</mark>
+              &lt;ul backend_node_id=&quot;1794&quot;&gt;
+                &lt;a backend_node_id=&quot;1798&quot;&gt;
+                    &lt;text backend_node_id=&quot;1799&quot;&gt;Breakfast &amp;amp; Brunch&lt;/text&gt;
+                  &lt;/a&gt;
+                &lt;a backend_node_id=&quot;1804&quot;&gt;
+                    &lt;text backend_node_id=&quot;1805&quot;&gt;Lunch&lt;/text&gt;
+                  &lt;/a&gt;
+                &lt;a backend_node_id=&quot;1810&quot;&gt;
+                    &lt;text backend_node_id=&quot;1811&quot;&gt;Healthy&lt;/text&gt;
+                  &lt;/a&gt;
+                &lt;a backend_node_id=&quot;1816&quot;&gt;
+                    &lt;text backend_node_id=&quot;1817&quot;&gt;Appetizers &amp;amp; Snacks&lt;/text&gt;
+                  &lt;/a&gt;
+       </code></pre>
+      </div>
+    </div>
+    
+    <div class="action-card" id="step-1">
+      <div class="action-header">
+        <span class="step-number">Step 2</span>
+        <span class="action-repr">[link]  Drinks -&gt; CLICK</span>
+      </div>
+      <div class="action-details">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Operation</span>
+            <span class="detail-value">CLICK</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Target Tag</span>
+            <span class="detail-value">&lt;a&gt;</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Backend Node ID</span>
+            <span class="detail-value"></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Bounding Box</span>
+            <span class="detail-value">N/A</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Positive Candidates</span>
+            <span class="detail-value">0</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Negative Candidates</span>
+            <span class="detail-value">234</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Action UID</span>
+            <span class="detail-value mono">99658c6d-74b8-42e1-b29d-ea41370c11d7</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Cleaned HTML Length</span>
+            <span class="detail-value">66,229 chars</span>
+          </div>
+        </div>
+      </div>
+      <div class="html-snippet">
+        <div class="snippet-label">DOM Context around target element (from cleaned_html):</div>
+        <pre class="snippet-code"><code>(element not found in cleaned_html)</code></pre>
+      </div>
+    </div>
+    
+    <div class="action-card" id="step-2">
+      <div class="action-header">
+        <span class="step-number">Step 3</span>
+        <span class="action-repr">[link]  COFFEE DRINKS -&gt; CLICK</span>
+      </div>
+      <div class="action-details">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Operation</span>
+            <span class="detail-value">CLICK</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Target Tag</span>
+            <span class="detail-value">&lt;a&gt;</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Backend Node ID</span>
+            <span class="detail-value">17091</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Bounding Box</span>
+            <span class="detail-value">649,796,111,18</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Positive Candidates</span>
+            <span class="detail-value">1</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Negative Candidates</span>
+            <span class="detail-value">388</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Action UID</span>
+            <span class="detail-value mono">016eecbe-0668-424b-9de6-cb15a1fdb4c6</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Cleaned HTML Length</span>
+            <span class="detail-value">117,457 chars</span>
+          </div>
+        </div>
+      </div>
+      <div class="html-snippet">
+        <div class="snippet-label">DOM Context around target element (from cleaned_html):</div>
+        <pre class="snippet-code"><code>de_id=&quot;17078&quot;&gt;
+                      &lt;text backend_node_id=&quot;17079&quot;&gt;Cider&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;17082&quot;&gt;
+                  &lt;a backend_node_id=&quot;17084&quot;&gt;
+                    &lt;span backend_node_id=&quot;17085&quot;&gt;
+                      &lt;text backend_node_id=&quot;17086&quot;&gt;Cocktails&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;17089&quot;&gt;
+                  <mark class="target-highlight">&lt;a backend_node_id=&quot;17091&quot;&gt;
+                    &lt;span backend_node_id=&quot;14966&quot;&gt;
+                      &lt;text backend_node_id=&quot;17092&quot;&gt;Coffee Drinks&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;</mark>
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;17095&quot;&gt;
+                  &lt;a backend_node_id=&quot;17097&quot;&gt;
+                    &lt;span backend_node_id=&quot;17098&quot;&gt;
+                      &lt;text backend_node_id=&quot;17099&quot;&gt;Punch&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;17102&quot;&gt;
+                  &lt;a backend_node_id=&quot;17104&quot;&gt;
+                    &lt;span backend_node_id=&quot;17105&quot;&gt;
+                      &lt;text backend_node_id=&quot;17106&quot;&gt;S</code></pre>
+      </div>
+    </div>
+    
+    <div class="action-card" id="step-3">
+      <div class="action-header">
+        <span class="step-number">Step 4</span>
+        <span class="action-repr">[link]  MOCHAS -&gt; CLICK</span>
+      </div>
+      <div class="action-details">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Operation</span>
+            <span class="detail-value">CLICK</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Target Tag</span>
+            <span class="detail-value">&lt;a&gt;</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Backend Node ID</span>
+            <span class="detail-value">25001</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Bounding Box</span>
+            <span class="detail-value">447,480,60,18</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Positive Candidates</span>
+            <span class="detail-value">1</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Negative Candidates</span>
+            <span class="detail-value">319</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Action UID</span>
+            <span class="detail-value mono">d6feb2d8-d266-4d7e-912d-083d18304258</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Cleaned HTML Length</span>
+            <span class="detail-value">105,062 chars</span>
+          </div>
+        </div>
+      </div>
+      <div class="html-snippet">
+        <div class="snippet-label">DOM Context around target element (from cleaned_html):</div>
+        <pre class="snippet-code"><code> all the delicious ways to enjoy your joe.&lt;/text&gt;
+              &lt;/div&gt;
+            &lt;div backend_node_id=&quot;24988&quot;&gt;
+              &lt;ul backend_node_id=&quot;24990&quot;&gt;
+                &lt;li backend_node_id=&quot;24992&quot;&gt;
+                  &lt;a backend_node_id=&quot;24994&quot;&gt;
+                    &lt;span backend_node_id=&quot;24995&quot;&gt;
+                      &lt;text backend_node_id=&quot;24996&quot;&gt;Lattes&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;24999&quot;&gt;
+                  <mark class="target-highlight">&lt;a backend_node_id=&quot;25001&quot;&gt;
+                    &lt;span backend_node_id=&quot;22890&quot;&gt;
+                      &lt;text backend_node_id=&quot;25002&quot;&gt;Mochas&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;</mark>
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;25005&quot;&gt;
+                  &lt;a backend_node_id=&quot;25007&quot;&gt;
+                    &lt;span backend_node_id=&quot;25008&quot;&gt;
+                      &lt;text backend_node_id=&quot;25009&quot;&gt;Creamer&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;
+                &lt;/li&gt;
+                &lt;li backend_node_id=&quot;25012&quot;&gt;
+                  &lt;a backend_node_id=&quot;25014&quot;&gt;
+                    &lt;span backend_node_id=&quot;25015&quot;&gt;
+                      &lt;text backend_node_id=&quot;25016&quot;&gt;Drink </code></pre>
+      </div>
+    </div>
+    
+    <div class="action-card" id="step-4">
+      <div class="action-header">
+        <span class="step-number">Step 5</span>
+        <span class="action-repr">[button]  Save Recipe -&gt; CLICK</span>
+      </div>
+      <div class="action-details">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Operation</span>
+            <span class="detail-value">CLICK</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Target Tag</span>
+            <span class="detail-value">&lt;button&gt;</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Backend Node ID</span>
+            <span class="detail-value">30584</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Bounding Box</span>
+            <span class="detail-value">338.65625,594,48,48</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Positive Candidates</span>
+            <span class="detail-value">1</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Negative Candidates</span>
+            <span class="detail-value">193</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Action UID</span>
+            <span class="detail-value mono">60a110ee-acb1-49ce-be80-eaf5f66d8332</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Cleaned HTML Length</span>
+            <span class="detail-value">60,947 chars</span>
+          </div>
+        </div>
+      </div>
+      <div class="html-snippet">
+        <div class="snippet-label">DOM Context around target element (from cleaned_html):</div>
+        <pre class="snippet-code"><code>      &lt;li backend_node_id=&quot;32738&quot;&gt;
+                &lt;span backend_node_id=&quot;32740&quot; title=&quot;Email this article&quot;/&gt;
+              &lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div backend_node_id=&quot;32754&quot;&gt;
+          &lt;section backend_node_id=&quot;30607&quot;&gt;
+            &lt;div backend_node_id=&quot;32757&quot;&gt;
+              &lt;a backend_node_id=&quot;32759&quot;&gt;
+                &lt;div backend_node_id=&quot;32761&quot;&gt;
+                  &lt;img backend_node_id=&quot;30601&quot; alt=&quot;Mexican Mocha with whipped cream&quot;/&gt;
+                    <mark class="target-highlight">&lt;button backend_node_id=&quot;30584&quot; aria_label=&quot;Save Recipe&quot;&gt;
+                      &lt;span backend_node_id=&quot;32774&quot;&gt;
+                        &lt;text backend_node_id=&quot;32775&quot;&gt;Save&lt;/text&gt;
+                      &lt;/span&gt;
+                    &lt;/button&gt;</mark>
+                  &lt;/div&gt;
+                &lt;span backend_node_id=&quot;32791&quot;&gt;
+                      &lt;text backend_node_id=&quot;32792&quot;&gt;Mexican Mocha&lt;/text&gt;
+                    &lt;/span&gt;
+                  &lt;/a&gt;
+              &lt;a backend_node_id=&quot;32802&quot;&gt;
+                &lt;div backend_node_id=&quot;32804&quot;&gt;
+                  &lt;img backend_node_id=&quot;30602&quot; alt=&quot;close up view of a chocolate iced mocha in a plastic glass with a straw, on a plaid kitchen towel&quot;/&gt;
+                    &lt;butto</code></pre>
+      </div>
+    </div>
+    
+    </div>
+
+    <div class="footer">
+      Generated from Mind2Web trajectory data &mdash; Case 03_test_domain_test_domain_2_85 &mdash; allrecipes.com
+    </div>
+  </div>
+</body>
+</html>

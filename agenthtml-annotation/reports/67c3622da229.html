@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reproducing "A Mechanistic Understanding of DPO & Toxicity" — Agent Case</title>
+<style>
+  :root{
+    --bg:#0a0b0d;
+    --bg-2:#101216;
+    --panel:#13161b;
+    --panel-2:#171b21;
+    --ink:#ece8df;
+    --ink-dim:#a7a99f;
+    --muted:#6f7580;
+    --line:#262b33;
+    --line-soft:#1c2027;
+    --toxic:#ff5a3c;
+    --toxic-deep:#c9392020;
+    --aligned:#48d6b4;
+    --gold:#d7a84a;
+    --violet:#9d8cff;
+    --serif:"Iowan Old Style","Palatino Linotype","Palatino","Book Antiqua",Georgia,"Times New Roman",serif;
+    --mono:"SF Mono","JetBrains Mono","Fira Code",ui-monospace,"Menlo","Consolas",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--serif);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* subtle grid + grain atmosphere */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(var(--line-soft) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+    background-size:64px 64px;
+    -webkit-mask-image:radial-gradient(ellipse 120% 80% at 50% 0%,#000 20%,transparent 78%);
+            mask-image:radial-gradient(ellipse 120% 80% at 50% 0%,#000 20%,transparent 78%);
+    opacity:.5;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:0 28px}
+  .mono{font-family:var(--mono)}
+
+  /* progress */
+  #progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:50;
+    background:linear-gradient(90deg,var(--toxic),var(--gold),var(--aligned));
+    box-shadow:0 0 12px rgba(72,214,180,.5)}
+
+  /* ---------- HERO ---------- */
+  header.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+    padding:80px 0 60px;overflow:hidden}
+  #stream{position:absolute;inset:0;z-index:0;width:100%;height:100%;opacity:.55}
+  .hero .wrap{position:relative;z-index:2}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--muted);display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:30px}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--aligned);box-shadow:0 0 10px var(--aligned)}
+  .eyebrow b{color:var(--gold);font-weight:400}
+  h1.title{font-size:clamp(2.6rem,6.4vw,5.4rem);line-height:1.02;font-weight:600;letter-spacing:-.02em;
+    max-width:15ch}
+  h1.title .t1{color:var(--ink)}
+  h1.title .arrow{color:var(--muted);font-family:var(--mono);font-size:.5em;vertical-align:middle;margin:0 .25em}
+  h1.title em{font-style:italic;color:var(--aligned)}
+  .subtitle{margin-top:34px;max-width:60ch;font-size:1.24rem;color:var(--ink-dim);line-height:1.55}
+  .subtitle .tox{color:var(--toxic);font-style:italic}
+  .authors{margin-top:26px;font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.02em;max-width:70ch}
+  .authors b{color:var(--ink-dim);font-weight:500}
+  .metabar{margin-top:52px;display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line)}
+  .metabar .m{flex:1 1 160px;padding:18px 20px 16px;border-right:1px solid var(--line-soft)}
+  .metabar .m:last-child{border-right:none}
+  .metabar .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .metabar .v{font-size:1.28rem;margin-top:7px;color:var(--ink);font-feature-settings:"tnum"}
+  .metabar .v small{font-size:.62em;color:var(--ink-dim);font-family:var(--mono)}
+  .scrollcue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;
+    font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;
+    display:flex;flex-direction:column;align-items:center;gap:8px;animation:bob 2.4s ease-in-out infinite}
+  .scrollcue span{width:1px;height:34px;background:linear-gradient(var(--muted),transparent)}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
+
+  /* ---------- SECTIONS ---------- */
+  section{position:relative;padding:96px 0;border-top:1px solid var(--line-soft)}
+  .sec-label{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--muted);display:flex;align-items:center;gap:14px;margin-bottom:26px}
+  .sec-label .num{color:var(--toxic);font-weight:600}
+  .sec-label .rule{flex:1;height:1px;background:var(--line)}
+  h2.sec{font-size:clamp(1.9rem,4vw,3.1rem);font-weight:600;letter-spacing:-.015em;line-height:1.08;margin-bottom:22px}
+  .lede{font-size:1.16rem;color:var(--ink-dim);max-width:66ch;line-height:1.62}
+  .lede b{color:var(--ink);font-weight:600}
+  .lede .tox{color:var(--toxic)}
+  .lede .al{color:var(--aligned)}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- TASK card ---------- */
+  .task-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;margin-top:44px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);
+    border-radius:4px;padding:28px 30px;position:relative}
+  .card h3{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--gold);font-weight:500;margin-bottom:18px}
+  .prompt-block{font-family:var(--mono);font-size:13px;line-height:1.85;color:var(--ink-dim);
+    background:#0c0e12;border:1px solid var(--line-soft);border-radius:3px;padding:20px;overflow:auto}
+  .prompt-block .cmd{color:var(--aligned)}
+  .prompt-block .path{color:var(--violet)}
+  .prompt-block .warn{color:var(--toxic)}
+  ul.constraints{list-style:none;margin-top:4px}
+  ul.constraints li{position:relative;padding:11px 0 11px 26px;border-bottom:1px solid var(--line-soft);
+    font-size:.98rem;color:var(--ink-dim)}
+  ul.constraints li:last-child{border-bottom:none}
+  ul.constraints li::before{content:"";position:absolute;left:0;top:19px;width:9px;height:9px;
+    border:1.5px solid var(--aligned);border-radius:2px;transform:rotate(45deg)}
+  ul.constraints li.no::before{border-color:var(--toxic);border-radius:50%;transform:none}
+  ul.constraints li b{color:var(--ink)}
+  .chip{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:3px;
+    border:1px solid var(--line);color:var(--ink-dim);margin:3px 4px 3px 0}
+  .chip.tox{border-color:#5a2a22;color:var(--toxic)}
+  .chip.al{border-color:#22463d;color:var(--aligned)}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{margin-top:48px;position:relative;padding-left:6px}
+  .timeline::before{content:"";position:absolute;left:16px;top:8px;bottom:8px;width:1px;
+    background:linear-gradient(var(--toxic),var(--gold),var(--aligned))}
+  .tl-item{position:relative;padding:0 0 34px 54px}
+  .tl-item:last-child{padding-bottom:0}
+  .tl-item .node{position:absolute;left:8px;top:2px;width:17px;height:17px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--gold);z-index:2}
+  .tl-item.act .node{border-color:var(--aligned);box-shadow:0 0 12px rgba(72,214,180,.4)}
+  .tl-item.build .node{border-color:var(--violet)}
+  .tl-item.warnnode .node{border-color:var(--toxic)}
+  .tl-time{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--muted)}
+  .tl-title{font-size:1.15rem;margin-top:3px;color:var(--ink);font-weight:600}
+  .tl-body{margin-top:6px;color:var(--ink-dim);font-size:.99rem;max-width:64ch}
+  .tl-body code,.mono-inline{font-family:var(--mono);font-size:.85em;color:var(--violet);
+    background:#0c0e1240;padding:1px 5px;border-radius:3px}
+  .tl-tag{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    padding:2px 8px;border-radius:20px;border:1px solid var(--line);color:var(--muted);margin-left:8px}
+  .tl-tag.a{color:var(--aligned);border-color:#22463d}
+  .tl-tag.b{color:var(--violet);border-color:#38335c}
+  .tl-tag.w{color:var(--toxic);border-color:#5a2a22}
+
+  /* ---------- PIPELINE ---------- */
+  .pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:44px}
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:20px 18px;
+    position:relative;overflow:hidden;transition:border-color .35s,transform .35s}
+  .stage:hover{border-color:var(--aligned);transform:translateY(-3px)}
+  .stage .idx{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.2em}
+  .stage .cmd{font-family:var(--mono);font-size:14.5px;color:var(--aligned);margin:9px 0 8px;font-weight:600}
+  .stage p{font-size:.9rem;color:var(--ink-dim);line-height:1.5}
+  .stage .out{margin-top:12px;font-family:var(--mono);font-size:10.5px;color:var(--muted);
+    border-top:1px solid var(--line-soft);padding-top:9px}
+  .stage .out b{color:var(--violet);font-weight:400}
+  .stage::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:linear-gradient(var(--toxic),var(--aligned));opacity:.0;transition:opacity .35s}
+  .stage:hover::after{opacity:1}
+
+  /* ---------- TABLES / RESULTS ---------- */
+  .warn-banner{margin-top:34px;display:flex;gap:14px;align-items:flex-start;
+    background:linear-gradient(90deg,#1a0f0c,var(--bg-2));border:1px solid #4a241c;border-left:3px solid var(--toxic);
+    border-radius:3px;padding:16px 20px}
+  .warn-banner .ic{font-family:var(--mono);color:var(--toxic);font-size:20px;line-height:1}
+  .warn-banner p{font-size:.94rem;color:var(--ink-dim)}
+  .warn-banner b{color:var(--toxic)}
+  .tabs{display:flex;gap:6px;margin-top:40px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{font-family:var(--mono);font-size:12px;letter-spacing:.05em;padding:12px 18px;cursor:pointer;
+    color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;transition:.25s;position:relative;top:1px}
+  .tab:hover{color:var(--ink-dim)}
+  .tab.active{color:var(--ink);border-bottom-color:var(--toxic)}
+  .tab .n{color:var(--muted);margin-right:7px}
+  .panel-tab{display:none;margin-top:30px;animation:fade .5s ease}
+  .panel-tab.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .caption{font-size:.92rem;color:var(--ink-dim);max-width:70ch;margin-bottom:22px}
+  .caption b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;font-size:.95rem}
+  th,td{text-align:left;padding:13px 14px;border-bottom:1px solid var(--line-soft)}
+  thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);border-bottom:1px solid var(--line);font-weight:500}
+  tbody tr{transition:background .2s}
+  tbody tr:hover{background:#ffffff05}
+  td.vec{font-family:var(--mono);color:var(--violet);white-space:nowrap}
+  td.tokens{font-family:var(--mono);font-size:.82rem;color:var(--toxic);letter-spacing:.01em}
+  td.num{font-family:var(--mono);font-feature-settings:"tnum";color:var(--ink)}
+  .bar{position:relative;height:7px;border-radius:4px;background:#ffffff08;overflow:hidden;min-width:64px}
+  .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;display:block}
+  .bar i.t{background:linear-gradient(90deg,#8a2c1c,var(--toxic))}
+  .bar i.a{background:linear-gradient(90deg,#1c5647,var(--aligned))}
+  .metric-cell{display:flex;align-items:center;gap:10px}
+  .metric-cell .v{font-family:var(--mono);font-size:.86rem;color:var(--ink-dim);min-width:44px}
+  tr.hl-dpo td{background:#0f1a17;}
+  tr.hl-dpo td:first-child{border-left:2px solid var(--aligned)}
+  .badge-dpo{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--aligned);
+    border:1px solid #22463d;border-radius:20px;padding:1px 7px;margin-left:8px;text-transform:uppercase}
+
+  /* ---------- ADDENDUM decisions ---------- */
+  .dec-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:44px}
+  .dec{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:22px 24px}
+  .dec .q{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:9px}
+  .dec .a{font-size:.98rem;color:var(--ink-dim);line-height:1.55}
+  .dec .a b{color:var(--ink)}
+  .dec .a code{font-family:var(--mono);font-size:.84em;color:var(--aligned)}
+
+  /* ---------- ARTIFACTS ---------- */
+  .files{margin-top:44px;background:#0c0e12;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .files .fhead{display:flex;gap:8px;padding:14px 20px;border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;align-items:center}
+  .files .fhead .dots{display:flex;gap:6px;margin-right:10px}
+  .files .fhead .dots i{width:10px;height:10px;border-radius:50%;display:block}
+  .ftree{padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.95;color:var(--ink-dim)}
+  .ftree .dir{color:var(--gold)}
+  .ftree .py{color:var(--aligned)}
+  .ftree .cfg{color:var(--violet)}
+  .ftree .sz{color:var(--muted);float:right;font-size:11px}
+  .ftree .desc{color:var(--muted)}
+
+  /* ---------- OUTCOME ---------- */
+  .outcome{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:44px}
+  .oc{border:1px solid var(--line);border-radius:4px;padding:26px 28px;background:var(--panel)}
+  .oc.pass{border-left:3px solid var(--aligned)}
+  .oc.block{border-left:3px solid var(--gold)}
+  .oc .st{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+  .oc.pass .st{color:var(--aligned)}
+  .oc.block .st{color:var(--gold)}
+  .oc .st .mk{font-size:16px}
+  .oc p{font-size:.98rem;color:var(--ink-dim);line-height:1.58}
+  .oc code{font-family:var(--mono);font-size:.84em;color:var(--violet)}
+  .oc .cmdline{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;
+    background:#0c0e12;border:1px solid var(--line-soft);border-radius:3px;padding:11px 14px;white-space:pre-wrap}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:70px 0 90px;border-top:1px solid var(--line)}
+  .foot-grid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:30px;align-items:flex-end}
+  .foot-note{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.05em;line-height:1.9;max-width:60ch}
+  .foot-note b{color:var(--ink-dim)}
+  .foot-mark{font-size:1.5rem;color:var(--ink-dim);font-weight:600;letter-spacing:-.01em}
+  .foot-mark span{color:var(--toxic)}
+  .foot-mark span.a{color:var(--aligned)}
+
+  @media(max-width:860px){
+    .task-grid,.dec-grid,.outcome{grid-template-columns:1fr}
+    .pipe{grid-template-columns:1fr 1fr}
+    .metabar .m{flex:1 1 45%}
+  }
+  @media(max-width:560px){
+    .pipe{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    th,td{padding:10px 8px;font-size:.86rem}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <canvas id="stream"></canvas>
+  <div class="wrap">
+    <div class="eyebrow">
+      <span class="dot"></span>
+      <span>Agent Case &nbsp;·&nbsp; Paper Reproduction</span>
+      <span>Benchmark <b>PaperBench</b></span>
+      <span>ICML 2024</span>
+    </div>
+    <h1 class="title">
+      <span class="t1">Toxicity</span><span class="arrow">—&gt;</span><em>bypassed,<br>not removed</em>
+    </h1>
+    <p class="subtitle">
+      An agent reproduces the GPT-2 study of <b>Direct Preference Optimization</b> — showing that
+      alignment doesn't delete a model's <span class="tox">toxic capabilities</span>, it learns a distributed
+      offset that routes the residual stream around them.
+    </p>
+    <p class="authors">
+      Source paper — <b>Lee, Bai, Pres, Wattenberg, Kummerfeld, Mihalcea.</b>
+      "A Mechanistic Understanding of Alignment Algorithms: A Case Study on DPO and Toxicity."
+      Univ. of Michigan · Harvard · Univ. of Sydney.
+    </p>
+
+    <div class="metabar">
+      <div class="m"><div class="k">Agent Model</div><div class="v">gpt-5.6-sol</div></div>
+      <div class="m"><div class="k">Duration</div><div class="v">419.3<small> s</small></div></div>
+      <div class="m"><div class="k">Trajectory</div><div class="v">70<small> steps</small></div></div>
+      <div class="m"><div class="k">Exit</div><div class="v">0<small> clean</small></div></div>
+      <div class="m"><div class="k">Scope</div><div class="v">GPT-2<small> medium</small></div></div>
+    </div>
+  </div>
+  <div class="scrollcue"><span></span>scroll</div>
+</header>
+
+<!-- ============ 01 THE TASK ============ -->
+<section id="task">
+  <div class="wrap reveal">
+    <div class="sec-label"><span class="num">01</span> The Assignment <span class="rule"></span></div>
+    <h2 class="sec">Rebuild a mechanistic-interpretability paper, end to end.</h2>
+    <p class="lede">
+      The agent was handed a paper, an author addendum, and an (empty) blacklist, and asked to produce
+      <b>complete, runnable code</b> that reproduces the paper's GPT-2 results — probe training,
+      preference-pair generation, DPO alignment, evaluation, and the mechanistic analyses.
+    </p>
+
+    <div class="task-grid">
+      <div class="card">
+        <h3>Prompt</h3>
+        <div class="prompt-block mono">
+<span class="cmd">Reproduce</span> the paper described in <span class="path">workspace/paper.md</span>.
+
+Follow the clarifications in <span class="path">workspace/addendum.md</span>.
+Do <span class="warn">not</span> use any resource listed in <span class="path">workspace/blacklist.txt</span>.
+
+Write the complete, runnable implementation code
+needed to reproduce the paper's results.
+Save all code and docs under <span class="path">workspace/output/</span>.
+        </div>
+        <div style="margin-top:20px">
+          <span class="chip tox">Perspective API → out</span>
+          <span class="chip al">unbiased-toxic-roberta → in</span>
+          <span class="chip al">jigsaw (HF) → in</span>
+          <span class="chip">blacklist: empty</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Scope &amp; Author Clarifications</h3>
+        <ul class="constraints">
+          <li class="no"><b>Llama-2 out of scope</b> — access is gated behind permissions.</li>
+          <li><b>24,576 preference pairs</b> must be regenerated from scratch.</li>
+          <li>Probe <span class="mono-inline">W_toxic</span> is a matrix <b>[d_model, 2]</b>; use column&nbsp;1 (toxic).</li>
+          <li>SVD runs on the <b>transposed</b> d×N value matrix.</li>
+          <li>Measure activations over <b>20 greedily-sampled</b> tokens.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 WHAT THE PAPER CLAIMS ============ -->
+<section id="claim">
+  <div class="wrap reveal">
+    <div class="sec-label"><span class="num">02</span> The Central Finding <span class="rule"></span></div>
+    <h2 class="sec">DPO leaves the toxic circuitry intact.</h2>
+    <p class="lede">
+      Every parameter is only <span class="al">minimally shifted</span>. The model still <em>contains</em> the
+      value vectors that promote <span class="tox">toxic tokens</span> — DPO simply learns an offset,
+      distributed across layers, that steers the residual stream away from the regions that trigger them.
+      Because the capability survives, it can be <b>re-activated</b>: scale the toxic key vectors back up
+      and the aligned model reverts to its toxic behavior.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 03 AGENT TIMELINE ============ -->
+<section id="timeline">
+  <div class="wrap reveal">
+    <div class="sec-label"><span class="num">03</span> How the Agent Worked <span class="rule"></span></div>
+    <h2 class="sec">Seven minutes, read to runnable.</h2>
+    <p class="lede">A compact trace of 70 steps: orient on the paper, verify the reference repo, build the
+      package stage by stage, then audit the source when the runtime couldn't be exercised.</p>
+
+    <div class="timeline">
+      <div class="tl-item act">
+        <div class="node"></div>
+        <div class="tl-time">23:27:42 &nbsp;·&nbsp; steps 1–15</div>
+        <div class="tl-title">Read the corpus <span class="tl-tag a">recon</span></div>
+        <div class="tl-body">Opened <code>paper.md</code> (603 lines), <code>addendum.md</code>, and confirmed the
+          <code>blacklist.txt</code> was empty. Fixed scope to GPT-2 Medium only and mapped each paper section onto a required stage.</div>
+      </div>
+      <div class="tl-item act">
+        <div class="node"></div>
+        <div class="tl-time">23:28:02 &nbsp;·&nbsp; steps 17–22</div>
+        <div class="tl-title">Verify the reference implementation <span class="tl-tag a">verify</span></div>
+        <div class="tl-body">Inspected the authors' repo <code>github.com/ajyl/dpo_toxic</code> and ran
+          <code>git ls-remote</code> — then chose to write a clean, configurable reproduction rather than depend on the unavailable Llama-2 / Perspective paths.</div>
+      </div>
+      <div class="tl-item build">
+        <div class="node"></div>
+        <div class="tl-time">23:28:42 → 23:33:04 &nbsp;·&nbsp; steps 23–43</div>
+        <div class="tl-title">Build the <span class="mono-inline">mech_dpo</span> package <span class="tl-tag b">implement</span></div>
+        <div class="tl-body">Patched in ten modules — probe, PPLM pair generation, full-parameter RMSProp DPO,
+          vector extraction, interventions, evaluation, and the Figure&nbsp;2/4/5 analysis — plus <code>paper.yaml</code>, <code>smoke.yaml</code>, tests, and a README. Deliberately handled GPT-2's transposed <code>Conv1D</code> weight layout.</div>
+      </div>
+      <div class="tl-item warnnode">
+        <div class="node"></div>
+        <div class="tl-time">23:33:14 → 23:33:19 &nbsp;·&nbsp; steps 45–49</div>
+        <div class="tl-title">Runtime is missing its dependencies <span class="tl-tag w">blocked</span></div>
+        <div class="tl-body">Static <code>compileall</code> passed, but the sandbox had no <code>pytest</code> and no
+          <code>transformers</code> — so the model/network smoke run could not execute here.</div>
+      </div>
+      <div class="tl-item build">
+        <div class="node"></div>
+        <div class="tl-time">23:33:23 → 23:34:17 &nbsp;·&nbsp; steps 51–58</div>
+        <div class="tl-title">Confirm external assets &amp; refine data path <span class="tl-tag b">refine</span></div>
+        <div class="tl-body">Fetched the <code>unbiased-toxic-roberta</code> config and the HF jigsaw dataset card;
+          then removed a fragile <code>stratify_by_column</code> split and hardened the token-window generator in <code>data.py</code>.</div>
+      </div>
+      <div class="tl-item act">
+        <div class="node"></div>
+        <div class="tl-time">23:34:22 → 23:34:40 &nbsp;·&nbsp; steps 60–69</div>
+        <div class="tl-title">Final source audit &amp; handoff <span class="tl-tag a">deliver</span></div>
+        <div class="tl-body">Re-compiled, checked <code>run_all.sh</code>, grepped for stray <code>TODO / Perspective / Llama</code>,
+          removed <code>__pycache__</code>, and delivered the package with an honest note on what remained un-run.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 PIPELINE ============ -->
+<section id="pipeline">
+  <div class="wrap reveal">
+    <div class="sec-label"><span class="num">04</span> The Reproduction Pipeline <span class="rule"></span></div>
+    <h2 class="sec">Eight staged commands.</h2>
+    <p class="lede">Each stage is resumable and driven by a single YAML config. <span class="mono-inline">mech-dpo all</span>
+      runs them in order; on a cluster they can be launched independently.</p>
+
+    <div class="pipe">
+      <div class="stage"><div class="idx">01</div><div class="cmd">probe</div><p>Train the [d_model, 2] toxicity probe on mean final GPT-2 residuals, 90:10 Jigsaw split.</p><div class="out"><b>probe.pt</b> · ~94% val acc</div></div>
+      <div class="stage"><div class="idx">02</div><div class="cmd">vectors</div><p>Rank all MLP value vectors by cosine to the toxic direction; project to vocab; transposed SVD.</p><div class="out"><b>ranking.json</b> · N=128</div></div>
+      <div class="stage"><div class="idx">03</div><div class="cmd">preferences</div><p>Greedy GPT-2 = chosen, probe-guided PPLM = rejected. Checkpoints every 100 rows.</p><div class="out"><b>pairs.jsonl</b> · 24,576</div></div>
+      <div class="stage"><div class="idx">04</div><div class="cmd">dpo</div><p>Full-parameter DPO: RMSProp, β=0.1, grad-clip 10, 90:10 split, early stopping.</p><div class="out"><b>dpo_model/</b> · best val</div></div>
+      <div class="stage"><div class="idx">05</div><div class="cmd">evaluate</div><p>Table&nbsp;2 metrics for base &amp; DPO: toxicity, Wikitext-2 PPL, Wikipedia token-F1.</p><div class="out"><b>table2_base_dpo.json</b></div></div>
+      <div class="stage"><div class="idx">06</div><div class="cmd">interventions</div><p>Subtract each toxic vector from the last-layer residual across an α-sweep.</p><div class="out"><b>interventions.json</b></div></div>
+      <div class="stage"><div class="idx">07</div><div class="cmd">unalign</div><p>Scale the 7 top toxic key vectors ×10 to re-activate toxicity in the aligned model.</p><div class="out"><b>table4_unalignment.json</b></div></div>
+      <div class="stage"><div class="idx">08</div><div class="cmd">analysis</div><p>Parameter shifts, activation drops, residual-shift PCA — Figures 2, 4, 5.</p><div class="out"><b>analysis/*.png</b></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 RESULTS ============ -->
+<section id="results">
+  <div class="wrap reveal">
+    <div class="sec-label"><span class="num">05</span> Reproduced Results <span class="rule"></span></div>
+    <h2 class="sec">The three tables that carry the argument.</h2>
+    <p class="lede">The pipeline recreates the paper's key evidence. Values below are the paper's published
+      GPT-2 figures — the reproduction targets these directionally (it substitutes an open toxicity classifier for Perspective API).</p>
+
+    <div class="warn-banner">
+      <div class="ic">△</div>
+      <p><b>Content warning.</b> Table 1 catalogs the tokens that toxic value vectors promote. They are reproduced
+      here <b>censored</b>, exactly as printed in the paper, because identifying them <em>is</em> the mechanistic result — the study exists to suppress them.</p>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-t="t1"><span class="n">01</span>Toxic Vectors → Tokens</button>
+      <button class="tab" data-t="t2"><span class="n">02</span>Interventions vs DPO</button>
+      <button class="tab" data-t="t4"><span class="n">04</span>Un-alignment</button>
+    </div>
+
+    <!-- Table 1 -->
+    <div class="panel-tab active" id="t1">
+      <p class="caption"><b>Table 1.</b> Each MLP value vector (superscript = layer, subscript = index) and each
+        SVD direction encodes a distinct dimension of toxicity, revealed by its top-dot-product tokens in vocabulary space.</p>
+      <table>
+        <thead><tr><th>Vector</th><th>Top promoted tokens</th></tr></thead>
+        <tbody>
+          <tr><td class="vec">W_toxic</td><td class="tokens">c*nt, f*ck, a**hole, d*ck, wh*re, holes</td></tr>
+          <tr><td class="vec">MLP.v¹⁹₇₇₀</td><td class="tokens">sh*t, a**, cr*p, f*ck, c*nt, garbage, trash</td></tr>
+          <tr><td class="vec">MLP.v¹²₇₇₁</td><td class="tokens">delusional, hypocritical, arrogant, nonsense</td></tr>
+          <tr><td class="vec">MLP.v¹⁸₂₆₆₉</td><td class="tokens">degener, whining, idiots, stupid, smug</td></tr>
+          <tr><td class="vec">MLP.v¹³₆₆₈</td><td class="tokens">losers, filthy, disgr, gad, feces, apes, thous</td></tr>
+          <tr><td class="vec">MLP.v¹⁶₂₅₅</td><td class="tokens">disgrace, shameful, coward, unacceptable</td></tr>
+          <tr><td class="vec">MLP.v¹²₈₈₂</td><td class="tokens">f*ck, sh*t, piss, hilar, stupidity, poop</td></tr>
+          <tr><td class="vec">MLP.v¹⁹₁₄₃₈</td><td class="tokens">c*m, c*ck, orgasm, missionary, anal</td></tr>
+          <tr><td class="vec">SVD.U[0]</td><td class="tokens">a**, losers, d*ck, s*ck, balls, jack, sh*t</td></tr>
+          <tr><td class="vec">SVD.U[1]</td><td class="tokens">sexually, intercourse, missive, rogens, nude</td></tr>
+          <tr><td class="vec">SVD.U[2]</td><td class="tokens">sex, breasts, girlfriends, vagina, boobs</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table 2 -->
+    <div class="panel-tab" id="t2">
+      <p class="caption"><b>Table 2.</b> Subtracting a single toxic vector from the residual stream drops toxicity
+        while barely touching perplexity or F1 — comparable to full DPO. α is chosen so PPL matches the post-DPO model.</p>
+      <table>
+        <thead><tr><th>Method</th><th>Vector</th><th>Toxicity ↓</th><th>PPL</th><th>F1</th></tr></thead>
+        <tbody>
+          <tr><td class="vec">NO&nbsp;OP</td><td class="vec" style="color:var(--muted)">N/A</td>
+            <td><div class="metric-cell"><span class="v">0.453</span><div class="bar"><i class="t" style="width:100%"></i></div></div></td>
+            <td class="num">21.70</td><td class="num">0.193</td></tr>
+          <tr><td class="vec">SUBTRACT</td><td class="vec">W_toxic</td>
+            <td><div class="metric-cell"><span class="v">0.245</span><div class="bar"><i class="t" style="width:54%"></i></div></div></td>
+            <td class="num">23.56</td><td class="num">0.193</td></tr>
+          <tr><td class="vec">SUBTRACT</td><td class="vec">MLP.v¹⁹₇₇₀</td>
+            <td><div class="metric-cell"><span class="v">0.305</span><div class="bar"><i class="t" style="width:67%"></i></div></div></td>
+            <td class="num">23.30</td><td class="num">0.192</td></tr>
+          <tr><td class="vec">SUBTRACT</td><td class="vec">SVD.U[0]</td>
+            <td><div class="metric-cell"><span class="v">0.268</span><div class="bar"><i class="t" style="width:59%"></i></div></div></td>
+            <td class="num">23.48</td><td class="num">0.193</td></tr>
+          <tr class="hl-dpo"><td class="vec">DPO<span class="badge-dpo">reference</span></td><td class="vec" style="color:var(--muted)">N/A</td>
+            <td><div class="metric-cell"><span class="v">0.208</span><div class="bar"><i class="a" style="width:46%"></i></div></div></td>
+            <td class="num">23.34</td><td class="num">0.195</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table 4 -->
+    <div class="panel-tab" id="t4">
+      <p class="caption"><b>Table 4.</b> The aligned model is <em>un-aligned</em> by scaling its toxic key vectors —
+        toxicity returns to the pre-alignment level (0.458 ≈ 0.453) while perplexity and F1 stay put. The capability was never removed.</p>
+      <table>
+        <thead><tr><th>Method</th><th>Toxicity</th><th>PPL</th><th>F1</th></tr></thead>
+        <tbody>
+          <tr class="hl-dpo"><td class="vec">GPT2<sub style="color:var(--aligned)">DPO</sub></td>
+            <td><div class="metric-cell"><span class="v">0.208</span><div class="bar"><i class="a" style="width:45%"></i></div></div></td>
+            <td class="num">23.34</td><td class="num">0.195</td></tr>
+          <tr><td class="vec" style="color:var(--toxic)">SCALE MLP.k_toxic ×10</td>
+            <td><div class="metric-cell"><span class="v">0.458</span><div class="bar"><i class="t" style="width:100%"></i></div></div></td>
+            <td class="num">23.30</td><td class="num">0.195</td></tr>
+          <tr><td class="vec">GPT2 (pre-align)</td>
+            <td><div class="metric-cell"><span class="v">0.453</span><div class="bar"><i class="t" style="width:99%"></i></div></div></td>
+            <td class="num">21.70</td><td class="num">0.193</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 DECISIONS ============ -->
+<section id="decisions">
+  <div class="wrap reveal">
+    <div class="sec-label"><span class="num">06</span> Subtle Correctness Calls <span class="rule"></span></div>
+    <h2 class="sec">Where reproductions usually go wrong.</h2>
+    <p class="lede">The addendum exists precisely because the paper's notation hides traps. The agent encoded each
+      fix directly in the source rather than trusting the printed equations.</p>
+
+    <div class="dec-grid">
+      <div class="dec"><div class="q">GPT-2 Conv1D orientation</div>
+        <div class="a">HF stores MLP weights transposed vs. PyTorch Linear. Keys are defined as <code>c_fc.weight.T[i]</code>
+          and values as <code>c_proj.weight[i]</code> so layer/index labels match the paper — <b>the single most common source of wrong value vectors.</b></div></div>
+      <div class="dec"><div class="q">Probe is a matrix, not a vector</div>
+        <div class="a"><code>W_toxic ∈ [d_model, 2]</code>. The toxic direction is column&nbsp;1 (<code>linear.weight[1]</code>);
+          all cosine rankings use it. Reported as a two-class softmax probe.</div></div>
+      <div class="dec"><div class="q">SVD on the transpose</div>
+        <div class="a">The paper says N×d but means <code>d×N</code>. SVD runs on <code>values.T</code>, yielding
+          <b>d-dimensional</b> singular directions from U — verified by a unit test on shapes.</div></div>
+      <div class="dec"><div class="q">Horizon-1 PPLM in activation space</div>
+        <div class="a">Rejected continuations optimize a perturbation of the current final residual against the frozen
+          toxic probe — the paper's KL penalty, geometric fusion, temperature and top-k — <b>without updating model weights.</b></div></div>
+      <div class="dec"><div class="q">Open toxicity classifier</div>
+        <div class="a">Per the addendum, <code>unbiased-toxic-roberta</code> replaces Perspective API. It's multi-label
+          (Detoxify), so its toxicity head uses <b>sigmoid</b>, not a shared softmax.</div></div>
+      <div class="dec"><div class="q">Intervention α selection</div>
+        <div class="a">An α-sweep <code>[1…32]</code> is saved; the chosen scale is the one whose perplexity lands
+          closest to the DPO model's — matching the paper's calibration rule.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 ARTIFACTS ============ -->
+<section id="artifacts">
+  <div class="wrap reveal">
+    <div class="sec-label"><span class="num">07</span> What Was Delivered <span class="rule"></span></div>
+    <h2 class="sec">A single, installable package.</h2>
+    <p class="lede">Ten modules under <span class="mono-inline">src/mech_dpo/</span>, two configs, a smoke test suite,
+      and a README that maps every result file back to a table or figure.</p>
+
+    <div class="files">
+      <div class="fhead">
+        <span class="dots"><i style="background:#ff5a3c"></i><i style="background:#d7a84a"></i><i style="background:#48d6b4"></i></span>
+        workspace/output/
+      </div>
+      <div class="ftree">
+<span class="dir">output/</span>
+&nbsp;├─ <span class="py">run_all.sh</span> <span class="desc">— mech_dpo.cli all --config configs/paper.yaml</span><span class="sz">115 B</span>
+&nbsp;├─ <span class="cfg">pyproject.toml</span> · <span class="cfg">requirements.txt</span><span class="sz">597 · 190 B</span>
+&nbsp;├─ README.md <span class="desc">— install, staged commands, result map</span><span class="sz">4.9 KB</span>
+&nbsp;├─ <span class="dir">configs/</span>
+&nbsp;│&nbsp;&nbsp;├─ <span class="cfg">paper.yaml</span> <span class="desc">— full reproduction</span><span class="sz">1.3 KB</span>
+&nbsp;│&nbsp;&nbsp;└─ <span class="cfg">smoke.yaml</span> <span class="desc">— tiny-gpt2 plumbing check</span><span class="sz">1.2 KB</span>
+&nbsp;├─ <span class="dir">src/mech_dpo/</span>
+&nbsp;│&nbsp;&nbsp;├─ <span class="py">cli.py</span> <span class="desc">— 8 subcommands + all</span><span class="sz">3.7 KB</span>
+&nbsp;│&nbsp;&nbsp;├─ <span class="py">probe.py</span> <span class="desc">— [d_model,2] toxicity probe</span><span class="sz">4.1 KB</span>
+&nbsp;│&nbsp;&nbsp;├─ <span class="py">vectors.py</span> <span class="desc">— ranking · SVD · interventions</span><span class="sz">4.3 KB</span>
+&nbsp;│&nbsp;&nbsp;├─ <span class="py">pplm.py</span> <span class="desc">— probe-guided pair generation</span><span class="sz">5.2 KB</span>
+&nbsp;│&nbsp;&nbsp;├─ <span class="py">dpo.py</span> <span class="desc">— full-parameter RMSProp DPO</span><span class="sz">5.3 KB</span>
+&nbsp;│&nbsp;&nbsp;├─ <span class="py">evaluation.py</span> <span class="desc">— toxicity · PPL · token-F1</span><span class="sz">5.0 KB</span>
+&nbsp;│&nbsp;&nbsp;├─ <span class="py">analysis.py</span> <span class="desc">— Figures 2 · 4 · 5</span><span class="sz">6.5 KB</span>
+&nbsp;│&nbsp;&nbsp;├─ <span class="py">data.py</span> · <span class="py">common.py</span><span class="sz">2.4 · 2.4 KB</span>
+&nbsp;└─ <span class="dir">tests/</span> <span class="py">test_core.py</span> <span class="desc">— logps · dpo · svd · f1</span><span class="sz">1.4 KB</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 OUTCOME ============ -->
+<section id="outcome">
+  <div class="wrap reveal">
+    <div class="sec-label"><span class="num">08</span> Honest Validation State <span class="rule"></span></div>
+    <h2 class="sec">Static-checked, but not smoke-run.</h2>
+    <p class="lede">The agent was explicit about the boundary between what it verified and what the sandbox prevented —
+      no claim of numerical reproduction it could not stand behind.</p>
+
+    <div class="outcome">
+      <div class="oc pass">
+        <div class="st"><span class="mk">✓</span> Verified here</div>
+        <p>Full Python <code>compileall</code> across <code>src/</code> and <code>tests/</code> passed. <code>run_all.sh</code>
+          parses cleanly under <code>bash -n</code>. A source grep confirmed no stray <code>TODO / FIXME</code>, no lingering <code>Perspective</code> or <code>Llama</code> references, and no blacklisted resource.</p>
+        <div class="cmdline">$ python -m compileall src tests   → ok
+$ bash -n run_all.sh               → ok</div>
+      </div>
+      <div class="oc block">
+        <div class="st"><span class="mk">◐</span> Blocked by sandbox</div>
+        <p>The smoke run and unit tests could not execute: the environment lacked <code>transformers</code>
+          and <code>pytest</code>, and had no network access to download GPT-2 or the datasets. Published table values are stochastic and hardware-dependent, so they should be read <b>directionally</b>, not as exact matches.</p>
+        <div class="cmdline">zsh: command not found: pytest
+ModuleNotFoundError: No module named 'transformers'</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-note">
+        <b>Case</b> — 01_mechanistic-understanding &nbsp;·&nbsp; domain: paper_reproduction<br>
+        <b>Benchmark</b> — PaperBench &nbsp;·&nbsp; provenance: trajs_regen &nbsp;·&nbsp; collected 2026-07-11<br>
+        <b>Trajectory</b> — codex-jsonl, 70 items &nbsp;·&nbsp; sha256 f44553d…057a35<br>
+        <b>Media refs</b> — none listed; case carries no external media artifacts.
+      </div>
+      <div class="foot-mark">
+        <span>toxic</span> &nbsp;<span style="color:var(--muted);font-family:var(--mono);font-size:.7em">bypassed by</span>&nbsp; <span class="a">alignment</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* scroll progress */
+  var prog=document.getElementById('progress');
+  function onScroll(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    prog.style.width=(h>0?(window.scrollY/h*100):0)+'%';
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+  /* reveal on intersect */
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);} });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+
+  /* tabs */
+  var tabs=document.querySelectorAll('#tabs .tab');
+  tabs.forEach(function(t){
+    t.addEventListener('click',function(){
+      tabs.forEach(function(x){x.classList.remove('active');});
+      document.querySelectorAll('.panel-tab').forEach(function(p){p.classList.remove('active');});
+      t.classList.add('active');
+      document.getElementById(t.dataset.t).classList.add('active');
+    });
+  });
+
+  /* ---- hero residual-stream canvas ---- */
+  var cv=document.getElementById('stream'), ctx=cv.getContext('2d');
+  var DPR=Math.min(window.devicePixelRatio||1,2), W,H, particles=[], lanes=14;
+  function resize(){
+    W=cv.clientWidth;H=cv.clientHeight;
+    cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
+    build();
+  }
+  function build(){
+    particles=[];
+    var n=Math.max(46,Math.floor(W/16));
+    for(var i=0;i<n;i++){
+      var lane=Math.floor(Math.random()*lanes);
+      particles.push({
+        x:Math.random()*W,
+        baseY:(lane+0.5)*(H/lanes),
+        lane:lane,
+        v:0.25+Math.random()*0.7,
+        amp:6+Math.random()*22,
+        ph:Math.random()*Math.PI*2,
+        r:0.7+Math.random()*1.7
+      });
+    }
+  }
+  function mix(a,b,t){return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}
+  var toxC=[255,90,60], alnC=[72,214,180];
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    // faint lane lines
+    for(var l=0;l<lanes;l++){
+      var y=(l+0.5)*(H/lanes);
+      ctx.strokeStyle='rgba(120,130,145,0.05)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+    }
+    for(var i=0;i<particles.length;i++){
+      var p=particles[i];
+      p.x+=p.v;
+      if(p.x>W+20){p.x=-20;}
+      var prog=p.x/W;                 // left(toxic) -> right(aligned)
+      var y=p.baseY+Math.sin(t*0.0009*p.v*4+p.ph)*p.amp*(0.3+0.7*prog);
+      var c=mix(toxC,alnC,Math.min(1,Math.max(0,prog)));
+      var alpha=0.16+0.5*Math.sin(prog*Math.PI);
+      ctx.beginPath();
+      ctx.fillStyle='rgba('+((c[0])|0)+','+((c[1])|0)+','+((c[2])|0)+','+alpha.toFixed(3)+')';
+      ctx.arc(p.x,y,p.r,0,Math.PI*2);ctx.fill();
+      // short trailing streak
+      ctx.strokeStyle='rgba('+((c[0])|0)+','+((c[1])|0)+','+((c[2])|0)+','+(alpha*0.4).toFixed(3)+')';
+      ctx.lineWidth=p.r*0.9;
+      ctx.beginPath();ctx.moveTo(p.x,y);ctx.lineTo(p.x-8*p.v,y);ctx.stroke();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);
+  resize();
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

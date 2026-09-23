@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trajectory · Book Dubai Hotel — Ryanair (Mind2Web)</title>
+<style>
+  :root{
+    --bg:#070b18; --bg2:#0c1226; --panel:rgba(255,255,255,.045);
+    --panel-brd:rgba(255,255,255,.09); --ink:#eef2ff; --muted:#97a3c6;
+    --dim:#6b779b; --accent:#5b8cff; --accent2:#9d7bff; --mint:#37e0b0;
+    --amber:#ffb454; --rose:#ff6a8b; --radius:18px;
+    --grad:linear-gradient(120deg,#5b8cff 0%,#9d7bff 55%,#37e0b0 120%);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:
+      radial-gradient(1100px 600px at 78% -8%,rgba(91,140,255,.20),transparent 60%),
+      radial-gradient(900px 520px at 8% 12%,rgba(157,123,255,.16),transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI",Roboto,-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+
+  /* ---------- Nav ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    transition:background .35s,border-color .35s,backdrop-filter .35s,padding .35s;
+    border-bottom:1px solid transparent;padding:18px 0;
+  }
+  nav.scrolled{
+    background:rgba(8,12,26,.72);backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--panel-brd);padding:12px 0;
+  }
+  .nav-in{display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:.2px}
+  .logo{
+    width:34px;height:34px;border-radius:10px;background:var(--grad);
+    display:grid;place-items:center;font-size:17px;box-shadow:0 6px 20px rgba(91,140,255,.4);
+  }
+  .brand small{display:block;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.4px}
+  .nav-links{display:none;gap:28px;font-size:14px;color:var(--muted)}
+  .nav-links a{transition:color .2s}
+  .nav-links a:hover{color:var(--ink)}
+  .cta{
+    background:var(--grad);color:#08122b;font-weight:700;font-size:13.5px;
+    padding:10px 18px;border-radius:999px;border:none;cursor:pointer;
+    box-shadow:0 8px 24px rgba(91,140,255,.35);transition:transform .2s,box-shadow .2s;
+  }
+  .cta:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(91,140,255,.5)}
+
+  /* ---------- Hero ---------- */
+  header{padding:150px 0 60px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;font-size:12.5px;letter-spacing:1.6px;
+    text-transform:uppercase;color:var(--muted);border:1px solid var(--panel-brd);
+    padding:7px 15px;border-radius:999px;background:var(--panel);
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px var(--mint)}
+  h1{
+    font-size:clamp(30px,5vw,54px);line-height:1.1;margin:22px 0 18px;
+    font-weight:800;letter-spacing:-.6px;max-width:16ch;
+  }
+  h1 .hl{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:60ch}
+  .hero-badges{display:flex;flex-wrap:wrap;gap:10px;margin:28px 0 0}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);
+    background:var(--panel);border:1px solid var(--panel-brd);padding:8px 14px;border-radius:12px;
+  }
+  .badge b{color:var(--accent)}
+
+  /* ---------- Stats strip ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:44px;
+  }
+  .stat{
+    background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius);
+    padding:22px;position:relative;overflow:hidden;
+  }
+  .stat::after{content:"";position:absolute;inset:0;background:var(--grad);opacity:.05}
+  .stat .n{font-size:30px;font-weight:800;letter-spacing:-.5px}
+  .stat .l{font-size:13px;color:var(--muted);margin-top:2px}
+
+  /* ---------- Sections ---------- */
+  section{padding:56px 0}
+  .sec-head{margin-bottom:34px}
+  .sec-tag{font-size:12.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent2);font-weight:700}
+  .sec-head h2{font-size:clamp(24px,3.4vw,36px);margin:10px 0 8px;font-weight:800;letter-spacing:-.4px}
+  .sec-head p{color:var(--muted);max-width:64ch;margin:0}
+
+  /* requirements grid */
+  .req-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .req{
+    display:flex;gap:14px;align-items:flex-start;background:var(--panel);
+    border:1px solid var(--panel-brd);border-radius:14px;padding:16px 18px;
+    transition:transform .25s,border-color .25s,background .25s;
+  }
+  .req:hover{transform:translateY(-4px);border-color:rgba(91,140,255,.4);background:rgba(91,140,255,.06)}
+  .req .ic{
+    width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:grid;place-items:center;
+    font-size:19px;background:rgba(91,140,255,.14);border:1px solid rgba(91,140,255,.25);
+  }
+  .req h4{margin:0;font-size:15px}
+  .req span{font-size:13px;color:var(--muted)}
+
+  /* observation callout */
+  .callout{
+    display:flex;gap:16px;align-items:flex-start;margin-top:26px;
+    background:linear-gradient(120deg,rgba(255,180,84,.10),rgba(255,106,139,.06));
+    border:1px solid rgba(255,180,84,.28);border-radius:16px;padding:18px 20px;
+  }
+  .callout .ic{font-size:22px;flex:0 0 auto}
+  .callout h4{margin:0 0 4px;font-size:15px;color:var(--amber)}
+  .callout p{margin:0;font-size:14px;color:var(--muted)}
+
+  /* ---------- Phase filter ---------- */
+  .filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:30px}
+  .fbtn{
+    font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--panel-brd);
+    padding:9px 16px;border-radius:999px;cursor:pointer;transition:all .2s;font-family:inherit;
+  }
+  .fbtn:hover{color:var(--ink);border-color:rgba(91,140,255,.4)}
+  .fbtn.active{background:var(--grad);color:#08122b;font-weight:700;border-color:transparent}
+
+  /* ---------- Timeline ---------- */
+  .timeline{position:relative;padding-left:34px}
+  .timeline::before{
+    content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;
+    background:linear-gradient(180deg,var(--accent),var(--accent2),var(--mint));opacity:.5;
+  }
+  .phase-label{
+    margin:34px 0 16px;font-size:12.5px;letter-spacing:1.4px;text-transform:uppercase;
+    color:var(--accent2);font-weight:700;
+  }
+  .phase-label:first-child{margin-top:0}
+  .step{
+    position:relative;background:var(--panel);border:1px solid var(--panel-brd);
+    border-radius:15px;padding:16px 20px;margin-bottom:14px;
+    transition:transform .25s,border-color .25s,box-shadow .25s;
+  }
+  .step:hover{transform:translateX(6px);border-color:rgba(91,140,255,.45);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+  .step::before{
+    content:attr(data-n);position:absolute;left:-34px;top:16px;width:26px;height:26px;
+    border-radius:50%;background:var(--bg2);border:2px solid var(--accent);
+    display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--accent);
+    transform:translateX(-2px);
+  }
+  .step-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .op{
+    font-size:11px;font-weight:800;letter-spacing:.6px;padding:4px 10px;border-radius:7px;text-transform:uppercase;
+  }
+  .op.click{background:rgba(91,140,255,.16);color:#9cb8ff;border:1px solid rgba(91,140,255,.3)}
+  .op.type{background:rgba(55,224,176,.14);color:var(--mint);border:1px solid rgba(55,224,176,.3)}
+  .step-title{font-size:15.5px;font-weight:600}
+  .step-title .val{color:var(--mint);font-weight:700}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+  .chip{
+    font-size:11.5px;color:var(--dim);background:rgba(255,255,255,.03);
+    border:1px solid var(--panel-brd);padding:3px 9px;border-radius:7px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  .chip b{color:var(--muted);font-weight:600}
+
+  /* ---------- reveal anim ---------- */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--panel-brd);margin-top:50px;padding:40px 0 60px;color:var(--muted);font-size:13px}
+  .foot-in{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center}
+  .foot-meta{display:flex;flex-wrap:wrap;gap:8px 22px}
+  .foot-meta span b{color:var(--ink)}
+
+  @media(min-width:760px){
+    .nav-links{display:flex}
+    .stats{grid-template-columns:repeat(4,1fr)}
+    .req-grid{grid-template-columns:repeat(3,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-in">
+    <div class="brand">
+      <div class="logo">✈</div>
+      <div>AgentHTML<small>Ryanair · Travel / Airlines</small></div>
+    </div>
+    <div class="nav-links">
+      <a href="#task">Task</a>
+      <a href="#requirements">Requirements</a>
+      <a href="#walkthrough">Walkthrough</a>
+      <a href="#details">Details</a>
+    </div>
+    <button class="cta" onclick="document.getElementById('walkthrough').scrollIntoView()">View walkthrough</button>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="dot"></span> Mind2Web · Human Demonstration</span>
+    <h1 class="reveal">Booking a Dubai hotel in <span class="hl">21 recorded steps</span></h1>
+    <p class="lede reveal">A single human-annotated navigation trajectory captured on Ryanair's travel portal — reconstructing exactly how the goal was completed, action by action.</p>
+    <div class="hero-badges reveal">
+      <span class="badge">🌐 <b>ryanair</b></span>
+      <span class="badge">🧭 web_navigation</span>
+      <span class="badge">👤 human-annotator</span>
+      <span class="badge">🎯 <b>21</b> actions</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat reveal"><div class="n">21</div><div class="l">Total actions</div></div>
+      <div class="stat reveal"><div class="n">18</div><div class="l">Click operations</div></div>
+      <div class="stat reveal"><div class="n">1</div><div class="l">Type operations</div></div>
+      <div class="stat reveal"><div class="n">5</div><div class="l">Task phases</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="task">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Confirmed task</div>
+      <h2>The goal the annotator set out to achieve</h2>
+    </div>
+    <div class="req reveal" style="align-items:center">
+      <div class="ic">📋</div>
+      <div>
+        <h4 style="font-size:17px;margin-bottom:4px">"Book two rooms for four adults in a 5-star hotel with pool, minibar, bathtub, and spa facilities, that are nearest to the city center in Dubai from June 13 to 16."</h4>
+        <span>Domain: Travel → Airlines · Website: ryanair · Annotation 81b23d7b…c077fe</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="requirements">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Decomposition</div>
+      <h2>Nine constraints, one search</h2>
+      <p>The natural-language task breaks down into concrete booking parameters and hotel filters the annotator had to satisfy.</p>
+    </div>
+    <div class="req-grid" id="reqGrid"></div>
+
+    <div class="callout reveal">
+      <div class="ic">⚠️</div>
+      <div>
+        <h4>Faithfulness note — date discrepancy</h4>
+        <p>The task specifies <b>June&nbsp;13–16</b>, but the recorded date-picker actions select the <b>Jul</b> month tab before choosing 13 and 16 (steps 4–6). The demonstration's month selection diverges from the stated intent.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="walkthrough">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Trajectory</div>
+      <h2>Step-by-step walkthrough</h2>
+      <p>Every action as captured in the Mind2Web trace: operation type, target element, and on-page bounding box. Filter by phase to focus on one part of the flow.</p>
+    </div>
+    <div class="filters reveal" id="filters"></div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+</section>
+
+<section id="details">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Provenance</div>
+      <h2>Case metadata</h2>
+    </div>
+    <div class="req-grid reveal">
+      <div class="req"><div class="ic">🗂️</div><div><h4>Benchmark</h4><span>Mind2Web · upstream</span></div></div>
+      <div class="req"><div class="ic">🧩</div><div><h4>Format</h4><span>mind2web-json</span></div></div>
+      <div class="req"><div class="ic">👤</div><div><h4>Model</h4><span>human-annotator (no agent)</span></div></div>
+      <div class="req"><div class="ic">🌐</div><div><h4>Website</h4><span>ryanair</span></div></div>
+      <div class="req"><div class="ic">🧭</div><div><h4>Domain</h4><span>Travel / Airlines</span></div></div>
+      <div class="req"><div class="ic">🔑</div><div><h4>Case ID</h4><span>05_test_task_test_task_2_4</span></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <div class="foot-meta">
+      <span><b>AgentHTML</b> · trajectory viewer</span>
+      <span>Benchmark: <b>Mind2Web</b></span>
+      <span>Annotation: <b>81b23d7b-e0e9-47f5-92f1-a4fc7ac077fe</b></span>
+    </div>
+    <div>Media references: none · Self-contained demonstration record</div>
+  </div>
+</footer>
+
+<script>
+  // ---- data ----
+  const requirements=[
+    {ic:"🏨",t:"5-star hotel",d:"Rated hotels filter applied"},
+    {ic:"🚪",t:"Two rooms",d:"+ Add room, second room set"},
+    {ic:"👥",t:"Four adults",d:"Occupancy counters increased"},
+    {ic:"🏊",t:"Pool",d:"Facility filter"},
+    {ic:"🍸",t:"Mini-bar",d:"Facility filter"},
+    {ic:"🛁",t:"Bathtub",d:"Facility filter"},
+    {ic:"💆",t:"Spa",d:"Facility filter"},
+    {ic:"📍",t:"Nearest city centre",d:"Sort by distance"},
+    {ic:"📅",t:"June 13 → 16",d:"Date range in Dubai"},
+  ];
+
+  const phases=[
+    {id:"search",name:"1 · Search setup"},
+    {id:"dates",name:"2 · Dates"},
+    {id:"guests",name:"3 · Guests & rooms"},
+    {id:"filters",name:"4 · Filters"},
+    {id:"book",name:"5 · Sort & book"},
+  ];
+
+  const steps=[
+    {n:0,op:"CLICK",title:"Open the <b>Hotels</b> search tab",phase:"search",tag:"button",aria:"hotels",bbox:"337,76,132,46"},
+    {n:1,op:"TYPE",title:'Type destination',val:"DUBAI",phase:"search",tag:"input",aria:"Destination or property",bbox:"77,163,836,22"},
+    {n:2,op:"CLICK",title:"Select <b>Dubai, Dubai</b> from suggestions",phase:"search",tag:"div",aria:"—",bbox:"91,256,78,18"},
+    {n:3,op:"CLICK",title:"Open the <b>Choose date</b> picker",phase:"dates",tag:"hp-input-button",aria:"—",bbox:"60,202,290,52"},
+    {n:4,op:"CLICK",title:"Switch month tab to <b>Jul</b>",phase:"dates",tag:"div",aria:"Jul",bbox:"353,280,65,22"},
+    {n:5,op:"CLICK",title:"Pick check-in day <b>13</b>",phase:"dates",tag:"div",aria:"13",bbox:"189,446,29,29"},
+    {n:6,op:"CLICK",title:"Pick check-out day <b>16</b>",phase:"dates",tag:"div",aria:"16",bbox:"286,446,29,29"},
+    {n:7,op:"CLICK",title:"Increase adults counter (room 1)",phase:"guests",tag:"ry-counter-button",aria:"1 Adults +1",bbox:"905,326,24,24"},
+    {n:8,op:"CLICK",title:"Click <b>+ Add room</b>",phase:"guests",tag:"button",aria:"+ Add room",bbox:"865,430,63,12"},
+    {n:9,op:"CLICK",title:"Increase adults counter (room 2)",phase:"guests",tag:"ry-counter-button",aria:"1 Adults +1",bbox:"905,475,24,24"},
+    {n:10,op:"CLICK",title:"Confirm occupancy with <b>Done</b>",phase:"guests",tag:"button",aria:"Done",bbox:"891,614,37,16"},
+    {n:11,op:"CLICK",title:"Run the <b>Search</b>",phase:"guests",tag:"button",aria:"Search",bbox:"938,202,282,52"},
+    {n:12,op:"CLICK",title:"Open the filters panel",phase:"filters",tag:"path",aria:"—",bbox:"—"},
+    {n:13,op:"CLICK",title:"Enable <b>Pool</b> filter",phase:"filters",tag:"input",aria:"Pool",bbox:"179,1176,16,16"},
+    {n:14,op:"CLICK",title:"Enable <b>Mini-bar</b> filter",phase:"filters",tag:"input",aria:"Mini-bar",bbox:"179,2067,16,16"},
+    {n:15,op:"CLICK",title:"Enable <b>Bathtub</b> filter",phase:"filters",tag:"input",aria:"Bathtub",bbox:"179,1867,16,16"},
+    {n:16,op:"CLICK",title:"Enable <b>Spa</b> filter",phase:"filters",tag:"input",aria:"Spa",bbox:"179,1576,16,16"},
+    {n:17,op:"CLICK",title:"Restrict to 5-star <b>Hotels</b>",phase:"filters",tag:"input",aria:"Hotels",bbox:"172,874,16,16"},
+    {n:18,op:"CLICK",title:"Sort by <b>Distance from city centre</b>",phase:"book",tag:"label",aria:"Distance from city centre",bbox:"562,110,188,49"},
+    {n:19,op:"CLICK",title:"Click <b>Choose room</b> on top result",phase:"book",tag:"button",aria:"Choose room",bbox:"950,374,144,40"},
+    {n:20,op:"CLICK",title:"Confirm with <b>Book now</b>",phase:"book",tag:"button",aria:"Book now",bbox:"944,1084,160,40"},
+  ];
+
+  // ---- render requirements ----
+  document.getElementById("reqGrid").innerHTML=requirements.map(r=>
+    `<div class="req reveal"><div class="ic">${r.ic}</div><div><h4>${r.t}</h4><span>${r.d}</span></div></div>`
+  ).join("");
+
+  // ---- render filters ----
+  const fWrap=document.getElementById("filters");
+  const all=[{id:"all",name:"All steps"}].concat(phases);
+  fWrap.innerHTML=all.map((p,i)=>
+    `<button class="fbtn${i===0?' active':''}" data-f="${p.id}">${p.name}</button>`
+  ).join("");
+
+  // ---- render timeline ----
+  const tl=document.getElementById("timeline");
+  function opClass(op){return op==="TYPE"?"type":"click";}
+  function render(filter){
+    let html="", lastPhase=null;
+    steps.forEach(s=>{
+      if(filter!=="all" && s.phase!==filter) return;
+      if(filter==="all" && s.phase!==lastPhase){
+        const p=phases.find(x=>x.id===s.phase);
+        html+=`<div class="phase-label">${p.name}</div>`;
+        lastPhase=s.phase;
+      }
+      const valHtml=s.val?` <span class="val">"${s.val}"</span>`:"";
+      html+=`<div class="step reveal" data-n="${s.n}">
+        <div class="step-top">
+          <span class="op ${opClass(s.op)}">${s.op}</span>
+          <span class="step-title">${s.title}${valHtml}</span>
+        </div>
+        <div class="meta">
+          <span class="chip"><b>tag</b> ${s.tag}</span>
+          <span class="chip"><b>aria</b> ${s.aria}</span>
+          <span class="chip"><b>bbox</b> ${s.bbox}</span>
+        </div>
+      </div>`;
+    });
+    tl.innerHTML=html;
+    observeReveals();
+  }
+  render("all");
+
+  fWrap.addEventListener("click",e=>{
+    const b=e.target.closest(".fbtn"); if(!b) return;
+    fWrap.querySelectorAll(".fbtn").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    render(b.dataset.f);
+  });
+
+  // ---- nav scroll ----
+  const nav=document.getElementById("nav");
+  addEventListener("scroll",()=>nav.classList.toggle("scrolled",scrollY>30));
+
+  // ---- reveal on scroll ----
+  let io;
+  function observeReveals(){
+    if(!io){
+      io=new IntersectionObserver(es=>{
+        es.forEach(en=>{if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target);}});
+      },{threshold:.12});
+    }
+    document.querySelectorAll(".reveal:not(.in)").forEach(el=>io.observe(el));
+  }
+  observeReveals();
+</script>
+</body>
+</html>

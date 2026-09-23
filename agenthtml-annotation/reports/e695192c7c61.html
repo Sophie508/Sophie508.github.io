@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Save a coffee mocha recipe · Mind2Web trajectory</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#181b22; --panel2:#20242e; --line:#2c313d;
+    --ink:#e8eaf0; --muted:#9aa2b1; --accent:#e8734a; --accent2:#f4a261;
+    --good:#57c98a; --chip:#262b36; --link:#7cb7ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px; margin:0 auto; padding:32px 20px 72px}
+  header.hero{
+    background:linear-gradient(135deg,#241a16,#181b22 60%);
+    border:1px solid var(--line); border-radius:16px; padding:28px 30px;
+    position:relative; overflow:hidden;
+  }
+  header.hero::after{
+    content:""; position:absolute; right:-40px; top:-40px; width:180px; height:180px;
+    background:radial-gradient(circle,rgba(232,115,74,.25),transparent 70%);
+  }
+  .eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent2); font-weight:700}
+  h1{margin:.35em 0 .1em; font-size:30px; line-height:1.2}
+  .subtitle{color:var(--muted); font-size:15px}
+  .meta-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:12px; margin-top:22px;
+  }
+  .meta-card{background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:12px 14px}
+  .meta-card .k{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+  .meta-card .v{font-size:15px; font-weight:600; margin-top:3px; word-break:break-word}
+  .badge{display:inline-block; background:var(--chip); border:1px solid var(--line); color:var(--muted);
+    border-radius:999px; padding:3px 10px; font-size:12px; margin-right:6px}
+  .badge.human{color:var(--good); border-color:rgba(87,201,138,.4)}
+
+  section{margin-top:36px}
+  h2{font-size:18px; margin:0 0 4px; display:flex; align-items:center; gap:10px}
+  h2 .rule{flex:1; height:1px; background:var(--line)}
+  .lead{color:var(--muted); font-size:14px; margin:0 0 18px}
+
+  .flow{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px;
+  }
+  .crumb{background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:13px; font-weight:600}
+  .crumb.final{background:rgba(232,115,74,.14); border-color:var(--accent); color:var(--accent2)}
+  .arrow{color:var(--muted); font-size:14px}
+
+  .steps{position:relative; margin-top:8px; padding-left:34px}
+  .steps::before{content:""; position:absolute; left:15px; top:8px; bottom:8px; width:2px; background:var(--line)}
+  .step{position:relative; margin-bottom:16px}
+  .step .dot{
+    position:absolute; left:-34px; top:2px; width:32px; height:32px; border-radius:50%;
+    background:var(--panel2); border:2px solid var(--accent); color:var(--accent2);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; z-index:1;
+  }
+  .step.save .dot{border-color:var(--good); color:var(--good)}
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px;
+    transition:border-color .15s, transform .15s;
+  }
+  .card:hover{border-color:var(--accent); transform:translateX(2px)}
+  .step-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .op{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; font-weight:700;
+    background:var(--chip); border:1px solid var(--line); border-radius:6px; padding:2px 8px}
+  .op.click{color:var(--link)}
+  .op.hover{color:var(--accent2)}
+  .tag{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:var(--muted)}
+  .target{font-weight:700; font-size:15px}
+  .step-body{margin-top:10px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px}
+  .kv{background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:8px 10px}
+  .kv .k{font-size:10px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted)}
+  .kv .v{font-size:13px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin-top:2px; word-break:break-all}
+  .note{font-size:12.5px; color:var(--muted); margin-top:10px; padding-left:2px}
+  .note b{color:var(--accent2)}
+
+  footer{margin-top:40px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:12.5px}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; background:var(--chip); padding:1px 5px; border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">Mind2Web · Web Navigation</div>
+    <h1>Save a coffee mocha recipe.</h1>
+    <div class="subtitle">A human-annotated navigation trajectory on <strong>allrecipes.com</strong> — from the top nav down to the Save button.</div>
+    <div style="margin-top:14px">
+      <span class="badge human">● human demonstration</span>
+      <span class="badge">5 actions</span>
+      <span class="badge">Info · Cooking</span>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-card"><div class="k">Website</div><div class="v">allrecipes</div></div>
+      <div class="meta-card"><div class="k">Domain</div><div class="v">Info</div></div>
+      <div class="meta-card"><div class="k">Subdomain</div><div class="v">Cooking</div></div>
+      <div class="meta-card"><div class="k">Benchmark</div><div class="v">Mind2Web</div></div>
+      <div class="meta-card"><div class="k">Model</div><div class="v">human-annotator</div></div>
+      <div class="meta-card"><div class="k">Annotation ID</div><div class="v" style="font-size:12px">547ed17c-da34-4a20-93cd-24a3603f4ccf</div></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>Navigation path <span class="rule"></span></h2>
+    <p class="lead">The task is completed by drilling through the menu taxonomy, then acting on the target recipe category.</p>
+    <div class="flow">
+      <span class="crumb">MEALS</span><span class="arrow">→</span>
+      <span class="crumb">Drinks</span><span class="arrow">→</span>
+      <span class="crumb">Coffee Drinks</span><span class="arrow">→</span>
+      <span class="crumb">Mochas</span><span class="arrow">→</span>
+      <span class="crumb final">💾 Save Recipe</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Action-by-action <span class="rule"></span></h2>
+    <p class="lead">Each card shows the recorded operation, the target element, and DOM details captured for that step.</p>
+
+    <div class="steps">
+
+      <!-- Step 0 -->
+      <div class="step">
+        <div class="dot">1</div>
+        <div class="card">
+          <div class="step-head">
+            <span class="op hover">HOVER</span>
+            <span class="tag">&lt;a&gt; link</span>
+            <span class="target">MEALS</span>
+          </div>
+          <div class="step-body">
+            <div class="kv"><div class="k">backend_node_id</div><div class="v">99</div></div>
+            <div class="kv"><div class="k">bounding box</div><div class="v">127, 110, 47×18</div></div>
+            <div class="kv"><div class="k">candidates</div><div class="v">1 pos · 233 neg</div></div>
+          </div>
+          <div class="note">Hover the top-level <b>MEALS</b> nav item to expose its dropdown menu. Recorded as <code>original_op: HOVER</code> (normalized op <code>CLICK</code>).</div>
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="step">
+        <div class="dot">2</div>
+        <div class="card">
+          <div class="step-head">
+            <span class="op click">CLICK</span>
+            <span class="tag">&lt;a&gt; link</span>
+            <span class="target">Drinks</span>
+          </div>
+          <div class="step-body">
+            <div class="kv"><div class="k">candidates</div><div class="v">0 pos · 234 neg</div></div>
+          </div>
+          <div class="note">Click <b>Drinks</b> in the revealed submenu to enter the beverage category. No positive DOM candidate was retained for this step in the annotation.</div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step">
+        <div class="dot">3</div>
+        <div class="card">
+          <div class="step-head">
+            <span class="op click">CLICK</span>
+            <span class="tag">&lt;a&gt; link</span>
+            <span class="target">Coffee Drinks</span>
+          </div>
+          <div class="step-body">
+            <div class="kv"><div class="k">backend_node_id</div><div class="v">17091</div></div>
+            <div class="kv"><div class="k">element id</div><div class="v">taxonomy-nodes__link_1-0-4</div></div>
+            <div class="kv"><div class="k">bounding box</div><div class="v">649, 796, 111×18</div></div>
+            <div class="kv"><div class="k">candidates</div><div class="v">1 pos · 388 neg</div></div>
+          </div>
+          <div class="note">Select the <b>Coffee Drinks</b> subcategory from the Drinks taxonomy listing.</div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step">
+        <div class="dot">4</div>
+        <div class="card">
+          <div class="step-head">
+            <span class="op click">CLICK</span>
+            <span class="tag">&lt;a&gt; link</span>
+            <span class="target">Mochas</span>
+          </div>
+          <div class="step-body">
+            <div class="kv"><div class="k">backend_node_id</div><div class="v">25001</div></div>
+            <div class="kv"><div class="k">element id</div><div class="v">taxonomy-nodes__link_1-0-1</div></div>
+            <div class="kv"><div class="k">bounding box</div><div class="v">447, 480, 60×18</div></div>
+            <div class="kv"><div class="k">candidates</div><div class="v">1 pos · 319 neg</div></div>
+          </div>
+          <div class="note">Narrow down to the <b>Mochas</b> recipe collection — the coffee-mocha target from the task.</div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step save">
+        <div class="dot">✓</div>
+        <div class="card">
+          <div class="step-head">
+            <span class="op click">CLICK</span>
+            <span class="tag">&lt;button&gt;</span>
+            <span class="target">Save Recipe</span>
+          </div>
+          <div class="step-body">
+            <div class="kv"><div class="k">backend_node_id</div><div class="v">30584</div></div>
+            <div class="kv"><div class="k">element id</div><div class="v">mntl-save__link_1-0</div></div>
+            <div class="kv"><div class="k">aria-label</div><div class="v">Save Recipe</div></div>
+            <div class="kv"><div class="k">bounding box</div><div class="v">338.7, 594, 48×48</div></div>
+            <div class="kv"><div class="k">candidates</div><div class="v">1 pos · 193 neg</div></div>
+          </div>
+          <div class="note">Final action: click the <b>Save Recipe</b> button to complete the task and persist the mocha recipe.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div><strong>Case:</strong> <code>03_test_domain_test_domain_2_85</code> · trajectory format <code>mind2web-json</code> · source: upstream human demonstration.</div>
+    <div style="margin-top:6px">No agent model was involved; this is a ground-truth annotation trajectory. Full cleaned-HTML snapshots (65K–117K chars each) are stored per step inside <code>trajectory.json</code> and are not embedded here.</div>
+  </footer>
+
+</div>
+</body>
+</html>

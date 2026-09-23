@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mind2Web · Ryanair hotel booking — case 05_test_task_test_task_2_4</title>
+<style>
+  :root{
+    --ink:#0e1220;
+    --ink-2:#3b4258;
+    --muted:#6b7390;
+    --line:rgba(20,26,54,.10);
+    --bg:#f6f7fc;
+    --card:rgba(255,255,255,.72);
+    --violet:#5b53ff;
+    --violet-2:#8a63ff;
+    --cyan:#12b8c8;
+    --amber:#f2a33c;
+    --green:#17a673;
+    --rose:#e0536b;
+    --radius:20px;
+    --shadow:0 18px 50px -24px rgba(24,26,74,.45);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(58% 46% at 12% -4%, rgba(91,83,255,.25), transparent 62%),
+      radial-gradient(46% 42% at 92% 4%, rgba(18,184,200,.20), transparent 60%),
+      radial-gradient(60% 50% at 70% 42%, rgba(138,99,255,.14), transparent 65%);
+    pointer-events:none;
+  }
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  a{color:inherit;text-decoration:none}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    transition:background .3s ease, box-shadow .3s ease, backdrop-filter .3s ease;
+    background:rgba(246,247,252,0);
+  }
+  nav.scrolled{
+    background:rgba(246,247,252,.78);
+    backdrop-filter:blur(14px) saturate(160%);
+    -webkit-backdrop-filter:blur(14px) saturate(160%);
+    box-shadow:0 1px 0 var(--line), 0 12px 30px -26px rgba(24,26,74,.5);
+  }
+  .nav-inner{display:flex;align-items:center;gap:18px;height:68px}
+  .logo{display:flex;align-items:center;gap:11px;font-weight:750;letter-spacing:-.02em}
+  .logo .mark{
+    width:32px;height:32px;border-radius:10px;flex:0 0 auto;
+    background:linear-gradient(140deg,var(--violet),var(--cyan));
+    box-shadow:0 8px 18px -8px rgba(91,83,255,.9);
+    display:grid;place-items:center;color:#fff;font-size:15px;
+  }
+  .logo small{display:block;font-weight:500;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+  .nav-links{display:flex;gap:6px;margin-left:auto}
+  .nav-links a{
+    padding:8px 13px;border-radius:999px;font-size:14px;color:var(--ink-2);
+    transition:background .2s ease,color .2s ease;
+  }
+  .nav-links a:hover{background:rgba(91,83,255,.10);color:var(--violet)}
+  .nav-cta{
+    margin-left:8px;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:650;color:#fff;
+    background:linear-gradient(135deg,var(--violet),var(--violet-2));
+    box-shadow:0 10px 26px -12px rgba(91,83,255,.85);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 16px 32px -12px rgba(91,83,255,.95)}
+  @media(max-width:840px){.nav-links{display:none}}
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:74px 0 40px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;
+    padding:7px 15px;border-radius:999px;font-size:12.5px;font-weight:600;letter-spacing:.04em;
+    color:var(--violet);background:rgba(91,83,255,.09);border:1px solid rgba(91,83,255,.20);
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(23,166,115,.16)}
+  h1{
+    font-size:clamp(2.1rem,4.6vw,3.5rem);line-height:1.08;letter-spacing:-.035em;
+    margin:22px 0 14px;font-weight:800;max-width:19ch;
+  }
+  h1 .grad{background:linear-gradient(120deg,var(--violet),var(--cyan) 70%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:1.09rem;color:var(--ink-2);max-width:62ch;margin:0 0 26px}
+  .lede code{font-family:var(--mono);font-size:.93em;background:rgba(20,26,54,.06);padding:2px 7px;border-radius:7px}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:999px;
+    font-weight:650;font-size:15px;border:1px solid transparent;transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+  }
+  .btn-primary{color:#fff;background:linear-gradient(135deg,var(--violet),var(--violet-2));box-shadow:0 14px 34px -14px rgba(91,83,255,.95)}
+  .btn-primary:hover{transform:translateY(-2px)}
+  .btn-ghost{background:rgba(255,255,255,.7);border-color:var(--line);color:var(--ink)}
+  .btn-ghost:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:44px}
+  @media(max-width:860px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+  .stat{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 20px 18px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:var(--shadow);
+  }
+  .stat b{display:block;font-size:1.85rem;letter-spacing:-.03em;line-height:1.1}
+  .stat span{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:70px 0;scroll-margin-top:80px}
+  .sec-head{margin-bottom:34px;max-width:64ch}
+  .kicker{font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--violet)}
+  h2{font-size:clamp(1.6rem,2.9vw,2.15rem);letter-spacing:-.03em;margin:10px 0 12px;font-weight:780}
+  .sec-head p{color:var(--ink-2);margin:0}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+  /* ---------- FEATURE CARDS ---------- */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:620px){.cards{grid-template-columns:1fr}}
+  .card{
+    position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:var(--shadow);transition:transform .28s cubic-bezier(.22,.61,.36,1),box-shadow .28s ease,border-color .28s ease;
+  }
+  .card:hover{transform:translateY(-6px);box-shadow:0 30px 60px -26px rgba(24,26,74,.55);border-color:rgba(91,83,255,.35)}
+  .card .ico{
+    width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:19px;margin-bottom:14px;
+    background:linear-gradient(135deg,rgba(91,83,255,.16),rgba(18,184,200,.16));border:1px solid rgba(91,83,255,.2);
+  }
+  .card h3{margin:0 0 8px;font-size:1.05rem;letter-spacing:-.015em}
+  .card p{margin:0;color:var(--ink-2);font-size:.94rem}
+  .card .tap{position:absolute;inset:auto 22px 18px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--violet),var(--cyan));opacity:0;transition:opacity .28s ease}
+  .card:hover .tap{opacity:1}
+
+  /* ---------- TIMELINE ---------- */
+  .phase{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px 24px 20px;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--shadow);margin-bottom:18px;
+  }
+  .phase-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .phase-num{
+    width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:750;color:#fff;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--violet),var(--violet-2));box-shadow:0 10px 22px -12px rgba(91,83,255,.9);
+  }
+  .phase-head h3{margin:0;font-size:1.1rem;letter-spacing:-.02em}
+  .phase-head .range{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:auto}
+  .step{display:grid;grid-template-columns:34px 1fr auto;gap:14px;align-items:start;padding:11px 0;border-top:1px dashed var(--line)}
+  .step:first-of-type{border-top:0}
+  .step .n{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:3px}
+  .step .what{font-size:.95rem}
+  .step .what b{font-weight:650}
+  .step .meta{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right;white-space:nowrap;padding-top:4px}
+  .op{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:6px;vertical-align:1px}
+  .op-click{color:#4a3fd6;background:rgba(91,83,255,.12)}
+  .op-type{color:#0d7f8c;background:rgba(18,184,200,.14)}
+  .note-inline{font-size:12.5px;color:var(--muted);display:block;margin-top:2px}
+
+  /* ---------- TABLE ---------- */
+  .table-wrap{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--shadow);
+  }
+  .scroller{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;min-width:820px;font-size:13.5px}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{
+    font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+    background:rgba(20,26,54,.035);position:sticky;top:0;font-weight:700;
+  }
+  tbody tr{transition:background .18s ease}
+  tbody tr:hover{background:rgba(91,83,255,.055)}
+  td.id{font-family:var(--mono);font-size:12px;color:var(--ink-2);white-space:nowrap}
+  td.lbl{font-weight:600}
+  td.lbl small{display:block;font-weight:400;color:var(--muted);font-size:11.5px}
+  .bar{height:7px;border-radius:5px;background:linear-gradient(90deg,var(--violet),var(--cyan));min-width:3px;display:block}
+  .bar-wrap{display:flex;align-items:center;gap:8px;min-width:130px}
+  .bar-wrap span{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+  .pill{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:6px;background:rgba(20,26,54,.06);color:var(--ink-2);white-space:nowrap}
+  .pill.warn{background:rgba(242,163,60,.16);color:#9a6512}
+  .pill.crit{background:rgba(224,83,107,.14);color:#a72c44}
+  caption{caption-side:bottom;text-align:left;padding:12px 16px;color:var(--muted);font-size:12px}
+
+  /* ---------- FINDINGS ---------- */
+  .findings{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  @media(max-width:820px){.findings{grid-template-columns:1fr}}
+  .finding{
+    background:var(--card);border:1px solid var(--line);border-left:4px solid var(--violet);
+    border-radius:16px;padding:20px 22px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--shadow);
+  }
+  .finding.warn{border-left-color:var(--amber)}
+  .finding.good{border-left-color:var(--green)}
+  .finding h3{margin:0 0 8px;font-size:1rem;display:flex;gap:9px;align-items:center;letter-spacing:-.01em}
+  .finding p{margin:0;color:var(--ink-2);font-size:.93rem}
+  .finding .tag{font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:6px;background:rgba(20,26,54,.06);color:var(--muted);margin-left:auto;white-space:nowrap}
+
+  /* ---------- FAQ ---------- */
+  details{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--shadow);overflow:hidden;
+  }
+  details[open]{border-color:rgba(91,83,255,.3)}
+  summary{
+    cursor:pointer;list-style:none;padding:18px 22px;font-weight:640;font-size:1rem;
+    display:flex;align-items:center;gap:12px;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::after{
+    content:"+";margin-left:auto;font-weight:400;font-size:1.35rem;color:var(--violet);
+    transition:transform .28s ease;
+  }
+  details[open] summary::after{transform:rotate(45deg)}
+  details .body{padding:0 22px 20px;color:var(--ink-2);font-size:.95rem;animation:slide .35s ease}
+  @keyframes slide{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  details .body code{font-family:var(--mono);font-size:.9em;background:rgba(20,26,54,.06);padding:1px 6px;border-radius:6px}
+
+  /* ---------- MEDIA / FOOTER ---------- */
+  .media{
+    background:linear-gradient(135deg,rgba(91,83,255,.10),rgba(18,184,200,.10));
+    border:1px dashed rgba(91,83,255,.35);border-radius:var(--radius);padding:22px 24px;
+  }
+  .media h3{margin:0 0 8px;font-size:1rem}
+  .media p{margin:0;color:var(--ink-2);font-size:.93rem}
+  footer{
+    margin-top:30px;padding:44px 0 54px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:13.5px;
+  }
+  .foot-grid{display:flex;gap:22px;flex-wrap:wrap;justify-content:space-between;align-items:flex-start}
+  footer b{color:var(--ink);font-weight:650}
+  .disclaimer{margin-top:18px;font-size:12.5px;line-height:1.6;max-width:80ch}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-inner">
+    <a class="logo" href="#top">
+      <span class="mark">◆</span>
+      <span>Case 05_test_task_test_task_2_4<small>Mind2Web · Ryanair</small></span>
+    </a>
+    <div class="nav-links">
+      <a href="#task">Task</a>
+      <a href="#phases">Walkthrough</a>
+      <a href="#trajectory">All 21 actions</a>
+      <a href="#findings">Findings</a>
+      <a href="#faq">Notes</a>
+    </div>
+    <a class="nav-cta" href="#trajectory">View trajectory</a>
+  </div>
+</nav>
+
+<header class="hero wrap" id="top">
+  <span class="eyebrow"><span class="dot"></span> Recorded human demonstration · completed run</span>
+  <h1>Booking two hotel rooms in Dubai, <span class="grad">one click at a time</span>.</h1>
+  <p class="lede">
+    A verbatim replay of an annotator's 21-step session on <b>Ryanair</b>'s hotel search.
+    The confirmed task: <code>Book two rooms for four adults in a 5-star hotel with pool, minibar, bathtub, and spa facilities, that are nearest to the city center in Dubai from June 13 to 16.</code>
+  </p>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="#phases">Follow the walkthrough →</a>
+    <a class="btn btn-ghost" href="#findings">Read the discrepancies</a>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat reveal"><b>21</b><span>Actions</span></div>
+    <div class="stat reveal"><b>20 / 1</b><span>CLICK / TYPE</span></div>
+    <div class="stat reveal"><b>7</b><span>Phases</span></div>
+    <div class="stat reveal"><b>$612.66</b><span>2 rooms · 3 nights</span></div>
+  </div>
+</header>
+
+<section id="task" class="wrap">
+  <div class="sec-head reveal">
+    <div class="kicker">The task</div>
+    <h2>What the annotator was asked to do</h2>
+    <p>The instruction bundles six constraints: room count (2), occupancy (4 adults), hotel class (5-star), four amenities (pool, minibar, bathtub, spa), a proximity sort (nearest to the city centre), and dates (June 13–16). The recorded session satisfies some of these explicitly and others only implicitly — see <a href="#findings" style="color:var(--violet);font-weight:600">Findings</a>.</p>
+  </div>
+  <div class="cards">
+    <div class="card reveal"><div class="ico">🏨</div><h3>Two rooms, four adults</h3><p>Two counters incremented in the rooms widget — two rooms, two adults each. Explicitly shown as “2 Rooms, 4 Adults” on the results bar.</p><div class="tap"></div></div>
+    <div class="card reveal"><div class="ico">⭐</div><h3>5-star class</h3><p>The Star rating filter was opened and the “5” chip engaged; the resulting results bar reported “5 filters applied” territory. Attribution is inferred — see the caveat in Findings.</p><div class="tap"></div></div>
+    <div class="card reveal"><div class="ico">🍸</div><h3>Pool · Mini-bar · Bathtub · Spa</h3><p>Four amenity checkboxes ticked across two different filter groups: <em>Property facilities</em> (Pool, Spa) and <em>Room facilities</em> (Mini-bar, Bathtub).</p><div class="tap"></div></div>
+    <div class="card reveal"><div class="ico">📐</div><h3>Nearest to city centre</h3><p>Rather than a distance radius chip, the annotator used the results sort control and picked the <em>Distance from city centre</em> option, then took the top-ranked hotel.</p><div class="tap"></div></div>
+    <div class="card reveal"><div class="ico">📅</div><h3>13th → 16th, three nights</h3><p>A date-range picker was opened, a month chosen and two day cells clicked. The month selected in the recording is <b>Jul</b>, not June — a real mismatch with the task text.</p><div class="tap"></div></div>
+    <div class="card reveal"><div class="ico">🏁</div><h3>Ends at “Book now”</h3><p>The session closes on the review/payment screen for <b>Hyatt Regency Dubai</b>, clicking <em>Book now</em>. No post-booking confirmation page is part of the recording.</p><div class="tap"></div></div>
+  </div>
+</section>
+
+<section id="phases" class="wrap">
+  <div class="sec-head reveal">
+    <div class="kicker">Walkthrough</div>
+    <h2>Seven phases, 21 actions</h2>
+    <p>Each step below is the recorded action; the metadata on the right is the element's backend node id, as carried in the Mind2Web snapshot.</p>
+  </div>
+
+  <div class="phase reveal">
+    <div class="phase-head"><div class="phase-num">1</div><h3>Open the hotel search</h3><div class="range">actions 0–2</div></div>
+    <div class="step"><div class="n">00</div><div class="what"><b>Click the “Hotels” tab</b> in the search widget <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>button.search-widget-tabs__button</code>, aria-label “hotels”.</span></div><div class="meta">node 399<br>241 distractors</div></div>
+    <div class="step"><div class="n">01</div><div class="what"><b>Type “DUBAI”</b> into the destination field <span class="op op-type">TYPE</span><span class="note-inline">Target: <code>input#input-button__locations-or-properties</code>, placeholder “Find me a hotel”.</span></div><div class="meta">node 2012<br>223 distractors</div></div>
+    <div class="step"><div class="n">02</div><div class="what"><b>Pick the autocomplete suggestion</b> “Dubai, Dubai” <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>div.location__name.b2</code>.</span></div><div class="meta">node 3913<br>256 distractors</div></div>
+  </div>
+
+  <div class="phase reveal">
+    <div class="phase-head"><div class="phase-num">2</div><h3>Pick the dates</h3><div class="range">actions 3–6</div></div>
+    <div class="step"><div class="n">03</div><div class="what"><b>Open the date picker</b> (“Choose date”) <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>hp-input-button.rooms-widget-controls__control</code>, role=button.</span></div><div class="meta">node 6305<br>223 distractors</div></div>
+    <div class="step"><div class="n">04</div><div class="what"><b>Select the month “Jul”</b> in the month toggle <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>div.m-toggle__month</code>. The calendar strip offered Mar–Oct; <b>Jun was available but Jul was clicked</b>.</span></div><div class="meta">node 8921<br>354 distractors</div></div>
+    <div class="step"><div class="n">05</div><div class="what"><b>Click day cell 13</b> <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>div.calendar-body__cell</code>.</span></div><div class="meta">node 12931<br>355 distractors</div></div>
+    <div class="step"><div class="n">06</div><div class="what"><b>Click day cell 16</b> (a weekend cell) to close the range <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>div.calendar-body__cell.calendar-body__cell--weekend</code>. Results bar then read “13 Jul 2023 – 16 Jul 2023, 3 nights”.</span></div><div class="meta">node 16939<br>355 distractors</div></div>
+  </div>
+
+  <div class="phase reveal">
+    <div class="phase-head"><div class="phase-num">3</div><h3>Two rooms, four adults</h3><div class="range">actions 7–10</div></div>
+    <div class="step"><div class="n">07</div><div class="what"><b>Increment adults in room 1</b> <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>ry-counter-button.counter__button</code>, aria-label “1Adults+1”.</span></div><div class="meta">node 21057<br>250 distractors</div></div>
+    <div class="step"><div class="n">08</div><div class="what"><b>Click “+ Add room”</b> <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>button.rooms__add-button</code>.</span></div><div class="meta">node 22228<br>250 distractors</div></div>
+    <div class="step"><div class="n">09</div><div class="what"><b>Increment adults in room 2</b> <span class="op op-click">CLICK</span><span class="note-inline">Same counter control, second instance — reaching 2 + 2 = 4 adults.</span></div><div class="meta">node 25686<br>270 distractors</div></div>
+    <div class="step"><div class="n">10</div><div class="what"><b>Click “Done”</b> on the rooms popover <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>button.rooms_done-button</code>.</span></div><div class="meta">node 26970<br>270 distractors</div></div>
+  </div>
+
+  <div class="phase reveal">
+    <div class="phase-head"><div class="phase-num">4</div><h3>Run the search</h3><div class="range">action 11</div></div>
+    <div class="step"><div class="n">11</div><div class="what"><b>Click the yellow “Search” button</b> <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>button.rooms-search-widget__start-search.ry-button--gradient-yellow</code>. The results page loads with Dubái, Dubai, United Arab Emirates; “13 Jul 2023 – 16 Jul 2023, 3 nights, 2 Rooms, 4 Adults”.</span></div><div class="meta">node 29131<br>219 distractors</div></div>
+  </div>
+
+  <div class="phase reveal">
+    <div class="phase-head"><div class="phase-num">5</div><h3>Filter the results</h3><div class="range">actions 12–17</div></div>
+    <div class="step"><div class="n">12</div><div class="what"><b>Engage the Star rating “5” chip</b> <span class="op op-click">CLICK</span><span class="note-inline">Reported as <code>[path]</code> with <b>no positive candidate recorded</b> and an empty candidate list. The filter panel's Star rating group contains 1–5 chips; the applied-filter counter goes 0 → 1 after this step, and every later snapshot shows the star group. So the 5-star constraint was very likely satisfied here — but the element itself is not documented in the data.</span></div><div class="meta">node —<br>481 distractors</div></div>
+    <div class="step"><div class="n">13</div><div class="what"><b>Tick amenity “Pool”</b> <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>input.checkbox-list__checkbox</code> under <em>Property facilities</em>. Filter count 1 → 2.</span></div><div class="meta">node 33238<br>1438 distractors</div></div>
+    <div class="step"><div class="n">14</div><div class="what"><b>Tick room amenity “Mini-bar”</b> <span class="op op-click">CLICK</span><span class="note-inline">Same checkbox class, under <em>Room facilities</em>. Filter count 2 → 3.</span></div><div class="meta">node 42828<br>1440 distractors</div></div>
+    <div class="step"><div class="n">15</div><div class="what"><b>Tick room amenity “Bathtub”</b> <span class="op op-click">CLICK</span><span class="note-inline">Snapshot after this step shows Pool + Bathtub + Mini-bar checked.</span></div><div class="meta">node 52428<br>1437 distractors</div></div>
+    <div class="step"><div class="n">16</div><div class="what"><b>Tick property amenity “Spa”</b> <span class="op op-click">CLICK</span><span class="note-inline">Completes the four requested amenities.</span></div><div class="meta">node 62014<br>1438 distractors</div></div>
+    <div class="step"><div class="n">17</div><div class="what"><b>Tick property type “Hotels”</b> <span class="op op-click">CLICK</span><span class="note-inline">Target: checkbox under <em>Property type</em> (<code>rooms-accommodation-type-filter</code>); siblings are Apartments, Hostels, … All five checkboxes now hold.</span></div><div class="meta">node 71592<br>1374 distractors</div></div>
+  </div>
+
+  <div class="phase reveal">
+    <div class="phase-head"><div class="phase-num">6</div><h3>Sort by distance and book</h3><div class="range">actions 18–20</div></div>
+    <div class="step"><div class="n">18</div><div class="what"><b>Choose the “Distance from city centre” sort</b> <span class="op op-click">CLICK</span><span class="note-inline">Target: a bare <code>label</code> (node 81653) in <code>rooms-desktop-sorting-bar</code>; the sibling options are “Most popular”, “Lowest price”, “Deals”. A matching <code>&lt;option value="LOW_DISTANCE"&gt;</code> exists in the sort <code>&lt;select&gt;</code>.</span></div><div class="meta">node 81653<br>1474 distractors</div></div>
+    <div class="step"><div class="n">19</div><div class="what"><b>Click “Choose room” on the top-ranked card</b> <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>button.accommodation-card-body__choose-room-btn.one</code>.</span></div><div class="meta">node 86907<br>1486 distractors</div></div>
+    <div class="step"><div class="n">20</div><div class="what"><b>Click “Book now”</b> on the review screen <span class="op op-click">CLICK</span><span class="note-inline">Target: <code>button.room-card__book-button</code>. The page is <b>Hyatt Regency Dubai</b>, Deira Corniche Alkhaleej Road, Dubai — “3 nights from”, “2 Rooms, 4 Adults”, two room rows (1 King Bed / 2 Twin Beds), price details “2 Room · $612.66”, with “Pay now” and “Pay at the property” options. The trajectory ends here.</span></div><div class="meta">node 96647<br>997 distractors</div></div>
+  </div>
+</section>
+
+<section id="trajectory" class="wrap">
+  <div class="sec-head reveal">
+    <div class="kicker">The full trace</div>
+    <h2>Every step in one table</h2>
+    <p>The “distractors” column counts the near-miss candidate elements the dataset paired with each step — a proxy for how cluttered the page state was. The bar shows the cleaned-HTML snapshot size for that step.</p>
+  </div>
+  <div class="table-wrap reveal">
+    <div class="scroller">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Action</th><th>Op</th><th>Target element</th><th>Backend node</th><th>Distractors</th><th>Snapshot size</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="id">00</td><td class="lbl">Open “Hotels” tab</td><td><span class="pill">CLICK</span></td><td class="id">button.search-widget-tabs__button</td><td class="id">399</td><td class="id">241</td><td><div class="bar-wrap"><span class="bar" style="width:23%"></span><span>45.4 KB</span></div></td></tr>
+        <tr><td class="id">01</td><td class="lbl">Type “DUBAI”<small>input#input-button__locations-or-properties</small></td><td><span class="pill">TYPE</span></td><td class="id">input type=text</td><td class="id">2012</td><td class="id">223</td><td><div class="bar-wrap"><span class="bar" style="width:23%"></span><span>45.1 KB</span></div></td></tr>
+        <tr><td class="id">02</td><td class="lbl">Pick “Dubai, Dubai” suggestion</td><td><span class="pill">CLICK</span></td><td class="id">div.location__name.b2</td><td class="id">3913</td><td class="id">256</td><td><div class="bar-wrap"><span class="bar" style="width:25%"></span><span>50.0 KB</span></div></td></tr>
+        <tr><td class="id">03</td><td class="lbl">Open “Choose date”</td><td><span class="pill">CLICK</span></td><td class="id">hp-input-button</td><td class="id">6305</td><td class="id">223</td><td><div class="bar-wrap"><span class="bar" style="width:23%"></span><span>45.1 KB</span></div></td></tr>
+        <tr><td class="id">04</td><td class="lbl">Select month “Jul”<small>task asked for June</small></td><td><span class="pill">CLICK</span></td><td class="id">div.m-toggle__month</td><td class="id">8921</td><td class="id">354</td><td><div class="bar-wrap"><span class="bar" style="width:33%"></span><span>66.0 KB</span></div></td></tr>
+        <tr><td class="id">05</td><td class="lbl">Click day 13</td><td><span class="pill">CLICK</span></td><td class="id">div.calendar-body__cell</td><td class="id">12931</td><td class="id">355</td><td><div class="bar-wrap"><span class="bar" style="width:33%"></span><span>66.4 KB</span></div></td></tr>
+        <tr><td class="id">06</td><td class="lbl">Click day 16</td><td><span class="pill">CLICK</span></td><td class="id">div.calendar-body__cell--weekend</td><td class="id">16939</td><td class="id">355</td><td><div class="bar-wrap"><span class="bar" style="width:33%"></span><span>66.4 KB</span></div></td></tr>
+        <tr><td class="id">07</td><td class="lbl">+1 adult, room 1</td><td><span class="pill">CLICK</span></td><td class="id">ry-counter-button</td><td class="id">21057</td><td class="id">250</td><td><div class="bar-wrap"><span class="bar" style="width:25%"></span><span>49.9 KB</span></div></td></tr>
+        <tr><td class="id">08</td><td class="lbl">+ Add room</td><td><span class="pill">CLICK</span></td><td class="id">button.rooms__add-button</td><td class="id">22228</td><td class="id">250</td><td><div class="bar-wrap"><span class="bar" style="width:25%"></span><span>49.9 KB</span></div></td></tr>
+        <tr><td class="id">09</td><td class="lbl">+1 adult, room 2</td><td><span class="pill">CLICK</span></td><td class="id">ry-counter-button</td><td class="id">25686</td><td class="id">270</td><td><div class="bar-wrap"><span class="bar" style="width:26%"></span><span>52.6 KB</span></div></td></tr>
+        <tr><td class="id">10</td><td class="lbl">Done</td><td><span class="pill">CLICK</span></td><td class="id">button.rooms_done-button</td><td class="id">26970</td><td class="id">270</td><td><div class="bar-wrap"><span class="bar" style="width:26%"></span><span>52.6 KB</span></div></td></tr>
+        <tr><td class="id">11</td><td class="lbl">Search</td><td><span class="pill">CLICK</span></td><td class="id">button.rooms-search-widget__start-search</td><td class="id">29131</td><td class="id">219</td><td><div class="bar-wrap"><span class="bar" style="width:23%"></span><span>45.6 KB</span></div></td></tr>
+        <tr><td class="id">12</td><td class="lbl">Star rating “5” chip<small>no target recorded</small></td><td><span class="pill crit">CLICK</span></td><td class="id">— (repr “[path]”)</td><td class="id">—</td><td class="id">481</td><td><div class="bar-wrap"><span class="bar" style="width:32%"></span><span>64.3 KB</span></div></td></tr>
+        <tr><td class="id">13</td><td class="lbl">Pool</td><td><span class="pill">CLICK</span></td><td class="id">input.checkbox-list__checkbox</td><td class="id">33238</td><td class="id">1438</td><td><div class="bar-wrap"><span class="bar" style="width:96%"></span><span>191.5 KB</span></div></td></tr>
+        <tr><td class="id">14</td><td class="lbl">Mini-bar</td><td><span class="pill">CLICK</span></td><td class="id">input.checkbox-list__checkbox</td><td class="id">42828</td><td class="id">1440</td><td><div class="bar-wrap"><span class="bar" style="width:96%"></span><span>191.7 KB</span></div></td></tr>
+        <tr><td class="id">15</td><td class="lbl">Bathtub</td><td><span class="pill">CLICK</span></td><td class="id">input.checkbox-list__checkbox</td><td class="id">52428</td><td class="id">1437</td><td><div class="bar-wrap"><span class="bar" style="width:96%"></span><span>191.3 KB</span></div></td></tr>
+        <tr><td class="id">16</td><td class="lbl">Spa</td><td><span class="pill">CLICK</span></td><td class="id">input.checkbox-list__checkbox</td><td class="id">62014</td><td class="id">1438</td><td><div class="bar-wrap"><span class="bar" style="width:96%"></span><span>191.5 KB</span></div></td></tr>
+        <tr><td class="id">17</td><td class="lbl">Property type: Hotels</td><td><span class="pill">CLICK</span></td><td class="id">input.checkbox-list__checkbox</td><td class="id">71592</td><td class="id">1374</td><td><div class="bar-wrap"><span class="bar" style="width:92%"></span><span>184.6 KB</span></div></td></tr>
+        <tr><td class="id">18</td><td class="lbl">Sort: Distance from city centre</td><td><span class="pill">CLICK</span></td><td class="id">label (sorting bar)</td><td class="id">81653</td><td class="id">1474</td><td><div class="bar-wrap"><span class="bar" style="width:98%"></span><span>196.1 KB</span></div></td></tr>
+        <tr><td class="id">19</td><td class="lbl">Choose room (top result)</td><td><span class="pill">CLICK</span></td><td class="id">button…__choose-room-btn.one</td><td class="id">86907</td><td class="id">1486</td><td><div class="bar-wrap"><span class="bar" style="width:100%"></span><span>199.7 KB</span></div></td></tr>
+        <tr><td class="id">20</td><td class="lbl">Book now<small>Hyatt Regency Dubai</small></td><td><span class="pill">CLICK</span></td><td class="id">button.room-card__book-button</td><td class="id">96647</td><td class="id">997</td><td><div class="bar-wrap"><span class="bar" style="width:80%"></span><span>159.0 KB</span></div></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <caption>Snapshot size = length of the cleaned HTML observation attached to that step (45 KB → 200 KB). Distractor counts come from <code>neg_candidates</code>.</caption>
+  </div>
+</section>
+
+<section id="findings" class="wrap">
+  <div class="sec-head reveal">
+    <div class="kicker">Findings &amp; uncertainty</div>
+    <h2>What the recording actually shows</h2>
+    <p>Stated plainly, including the parts that don't line up with the task text.</p>
+  </div>
+  <div class="findings">
+    <div class="finding warn reveal">
+      <h3>⚠ Dates are July, not June <span class="tag">discrepancy</span></h3>
+      <p>The task says <em>June 13 to 16</em>. The recorded calendar strip shows Mar–Oct with <b>Jun present</b>, but the annotator clicked <b>Jul</b> (action 04) and then 13 and 16. Every downstream snapshot reads “13 Jul 2023 – 16 Jul 2023, 3 nights”. Night count (3) and days (13→16) match the intent; the month does not.</p>
+    </div>
+    <div class="finding warn reveal">
+      <h3>⚠ The 5-star step is undocumented <span class="tag">inferred</span></h3>
+      <p>Action 12 has an <b>empty candidate list</b> and the action repr is just <code>[path]</code>, so its target element is not recoverable from the data. Inference: the filter panel has a <em>Star rating</em> group with chips 1–5; the applied-filter counter rises from 0 to 1 across this step; and node ids in the neighbouring snapshots jump by roughly the size of one results-page render. The most plausible reading is a click on the “5” chip, but this should be treated as an inference, not a recorded fact.</p>
+    </div>
+    <div class="finding good reveal">
+      <h3>✓ All four amenities are explicit <span class="tag">verified</span></h3>
+      <p>Pool, Mini-bar, Bathtub and Spa are individually ticked (actions 13–16) on checkbox inputs with distinct backend node ids, and each appears as <code>checked</code> in the following snapshot. Note they span two filter groups: Pool/Spa under <em>Property facilities</em>, Mini-bar/Bathtub under <em>Room facilities</em>.</p>
+    </div>
+    <div class="finding good reveal">
+      <h3>✓ “Nearest to city centre” via sort, not radius <span class="tag">verified</span></h3>
+      <p>The distance-radius chips (1/5/10/15/+20 km) were left alone. Instead the sorting bar's <em>Distance from city centre</em> option was chosen (action 18), and the top card was then opened (action 19) — a defensible interpretation of “nearest”.</p>
+    </div>
+    <div class="finding reveal">
+      <h3>ℹ Occupancy arithmetic checks out <span class="tag">verified</span></h3>
+      <p>Counters start at 1 adult per room. Two “+1” clicks plus “+ Add room” yield 2 rooms × 2 adults = 4 adults, confirmed verbatim in the results bar (“2 Rooms, 4 Adults”).</p>
+    </div>
+    <div class="finding reveal">
+      <h3>ℹ Final property and price <span class="tag">observed</span></h3>
+      <p>The last screen is <b>Hyatt Regency Dubai</b>, Deira Corniche Alkhaleej Road, Dubai, with price details reading <b>2 Room · $612.66</b> and both “Pay now” and “Pay at the property” options. The hotel's star class is not asserted anywhere in the captured DOM — the 5-star constraint rests on the inferred filter plus the property's known class, not on a recorded label.</p>
+    </div>
+    <div class="finding reveal">
+      <h3>ℹ The run stops at “Book now” <span class="tag">incomplete tail</span></h3>
+      <p>Action 20 is the final entry. There is no confirmation, booking reference or payment-success page in the trajectory, so “completed run” here means the recorded demonstration ends on the booking click — not that a confirmation page was captured.</p>
+    </div>
+    <div class="finding reveal">
+      <h3>ℹ Observation scale <span class="tag">context</span></h3>
+      <p>Result-page snapshots run 159–200 KB of cleaned HTML with 997–1486 paired distractors per step, versus 45–66 KB and ~220–355 distractors on the search form. Almost all of the reporting difficulty sits in the filter and results stages.</p>
+    </div>
+  </div>
+</section>
+
+<section id="faq" class="wrap">
+  <div class="sec-head reveal">
+    <div class="kicker">Reference</div>
+    <h2>Case facts, in close-up</h2>
+  </div>
+  <details class="reveal">
+    <summary>What exactly is in this case directory?</summary>
+    <div class="body">
+      <code>case_meta.json</code> (id, benchmark, provenance, trajectory hash), <code>task/task_statement.md</code> (the one-line instruction), <code>trajectory.json</code> (6.6 MB, Mind2Web JSON), and <code>raw_text.jsonl</code> (77.6 KB). The declared <code>references</code> list is <b>empty</b> — no oversized side files exist for this case, and no screenshots, frames or images are present, so nothing is embedded here.
+    </div>
+  </details>
+  <details class="reveal">
+    <summary>How should the trajectory be parsed?</summary>
+    <div class="body">
+      Format is <code>mind2web-json</code>: a top-level object with <code>website</code> (“ryanair”), <code>domain</code> (“Travel”), <code>subdomain</code> (“Airlines”), <code>confirmed_task</code>, and two parallel arrays — <code>action_reprs</code> (21 human-readable labels) and <code>actions</code> (21 objects, each with <code>operation</code>, <code>cleaned_html</code>, <code>pos_candidates</code>, <code>neg_candidates</code>). Every entry here is a human demonstration; <code>model</code> is <code>human-annotator</code>, so there is no agent policy to evaluate.
+    </div>
+  </details>
+  <details class="reveal">
+    <summary>Why do the checked checkboxes appear one step late?</summary>
+    <div class="body">
+      The <code>cleaned_html</code> attached to action <em>i</em> is the page state in which that action was taken. Consequently the checkbox that action <em>i−1</em> ticked shows as <code>checked</code> in action <em>i</em>'s snapshot, and action 20's snapshot (post-navigation) shows none. Reading the trace in this offset manner makes the amenity clicks unambiguous.
+    </div>
+  </details>
+  <details class="reveal">
+    <summary>Can a booking be reconstructed outside this page — e.g. on Google Hotels?</summary>
+    <div class="body">
+      No. The instruction frames the search inside a general hotel/OTA context, but the demonstration lives entirely on Ryanair's hotels vertical, with its own widget classes (<code>rooms-widget-controls</code>, <code>accommodation-card-body</code>, <code>rooms-filters-wrapper</code>) and its own currency/pricing display. Nothing outside this trajectory is used or claimed in this report.
+    </div>
+  </details>
+  <details class="reveal">
+    <summary>Was any Bash fallback used to read the case?</summary>
+    <div class="body">
+      Yes — <code>trajectory.json</code> is 6.6 MB and exceeds the direct read limit, so it was parsed with <code>python3</code> (JSON load plus structured field extraction) strictly inside <code>/app/case</code>. All other files were read normally. No temporary or intermediate files were created.
+    </div>
+  </details>
+</section>
+
+<section class="wrap">
+  <div class="media reveal">
+    <h3>Media references</h3>
+    <p>This case carries <b>no</b> media references or image assets. <code>case_meta.json</code> declares an empty <code>references</code> array and there is no <code>screenshots/</code>, <code>frames/</code> or <code>images/</code> directory. The visual evidence in this report is therefore data-driven: element tags, backend node ids, candidate counts and snapshot sizes taken straight from the trajectory. Nothing is loaded from the network.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <b>05_test_task_test_task_2_4</b><br>
+        Mind2Web · web_navigation · ryanair
+      </div>
+      <div>
+        <b>Provenance</b><br>
+        trajs/web_navigation/05_test_task_test_task_2_4.json
+      </div>
+      <div>
+        <b>Trajectory SHA-256</b><br>
+        <span style="font-family:var(--mono);font-size:11.5px">0207fb29…ef8bfabd</span>
+      </div>
+      <div>
+        <b>Source</b><br>
+        upstream · human-annotator
+      </div>
+    </div>
+    <p class="disclaimer">
+      This page reports a completed, recorded run — it does not re-execute the task. Where the data is silent (notably action 12's target element) the report says so rather than filling the gap. Reconstructed from the case files alone; no external resources were fetched.
+    </p>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var nav = document.getElementById('nav');
+    var onScroll = function(){
+      if (window.scrollY > 12) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, {passive:true});
+
+    var items = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      items.forEach(function(el){ el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+    items.forEach(function(el, i){
+      el.style.transitionDelay = (Math.min(i % 4, 3) * 60) + 'ms';
+      io.observe(el);
+    });
+  })();
+</script>
+</body>
+</html>

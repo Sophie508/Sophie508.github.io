@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Street Hype — recorded analysis</title>
+<style>
+:root{--ink:#182d35;--muted:#586d74;--line:#d7e0de;--paper:#f5f6f0;--green:#126b57}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1100px;margin:auto;padding:48px 36px}header{border-top:5px solid var(--ink);padding-top:20px}.eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:750;color:var(--muted)}.top{display:flex;justify-content:space-between;gap:20px;align-items:center}.badge{font-size:12px;color:var(--green);border:1px solid #abcbbd;border-radius:30px;padding:5px 12px;white-space:nowrap}h1{font-size:clamp(36px,6vw,64px);line-height:1.06;letter-spacing:-.045em;margin:30px 0 20px}h2{font-size:23px;line-height:1.3;letter-spacing:-.02em;margin:0 0 18px}h3{font-size:16px;margin:0 0 5px}p{margin:0 0 16px}.intro{max-width:780px;font-size:19px;color:var(--muted)}.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:45px;margin:34px 0;background:var(--ink);color:white;padding:32px;border-radius:10px}.hero .eyebrow{color:#b6d2c9}.winner{font-size:36px;font-weight:720;letter-spacing:-.03em;margin:10px 0 0}.money{font-size:58px;font-weight:750;letter-spacing:-.04em;line-height:1.2}.hero p{color:#c2d2d4;font-size:14px;margin:10px 0 0}.bars{align-self:center}.bar-label{display:flex;justify-content:space-between;font-size:14px;margin-bottom:7px}.track{height:13px;background:#344b52;border-radius:3px;overflow:hidden;margin-bottom:20px}.fill{height:100%;background:#91d4b4}.fill.secondary{background:#9cabb7;width:15.6255%}.meta{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line);padding-bottom:25px;gap:16px}.meta span{display:block;font-size:12px;color:var(--muted)}.meta strong{font-size:14px;font-weight:650}.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:44px;margin-top:36px}section{margin-bottom:34px}.step{display:grid;grid-template-columns:30px 1fr;gap:12px;padding:15px 0;border-bottom:1px solid var(--line)}.num{color:var(--green);font-size:12px;font-weight:750;padding-top:3px}.step p{font-size:14px;color:var(--muted);margin:0}.source{font-size:12px;color:var(--muted)}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:12px 0;border-bottom:1px solid var(--line);text-align:left}th{font-size:12px;color:var(--muted)}th:last-child,td:last-child{text-align:right}.note{border-left:3px solid var(--green);padding-left:16px;margin-top:22px;font-size:14px}.note p{color:var(--muted)}pre{padding:20px;background:#e9eeea;border:1px solid var(--line);border-radius:6px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}details{border-top:1px solid var(--line);padding:15px 0}summary{cursor:pointer;font-size:14px;font-weight:650}code{font-size:.88em}footer{border-top:1px solid var(--line);padding-top:20px;font-size:12px;color:var(--muted);overflow-wrap:anywhere}footer p{margin-bottom:8px}@media(max-width:720px){main{padding:26px 20px}.hero,.grid{grid-template-columns:1fr;gap:24px}.meta{grid-template-columns:1fr 1fr}.top{align-items:flex-start}.hero{padding:24px}.money{font-size:48px}}@media print{main{padding:20px}.hero{background:#edf2ef;color:var(--ink)}.hero p,.hero .eyebrow{color:var(--muted)}details{break-inside:avoid}pre{font-size:10px}}
+</style></head><body><main>
+<header><div class="top"><div class="eyebrow">Case study / DataAgentBench / Data analysis</div><div class="badge">Recorded run completed</div></div><h1>Street Hype:<br>which store earned the most?</h1><p class="intro">The task asked the agent to write and run Python to find the highest-revenue store for Brucqe Maginnis’ “Street Hype,” in USD across all countries.</p></header>
+<div class="hero"><div><div class="eyebrow">Recorded answer</div><div class="winner">Amazon Music</div><div class="money">$304.13</div><p>Revenue summed for the matched song across all countries.</p></div><div class="bars" role="img" aria-label="Recorded revenue: Amazon Music 304.13 US dollars; Apple Music 47.52 US dollars."><div class="bar-label"><span>Amazon Music</span><strong>$304.13</strong></div><div class="track"><div class="fill" style="width:100%"></div></div><div class="bar-label"><span>Apple Music</span><strong>$47.52</strong></div><div class="track"><div class="fill secondary"></div></div><p>Bar lengths are relative to the leading store.</p></div></div>
+<div class="meta"><div><span>Model</span><strong>claude-opus-4-8</strong></div><div><span>Run duration · metadata</span><strong>20.1 seconds</strong></div><div><span>Recorded tool calls</span><strong>2 · both successful</strong></div><div><span>Run date · UTC</span><strong>11 July 2026</strong></div></div>
+<div class="grid"><section><h2>How the run reached its answer</h2><div class="step"><div class="num">01</div><div><h3>Inspect both database schemas</h3><p>Python used DuckDB for <code>sales.duckdb</code> and SQLite for <code>tracks.db</code>. The schemas exposed the shared <code>track_id</code>, song title and artist, store, country, and <code>revenue_usd</code>.</p><span class="source">Trajectory lines 4–5 · result at 22:17:00 UTC</span></div></div><div class="step"><div class="num">02</div><div><h3>Resolve the song by exact title and artist</h3><p>The SQLite query matched one row: <code>track_id = 4122</code>, “Street Hype,” “Brucqe Maginnis.” The ID was copied into a temporary DuckDB table.</p><span class="source">Trajectory lines 7–8</span></div></div><div class="step"><div class="num">03</div><div><h3>Sum revenue and rank stores</h3><p>The sales query filtered by the matched ID, grouped by store, summed <code>revenue_usd</code>, and sorted descending. No country filter was applied, so all countries were included.</p><span class="source">Trajectory lines 7–8 · result at 22:17:07 UTC</span></div></div><div class="step"><div class="num">04</div><div><h3>Return the leading store</h3><p>The code printed the ranking and the answer. The final response repeated Amazon Music’s lead and explained the cross-database matching.</p><span class="source">Trajectory line 9 · 22:17:10 UTC</span></div></div></section>
+<section><h2>Result and evidence</h2><table><thead><tr><th scope="col">Store</th><th scope="col">Revenue · USD</th></tr></thead><tbody><tr><td><strong>Amazon Music</strong></td><td><strong>$304.13</strong></td></tr><tr><td>Apple Music</td><td>$47.52</td></tr></tbody></table><p class="source">All store rows printed by the recorded aggregation.</p><h3>Captured Python output</h3><pre>matching tracks: [(4122, &#x27;Street Hype&#x27;, &#x27;Brucqe Maginnis&#x27;)]
+Revenue by store (all countries):
+  Amazon Music: $304.13
+  Apple Music: $47.52
+
+ANSWER: Amazon Music ($304.13)</pre><div class="note"><h3>Supported by the visible record</h3><p>Both tool results report <code>is_error: false</code>, empty stderr, and no interruption. Case metadata reports exit code 0. The final answer agrees with the computed output.</p><h3>Verification boundary</h3><p>This report reviews the completed trajectory; it does not rerun the analysis or inspect the databases. No independent ground-truth evaluation is supplied. Amounts are the printed values rounded to two decimal places.</p></div></section></div>
+<section><h2>Inspect the recorded evidence</h2><details><summary>Python computation · exact recorded Bash command · line 7</summary><pre>python3 -c &quot;
+import duckdb, sqlite3
+s = sqlite3.connect(&#x27;data/tracks.db&#x27;)
+rows = s.execute(\&quot;SELECT track_id, title, artist FROM tracks WHERE title=&#x27;Street Hype&#x27; AND artist=&#x27;Brucqe Maginnis&#x27;\&quot;).fetchall()
+print(&#x27;matching tracks:&#x27;, rows)
+ids = [r[0] for r in rows]
+
+d = duckdb.connect(&#x27;data/sales.duckdb&#x27;, read_only=True)
+d.execute(&#x27;CREATE TEMP TABLE t(track_id INTEGER)&#x27;)
+d.executemany(&#x27;INSERT INTO t VALUES (?)&#x27;, [(i,) for i in ids])
+res = d.execute(&#x27;&#x27;&#x27;
+  SELECT store, SUM(revenue_usd) AS total_rev
+  FROM sales WHERE track_id IN (SELECT track_id FROM t)
+  GROUP BY store ORDER BY total_rev DESC
+&#x27;&#x27;&#x27;).fetchall()
+print(&#x27;Revenue by store (all countries):&#x27;)
+for store, rev in res:
+    print(f&#x27;  {store}: \${rev:,.2f}&#x27;)
+print()
+print(&#x27;ANSWER:&#x27;, res[0][0], f&#x27;(\${res[0][1]:,.2f})&#x27;)
+&quot;
+</pre></details><details><summary>Database schema output · line 5</summary><pre>=== DuckDB tables ===
+sales
+    sale_id INTEGER
+    track_id INTEGER
+    country VARCHAR
+    store VARCHAR
+    units_sold INTEGER
+    revenue_usd DOUBLE
+
+=== SQLite tables ===
+tracks
+    track_id INTEGER
+    source_id INTEGER
+    source_track_id TEXT
+    title TEXT
+    artist TEXT
+    album TEXT
+    year TEXT
+    length TEXT
+    language TEXT</pre></details></section>
+<footer><p><strong>Case:</strong> 02_music_brainz_20k_query2 · Domain: data_analysis · Source: regen · Format: claude-jsonl</p><p><strong>Report sources:</strong> /app/case/case_meta.json, /app/case/workspace/prompt.txt, /app/case/trajectory.jsonl (9 records). Line references are one-based JSONL record numbers.</p><p>The prompt names original database paths ending in workspace/data/sales.duckdb and workspace/data/tracks.db. Those external paths were not followed. Metadata lists no references or media references.</p><p><strong>Access method:</strong> Bash with Python was used to read and parse the three case files because dedicated Read/Write tools were unavailable, and to write this HTML. The original task was not re-executed.</p></footer>
+</main></body></html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case Report: 02_music_brainz_20k_query2</title>
+<style>
+  :root { --ink:#1f2933; --muted:#616e7c; --line:#d9dee3; --bg:#ffffff; --soft:#f5f7f9; --ok:#1b7f4b; --warn:#a15c00; --bad:#b42318; --accent:#245c8d; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color:var(--ink); background:var(--bg); line-height:1.5; font-size:16px; }
+  main { max-width:960px; margin:0 auto; padding:20px 16px 48px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; }
+  h2 { font-size:1.2rem; margin:32px 0 10px; padding-bottom:4px; border-bottom:2px solid var(--line); }
+  h3 { font-size:1rem; margin:18px 0 6px; }
+  p { margin:8px 0; }
+  .sub { color:var(--muted); margin-bottom:16px; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:600; border:1px solid var(--line); background:var(--soft); margin-right:6px; }
+  .badge.ok { color:var(--ok); border-color:var(--ok); }
+  .badge.warn { color:var(--warn); border-color:var(--warn); }
+  .badge.bad { color:var(--bad); border-color:var(--bad); }
+  table { border-collapse:collapse; width:100%; margin:8px 0 12px; font-size:0.95rem; }
+  th, td { border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; }
+  th { background:var(--soft); }
+  td.num, th.num { text-align:right; white-space:nowrap; }
+  .tablewrap { overflow-x:auto; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:10px; overflow-x:auto; font-size:0.85rem; line-height:1.4; margin:6px 0 12px; }
+  code { font-family: SFMono-Regular, Menlo, Consolas, monospace; font-size:0.9em; }
+  .step { border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin:12px 0; }
+  .step header { display:flex; flex-wrap:wrap; gap:8px; align-items:baseline; margin-bottom:6px; }
+  .step header .t { color:var(--muted); font-size:0.85rem; }
+  .callout { border-left:4px solid var(--accent); background:var(--soft); padding:10px 12px; margin:12px 0; border-radius:0 6px 6px 0; }
+  .callout.warn { border-left-color:var(--warn); }
+  .callout.bad { border-left-color:var(--bad); }
+  button.toggle { font:inherit; font-size:0.85rem; padding:3px 10px; border:1px solid var(--line); background:#fff; border-radius:6px; cursor:pointer; color:var(--accent); }
+  button.toggle:hover { background:var(--soft); }
+  .hidden { display:none; }
+  ul { padding-left:22px; }
+  li { margin:4px 0; }
+  .kv td:first-child { width:34%; font-weight:600; background:var(--soft); }
+  .toc a { color:var(--accent); text-decoration:none; }
+  .toc a:hover { text-decoration:underline; }
+  footer { margin-top:36px; color:var(--muted); font-size:0.85rem; border-top:1px solid var(--line); padding-top:10px; }
+  @media (max-width:600px) { body { font-size:15px; } h1 { font-size:1.35rem; } th, td { padding:5px 6px; } }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Case Report: 02_music_brainz_20k_query2</h1>
+<p class="sub">Recorded data-analysis run from the DataAgentBench benchmark. This report documents the recorded trajectory as evidence and does not re-perform the task.</p>
+<p>
+  <span class="badge ok">Exit code 0</span>
+  <span class="badge">Duration 20.1 s</span>
+  <span class="badge">Model claude-opus-4-8</span>
+  <span class="badge warn">Sales database not independently verifiable</span>
+</p>
+
+<nav class="toc">
+  <strong>Contents:</strong>
+  <a href="#objective">Objective</a> ·
+  <a href="#meta">Case metadata</a> ·
+  <a href="#work">Recorded work</a> ·
+  <a href="#result">Final result</a> ·
+  <a href="#failures">Failures and recoveries</a> ·
+  <a href="#evidence">Attachment evidence</a> ·
+  <a href="#faith">Faithfulness note</a>
+</nav>
+
+<h2 id="objective">1. Recorded objective</h2>
+<p>The task statement (workspace/prompt.txt) asked the agent to write and run Python code that computes and prints an answer to this question:</p>
+<div class="callout">
+  <strong>Question:</strong> Which store earned the most revenue in USD from Brucqe Maginnis' song 'Street Hype' across all countries?
+</div>
+<p>Two data files were supplied, each with a required engine:</p>
+<ul>
+  <li><code>data/sales.duckdb</code> (DuckDB)</li>
+  <li><code>data/tracks.db</code> (SQLite)</li>
+</ul>
+<p>The prompt referenced these files under an absolute path on the original machine (<code>/Users/julia/Git/agentHTML/trajs_regen/...</code>). The agent ran from the workspace directory and used relative paths, which resolved correctly.</p>
+
+<h2 id="meta">2. Case metadata</h2>
+<div class="tablewrap">
+<table class="kv">
+  <tr><td>Case id</td><td>02_music_brainz_20k_query2</td></tr>
+  <tr><td>Domain / benchmark</td><td>data_analysis / DataAgentBench</td></tr>
+  <tr><td>Source / provenance</td><td>regen / trajs_regen/data_analysis/02_music_brainz_20k_query2</td></tr>
+  <tr><td>Collected</td><td>2026-07-11</td></tr>
+  <tr><td>Model / backend</td><td>claude-opus-4-8 / opus</td></tr>
+  <tr><td>Harness</td><td>sdk-cli, version 2.1.207, permission mode "default", git branch codex/pack-scripts</td></tr>
+  <tr><td>Session id</td><td>bc96930a-28cb-4497-9492-286f8dd26e97</td></tr>
+  <tr><td>Duration / exit code</td><td>20.1 s / 0</td></tr>
+  <tr><td>Trajectory format</td><td>claude-jsonl, 9 records, 15,372 bytes (sha256 matches manifest)</td></tr>
+  <tr><td>References</td><td>None listed (empty array)</td></tr>
+</table>
+</div>
+
+<h2 id="work">3. Recorded work (timeline)</h2>
+<p>All timestamps are UTC on 2026-07-11. The run consisted of one user prompt, two Bash tool calls, and one final answer. Both recorded thinking blocks are empty strings carrying only a signature, so no model reasoning is available.</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th>#</th><th>Time</th><th>Actor</th><th>Event</th></tr>
+  <tr><td>1</td><td>22:16:51.443</td><td>user</td><td>Task prompt delivered (identical to workspace/prompt.txt).</td></tr>
+  <tr><td>2</td><td>22:16:54.209</td><td>assistant</td><td>Empty thinking block.</td></tr>
+  <tr><td>3</td><td>22:16:54.655</td><td>assistant</td><td>Text: "I'll explore both databases first to understand their schemas."</td></tr>
+  <tr><td>4</td><td>22:16:58.834</td><td>assistant</td><td>Bash tool call 1: inspect schemas of both databases.</td></tr>
+  <tr><td>5</td><td>22:17:00.092</td><td>tool</td><td>Result 1 returned (no error, empty stderr).</td></tr>
+  <tr><td>6</td><td>22:17:02.390</td><td>assistant</td><td>Empty thinking block.</td></tr>
+  <tr><td>7</td><td>22:17:06.636</td><td>assistant</td><td>Bash tool call 2: find track ids and aggregate revenue by store.</td></tr>
+  <tr><td>8</td><td>22:17:07.229</td><td>tool</td><td>Result 2 returned (no error, empty stderr).</td></tr>
+  <tr><td>9</td><td>22:17:10.579</td><td>assistant</td><td>Final answer, stop reason end_turn.</td></tr>
+</table>
+</div>
+
+<div class="step">
+  <header><strong>Step A: Schema inspection</strong> <span class="t">22:16:58 → 22:17:00 · tool_use id toolu_01DNYhzKtkVh2gs44pN8cFqN</span> <button class="toggle" data-target="cmdA">Show/hide command</button></header>
+  <p>The agent opened the DuckDB file read-only and the SQLite file, then listed every table and its columns.</p>
+  <pre id="cmdA" class="hidden">python3 -c "
+import duckdb, sqlite3
+d = duckdb.connect('data/sales.duckdb', read_only=True)
+print('=== DuckDB tables ===')
+for t in d.execute(\"SELECT table_name FROM information_schema.tables\").fetchall():
+    print(t[0])
+    for c in d.execute(f\"PRAGMA table_info('{t[0]}')\").fetchall():
+        print('   ', c[1], c[2])
+print()
+s = sqlite3.connect('data/tracks.db')
+print('=== SQLite tables ===')
+for (name,) in s.execute(\"SELECT name FROM sqlite_master WHERE type='table'\"):
+    print(name)
+    for col in s.execute(f'PRAGMA table_info({name})'):
+        print('   ', col[1], col[2])
+"</pre>
+  <p><strong>Recorded output:</strong></p>
+  <pre>=== DuckDB tables ===
+sales
+    sale_id INTEGER
+    track_id INTEGER
+    country VARCHAR
+    store VARCHAR
+    units_sold INTEGER
+    revenue_usd DOUBLE
+
+=== SQLite tables ===
+tracks
+    track_id INTEGER
+    source_id INTEGER
+    source_track_id TEXT
+    title TEXT
+    artist TEXT
+    album TEXT
+    year TEXT
+    length TEXT
+    language TEXT</pre>
+</div>
+
+<div class="step">
+  <header><strong>Step B: Track lookup and revenue aggregation</strong> <span class="t">22:17:06 → 22:17:07 · tool_use id toolu_018qaQGdRcjVEyJYjfNS9GCU</span> <button class="toggle" data-target="cmdB">Show/hide command</button></header>
+  <p>The agent selected rows from the SQLite tracks table with an exact equality match on both title and artist, loaded the resulting track ids into a DuckDB temporary table, and summed revenue_usd per store over all countries, sorted descending.</p>
+  <pre id="cmdB" class="hidden">python3 -c "
+import duckdb, sqlite3
+s = sqlite3.connect('data/tracks.db')
+rows = s.execute(\"SELECT track_id, title, artist FROM tracks WHERE title='Street Hype' AND artist='Brucqe Maginnis'\").fetchall()
+print('matching tracks:', rows)
+ids = [r[0] for r in rows]
+
+d = duckdb.connect('data/sales.duckdb', read_only=True)
+d.execute('CREATE TEMP TABLE t(track_id INTEGER)')
+d.executemany('INSERT INTO t VALUES (?)', [(i,) for i in ids])
+res = d.execute('''
+  SELECT store, SUM(revenue_usd) AS total_rev
+  FROM sales WHERE track_id IN (SELECT track_id FROM t)
+  GROUP BY store ORDER BY total_rev DESC
+''').fetchall()
+print('Revenue by store (all countries):')
+for store, rev in res:
+    print(f'  {store}: \${rev:,.2f}')
+print()
+print('ANSWER:', res[0][0], f'(\${res[0][1]:,.2f})')
+"</pre>
+  <p><strong>Recorded output:</strong></p>
+  <pre>matching tracks: [(4122, 'Street Hype', 'Brucqe Maginnis')]
+Revenue by store (all countries):
+  Amazon Music: $304.13
+  Apple Music: $47.52
+
+ANSWER: Amazon Music ($304.13)</pre>
+</div>
+
+<h3>Token usage (from recorded usage fields)</h3>
+<div class="tablewrap">
+<table>
+  <tr><th>Assistant message</th><th class="num">Output tokens</th><th class="num">Cache read</th><th class="num">Cache created</th></tr>
+  <tr><td>Schema inspection turn</td><td class="num">524</td><td class="num">13,621</td><td class="num">6,091</td></tr>
+  <tr><td>Aggregation turn</td><td class="num">523</td><td class="num">19,712</td><td class="num">647</td></tr>
+  <tr><td>Final answer</td><td class="num">167</td><td class="num">20,359</td><td class="num">1,370</td></tr>
+</table>
+</div>
+<p>No web search or web fetch requests were recorded.</p>
+
+<h2 id="result">4. Final result as recorded</h2>
+<p>The agent's final message (verbatim content, rendered):</p>
+<div class="callout">
+  <p><strong>Amazon Music</strong> earned the most revenue from Brucqe Maginnis' song <em>'Street Hype'</em> across all countries.</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Store</th><th class="num">Total Revenue (USD)</th></tr>
+    <tr><td><strong>Amazon Music</strong></td><td class="num"><strong>$304.13</strong></td></tr>
+    <tr><td>Apple Music</td><td class="num">$47.52</td></tr>
+  </table>
+  </div>
+  <p>The song matched a single track (<code>track_id=4122</code>) in the SQLite <code>tracks</code> table, and I aggregated <code>revenue_usd</code> from the DuckDB <code>sales</code> table by store across all countries.</p>
+</div>
+<p>The run ended with stop reason end_turn and process exit code 0. The trajectory does not contain any grader verdict or reference answer, so correctness against the benchmark's expected answer is not recorded in this case.</p>
+
+<h2 id="failures">5. Failures and recoveries</h2>
+<ul>
+  <li><strong>No tool errors.</strong> Both Bash calls returned is_error false with empty stderr, and neither was interrupted.</li>
+  <li><strong>No retries or recoveries</strong> were needed or recorded.</li>
+  <li><strong>Method observation (not a recorded failure):</strong> the agent used an exact-equality match on title and artist and did not check for alternate spellings. Independent inspection of the packaged tracks.db (section 6) shows that the table contains several noisy variants of what appears to be the same song under the artist spelling "Bruce Maginnis". Whether sales attached to those variants would change the answer could not be determined here because the sales database was not queryable in this environment.</li>
+</ul>
+
+<h2 id="evidence">6. Attachment evidence (independent inspection)</h2>
+
+<h3>workspace/data/tracks.db (SQLite, 2,035,712 bytes)</h3>
+<p>Inspected read-only with targeted queries. Hash and size match the manifest. Findings:</p>
+<ul>
+  <li>Single table <code>tracks</code> with the schema shown in Step A; track_id is the primary key.</li>
+  <li>19,375 rows total, spread across source_id values 1 to 5 (3,827 / 3,933 / 3,926 / 3,861 / 3,828 rows respectively).</li>
+  <li>An exact match on title 'Street Hype' and artist 'Brucqe Maginnis' returns exactly one row, track_id 4122, consistent with the recorded output. A case-insensitive, trimmed match returns the same single row.</li>
+  <li>Looser LIKE searches on title, artist and album surface additional rows that appear to describe the same recording (album "Groove City", year 2005, length about 2:57):</li>
+</ul>
+<div class="tablewrap">
+<table>
+  <tr><th>track_id</th><th>source_id</th><th>source_track_id</th><th>title</th><th>artist</th><th>album</th><th>year</th><th>length</th><th>language</th></tr>
+  <tr><td>7</td><td>—</td><td>—</td><td>Bruce Maginnis - Sttreet Hype</td><td>(NULL)</td><td>Groove City</td><td>—</td><td>—</td><td>—</td></tr>
+  <tr><td>4122</td><td>5</td><td>10609996</td><td>Street Hype</td><td>Brucqe Maginnis</td><td>Groove City</td><td>2005</td><td>177000</td><td>English</td></tr>
+  <tr><td>4628</td><td>3</td><td>46130411MB-01</td><td>Street Hype - Groove City</td><td>Bruce Maginnis</td><td>(NULL)</td><td>'05</td><td>2.95</td><td>English</td></tr>
+  <tr><td>13758</td><td>1</td><td>WoM21220012</td><td>StreetH ype (Groove City)</td><td>Bruce Maginnis</td><td>Groove City</td><td>2005</td><td>(NULL)</td><td>02:57</td></tr>
+  <tr><td>14080</td><td>4</td><td>149437-A02</td><td>011-Street Hype</td><td>Bruce Maginnis</td><td>Groove City (2005)</td><td>(NULL)</td><td>2m 57sec</td><td>Eng.</td></tr>
+</table>
+</div>
+<p>For track_id 7 only the columns track_id, title, artist and album were retrieved (it surfaced through the album search), so the other fields are shown as not retrieved. The remaining rows of the table were not read individually.</p>
+
+<h3>workspace/data/sales.duckdb (DuckDB, 1,060,864 bytes)</h3>
+<p>Hash and size match the manifest, and the first 64 bytes carry the DuckDB magic string "DUCK" at offset 8. The table contents could not be queried: the duckdb Python module and CLI are not present in the reporting environment and installing dependencies was not permitted. The only knowledge of this file's contents comes from the recorded tool outputs (schema in Step A, per-store totals for track_id 4122 in Step B).</p>
+
+<h3>workspace/prompt.txt (516 bytes)</h3>
+<p>Read in full; identical to the user message in the trajectory. Hash matches the manifest.</p>
+
+<h3>case_meta.json (556 bytes)</h3>
+<p>Read in full; values reproduced in section 2. Hash matches the manifest.</p>
+
+<h2 id="faith">7. Faithfulness note</h2>
+<div class="callout warn">
+<ul>
+  <li>The recorded revenue figures ($304.13 for Amazon Music, $47.52 for Apple Music) could not be independently recomputed because the sales database was not queryable here.</li>
+  <li>Whether the near-duplicate track variants (track_ids 7, 4628, 13758, 14080) have any sales rows, and whether including them would change the top store, is unknown.</li>
+  <li>tracks.db was examined through targeted queries only, not a full row-by-row read.</li>
+  <li>Both thinking blocks in the trajectory are empty, so the agent's reasoning for choosing an exact match is not recorded.</li>
+  <li>No grader output, reference answer, or expected-answer file is included in this case, so no correctness verdict is asserted in this report.</li>
+  <li>The absolute paths in the prompt refer to the original machine and were not followed; only the packaged workspace copies were inspected.</li>
+  <li>No images, media, or media_refs were supplied with this case.</li>
+</ul>
+</div>
+
+<footer>Report generated 2026-09-20 from the packaged case inputs only (case_meta.json, trajectory.jsonl, workspace/prompt.txt, workspace/data/tracks.db, workspace/data/sales.duckdb). Self-contained; no external resources.</footer>
+
+</main>
+<script>
+  (function () {
+    var buttons = document.querySelectorAll('button.toggle');
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener('click', function () {
+        var el = document.getElementById(this.getAttribute('data-target'));
+        if (el) { el.classList.toggle('hidden'); }
+      });
+    }
+  })();
+</script>
+</body>
+</html>

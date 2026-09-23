@@ -1,0 +1,3155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroFlow AI — Customer Support Agent Prototype | Case 03_gpt-4o-airline_51</title>
+  <style>
+    :root {
+      --bg-primary: #070a12;
+      --bg-secondary: #0d1322;
+      --bg-card: rgba(17, 24, 39, 0.7);
+      --bg-card-hover: rgba(24, 34, 53, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(99, 102, 241, 0.35);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent-indigo: #6366f1;
+      --accent-violet: #8b5cf6;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      background: radial-gradient(circle at 50% 0%, #151c36 0%, #070a12 70%);
+    }
+
+    /* Glow overlays */
+    .glow-top {
+      position: fixed;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(6, 182, 212, 0.08) 50%, transparent 70%);
+      filter: blur(60px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Navigation */
+    nav.navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(7, 10, 18, 0.82);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .brand-logo svg {
+      width: 22px;
+      height: 22px;
+      fill: #fff;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-tagline {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: #ffffff;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .btn-subtle {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border-color: var(--border-subtle);
+    }
+
+    .btn-subtle:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-indigo), #4f46e5);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, var(--accent-cyan), #0891b2);
+      color: #03131c;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
+    }
+
+    .btn-cyan:hover {
+      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+      transform: translateY(-1px);
+    }
+
+    /* Hero Section */
+    .hero-section {
+      padding: 80px 0 50px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #c7d2fe;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      margin-bottom: 24px;
+    }
+
+    .hero-badge .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+    }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 4.8vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 70%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 780px;
+      margin: 0 auto 36px;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      max-width: 940px;
+      margin: 0 auto 40px;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 18px 20px;
+      backdrop-filter: blur(12px);
+      text-align: left;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .metric-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .metric-label {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Live Preview Banner / Visual Hero */
+    .hero-preview-wrapper {
+      margin-top: 10px;
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.15);
+      text-align: left;
+    }
+
+    .preview-header {
+      background: rgba(15, 23, 42, 0.85);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .preview-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .preview-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .preview-title-bar {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preview-body {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 20px;
+      padding: 24px;
+    }
+
+    .preview-card {
+      background: rgba(10, 15, 26, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .flight-ticket {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+      padding-bottom: 12px;
+    }
+
+    .ticket-route {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 8px 0;
+    }
+
+    .route-node {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .node-code {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: #ffffff;
+    }
+
+    .node-city {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .route-arrow {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .route-line {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-indigo), var(--accent-cyan));
+      position: relative;
+    }
+
+    .route-plane {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .ticket-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.15);
+      font-size: 0.82rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-cancelled {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-indigo {
+      background: rgba(99, 102, 241, 0.15);
+      color: #c7d2fe;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .badge-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fde68a;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    /* Section Styling */
+    section {
+      padding: 70px 0;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-cyan);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+      color: #ffffff;
+    }
+
+    .section-subtitle {
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto;
+      font-size: 1.02rem;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(14px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--border-accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(99, 102, 241, 0.4);
+      background: var(--bg-card-hover);
+      box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.4);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--accent-indigo);
+    }
+
+    .feature-card:nth-child(2) .feature-icon {
+      background: rgba(244, 63, 94, 0.12);
+      border-color: rgba(244, 63, 94, 0.25);
+      color: var(--accent-rose);
+    }
+
+    .feature-card:nth-child(3) .feature-icon {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.25);
+      color: var(--accent-emerald);
+    }
+
+    .feature-card:nth-child(4) .feature-icon {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.25);
+      color: var(--accent-amber);
+    }
+
+    .feature-card:nth-child(5) .feature-icon {
+      background: rgba(6, 182, 212, 0.12);
+      border-color: rgba(6, 182, 212, 0.25);
+      color: var(--accent-cyan);
+    }
+
+    .feature-card:nth-child(6) .feature-icon {
+      background: rgba(139, 92, 246, 0.12);
+      border-color: rgba(139, 92, 246, 0.25);
+      color: var(--accent-violet);
+    }
+
+    .feature-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .feature-desc {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    /* How It Works Pipeline */
+    .workflow-timeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      position: relative;
+    }
+
+    .workflow-timeline::before {
+      content: "";
+      position: absolute;
+      top: 36px;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-indigo), var(--accent-cyan), var(--accent-emerald));
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    .workflow-step {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 20px 16px;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .workflow-step:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-3px);
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #0f172a;
+      border: 2px solid var(--accent-indigo);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin: 0 auto 12px;
+    }
+
+    .workflow-step:nth-child(5) .step-num {
+      border-color: var(--accent-emerald);
+      color: var(--accent-emerald);
+    }
+
+    .step-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .step-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Replay Studio (Centerpiece Interactive Workspace) */
+    .replay-workspace {
+      background: #0b111e;
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.7);
+    }
+
+    .replay-header-bar {
+      padding: 16px 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .replay-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .controls-panel {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .ctrl-btn.btn-play-pause {
+      width: 90px;
+      background: var(--accent-indigo);
+      border-color: var(--accent-indigo);
+      font-size: 0.85rem;
+      font-weight: 700;
+      gap: 6px;
+    }
+
+    .ctrl-btn.btn-play-pause:hover {
+      background: #4f46e5;
+    }
+
+    .speed-select {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* Timeline Stepper Bar */
+    .timeline-bar-wrapper {
+      padding: 16px 24px;
+      background: rgba(11, 17, 30, 0.9);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .timeline-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+    }
+
+    .chip-step {
+      flex: 0 0 auto;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-step:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+
+    .chip-step.active {
+      background: var(--accent-indigo);
+      border-color: #818cf8;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+    }
+
+    .chip-step.has-tool {
+      border-color: rgba(6, 182, 212, 0.3);
+    }
+
+    .chip-step.has-policy {
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .filter-tabs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .filter-tab {
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      transition: all 0.15s ease;
+    }
+
+    .filter-tab:hover {
+      color: #ffffff;
+    }
+
+    .filter-tab.active {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    /* Replay Workspace Main Split */
+    .replay-body-split {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      min-height: 580px;
+    }
+
+    /* Conversation Pane (Left) */
+    .conversation-pane {
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      background: rgba(9, 14, 24, 0.6);
+    }
+
+    .chat-scroller {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      max-height: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .message-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .message-item.inactive {
+      opacity: 0.25;
+    }
+
+    .message-item.current {
+      opacity: 1;
+      transform: scale(1.01);
+    }
+
+    .msg-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+    }
+
+    .msg-author {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .author-user { color: var(--accent-cyan); }
+    .author-assistant { color: #a5b4fc; }
+    .author-tool { color: var(--accent-amber); }
+    .author-system { color: var(--text-dim); }
+
+    .msg-bubble {
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      position: relative;
+    }
+
+    .bubble-user {
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      color: #e0f2fe;
+      border-top-left-radius: 4px;
+    }
+
+    .bubble-assistant {
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      color: #e0e7ff;
+      border-top-left-radius: 4px;
+    }
+
+    .bubble-tool {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #fef3c7;
+      border-top-left-radius: 4px;
+    }
+
+    .tool-call-banner {
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #7dd3fc;
+      margin-top: 8px;
+    }
+
+    .tool-func-name {
+      font-weight: 700;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tool-args {
+      color: #cbd5e1;
+      margin-top: 4px;
+      word-break: break-all;
+    }
+
+    /* State & Policy Inspector Pane (Right) */
+    .inspector-pane {
+      padding: 24px;
+      background: rgba(13, 19, 33, 0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+      max-height: 600px;
+    }
+
+    .inspector-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .card-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .user-profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 0.82rem;
+    }
+
+    .profile-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .profile-item-key {
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }
+
+    .profile-item-val {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    /* Policy Gate Banner */
+    .policy-gate-card {
+      border-left: 4px solid var(--accent-amber);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .policy-gate-card.passed {
+      border-left-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .policy-rule-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fde68a;
+      margin-bottom: 6px;
+    }
+
+    .policy-rule-text {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+
+    /* Ledger Balance Card */
+    .ledger-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 0.84rem;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+    }
+
+    .ledger-row:last-child {
+      border-bottom: none;
+    }
+
+    /* Policy Matrix Section */
+    .policy-section-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+      overflow-x: auto;
+    }
+
+    .policy-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .policy-tab-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .policy-tab-btn.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #c7d2fe;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .policy-clauses-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .clause-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .clause-card.highlighted {
+      border-color: rgba(99, 102, 241, 0.4);
+      background: rgba(99, 102, 241, 0.05);
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.1);
+    }
+
+    .clause-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .clause-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .tag-enforced {
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+    }
+
+    .tag-reference {
+      background: rgba(148, 163, 184, 0.15);
+      color: #cbd5e1;
+    }
+
+    .clause-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .clause-body {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Agent Comparison Table */
+    .comparison-table-wrapper {
+      margin-top: 36px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    .comp-table th {
+      padding: 16px 20px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .comp-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+
+    .comp-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comp-table td strong {
+      color: #ffffff;
+    }
+
+    .comp-danger {
+      color: #f87171 !important;
+    }
+
+    .comp-success {
+      color: #34d399 !important;
+    }
+
+    /* Benchmark Scorecard */
+    .scorecard-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .score-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .score-big {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+      letter-spacing: -0.03em;
+    }
+
+    .score-label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    /* FAQ Details Section */
+    .faq-list {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    details.faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    details.faq-item:hover {
+      border-color: rgba(99, 102, 241, 0.35);
+      background: var(--bg-card-hover);
+    }
+
+    details.faq-item[open] {
+      border-color: var(--accent-indigo);
+      background: rgba(17, 24, 39, 0.9);
+    }
+
+    summary.faq-question {
+      padding: 18px 22px;
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style: none;
+      user-select: none;
+    }
+
+    summary.faq-question::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-chevron {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease;
+      color: var(--text-dim);
+    }
+
+    details[open] .faq-chevron {
+      transform: rotate(180deg);
+      color: var(--accent-cyan);
+    }
+
+    .faq-answer {
+      padding: 0 22px 20px;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Case Meta Drawer / Specs */
+    .meta-table-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 24px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.88rem;
+    }
+
+    .meta-row:last-child {
+      border-bottom: none;
+    }
+
+    .meta-k {
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .meta-v {
+      font-family: var(--font-mono);
+      color: #e2e8f0;
+      word-break: break-all;
+    }
+
+    /* Footer */
+    footer.site-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 50px 0 30px;
+      background: #05080f;
+      margin-top: 60px;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .footer-col-left {
+      max-width: 360px;
+    }
+
+    .footer-desc {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    .footer-nav-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-col-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #ffffff;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .footer-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.15s ease;
+    }
+
+    .footer-link:hover {
+      color: #ffffff;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Modal Backdrop & Window */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #0d1424;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 920px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+
+    .modal-content {
+      padding: 20px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      background: #070c17;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.95);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .replay-body-split {
+        grid-template-columns: 1fr;
+      }
+      .conversation-pane {
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .workflow-timeline {
+        grid-template-columns: 1fr;
+      }
+      .workflow-timeline::before {
+        display: none;
+      }
+      .policy-clauses-grid {
+        grid-template-columns: 1fr;
+      }
+      .scorecard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .metrics-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .preview-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .scorecard-grid {
+        grid-template-columns: 1fr;
+      }
+      .metrics-bar {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-top"></div>
+
+  <!-- Top Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="#overview" class="nav-brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">AeroFlow AI</span>
+          <span class="brand-tagline">Autonomous Airline Ops</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#overview" class="nav-link">Overview</a></li>
+        <li><a href="#features" class="nav-link">Capabilities</a></li>
+        <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+        <li><a href="#replay" class="nav-link">Trajectory Replay</a></li>
+        <li><a href="#policy" class="nav-link">Policy Guardrails</a></li>
+        <li><a href="#metrics" class="nav-link">Benchmark</a></li>
+        <li><a href="#faq" class="nav-link">FAQ</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="btn btn-subtle" onclick="openModal('policyModal')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Policy Rules
+        </button>
+        <button class="btn btn-subtle" onclick="openModal('jsonModal')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Trace JSON
+        </button>
+        <a href="#replay" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Launch Replay
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero-section" id="overview">
+    <div class="container">
+      <div class="hero-badge">
+        <span class="status-dot"></span>
+        <span>Tau-Bench Airline Benchmark • Run 03_gpt-4o-airline_51 • 100% Policy Adherence</span>
+      </div>
+
+      <h1 class="hero-title">
+        Deterministic Flight Support Under <span class="gradient-text">Zero-Tolerance Policies</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Customer Olivia Gonzalez requested an itinerary change without knowing her reservation ID.
+        Watch how GPT-4o accurately resolved her booking among three candidate trips, enforced non-changeable
+        Basic Economy restrictions, leveraged her travel insurance for illness cancellation, and executed ledger reversal with explicit confirmation.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#replay" class="btn btn-cyan" style="padding: 12px 28px; font-size: 0.98rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Explore Interactive Replay
+        </a>
+        <a href="#policy" class="btn btn-subtle" style="padding: 12px 24px; font-size: 0.98rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          Inspect Guardrail Policies
+        </a>
+      </div>
+
+      <!-- Quick Telemetry Row -->
+      <div class="metrics-bar">
+        <div class="metric-card">
+          <div class="metric-value" style="color: #38bdf8;">22 Turns</div>
+          <div class="metric-label">Full Trajectory Depth</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" style="color: #a78bfa;">5 Calls</div>
+          <div class="metric-label">Precision Tool Actions</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" style="color: #34d399;">0 Breaches</div>
+          <div class="metric-label">Policy Violations</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" style="color: #fbbf24;">$169.00</div>
+          <div class="metric-label">Refund Reconciled</div>
+        </div>
+      </div>
+
+      <!-- Hero Visual Showcase Card -->
+      <div class="hero-preview-wrapper">
+        <div class="preview-header">
+          <div class="preview-dots">
+            <div class="preview-dot dot-red"></div>
+            <div class="preview-dot dot-yellow"></div>
+            <div class="preview-dot dot-green"></div>
+          </div>
+          <div class="preview-title-bar">
+            <span>TERMINAL RUNTIME: 2024-05-15 15:00:00 EST</span>
+            <span>•</span>
+            <span>USER_ID: olivia_gonzalez_2305</span>
+            <span>•</span>
+            <span>STATUS: RESOLVED</span>
+          </div>
+          <div class="status-badge badge-success">Task Success 1.0</div>
+        </div>
+
+        <div class="preview-body">
+          <!-- Left Ticket Card -->
+          <div class="preview-card flight-ticket">
+            <div class="ticket-header">
+              <div>
+                <span style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Reservation Ref</span>
+                <div style="font-size: 1.25rem; font-weight: 800; font-family: var(--font-mono); color: #ffffff;">Z7GOZK</div>
+              </div>
+              <div class="status-badge badge-cancelled">Cancelled & Refunded</div>
+            </div>
+
+            <div class="ticket-route">
+              <div class="route-node">
+                <span class="node-code">EWR</span>
+                <span class="node-city">Newark Liberty</span>
+              </div>
+              <div class="route-arrow">
+                <span style="font-size: 0.7rem; color: var(--text-dim); font-family: var(--font-mono);">HAT188 / HAT207</span>
+                <div class="route-line">
+                  <div class="route-plane">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#38bdf8"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+                  </div>
+                </div>
+                <span style="font-size: 0.7rem; color: var(--accent-indigo);">Round Trip · May 28, 2024</span>
+              </div>
+              <div class="route-node" style="text-align: right;">
+                <span class="node-code">IAH</span>
+                <span class="node-city">Houston Texas</span>
+              </div>
+            </div>
+
+            <div class="ticket-meta">
+              <div>
+                <span style="color: var(--text-dim); display: block;">Cabin Class</span>
+                <span style="color: #f87171; font-weight: 700;">Basic Economy (Locked)</span>
+              </div>
+              <div>
+                <span style="color: var(--text-dim); display: block;">Travel Insurance</span>
+                <span style="color: #34d399; font-weight: 700;">Active (Illness Covered)</span>
+              </div>
+              <div>
+                <span style="color: var(--text-dim); display: block;">Payment Source</span>
+                <span style="color: #ffffff; font-weight: 600;">Gift Card #2200803</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Policy Telemetry Card -->
+          <div class="preview-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Autonomous Decision Pipeline
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.83rem;">
+                <div style="padding: 8px 10px; background: rgba(99,102,241,0.12); border-radius: 8px; border-left: 3px solid var(--accent-indigo);">
+                  <strong style="color: #c7d2fe;">1. Disambiguation:</strong> Evaluated 3 reservations, verified <code>IAH ➔ EWR</code> segment.
+                </div>
+                <div style="padding: 8px 10px; background: rgba(244,63,94,0.12); border-radius: 8px; border-left: 3px solid var(--accent-rose);">
+                  <strong style="color: #fca5a5;">2. Rule Block:</strong> Modification prohibited on Basic Economy. Did not hallucinate reschedule.
+                </div>
+                <div style="padding: 8px 10px; background: rgba(16,185,129,0.12); border-radius: 8px; border-left: 3px solid var(--accent-emerald);">
+                  <strong style="color: #6ee7b7;">3. Insurance Pivot & Consent:</strong> Confirmed illness clause, required explicit confirmation.
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+              <span style="color: var(--text-dim);">Reversal Method: <strong>Gift Card (100% full refund)</strong></span>
+              <span style="color: var(--accent-cyan); font-weight: 600;">SLA: 5-7 business days</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Features Section -->
+  <section id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Agent Architecture</span>
+        <h2 class="section-title">Engineered for Enterprise Determinism</h2>
+        <p class="section-subtitle">
+          Six key architectural capabilities demonstrated in run <code>03_gpt-4o-airline_51</code> that prevented policy violations and secured user trust.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3 class="feature-title">Multi-Hop Entity Disambiguation</h3>
+          <p class="feature-desc">
+            When customer Olivia provided only her User ID without a booking reference, the agent fetched her profile and systematically audited all 3 active bookings (<code>Z7GOZK</code>, <code>K67C4W</code>, <code>THY2DG</code>) to isolate the Texas-Newark route.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h3 class="feature-title">Immutable Policy Enforcement</h3>
+          <p class="feature-desc">
+            Section 3.1 forbids modifying Basic Economy reservations under any circumstance. Rather than executing a forbidden API modification call or hallucinating permission, the agent proactively warned the user of the hard restriction.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="feature-title">Insurance Contingency Routing</h3>
+          <p class="feature-desc">
+            When the user reported feeling unwell, the agent checked the booking metadata for <code>insurance: "yes"</code> ($30 add-on) and accurately recognized that health-related cancellations are entitled to a 100% refund.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <h3 class="feature-title">Two-Phase Explicit Consent Gate</h3>
+          <p class="feature-desc">
+            Per strict operating mandate, no state mutation API can be triggered without explicit user confirmation. The agent explicitly presented the reservation ID and reason, pausing until the user responded "Yes, please proceed".
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <h3 class="feature-title">Atomic Ledger Reversal</h3>
+          <p class="feature-desc">
+            The cancellation API atomically recorded a <code>-$169.00</code> credit directly to the original payment source (Gift Card <code>gift_card_2200803</code>), updating the reservation status to <code>cancelled</code> with zero discrepancy.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3 class="feature-title">SLA Compliance & Clean Termination</h3>
+          <p class="feature-desc">
+            The agent concluded by stating the mandated refund delivery SLA (5 to 7 business days) and cleanly halted execution upon customer satisfaction without superfluous banter or boundary-crossing tokens.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" style="background: rgba(13, 19, 34, 0.4); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Interaction Lifecycle</span>
+        <h2 class="section-title">5-Stage Execution Flow</h2>
+        <p class="section-subtitle">
+          Click on any stage to fast-forward the interactive replay engine to that exact operational phase.
+        </p>
+      </div>
+
+      <div class="workflow-timeline">
+        <div class="workflow-step" onclick="jumpToStep(1)">
+          <div class="step-num">1</div>
+          <div class="step-name">Intent & ID Intake</div>
+          <div class="step-desc">Turns 1–3: User submits Texas change request; agent requests user profile credentials.</div>
+        </div>
+
+        <div class="workflow-step" onclick="jumpToStep(4)">
+          <div class="step-num">2</div>
+          <div class="step-name">Database Triangulation</div>
+          <div class="step-desc">Turns 4–13: Executes 4 query tools across 3 bookings to locate Texas flight.</div>
+        </div>
+
+        <div class="workflow-step" onclick="jumpToStep(14)">
+          <div class="step-num">3</div>
+          <div class="step-name">Policy Lockout & Pivot</div>
+          <div class="step-desc">Turns 14–15: Blocks Basic Economy modification; customer invokes health insurance clause.</div>
+        </div>
+
+        <div class="workflow-step" onclick="jumpToStep(16)">
+          <div class="step-num">4</div>
+          <div class="step-name">Consent Validation</div>
+          <div class="step-desc">Turns 16–17: Mandatory action confirmation dialog before destructive DB mutation.</div>
+        </div>
+
+        <div class="workflow-step" onclick="jumpToStep(18)">
+          <div class="step-num">5</div>
+          <div class="step-name">Mutation & Reconciliation</div>
+          <div class="step-desc">Turns 18–21: Cancels booking, disburses $169 gift card refund, closes with 5-7 day SLA.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Replay Studio Section (Interactive Prototype Centerpiece) -->
+  <section id="replay">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Interactive Replay Studio</span>
+        <h2 class="section-title">Live Trajectory Inspector</h2>
+        <p class="section-subtitle">
+          Step through every prompt, reasoning path, tool invocation, and live memory state change in real time.
+        </p>
+      </div>
+
+      <div class="replay-workspace">
+        <!-- Replay Top Bar -->
+        <div class="replay-header-bar">
+          <div class="replay-title-group">
+            <div class="live-badge">Step <span id="currentStepIndicator">1</span> of 21</div>
+            <span style="font-size: 0.95rem; font-weight: 700; color: #ffffff;" id="stepTitle">User Request Intake</span>
+          </div>
+
+          <div class="controls-panel">
+            <button class="ctrl-btn" onclick="prevStep()" title="Previous Step">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+            <button class="ctrl-btn btn-play-pause" id="playBtn" onclick="togglePlay()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" id="playIcon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span id="playText">Play</span>
+            </button>
+            <button class="ctrl-btn" onclick="nextStep()" title="Next Step">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+            <button class="ctrl-btn" onclick="resetReplay()" title="Reset to Start">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+
+            <select class="speed-select" id="speedSelect" onchange="changeSpeed(this.value)">
+              <option value="1500">1.0x Speed</option>
+              <option value="800">2.0x Fast</option>
+              <option value="3000">0.5x Detailed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Timeline Stepper Bar -->
+        <div class="timeline-bar-wrapper">
+          <div class="timeline-chips" id="timelineChips">
+            <!-- Dynamically populated via JS -->
+          </div>
+
+          <div class="filter-tabs">
+            <span style="font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; margin-right: 8px;">Filter View:</span>
+            <button class="filter-tab active" onclick="setFilter('all', this)">All Steps (22)</button>
+            <button class="filter-tab" onclick="setFilter('chat', this)">Chat Only (8)</button>
+            <button class="filter-tab" onclick="setFilter('tools', this)">Tool Invocations (5)</button>
+            <button class="filter-tab" onclick="setFilter('policy', this)">Policy Checkpoints (4)</button>
+          </div>
+        </div>
+
+        <!-- Replay Main Body Split -->
+        <div class="replay-body-split">
+          <!-- Left: Conversation & Tool Events -->
+          <div class="conversation-pane">
+            <div class="chat-scroller" id="chatScroller">
+              <!-- Dynamically populated / highlighted -->
+            </div>
+          </div>
+
+          <!-- Right: Live State Machine & Inspector -->
+          <div class="inspector-pane">
+            <!-- Active Step Context -->
+            <div class="inspector-card">
+              <div class="card-title-row">
+                <span class="card-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                  Current Phase & Step Note
+                </span>
+                <span class="status-badge badge-indigo" id="inspectorStepBadge">Step 1</span>
+              </div>
+              <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;" id="inspectorStepNote">
+                Customer begins conversation by requesting a flight change from Texas to Newark.
+              </p>
+            </div>
+
+            <!-- Policy Guardrail Monitor -->
+            <div class="inspector-card" id="inspectorPolicyCard">
+              <div class="card-title-row">
+                <span class="card-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  Active Policy Check
+                </span>
+                <span class="status-badge badge-success" id="inspectorPolicyBadge">Evaluating</span>
+              </div>
+              <div class="policy-rule-title" id="inspectorPolicyTitle">Section 1.0: User Verification Required</div>
+              <div class="policy-rule-text" id="inspectorPolicyDesc">
+                Agent must verify the user's identity and booking reference prior to exposing or altering booking records.
+              </div>
+            </div>
+
+            <!-- Customer Identity & Session State -->
+            <div class="inspector-card">
+              <div class="card-title-row">
+                <span class="card-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Customer Identity State
+                </span>
+                <span class="status-badge badge-indigo" id="userTierBadge">Authenticated</span>
+              </div>
+              <div class="user-profile-grid">
+                <div class="profile-item">
+                  <span class="profile-item-key">User ID</span>
+                  <span class="profile-item-val" id="dispUserId">olivia_gonzalez_2305</span>
+                </div>
+                <div class="profile-item">
+                  <span class="profile-item-key">Full Name</span>
+                  <span class="profile-item-val" id="dispUserName">Olivia Gonzalez</span>
+                </div>
+                <div class="profile-item">
+                  <span class="profile-item-key">Membership</span>
+                  <span class="profile-item-val" id="dispUserTier">Regular Tier</span>
+                </div>
+                <div class="profile-item">
+                  <span class="profile-item-key">Saved Bookings</span>
+                  <span class="profile-item-val" id="dispUserBookings">3 Active (Z7GOZK, ...)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Target Reservation State -->
+            <div class="inspector-card">
+              <div class="card-title-row">
+                <span class="card-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                  Target Itinerary State (Z7GOZK)
+                </span>
+                <span class="status-badge badge-cancelled" id="resStatusBadge">Confirmed</span>
+              </div>
+              <div class="user-profile-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 10px;">
+                <div class="profile-item">
+                  <span class="profile-item-key">Route</span>
+                  <span class="profile-item-val">EWR ➔ IAH ➔ EWR</span>
+                </div>
+                <div class="profile-item">
+                  <span class="profile-item-key">Departure Date</span>
+                  <span class="profile-item-val">2024-05-28</span>
+                </div>
+                <div class="profile-item">
+                  <span class="profile-item-key">Cabin Class</span>
+                  <span class="profile-item-val" style="color: #fca5a5;">Basic Economy</span>
+                </div>
+                <div class="profile-item">
+                  <span class="profile-item-key">Travel Insurance</span>
+                  <span class="profile-item-val" style="color: #6ee7b7;">Yes ($30 Policy)</span>
+                </div>
+              </div>
+              <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 10px;">
+                <div class="ledger-row">
+                  <span style="color: var(--text-dim);">Flight Legs (HAT188 + HAT207):</span>
+                  <span style="font-family: var(--font-mono);">$139.00</span>
+                </div>
+                <div class="ledger-row">
+                  <span style="color: var(--text-dim);">Travel Insurance Fee:</span>
+                  <span style="font-family: var(--font-mono);">$30.00</span>
+                </div>
+                <div class="ledger-row">
+                  <span style="color: var(--text-dim);">Original Paid (Gift Card):</span>
+                  <span style="font-family: var(--font-mono); color: #ffffff;">$169.00</span>
+                </div>
+                <div class="ledger-row" id="refundLedgerRow" style="display: none;">
+                  <span style="color: #34d399; font-weight: 700;">Processed Refund:</span>
+                  <span style="font-family: var(--font-mono); color: #34d399; font-weight: 700;">-$169.00 (100%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Policy Guardrails Deep Dive Section -->
+  <section id="policy">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Deterministic Rules</span>
+        <h2 class="section-title">The Airline Agent Policy Engine</h2>
+        <p class="section-subtitle">
+          Tau-Bench tests LLM agents against strict business rules. Here is how GPT-4o accurately observed
+          every clause in this flight modification/cancellation challenge.
+        </p>
+      </div>
+
+      <div class="policy-section-tabs">
+        <button class="policy-tab-btn active" onclick="switchPolicyTab('all', this)">All Guardrails</button>
+        <button class="policy-tab-btn" onclick="switchPolicyTab('mod', this)">Modify Flight Rules</button>
+        <button class="policy-tab-btn" onclick="switchPolicyTab('cancel', this)">Cancel Flight Rules</button>
+        <button class="policy-tab-btn" onclick="switchPolicyTab('confirm', this)">Confirmation Rules</button>
+      </div>
+
+      <div class="policy-clauses-grid" id="policyGrid">
+        <!-- Clause 1 -->
+        <div class="clause-card highlighted" data-cat="mod">
+          <div class="clause-header">
+            <span class="clause-tag tag-enforced">Enforced in Turn 14</span>
+            <span style="font-size: 0.75rem; color: var(--accent-indigo); font-weight: 700;">Section 3.1</span>
+          </div>
+          <h4 class="clause-title">Basic Economy Modification Prohibition</h4>
+          <p class="clause-body">
+            <strong>Rule:</strong> "Basic economy flights cannot be modified. Other reservations can be modified without changing origin, destination, and trip type... The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!"
+          </p>
+          <div style="background: rgba(99,102,241,0.1); border-radius: 8px; padding: 10px; font-size: 0.82rem; color: #c7d2fe;">
+            <strong>Agent Action:</strong> Refused modification request cleanly and informed customer of the fare class limitation.
+          </div>
+        </div>
+
+        <!-- Clause 2 -->
+        <div class="clause-card highlighted" data-cat="cancel">
+          <div class="clause-header">
+            <span class="clause-tag tag-enforced">Enforced in Turn 16</span>
+            <span style="font-size: 0.75rem; color: var(--accent-indigo); font-weight: 700;">Section 4.1</span>
+          </div>
+          <h4 class="clause-title">Travel Insurance Health Cancellation</h4>
+          <p class="clause-body">
+            <strong>Rule:</strong> "Basic economy or economy flights can be cancelled only if travel insurance is bought and the condition is met [health or weather reasons]... All reservations can be cancelled within 24 hours of booking, or if the airline cancelled the flight."
+          </p>
+          <div style="background: rgba(16,185,129,0.1); border-radius: 8px; padding: 10px; font-size: 0.82rem; color: #6ee7b7;">
+            <strong>Agent Action:</strong> Verified booking was made &gt;24 hrs ago (May 13), identified <code>insurance: "yes"</code>, and accepted sickness as qualifying condition.
+          </div>
+        </div>
+
+        <!-- Clause 3 -->
+        <div class="clause-card highlighted" data-cat="confirm">
+          <div class="clause-header">
+            <span class="clause-tag tag-enforced">Enforced in Turn 16-17</span>
+            <span style="font-size: 0.75rem; color: var(--accent-indigo); font-weight: 700;">Core Rule #1</span>
+          </div>
+          <h4 class="clause-title">Mandatory Explicit User Confirmation</h4>
+          <p class="clause-body">
+            <strong>Rule:</strong> "Before taking any actions that update the booking database (booking, modifying flights, editing baggage, upgrading cabin class, or updating passenger information), you must list the action details and obtain explicit user confirmation (yes) to proceed."
+          </p>
+          <div style="background: rgba(245,158,11,0.1); border-radius: 8px; padding: 10px; font-size: 0.82rem; color: #fde68a;">
+            <strong>Agent Action:</strong> Detailed the Reservation ID and Health Reason, explicitly asking: "Please confirm if you would like to proceed with the cancellation." Did NOT call tool until user answered "Yes".
+          </div>
+        </div>
+
+        <!-- Clause 4 -->
+        <div class="clause-card highlighted" data-cat="cancel">
+          <div class="clause-header">
+            <span class="clause-tag tag-enforced">Enforced in Turn 20</span>
+            <span style="font-size: 0.75rem; color: var(--accent-indigo); font-weight: 700;">Section 4.3</span>
+          </div>
+          <h4 class="clause-title">Original Payment Method Refund SLA</h4>
+          <p class="clause-body">
+            <strong>Rule:</strong> "The refund will go to original payment methods in 5 to 7 business days."
+          </p>
+          <div style="background: rgba(6,182,212,0.1); border-radius: 8px; padding: 10px; font-size: 0.82rem; color: #7dd3fc;">
+            <strong>Agent Action:</strong> Returned full $169 to gift card <code>gift_card_2200803</code> and informed user of the exact 5-7 business days timeline.
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent Comparison Table -->
+      <div class="comparison-table-wrapper">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Evaluation Dimension</th>
+              <th>Naive / Hallucinating Agent</th>
+              <th>AeroFlow GPT-4o (Evaluated Run)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Disambiguation</strong></td>
+              <td class="comp-danger">Asks customer for flight numbers or guesses reservation ID</td>
+              <td class="comp-success">Directly inspects all 3 candidate bookings via tools and identifies the Texas-Newark segment</td>
+            </tr>
+            <tr>
+              <td><strong>Basic Economy Mod</strong></td>
+              <td class="comp-danger">Calls <code>modify_flight</code> API directly, causing policy failure</td>
+              <td class="comp-success">Firmly cites Basic Economy non-modifiable restriction, offering legal alternatives</td>
+            </tr>
+            <tr>
+              <td><strong>Insurance Verification</strong></td>
+              <td class="comp-danger">Ignores insurance policy status or rejects user's illness claim</td>
+              <td class="comp-success">Verifies active travel insurance ($30) qualifies for health cancellation full refund</td>
+            </tr>
+            <tr>
+              <td><strong>Pre-Mutation Gate</strong></td>
+              <td class="comp-danger">Calls <code>cancel_reservation</code> immediately upon user request</td>
+              <td class="comp-success">Halts, presents reservation details, and prompts for explicit user confirmation ("Yes")</td>
+            </tr>
+            <tr>
+              <td><strong>Final Handshake</strong></td>
+              <td class="comp-danger">Fails to mention refund SLA or payment method details</td>
+              <td class="comp-success">Accurately specifies original payment method and 5-7 business days timeline</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benchmark Scorecard Section -->
+  <section id="metrics" style="background: rgba(13, 19, 34, 0.5); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Performance Scorecard</span>
+        <h2 class="section-title">Tau-Bench Evaluation Metrics</h2>
+        <p class="section-subtitle">
+          Quantified evaluation scores for case <code>03_gpt-4o-airline_51</code>.
+        </p>
+      </div>
+
+      <div class="scorecard-grid">
+        <div class="score-card">
+          <div class="score-big" style="color: #34d399;">100%</div>
+          <div class="score-label">Goal Completion (Reward 1.0)</div>
+        </div>
+        <div class="score-card">
+          <div class="score-big" style="color: #38bdf8;">0</div>
+          <div class="score-label">Policy Infracs / Breaches</div>
+        </div>
+        <div class="score-card">
+          <div class="score-big" style="color: #a78bfa;">5 / 5</div>
+          <div class="score-label">Valid Tool Invocations</div>
+        </div>
+        <div class="score-card">
+          <div class="score-big" style="color: #fde68a;">0</div>
+          <div class="score-label">Redundant / Retried Calls</div>
+        </div>
+      </div>
+
+      <!-- Case Metadata Box -->
+      <div class="meta-table-box">
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Run Case Metadata (case_meta.json)
+        </h3>
+        <div class="meta-row">
+          <span class="meta-k">Case ID</span>
+          <span class="meta-v">03_gpt-4o-airline_51</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Domain</span>
+          <span class="meta-v">tool_use_customer_service</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Benchmark</span>
+          <span class="meta-v">tau-bench</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Model Evaluated</span>
+          <span class="meta-v">gpt-4o</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Trajectory Format</span>
+          <span class="meta-v">tau-bench-json</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Trajectory SHA-256</span>
+          <span class="meta-v">89445ecfbec86f713b2f345eac75accf6eeec467baa1485c99d58459db3c848b</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-k">Initial User Task</span>
+          <span class="meta-v">"Hi! I need to change my return flight from Texas to Newark."</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section (Accordion with <details>) -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Frequently Answered Questions</span>
+        <h2 class="section-title">Technical & Operational FAQs</h2>
+        <p class="section-subtitle">
+          Key questions regarding the agent's reasoning path, tool orchestrations, and policy boundaries.
+        </p>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span>Why couldn't the agent simply modify the return leg to Newark?</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <div class="faq-answer">
+            Reservation <code>Z7GOZK</code> was booked in <strong>Basic Economy</strong>. The Airline Agent Policy explicitly dictates: <em>"Basic economy flights cannot be modified. Other reservations can be modified without changing the origin, destination, and trip type."</em> The API does not enforce this restriction on behalf of the agent, making it the agent's responsibility to prevent an unauthorized change.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span>How did the agent verify whether Olivia was eligible for a cancellation refund?</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <div class="faq-answer">
+            Under policy section 4.1, reservations past the 24-hour booking window can only be cancelled if the cabin is business or if the user has purchased <strong>travel insurance</strong> and the reason is health or weather related. The agent inspected the reservation payload returned by <code>get_reservation_details</code>, verified that <code>insurance: "yes"</code> was attached, and matched Olivia's stated reason ("feeling unwell") to the policy's health clause.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span>Why did the agent pause and ask "Please confirm if you would like to proceed" before canceling?</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <div class="faq-answer">
+            This is an absolute guardrail in Tau-Bench: <em>"Before taking any actions that update the booking database (booking, modifying flights, editing baggage, upgrading cabin class, or updating passenger information), you must list the action details and obtain explicit user confirmation (yes) to proceed."</em> Calling <code>cancel_reservation</code> prior to receiving an explicit "yes" constitutes an immediate evaluation policy penalty.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span>What payment method received the refund, and was any fee deducted?</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <div class="faq-answer">
+            The reservation was originally paid using Gift Card <code>gift_card_2200803</code> for $169.00. Because travel insurance covers health cancellations with a 100% refund, the exact amount of $169.00 was credited back to the original gift card, as verified by <code>payment_history: [{"payment_id": "gift_card_2200803", "amount": -169}]</code>.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">
+            <span>What does the <code>###STOP###</code> token at Turn 21 signify?</span>
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <div class="faq-answer">
+            In the Tau-Bench evaluation framework, <code>###STOP###</code> is emitted by the user simulator to signal that the user's objective has been completely satisfied and no further dialogue turns are required. The agent properly halted further generation.
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-col-left">
+          <div class="nav-brand">
+            <div class="brand-logo">
+              <svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+            </div>
+            <div class="brand-text">
+              <span class="brand-name">AeroFlow AI</span>
+              <span class="brand-tagline">Autonomous Airline Customer Ops</span>
+            </div>
+          </div>
+          <p class="footer-desc">
+            Next-generation enterprise agent runtime delivering deterministic policy adherence, multi-hop disambiguation, and explicit human-in-the-loop validation for mission-critical reservation workflows.
+          </p>
+        </div>
+
+        <div class="footer-nav-col">
+          <span class="footer-col-title">Navigation</span>
+          <a href="#overview" class="footer-link">Case Overview</a>
+          <a href="#features" class="footer-link">Core Features</a>
+          <a href="#how-it-works" class="footer-link">Execution Lifecycle</a>
+          <a href="#replay" class="footer-link">Live Replay Studio</a>
+          <a href="#policy" class="footer-link">Policy Rules</a>
+          <a href="#faq" class="footer-link">FAQs</a>
+        </div>
+
+        <div class="footer-nav-col">
+          <span class="footer-col-title">Case Artifacts</span>
+          <a href="javascript:void(0)" onclick="openModal('jsonModal')" class="footer-link">Raw Trajectory JSON</a>
+          <a href="javascript:void(0)" onclick="openModal('policyModal')" class="footer-link">System Prompt & Policy</a>
+          <a href="#metrics" class="footer-link">Evaluation Scorecard</a>
+          <a href="#overview" class="footer-link">Ticket State Inspector</a>
+        </div>
+
+        <div class="footer-nav-col">
+          <span class="footer-col-title">Benchmark Info</span>
+          <span style="font-size: 0.85rem; color: var(--text-dim);">Benchmark: <strong>Tau-Bench</strong></span>
+          <span style="font-size: 0.85rem; color: var(--text-dim);">Domain: <strong>Airline Customer Service</strong></span>
+          <span style="font-size: 0.85rem; color: var(--text-dim);">Model: <strong>GPT-4o (2024)</strong></span>
+          <span style="font-size: 0.85rem; color: var(--text-dim);">Reward: <strong>1.0 (Optimal)</strong></span>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2025 AeroFlow AI Autonomous Systems. Tau-Bench Benchmark Trajectory Report.</span>
+        <span>SHA-256: <code>89445ecfbec86f713b2f345eac75accf6eeec467baa1485c99d58459db3c848b</code></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal: Raw JSON Trajectory -->
+  <div class="modal-backdrop" id="jsonModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">Raw Trajectory Data (trajectory.json)</span>
+        <button class="modal-close-btn" onclick="closeModal('jsonModal')">&times;</button>
+      </div>
+      <pre class="modal-content" id="jsonContent">{
+  &quot;task_id&quot;: 1,
+  &quot;traj&quot;: [
+    {
+      &quot;role&quot;: &quot;system&quot;,
+      &quot;content&quot;: &quot;# Airline Agent Policy\n\nThe current time is 2024-05-15 15:00:00 EST.\n\nAs an airline agent, you can help users book, modify, or cancel flight reservations.\n\n- Before taking any actions that update the booking database (booking, modifying flights, editing baggage, upgrading cabin class, or updating passenger information), you must list the action details and obtain explicit user confirmation (yes) to proceed.\n\n- You should not provide any information, knowledge, or procedures not provided by the user or available tools, or give subjective recommendations or comments.\n\n- You should only make one tool call at a time, and if you make a tool call, you should not respond to the user simultaneously. If you respond to the user, you should not make a tool call at the same time.\n\n- You should deny user requests that are against this policy.\n\n- You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions.\n\n## Domain Basic\n\n- Each user has a profile containing user id, email, addresses, date of birth, payment methods, reservation numbers, and membership tier.\n\n- Each reservation has an reservation id, user id, trip type (one way, round trip), flights, passengers, payment methods, created time, baggages, and travel insurance information.\n\n- Each flight has a flight number, an origin, destination, scheduled departure and arrival time (local time), and for each date:\n  - If the status is \&quot;available\&quot;, the flight has not taken off, available seats and prices are listed.\n  - If the status is \&quot;delayed\&quot; or \&quot;on time\&quot;, the flight has not taken off, cannot be booked.\n  - If the status is \&quot;flying\&quot;, the flight has taken off but not landed, cannot be booked.\n\n## Book flight\n\n- The agent must first obtain the user id, then ask for the trip type, origin, destination.\n\n- Passengers: Each reservation can have at most five passengers. The agent needs to collect the first name, last name, and date of birth for each passenger. All passengers must fly the same flights in the same cabin.\n\n- Payment: each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards. The remaining amount of a travel certificate is not refundable. All payment methods must already be in user profile for safety reasons.\n\n- Checked bag allowance: If the booking user is a regular member, 0 free checked bag for each basic economy passenger, 1 free checked bag for each economy passenger, and 2 free checked bags for each business passenger. If the booking user is a silver member, 1 free checked bag for each basic economy passenger, 2 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. If the booking user is a gold member, 2 free checked bag for each basic economy passenger, 3 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. Each extra baggage is 50 dollars.\n\n- Travel insurance: the agent should ask if the user wants to buy the travel insurance, which is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons.\n\n## Modify flight\n\n- The agent must first obtain the user id and the reservation id.\n\n- Change flights: Basic economy flights cannot be modified. Other reservations can be modified without changing the origin, destination, and trip type. Some flight segments can be kept, but their prices will not be updated based on the current price. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!\n\n- Change cabin: all reservations, including basic economy, can change cabin without changing the flights. Cabin changes require the user to pay for the difference between their current cabin and the new cabin class. Cabin class must be the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible.\n\n- Change baggage and insurance: The user can add but not remove checked bags. The user cannot add insurance after initial booking.\n\n- Change passengers: The user can modify passengers but cannot modify the number of passengers. This is something that even a human agent cannot assist with.\n\n- Payment: If the flights are changed, the user needs to provide one gift card or credit card for payment or refund method. The agent should ask for the payment or refund method instead.\n\n## Cancel flight\n\n- The agent must first obtain the user id, the reservation id, and the reason for cancellation (change of plan, airline cancelled flight, or other reasons)\n\n- All reservations can be cancelled within 24 hours of booking, or if the airline cancelled the flight. Otherwise, basic economy or economy flights can be cancelled only if travel insurance is bought and the condition is met, and business flights can always be cancelled. The rules are strict regardless of the membership status. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!\n\n- The agent can only cancel the whole trip that is not flown. If any of the segments are already used, the agent cannot help and transfer is needed.\n\n- The refund will go to original payment methods in 5 to 7 business days.\n\n## Refund\n\n- If the user is silver/gold member or has travel insurance or flies business, and complains about cancelled flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $100 times the number of passengers.\n\n- If the user is silver/gold member or has travel insurance or flies business, and complains about delayed flights in a reservation and wants to change or cancel the reservation, the agent can offer a certificate as a gesture after confirming the facts and changing or cancelling the reservation, with the amount being $50 times the number of passengers.\n\n- Do not proactively offer these unless the user complains about the situation and explicitly asks for some compensation. Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy.\n&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;Hi! I need to change my return flight from Texas to Newark.&quot;
+    },
+    {
+      &quot;content&quot;: &quot;I can help you with that. Could you please provide your user ID and reservation ID?&quot;,
+      &quot;role&quot;: &quot;assistant&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;I know my user ID, it&#x27;s olivia_gonzalez_2305. But I don\u2019t remember my reservation ID.&quot;
+    },
+    {
+      &quot;content&quot;: null,
+      &quot;role&quot;: &quot;assistant&quot;,
+      &quot;tool_calls&quot;: [
+        {
+          &quot;function&quot;: {
+            &quot;arguments&quot;: &quot;{\&quot;user_id\&quot;:\&quot;olivia_gonzalez_2305\&quot;}&quot;,
+            &quot;name&quot;: &quot;get_user_details&quot;
+          },
+          &quot;id&quot;: &quot;call_MY94XAcnfHzfAZcVHqt5FRRQ&quot;,
+          &quot;type&quot;: &quot;function&quot;
+        }
+      ]
+    },
+    {
+      &quot;role&quot;: &quot;tool&quot;,
+      &quot;tool_call_id&quot;: &quot;call_MY94XAcnfHzfAZcVHqt5FRRQ&quot;,
+      &quot;name&quot;: &quot;get_user_details&quot;,
+      &quot;content&quot;: &quot;{\&quot;name\&quot;: {\&quot;first_name\&quot;: \&quot;Olivia\&quot;, \&quot;last_name\&quot;: \&quot;Gonzalez\&quot;}, \&quot;address\&quot;: {\&quot;address1\&quot;: \&quot;334 Laurel Lane\&quot;, \&quot;address2\&quot;: \&quot;Suite 970\&quot;, \&quot;city\&quot;: \&quot;Los Angeles\&quot;, \&quot;country\&quot;: \&quot;USA\&quot;, \&quot;province\&quot;: \&quot;CA\&quot;, \&quot;zip\&quot;: \&quot;90504\&quot;}, \&quot;email\&quot;: \&quot;olivia.gonzalez4421@example.com\&quot;, \&quot;dob\&quot;: \&quot;1988-06-13\&quot;, \&quot;payment_methods\&quot;: {\&quot;gift_card_2200803\&quot;: {\&quot;source\&quot;: \&quot;gift_card\&quot;, \&quot;amount\&quot;: 123, \&quot;id\&quot;: \&quot;gift_card_2200803\&quot;}, \&quot;credit_card_9969263\&quot;: {\&quot;source\&quot;: \&quot;credit_card\&quot;, \&quot;brand\&quot;: \&quot;mastercard\&quot;, \&quot;last_four\&quot;: \&quot;9475\&quot;, \&quot;id\&quot;: \&quot;credit_card_9969263\&quot;}}, \&quot;saved_passengers\&quot;: [{\&quot;first_name\&quot;: \&quot;Mei\&quot;, \&quot;last_name\&quot;: \&quot;Johansson\&quot;, \&quot;dob\&quot;: \&quot;1981-09-25\&quot;}, {\&quot;first_name\&quot;: \&quot;Yara\&quot;, \&quot;last_name\&quot;: \&quot;Lopez\&quot;, \&quot;dob\&quot;: \&quot;1975-09-15\&quot;}], \&quot;membership\&quot;: \&quot;regular\&quot;, \&quot;reservations\&quot;: [\&quot;Z7GOZK\&quot;, \&quot;K67C4W\&quot;, \&quot;THY2DG\&quot;]}&quot;
+    },
+    {
+      &quot;content&quot;: &quot;I found your reservations. Could you please confirm which reservation ID you would like to modify? Here are your options:\n\n1. Z7GOZK\n2. K67C4W\n3. THY2DG\n\nLet me know which one corresponds to your return flight from Texas to Newark.&quot;,
+      &quot;role&quot;: &quot;assistant&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;I&#x27;m not sure which one it is. I just want to change the return flight from Texas to Newark.&quot;
+    },
+    {
+      &quot;content&quot;: null,
+      &quot;role&quot;: &quot;assistant&quot;,
+      &quot;tool_calls&quot;: [
+        {
+          &quot;function&quot;: {
+            &quot;arguments&quot;: &quot;{\&quot;reservation_id\&quot;: \&quot;Z7GOZK\&quot;}&quot;,
+            &quot;name&quot;: &quot;get_reservation_details&quot;
+          },
+          &quot;id&quot;: &quot;call_l1YtJ8E1m4eBoWiJjFlomdL4&quot;,
+          &quot;type&quot;: &quot;function&quot;
+        }
+      ]
+    },
+    {
+      &quot;role&quot;: &quot;tool&quot;,
+      &quot;tool_call_id&quot;: &quot;call_l1YtJ8E1m4eBoWiJjFlomdL4&quot;,
+      &quot;name&quot;: &quot;get_reservation_details&quot;,
+      &quot;content&quot;: &quot;{\&quot;reservation_id\&quot;: \&quot;Z7GOZK\&quot;, \&quot;user_id\&quot;: \&quot;olivia_gonzalez_2305\&quot;, \&quot;origin\&quot;: \&quot;EWR\&quot;, \&quot;destination\&quot;: \&quot;EWR\&quot;, \&quot;flight_type\&quot;: \&quot;one_way\&quot;, \&quot;cabin\&quot;: \&quot;basic_economy\&quot;, \&quot;flights\&quot;: [{\&quot;origin\&quot;: \&quot;EWR\&quot;, \&quot;destination\&quot;: \&quot;IAH\&quot;, \&quot;flight_number\&quot;: \&quot;HAT188\&quot;, \&quot;date\&quot;: \&quot;2024-05-28\&quot;, \&quot;price\&quot;: 52}, {\&quot;origin\&quot;: \&quot;IAH\&quot;, \&quot;destination\&quot;: \&quot;EWR\&quot;, \&quot;flight_number\&quot;: \&quot;HAT207\&quot;, \&quot;date\&quot;: \&quot;2024-05-28\&quot;, \&quot;price\&quot;: 87}], \&quot;passengers\&quot;: [{\&quot;first_name\&quot;: \&quot;Olivia\&quot;, \&quot;last_name\&quot;: \&quot;Gonzalez\&quot;, \&quot;dob\&quot;: \&quot;1988-06-13\&quot;}], \&quot;payment_history\&quot;: [{\&quot;payment_id\&quot;: \&quot;gift_card_2200803\&quot;, \&quot;amount\&quot;: 169}], \&quot;created_at\&quot;: \&quot;2024-05-13T19:41:32\&quot;, \&quot;total_baggages\&quot;: 0, \&quot;nonfree_baggages\&quot;: 0, \&quot;insurance\&quot;: \&quot;yes\&quot;}&quot;
+    },
+    {
+      &quot;content&quot;: null,
+      &quot;role&quot;: &quot;assistant&quot;,
+      &quot;tool_calls&quot;: [
+        {
+          &quot;function&quot;: {
+            &quot;arguments&quot;: &quot;{\&quot;reservation_id\&quot;:\&quot;K67C4W\&quot;}&quot;,
+            &quot;name&quot;: &quot;get_reservation_details&quot;
+          },
+          &quot;id&quot;: &quot;call_dhYivf6VRUVJfU9DItC2EQ95&quot;,
+          &quot;type&quot;: &quot;function&quot;
+        }
+      ]
+    },
+    {
+      &quot;role&quot;: &quot;tool&quot;,
+      &quot;tool_call_id&quot;: &quot;call_dhYivf6VRUVJfU9DItC2EQ95&quot;,
+      &quot;name&quot;: &quot;get_reservation_details&quot;,
+      &quot;content&quot;: &quot;{\&quot;reservation_id\&quot;: \&quot;K67C4W\&quot;, \&quot;user_id\&quot;: \&quot;olivia_gonzalez_2305\&quot;, \&quot;origin\&quot;: \&quot;LAS\&quot;, \&quot;destination\&quot;: \&quot;MCO\&quot;, \&quot;flight_type\&quot;: \&quot;one_way\&quot;, \&quot;cabin\&quot;: \&quot;economy\&quot;, \&quot;flights\&quot;: [{\&quot;origin\&quot;: \&quot;LAS\&quot;, \&quot;destination\&quot;: \&quot;MCO\&quot;, \&quot;flight_number\&quot;: \&quot;HAT137\&quot;, \&quot;date\&quot;: \&quot;2024-05-17\&quot;, \&quot;price\&quot;: 114}], \&quot;passengers\&quot;: [{\&quot;first_name\&quot;: \&quot;Olivia\&quot;, \&quot;last_name\&quot;: \&quot;Gonzalez\&quot;, \&quot;dob\&quot;: \&quot;1988-06-13\&quot;}, {\&quot;first_name\&quot;: \&quot;Mei\&quot;, \&quot;last_name\&quot;: \&quot;Johansson\&quot;, \&quot;dob\&quot;: \&quot;1981-09-25\&quot;}, {\&quot;first_name\&quot;: \&quot;Yara\&quot;, \&quot;last_name\&quot;: \&quot;Lopez\&quot;, \&quot;dob\&quot;: \&quot;1975-09-15\&quot;}], \&quot;payment_history\&quot;: [{\&quot;payment_id\&quot;: \&quot;credit_card_9969263\&quot;, \&quot;amount\&quot;: 342}], \&quot;created_at\&quot;: \&quot;2024-05-11T06:28:05\&quot;, \&quot;total_baggages\&quot;: 1, \&quot;nonfree_baggages\&quot;: 0, \&quot;insurance\&quot;: \&quot;no\&quot;}&quot;
+    },
+    {
+      &quot;content&quot;: null,
+      &quot;role&quot;: &quot;assistant&quot;,
+      &quot;tool_calls&quot;: [
+        {
+          &quot;function&quot;: {
+            &quot;arguments&quot;: &quot;{\&quot;reservation_id\&quot;:\&quot;THY2DG\&quot;}&quot;,
+            &quot;name&quot;: &quot;get_reservation_details&quot;
+          },
+          &quot;id&quot;: &quot;call_4T5zndIlDe4bKuURD2Snz7v8&quot;,
+          &quot;type&quot;: &quot;function&quot;
+        }
+      ]
+    },
+    {
+      &quot;role&quot;: &quot;tool&quot;,
+      &quot;tool_call_id&quot;: &quot;call_4T5zndIlDe4bKuURD2Snz7v8&quot;,
+      &quot;name&quot;: &quot;get_reservation_details&quot;,
+      &quot;content&quot;: &quot;{\&quot;reservation_id\&quot;: \&quot;THY2DG\&quot;, \&quot;user_id\&quot;: \&quot;olivia_gonzalez_2305\&quot;, \&quot;origin\&quot;: \&quot;MSP\&quot;, \&quot;destination\&quot;: \&quot;ORD\&quot;, \&quot;flight_type\&quot;: \&quot;one_way\&quot;, \&quot;cabin\&quot;: \&quot;economy\&quot;, \&quot;flights\&quot;: [{\&quot;origin\&quot;: \&quot;MSP\&quot;, \&quot;destination\&quot;: \&quot;DTW\&quot;, \&quot;flight_number\&quot;: \&quot;HAT248\&quot;, \&quot;date\&quot;: \&quot;2024-05-26\&quot;, \&quot;price\&quot;: 160}, {\&quot;origin\&quot;: \&quot;DTW\&quot;, \&quot;destination\&quot;: \&quot;ORD\&quot;, \&quot;flight_number\&quot;: \&quot;HAT119\&quot;, \&quot;date\&quot;: \&quot;2024-05-26\&quot;, \&quot;price\&quot;: 178}], \&quot;passengers\&quot;: [{\&quot;first_name\&quot;: \&quot;Yara\&quot;, \&quot;last_name\&quot;: \&quot;Martin\&quot;, \&quot;dob\&quot;: \&quot;1950-01-15\&quot;}], \&quot;payment_history\&quot;: [{\&quot;payment_id\&quot;: \&quot;credit_card_9969263\&quot;, \&quot;amount\&quot;: 338}], \&quot;created_at\&quot;: \&quot;2024-05-03T23:15:42\&quot;, \&quot;total_baggages\&quot;: 1, \&quot;nonfree_baggages\&quot;: 0, \&quot;insurance\&quot;: \&quot;no\&quot;}&quot;
+    },
+    {
+      &quot;content&quot;: &quot;It seems that the reservation with ID **Z7GOZK** includes a return flight from Texas (IAH) to Newark (EWR) on May 28, 2024. However, this reservation is in basic economy, which cannot be modified. \n\nWould you like to explore other options, such as booking a new flight?&quot;,
+      &quot;role&quot;: &quot;assistant&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;I&#x27;m willing to cancel the trip using travel insurance, as I&#x27;m feeling unwell. Can you help with that?&quot;
+    },
+    {
+      &quot;content&quot;: &quot;Since you have travel insurance and are unwell, you are eligible to cancel the reservation. Here are the details for the cancellation:\n\n- **Reservation ID**: Z7GOZK\n- **Reason for Cancellation**: Health reasons (covered by travel insurance)\n\nPlease confirm if you would like to proceed with the cancellation.&quot;,
+      &quot;role&quot;: &quot;assistant&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;Yes, please proceed with the cancellation.&quot;
+    },
+    {
+      &quot;content&quot;: null,
+      &quot;role&quot;: &quot;assistant&quot;,
+      &quot;tool_calls&quot;: [
+        {
+          &quot;function&quot;: {
+            &quot;arguments&quot;: &quot;{\&quot;reservation_id\&quot;:\&quot;Z7GOZK\&quot;}&quot;,
+            &quot;name&quot;: &quot;cancel_reservation&quot;
+          },
+          &quot;id&quot;: &quot;call_NIuPQiqio3fLd0a21tKnZJPd&quot;,
+          &quot;type&quot;: &quot;function&quot;
+        }
+      ]
+    },
+    {
+      &quot;role&quot;: &quot;tool&quot;,
+      &quot;tool_call_id&quot;: &quot;call_NIuPQiqio3fLd0a21tKnZJPd&quot;,
+      &quot;name&quot;: &quot;cancel_reservation&quot;,
+      &quot;content&quot;: &quot;{\&quot;reservation_id\&quot;: \&quot;Z7GOZK\&quot;, \&quot;user_id\&quot;: \&quot;olivia_gonzalez_2305\&quot;, \&quot;origin\&quot;: \&quot;EWR\&quot;, \&quot;destination\&quot;: \&quot;EWR\&quot;, \&quot;flight_type\&quot;: \&quot;one_way\&quot;, \&quot;cabin\&quot;: \&quot;basic_economy\&quot;, \&quot;flights\&quot;: [{\&quot;origin\&quot;: \&quot;EWR\&quot;, \&quot;destination\&quot;: \&quot;IAH\&quot;, \&quot;flight_number\&quot;: \&quot;HAT188\&quot;, \&quot;date\&quot;: \&quot;2024-05-28\&quot;, \&quot;price\&quot;: 52}, {\&quot;origin\&quot;: \&quot;IAH\&quot;, \&quot;destination\&quot;: \&quot;EWR\&quot;, \&quot;flight_number\&quot;: \&quot;HAT207\&quot;, \&quot;date\&quot;: \&quot;2024-05-28\&quot;, \&quot;price\&quot;: 87}], \&quot;passengers\&quot;: [{\&quot;first_name\&quot;: \&quot;Olivia\&quot;, \&quot;last_name\&quot;: \&quot;Gonzalez\&quot;, \&quot;dob\&quot;: \&quot;1988-06-13\&quot;}], \&quot;payment_history\&quot;: [{\&quot;payment_id\&quot;: \&quot;gift_card_2200803\&quot;, \&quot;amount\&quot;: 169}, {\&quot;payment_id\&quot;: \&quot;gift_card_2200803\&quot;, \&quot;amount\&quot;: -169}], \&quot;created_at\&quot;: \&quot;2024-05-13T19:41:32\&quot;, \&quot;total_baggages\&quot;: 0, \&quot;nonfree_baggages\&quot;: 0, \&quot;insurance\&quot;: \&quot;yes\&quot;, \&quot;status\&quot;: \&quot;cancelled\&quot;}&quot;
+    },
+    {
+      &quot;content&quot;: &quot;Your reservation with ID **Z7GOZK** has been successfully cancelled due to health reasons covered by your travel insurance. The refund will be processed to your original payment method within 5 to 7 business days. If you need further assistance, feel free to ask!&quot;,
+      &quot;role&quot;: &quot;assistant&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;Thank you so much for your help. That&#x27;s all I needed for now.###STOP###&quot;
+    }
+  ],
+  &quot;trial&quot;: 1
+}</pre>
+      <div class="modal-footer">
+        <button class="btn btn-subtle" onclick="copyModalContent('jsonContent', this)">Copy JSON</button>
+        <button class="btn btn-primary" onclick="closeModal('jsonModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Policy Markdown -->
+  <div class="modal-backdrop" id="policyModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title">Complete Airline Agent Policy (System Prompt)</span>
+        <button class="modal-close-btn" onclick="closeModal('policyModal')">&times;</button>
+      </div>
+      <pre class="modal-content" id="policyModalContent"># Airline Agent Policy
+
+The current time is 2024-05-15 15:00:00 EST.
+
+As an airline agent, you can help users book, modify, or cancel flight reservations.
+
+- Before taking any actions that update the booking database (booking, modifying flights, editing baggage, upgrading cabin class, or updating passenger information), you must list the action details and obtain explicit user confirmation (yes) to proceed.
+
+- You should not provide any information, knowledge, or procedures not provided by the user or available tools, or give subjective recommendations or comments.
+
+- You should only make one tool call at a time, and if you make a tool call, you should not respond to the user simultaneously. If you respond to the user, you should not make a tool call at the same time.
+
+- You should deny user requests that are against this policy.
+
+- You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions.
+
+## Domain Basic
+
+- Each user has a profile containing user id, email, addresses, date of birth, payment methods, reservation numbers, and membership tier.
+
+- Each reservation has an reservation id, user id, trip type (one way, round trip), flights, passengers, payment methods, created time, baggages, and travel insurance information.
+
+- Each flight has a flight number, an origin, destination, scheduled departure and arrival time (local time), and for each date:
+  - If the status is &quot;available&quot;, the flight has not taken off, available seats and prices are listed.
+  - If the status is &quot;delayed&quot; or &quot;on time&quot;, the flight has not taken off, cannot be booked.
+  - If the status is &quot;flying&quot;, the flight has taken off but not landed, cannot be booked.
+
+## Book flight
+
+- The agent must first obtain the user id, then ask for the trip type, origin, destination.
+
+- Passengers: Each reservation can have at most five passengers. The agent needs to collect the first name, last name, and date of birth for each passenger. All passengers must fly the same flights in the same cabin.
+
+- Payment: each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards. The remaining amount of a travel certificate is not refundable. All payment methods must already be in user profile for safety reasons.
+
+- Checked bag allowance: If the booking user is a regular member, 0 free checked bag for each basic economy passenger, 1 free checked bag for each economy passenger, and 2 free checked bags for each business passenger. If the booking user is a silver member, 1 free checked bag for each basic economy passenger, 2 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. If the booking user is a gold member, 2 free checked bag for each basic economy passenger, 3 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. Each extra baggage is 50 dollars.
+
+- Travel insurance: the agent should ask if the user wants to buy the travel insurance, which is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons.
+
+## Modify flight
+
+- The agent must first obtain the user id and the reservation id.
+
+- Change flights: Basic economy flights cannot be modified. Other reservations can be modified without changing the origin, destination, and trip type. Some flight segments can be kept, but their prices will not be updated based on the current price. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!
+
+- Change cabin: all reservations, including basic economy, can change cabin without changing the flights. Cabin changes require the user to pay for the difference between their current cabin and the new cabin class. Cabin class must be the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible.
+
+- Change baggage and insurance: The user can add but not remove checked bags. The user cannot add insurance after initial booking.
+
+- Change passengers: The user can modify passengers but cannot modify the number of passengers. This is something that even a human agent cannot assist with.
+
+- Payment: If the flights are changed, the user needs to provide one gift card or credit card for payment or refund method. The agent should ask for the payment or refund method instead.
+
+## Cancel flight
+
+- The agent must first obtain the user id, the reservation id, and the reason for cancellation (change of plan, airline cancelled flight, or other reasons)
+
+- All reservations can be cancelled within 24 hours of booking, or if the airline cancelled the flight. Otherwise, basic economy or economy flights can be cancelled only if travel insurance is bought and the condition is met, and business flights can always be cancelled. The rules are strict regardless of the membership status. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!
+
+- The agent can only cancel the whole trip that is not flown. If any of the segments are already used, the agent cannot help and transfer is needed.
+
+- The refund will go to original payment methods in 5 to 7 business days.
+
+## Refund
+
+- If the user is silver/gold member or has travel insurance or flies business, and complains about cancelled flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $100 times the number of passengers.
+
+- If the user is silver/gold member or has travel insurance or flies business, and complains about delayed flights in a reservation and wants to change or cancel the reservation, the agent can offer a certificate as a gesture after confirming the facts and changing or cancelling the reservation, with the amount being $50 times the number of passengers.
+
+- Do not proactively offer these unless the user complains about the situation and explicitly asks for some compensation. Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy.
+</pre>
+      <div class="modal-footer">
+        <button class="btn btn-subtle" onclick="copyModalContent('policyModalContent', this)">Copy Policy</button>
+        <button class="btn btn-primary" onclick="closeModal('policyModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    const trajectoryData = {"task_id": 1, "traj": [{"role": "system", "content": "# Airline Agent Policy\n\nThe current time is 2024-05-15 15:00:00 EST.\n\nAs an airline agent, you can help users book, modify, or cancel flight reservations.\n\n- Before taking any actions that update the booking database (booking, modifying flights, editing baggage, upgrading cabin class, or updating passenger information), you must list the action details and obtain explicit user confirmation (yes) to proceed.\n\n- You should not provide any information, knowledge, or procedures not provided by the user or available tools, or give subjective recommendations or comments.\n\n- You should only make one tool call at a time, and if you make a tool call, you should not respond to the user simultaneously. If you respond to the user, you should not make a tool call at the same time.\n\n- You should deny user requests that are against this policy.\n\n- You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions.\n\n## Domain Basic\n\n- Each user has a profile containing user id, email, addresses, date of birth, payment methods, reservation numbers, and membership tier.\n\n- Each reservation has an reservation id, user id, trip type (one way, round trip), flights, passengers, payment methods, created time, baggages, and travel insurance information.\n\n- Each flight has a flight number, an origin, destination, scheduled departure and arrival time (local time), and for each date:\n  - If the status is \"available\", the flight has not taken off, available seats and prices are listed.\n  - If the status is \"delayed\" or \"on time\", the flight has not taken off, cannot be booked.\n  - If the status is \"flying\", the flight has taken off but not landed, cannot be booked.\n\n## Book flight\n\n- The agent must first obtain the user id, then ask for the trip type, origin, destination.\n\n- Passengers: Each reservation can have at most five passengers. The agent needs to collect the first name, last name, and date of birth for each passenger. All passengers must fly the same flights in the same cabin.\n\n- Payment: each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards. The remaining amount of a travel certificate is not refundable. All payment methods must already be in user profile for safety reasons.\n\n- Checked bag allowance: If the booking user is a regular member, 0 free checked bag for each basic economy passenger, 1 free checked bag for each economy passenger, and 2 free checked bags for each business passenger. If the booking user is a silver member, 1 free checked bag for each basic economy passenger, 2 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. If the booking user is a gold member, 2 free checked bag for each basic economy passenger, 3 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. Each extra baggage is 50 dollars.\n\n- Travel insurance: the agent should ask if the user wants to buy the travel insurance, which is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons.\n\n## Modify flight\n\n- The agent must first obtain the user id and the reservation id.\n\n- Change flights: Basic economy flights cannot be modified. Other reservations can be modified without changing the origin, destination, and trip type. Some flight segments can be kept, but their prices will not be updated based on the current price. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!\n\n- Change cabin: all reservations, including basic economy, can change cabin without changing the flights. Cabin changes require the user to pay for the difference between their current cabin and the new cabin class. Cabin class must be the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible.\n\n- Change baggage and insurance: The user can add but not remove checked bags. The user cannot add insurance after initial booking.\n\n- Change passengers: The user can modify passengers but cannot modify the number of passengers. This is something that even a human agent cannot assist with.\n\n- Payment: If the flights are changed, the user needs to provide one gift card or credit card for payment or refund method. The agent should ask for the payment or refund method instead.\n\n## Cancel flight\n\n- The agent must first obtain the user id, the reservation id, and the reason for cancellation (change of plan, airline cancelled flight, or other reasons)\n\n- All reservations can be cancelled within 24 hours of booking, or if the airline cancelled the flight. Otherwise, basic economy or economy flights can be cancelled only if travel insurance is bought and the condition is met, and business flights can always be cancelled. The rules are strict regardless of the membership status. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!\n\n- The agent can only cancel the whole trip that is not flown. If any of the segments are already used, the agent cannot help and transfer is needed.\n\n- The refund will go to original payment methods in 5 to 7 business days.\n\n## Refund\n\n- If the user is silver/gold member or has travel insurance or flies business, and complains about cancelled flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $100 times the number of passengers.\n\n- If the user is silver/gold member or has travel insurance or flies business, and complains about delayed flights in a reservation and wants to change or cancel the reservation, the agent can offer a certificate as a gesture after confirming the facts and changing or cancelling the reservation, with the amount being $50 times the number of passengers.\n\n- Do not proactively offer these unless the user complains about the situation and explicitly asks for some compensation. Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy.\n"}, {"role": "user", "content": "Hi! I need to change my return flight from Texas to Newark."}, {"content": "I can help you with that. Could you please provide your user ID and reservation ID?", "role": "assistant"}, {"role": "user", "content": "I know my user ID, it's olivia_gonzalez_2305. But I don\u2019t remember my reservation ID."}, {"content": null, "role": "assistant", "tool_calls": [{"function": {"arguments": "{\"user_id\":\"olivia_gonzalez_2305\"}", "name": "get_user_details"}, "id": "call_MY94XAcnfHzfAZcVHqt5FRRQ", "type": "function"}]}, {"role": "tool", "tool_call_id": "call_MY94XAcnfHzfAZcVHqt5FRRQ", "name": "get_user_details", "content": "{\"name\": {\"first_name\": \"Olivia\", \"last_name\": \"Gonzalez\"}, \"address\": {\"address1\": \"334 Laurel Lane\", \"address2\": \"Suite 970\", \"city\": \"Los Angeles\", \"country\": \"USA\", \"province\": \"CA\", \"zip\": \"90504\"}, \"email\": \"olivia.gonzalez4421@example.com\", \"dob\": \"1988-06-13\", \"payment_methods\": {\"gift_card_2200803\": {\"source\": \"gift_card\", \"amount\": 123, \"id\": \"gift_card_2200803\"}, \"credit_card_9969263\": {\"source\": \"credit_card\", \"brand\": \"mastercard\", \"last_four\": \"9475\", \"id\": \"credit_card_9969263\"}}, \"saved_passengers\": [{\"first_name\": \"Mei\", \"last_name\": \"Johansson\", \"dob\": \"1981-09-25\"}, {\"first_name\": \"Yara\", \"last_name\": \"Lopez\", \"dob\": \"1975-09-15\"}], \"membership\": \"regular\", \"reservations\": [\"Z7GOZK\", \"K67C4W\", \"THY2DG\"]}"}, {"content": "I found your reservations. Could you please confirm which reservation ID you would like to modify? Here are your options:\n\n1. Z7GOZK\n2. K67C4W\n3. THY2DG\n\nLet me know which one corresponds to your return flight from Texas to Newark.", "role": "assistant"}, {"role": "user", "content": "I'm not sure which one it is. I just want to change the return flight from Texas to Newark."}, {"content": null, "role": "assistant", "tool_calls": [{"function": {"arguments": "{\"reservation_id\": \"Z7GOZK\"}", "name": "get_reservation_details"}, "id": "call_l1YtJ8E1m4eBoWiJjFlomdL4", "type": "function"}]}, {"role": "tool", "tool_call_id": "call_l1YtJ8E1m4eBoWiJjFlomdL4", "name": "get_reservation_details", "content": "{\"reservation_id\": \"Z7GOZK\", \"user_id\": \"olivia_gonzalez_2305\", \"origin\": \"EWR\", \"destination\": \"EWR\", \"flight_type\": \"one_way\", \"cabin\": \"basic_economy\", \"flights\": [{\"origin\": \"EWR\", \"destination\": \"IAH\", \"flight_number\": \"HAT188\", \"date\": \"2024-05-28\", \"price\": 52}, {\"origin\": \"IAH\", \"destination\": \"EWR\", \"flight_number\": \"HAT207\", \"date\": \"2024-05-28\", \"price\": 87}], \"passengers\": [{\"first_name\": \"Olivia\", \"last_name\": \"Gonzalez\", \"dob\": \"1988-06-13\"}], \"payment_history\": [{\"payment_id\": \"gift_card_2200803\", \"amount\": 169}], \"created_at\": \"2024-05-13T19:41:32\", \"total_baggages\": 0, \"nonfree_baggages\": 0, \"insurance\": \"yes\"}"}, {"content": null, "role": "assistant", "tool_calls": [{"function": {"arguments": "{\"reservation_id\":\"K67C4W\"}", "name": "get_reservation_details"}, "id": "call_dhYivf6VRUVJfU9DItC2EQ95", "type": "function"}]}, {"role": "tool", "tool_call_id": "call_dhYivf6VRUVJfU9DItC2EQ95", "name": "get_reservation_details", "content": "{\"reservation_id\": \"K67C4W\", \"user_id\": \"olivia_gonzalez_2305\", \"origin\": \"LAS\", \"destination\": \"MCO\", \"flight_type\": \"one_way\", \"cabin\": \"economy\", \"flights\": [{\"origin\": \"LAS\", \"destination\": \"MCO\", \"flight_number\": \"HAT137\", \"date\": \"2024-05-17\", \"price\": 114}], \"passengers\": [{\"first_name\": \"Olivia\", \"last_name\": \"Gonzalez\", \"dob\": \"1988-06-13\"}, {\"first_name\": \"Mei\", \"last_name\": \"Johansson\", \"dob\": \"1981-09-25\"}, {\"first_name\": \"Yara\", \"last_name\": \"Lopez\", \"dob\": \"1975-09-15\"}], \"payment_history\": [{\"payment_id\": \"credit_card_9969263\", \"amount\": 342}], \"created_at\": \"2024-05-11T06:28:05\", \"total_baggages\": 1, \"nonfree_baggages\": 0, \"insurance\": \"no\"}"}, {"content": null, "role": "assistant", "tool_calls": [{"function": {"arguments": "{\"reservation_id\":\"THY2DG\"}", "name": "get_reservation_details"}, "id": "call_4T5zndIlDe4bKuURD2Snz7v8", "type": "function"}]}, {"role": "tool", "tool_call_id": "call_4T5zndIlDe4bKuURD2Snz7v8", "name": "get_reservation_details", "content": "{\"reservation_id\": \"THY2DG\", \"user_id\": \"olivia_gonzalez_2305\", \"origin\": \"MSP\", \"destination\": \"ORD\", \"flight_type\": \"one_way\", \"cabin\": \"economy\", \"flights\": [{\"origin\": \"MSP\", \"destination\": \"DTW\", \"flight_number\": \"HAT248\", \"date\": \"2024-05-26\", \"price\": 160}, {\"origin\": \"DTW\", \"destination\": \"ORD\", \"flight_number\": \"HAT119\", \"date\": \"2024-05-26\", \"price\": 178}], \"passengers\": [{\"first_name\": \"Yara\", \"last_name\": \"Martin\", \"dob\": \"1950-01-15\"}], \"payment_history\": [{\"payment_id\": \"credit_card_9969263\", \"amount\": 338}], \"created_at\": \"2024-05-03T23:15:42\", \"total_baggages\": 1, \"nonfree_baggages\": 0, \"insurance\": \"no\"}"}, {"content": "It seems that the reservation with ID **Z7GOZK** includes a return flight from Texas (IAH) to Newark (EWR) on May 28, 2024. However, this reservation is in basic economy, which cannot be modified. \n\nWould you like to explore other options, such as booking a new flight?", "role": "assistant"}, {"role": "user", "content": "I'm willing to cancel the trip using travel insurance, as I'm feeling unwell. Can you help with that?"}, {"content": "Since you have travel insurance and are unwell, you are eligible to cancel the reservation. Here are the details for the cancellation:\n\n- **Reservation ID**: Z7GOZK\n- **Reason for Cancellation**: Health reasons (covered by travel insurance)\n\nPlease confirm if you would like to proceed with the cancellation.", "role": "assistant"}, {"role": "user", "content": "Yes, please proceed with the cancellation."}, {"content": null, "role": "assistant", "tool_calls": [{"function": {"arguments": "{\"reservation_id\":\"Z7GOZK\"}", "name": "cancel_reservation"}, "id": "call_NIuPQiqio3fLd0a21tKnZJPd", "type": "function"}]}, {"role": "tool", "tool_call_id": "call_NIuPQiqio3fLd0a21tKnZJPd", "name": "cancel_reservation", "content": "{\"reservation_id\": \"Z7GOZK\", \"user_id\": \"olivia_gonzalez_2305\", \"origin\": \"EWR\", \"destination\": \"EWR\", \"flight_type\": \"one_way\", \"cabin\": \"basic_economy\", \"flights\": [{\"origin\": \"EWR\", \"destination\": \"IAH\", \"flight_number\": \"HAT188\", \"date\": \"2024-05-28\", \"price\": 52}, {\"origin\": \"IAH\", \"destination\": \"EWR\", \"flight_number\": \"HAT207\", \"date\": \"2024-05-28\", \"price\": 87}], \"passengers\": [{\"first_name\": \"Olivia\", \"last_name\": \"Gonzalez\", \"dob\": \"1988-06-13\"}], \"payment_history\": [{\"payment_id\": \"gift_card_2200803\", \"amount\": 169}, {\"payment_id\": \"gift_card_2200803\", \"amount\": -169}], \"created_at\": \"2024-05-13T19:41:32\", \"total_baggages\": 0, \"nonfree_baggages\": 0, \"insurance\": \"yes\", \"status\": \"cancelled\"}"}, {"content": "Your reservation with ID **Z7GOZK** has been successfully cancelled due to health reasons covered by your travel insurance. The refund will be processed to your original payment method within 5 to 7 business days. If you need further assistance, feel free to ask!", "role": "assistant"}, {"role": "user", "content": "Thank you so much for your help. That's all I needed for now.###STOP###"}], "trial": 1};
+    const trajSteps = trajectoryData.traj || [];
+
+    // Annotations for each step in the player
+    const stepAnnotations = [
+      {
+        title: "System Initialization & Policy Ingestion",
+        note: "System prompt establishes operational ground rules: strict verification, basic economy change prohibitions, travel insurance refund eligibility, and mandatory explicit user confirmation before database mutations.",
+        policyCheck: {
+          rule: "Core Policy Framework",
+          desc: "Current time set to 2024-05-15 15:00:00 EST. Strict confirmation and refund policies active.",
+          status: "Active"
+        },
+        userProfile: { authenticated: false, tier: "Unverified", bookings: "Unknown" },
+        targetRes: { status: "Not Selected", cabin: "N/A", insurance: "N/A", refunded: false }
+      },
+      {
+        title: "Initial Customer Request",
+        note: "Customer initiates conversation: 'Hi! I need to change my return flight from Texas to Newark.' User ID and booking reference are not yet provided.",
+        policyCheck: {
+          rule: "Verification Prerequisite",
+          desc: "Agent must obtain user ID and reservation ID before retrieving flight records.",
+          status: "Evaluating"
+        },
+        userProfile: { authenticated: false, tier: "Unverified", bookings: "Unknown" },
+        targetRes: { status: "Pending Search", cabin: "Pending", insurance: "Pending", refunded: false }
+      },
+      {
+        title: "Identity Credential Request",
+        note: "Agent politely requests User ID and Reservation ID to begin locating the itinerary.",
+        policyCheck: {
+          rule: "Domain Verification Rule",
+          desc: "Identity gathering prior to exposing private PII or modifying flight records.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: false, tier: "Unverified", bookings: "Unknown" },
+        targetRes: { status: "Pending Search", cabin: "Pending", insurance: "Pending", refunded: false }
+      },
+      {
+        title: "Partial Credential Intake",
+        note: "User provides User ID 'olivia_gonzalez_2305' but states: 'I don’t remember my reservation ID.'",
+        policyCheck: {
+          rule: "Disambiguation Protocol",
+          desc: "When reservation ID is omitted, agent must query user profile to retrieve all active bookings.",
+          status: "Evaluating"
+        },
+        userProfile: { authenticated: true, tier: "Pending Lookup", bookings: "Pending Lookup" },
+        targetRes: { status: "Pending Search", cabin: "Pending", insurance: "Pending", refunded: false }
+      },
+      {
+        title: "Tool Call: get_user_details",
+        note: "Agent invokes get_user_details(user_id='olivia_gonzalez_2305') to retrieve customer profile and list of reservations.",
+        policyCheck: {
+          rule: "Tool Execution Safety",
+          desc: "Single tool call per turn constraint satisfied.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Querying...", bookings: "Querying..." },
+        targetRes: { status: "Querying...", cabin: "Pending", insurance: "Pending", refunded: false }
+      },
+      {
+        title: "Tool Result: User Profile Loaded",
+        note: "Profile retrieved for Olivia Gonzalez: Regular member, 3 active reservations: Z7GOZK, K67C4W, THY2DG. Payment methods on file: Gift Card ($123) and Mastercard (*9475).",
+        policyCheck: {
+          rule: "Profile Integrity",
+          desc: "Successfully matched user profile with 3 candidate reservation IDs.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "Z7GOZK, K67C4W, THY2DG" },
+        targetRes: { status: "3 Candidates", cabin: "Unknown", insurance: "Unknown", refunded: false }
+      },
+      {
+        title: "Disambiguation Prompt",
+        note: "Agent lists all 3 reservation numbers to the user and asks which one she would like to modify.",
+        policyCheck: {
+          rule: "Customer Verification",
+          desc: "Offers candidate IDs to allow customer verification.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "Z7GOZK, K67C4W, THY2DG" },
+        targetRes: { status: "Awaiting Pick", cabin: "Unknown", insurance: "Unknown", refunded: false }
+      },
+      {
+        title: "Customer Clarification",
+        note: "Customer states: 'I'm not sure which one it is. I just want to change the return flight from Texas to Newark.'",
+        policyCheck: {
+          rule: "Autonomous Route Inspection",
+          desc: "Agent must now inspect the candidate reservations to identify the Texas-Newark flight.",
+          status: "Active"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "Z7GOZK, K67C4W, THY2DG" },
+        targetRes: { status: "Scanning...", cabin: "Unknown", insurance: "Unknown", refunded: false }
+      },
+      {
+        title: "Tool Call: Check Reservation 1 (Z7GOZK)",
+        note: "Agent invokes get_reservation_details(reservation_id='Z7GOZK').",
+        policyCheck: {
+          rule: "Query Isolation",
+          desc: "Evaluating Booking candidate 1.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Auditing Z7GOZK", cabin: "Querying...", insurance: "Querying...", refunded: false }
+      },
+      {
+        title: "Candidate 1 Match Found (Z7GOZK)",
+        note: "Z7GOZK details: Origin EWR, Destination EWR. Roundtrip flights: EWR -> IAH (HAT188) and IAH -> EWR (HAT207) on 2024-05-28. Cabin: basic_economy. Insurance: yes. Paid $169 with gift card.",
+        policyCheck: {
+          rule: "Target Identified",
+          desc: "Flight HAT207 originates in Texas (IAH) and arrives in Newark (EWR). This is the target booking!",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Confirmed (Z7GOZK)", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: false }
+      },
+      {
+        title: "Tool Call: Check Reservation 2 (K67C4W)",
+        note: "Agent systematically verifies reservation K67C4W.",
+        policyCheck: {
+          rule: "Exhaustive Verification",
+          desc: "Checking second booking candidate.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Confirmed (Z7GOZK)", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: false }
+      },
+      {
+        title: "Candidate 2 Evaluated (K67C4W)",
+        note: "K67C4W is LAS -> MCO (Las Vegas to Orlando). Not the Texas flight.",
+        policyCheck: {
+          rule: "Disambiguation Elimination",
+          desc: "Eliminated LAS-MCO reservation.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Confirmed (Z7GOZK)", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: false }
+      },
+      {
+        title: "Tool Call: Check Reservation 3 (THY2DG)",
+        note: "Agent checks the final reservation THY2DG.",
+        policyCheck: {
+          rule: "Exhaustive Verification",
+          desc: "Checking third booking candidate.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Confirmed (Z7GOZK)", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: false }
+      },
+      {
+        title: "Candidate 3 Evaluated (THY2DG)",
+        note: "THY2DG is MSP -> DTW -> ORD (Minneapolis to Chicago). Not the Texas flight.",
+        policyCheck: {
+          rule: "Disambiguation Complete",
+          desc: "Unambiguously confirmed that Z7GOZK is the unique Texas reservation.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Confirmed (Z7GOZK)", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: false }
+      },
+      {
+        title: "Policy Gate: Basic Economy Non-Modifiable",
+        note: "Agent informs Olivia: 'The reservation with ID Z7GOZK includes a return flight from Texas (IAH) to Newark (EWR)... However, this reservation is in basic economy, which cannot be modified.'",
+        policyCheck: {
+          rule: "Section 3.1: Hard Modification Prohibition",
+          desc: "Basic Economy modification request firmly rejected without violation.",
+          status: "ENFORCED"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Modification Blocked", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: false }
+      },
+      {
+        title: "Customer Pivot: Insurance Cancellation Claim",
+        note: "Customer states: 'I'm willing to cancel the trip using travel insurance, as I'm feeling unwell. Can you help with that?'",
+        policyCheck: {
+          rule: "Section 4.1: Insurance Qualification",
+          desc: "Evaluating insurance claim for sickness exemption.",
+          status: "Evaluating"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Cancellation Requested", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: false }
+      },
+      {
+        title: "Policy Gate: Mandatory Pre-Action Confirmation",
+        note: "Agent verifies travel insurance covers illness and prepares cancellation. Per policy, it details the reservation ID and reason, explicitly requesting: 'Please confirm if you would like to proceed with the cancellation.'",
+        policyCheck: {
+          rule: "Core Rule #1: Two-Phase Commit",
+          desc: "Agent MUST NOT call cancel_reservation before explicit user confirmation ('yes').",
+          status: "ENFORCED"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Awaiting Explicit 'Yes'", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: false }
+      },
+      {
+        title: "Explicit User Consent Received",
+        note: "Customer replies: 'Yes, please proceed with the cancellation.' The explicit confirmation gate is cleared!",
+        policyCheck: {
+          rule: "Confirmation Gate Satisfied",
+          desc: "User responded with explicit affirmative consent ('Yes'). Proceeding to state mutation.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Consent Granted", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: false }
+      },
+      {
+        title: "Tool Call: cancel_reservation",
+        note: "Agent invokes cancel_reservation(reservation_id='Z7GOZK').",
+        policyCheck: {
+          rule: "Atomic Mutation Execution",
+          desc: "Dispatches database cancellation after all policy preconditions satisfied.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Cancelling...", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: false }
+      },
+      {
+        title: "Database Updated & Refund Recorded",
+        note: "API response: status updated to 'cancelled'. Ledger updated with payment_history: [..., {'payment_id': 'gift_card_2200803', 'amount': -169}]. 100% full refund disbursed to original Gift Card.",
+        policyCheck: {
+          rule: "Financial Ledger Reconciliation",
+          desc: "Full refund amount -$169 matched to original gift card payment.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Cancelled", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: true }
+      },
+      {
+        title: "SLA Notification & Successful Close",
+        note: "Agent informs Olivia: 'Your reservation with ID Z7GOZK has been successfully cancelled due to health reasons covered by your travel insurance. The refund will be processed to your original payment method within 5 to 7 business days.'",
+        policyCheck: {
+          rule: "Section 4.3: SLA Compliance",
+          desc: "5 to 7 business day refund timeline correctly communicated to user.",
+          status: "Passed"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Cancelled & Refunded", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: true }
+      },
+      {
+        title: "Dialogue Termination (###STOP###)",
+        note: "Customer confirms complete resolution: 'Thank you so much for your help. That's all I needed for now.###STOP###'. Run successfully achieved 100% reward score.",
+        policyCheck: {
+          rule: "Benchmark Completion",
+          desc: "Task finished cleanly with zero errors, zero retries, and zero policy breaches.",
+          status: "PASSED (1.0)"
+        },
+        userProfile: { authenticated: true, tier: "Regular", bookings: "3 Active" },
+        targetRes: { status: "Completed", cabin: "Basic Economy", insurance: "Yes ($30)", refunded: true }
+      }
+    ];
+
+    let currentStep = 1;
+    let isPlaying = false;
+    let playInterval = null;
+    let playSpeed = 1500;
+    let activeFilter = 'all';
+
+    function initReplay() {
+      buildTimelineChips();
+      renderChatStream();
+      updateStepView(currentStep);
+    }
+
+    function buildTimelineChips() {
+      const container = document.getElementById('timelineChips');
+      container.innerHTML = '';
+      
+      for (let i = 1; i < trajSteps.length; i++) {
+        const st = trajSteps[i];
+        const chip = document.createElement('button');
+        chip.className = 'chip-step';
+        chip.id = 'chip-' + i;
+        chip.onclick = () => jumpToStep(i);
+
+        let icon = '';
+        if (st.role === 'user') {
+          icon = '<span style="color: var(--accent-cyan);">●</span>';
+        } else if (st.tool_calls && st.tool_calls.length > 0) {
+          chip.classList.add('has-tool');
+          icon = '<span style="color: var(--accent-indigo);">⚡</span>';
+        } else if (st.role === 'tool') {
+          icon = '<span style="color: var(--accent-amber);">⚙</span>';
+        } else {
+          icon = '<span style="color: #a5b4fc;">●</span>';
+        }
+
+        if (i === 14 || i === 16 || i === 18) {
+          chip.classList.add('has-policy');
+        }
+
+        chip.innerHTML = `${icon} Turn ${i}`;
+        container.appendChild(chip);
+      }
+    }
+
+    function renderChatStream() {
+      const container = document.getElementById('chatScroller');
+      container.innerHTML = '';
+
+      for (let i = 1; i < trajSteps.length; i++) {
+        const st = trajSteps[i];
+        const item = document.createElement('div');
+        item.className = 'message-item';
+        item.id = 'msg-item-' + i;
+        item.setAttribute('data-step', i);
+        item.setAttribute('data-role', st.role);
+
+        let roleClass = 'author-' + st.role;
+        let roleDisplay = st.role.toUpperCase();
+        let bubbleClass = 'bubble-' + st.role;
+        
+        let headerHtml = `
+          <div class="msg-header">
+            <span class="msg-author ${roleClass}">${roleDisplay}</span>
+            <span style="color: var(--text-dim);">• Turn ${i}</span>
+          </div>
+        `;
+
+        let bodyHtml = '';
+
+        if (st.content) {
+          bodyHtml += `<div class="msg-bubble ${bubbleClass}">${escapeHtml(st.content)}</div>`;
+        }
+
+        if (st.tool_calls && st.tool_calls.length > 0) {
+          for (const tc of st.tool_calls) {
+            const fn = tc.function || {};
+            bodyHtml += `
+              <div class="tool-call-banner">
+                <div class="tool-func-name">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                  <span>CALL: ${escapeHtml(fn.name || 'unknown')}()</span>
+                </div>
+                <div class="tool-args">args: ${escapeHtml(fn.arguments || '{}')}</div>
+              </div>
+            `;
+          }
+        }
+
+        item.innerHTML = headerHtml + bodyHtml;
+        container.appendChild(item);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function updateStepView(stepIdx) {
+      currentStep = stepIdx;
+      document.getElementById('currentStepIndicator').textContent = currentStep;
+
+      // Update active chip
+      const chips = document.querySelectorAll('.chip-step');
+      chips.forEach(c => c.classList.remove('active'));
+      const activeChip = document.getElementById('chip-' + currentStep);
+      if (activeChip) {
+        activeChip.classList.add('active');
+        activeChip.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+      }
+
+      // Update message scroll & highlight
+      const msgItems = document.querySelectorAll('.message-item');
+      msgItems.forEach((m, idx) => {
+        const s = parseInt(m.getAttribute('data-step'), 10);
+        if (s < currentStep) {
+          m.className = 'message-item';
+          m.style.opacity = '0.45';
+        } else if (s === currentStep) {
+          m.className = 'message-item current';
+          m.style.opacity = '1';
+        } else {
+          m.className = 'message-item inactive';
+          m.style.opacity = '0.2';
+        }
+      });
+
+      const activeMsg = document.getElementById('msg-item-' + currentStep);
+      if (activeMsg) {
+        activeMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      // Update inspector annotations
+      const anno = stepAnnotations[currentStep] || stepAnnotations[0];
+      document.getElementById('stepTitle').textContent = anno.title;
+      document.getElementById('inspectorStepBadge').textContent = 'Turn ' + currentStep;
+      document.getElementById('inspectorStepNote').textContent = anno.note;
+
+      // Policy card
+      const pol = anno.policyCheck;
+      document.getElementById('inspectorPolicyBadge').textContent = pol.status;
+      document.getElementById('inspectorPolicyTitle').textContent = pol.rule;
+      document.getElementById('inspectorPolicyDesc').textContent = pol.desc;
+
+      const polCard = document.getElementById('inspectorPolicyCard');
+      if (pol.status === 'ENFORCED') {
+        polCard.className = 'inspector-card policy-gate-card';
+        document.getElementById('inspectorPolicyBadge').className = 'status-badge badge-amber';
+      } else if (pol.status.includes('Passed') || pol.status.includes('PASSED')) {
+        polCard.className = 'inspector-card policy-gate-card passed';
+        document.getElementById('inspectorPolicyBadge').className = 'status-badge badge-success';
+      } else {
+        polCard.className = 'inspector-card';
+        document.getElementById('inspectorPolicyBadge').className = 'status-badge badge-indigo';
+      }
+
+      // Identity Profile Card
+      const usr = anno.userProfile;
+      document.getElementById('userTierBadge').textContent = usr.tier;
+      document.getElementById('dispUserBookings').textContent = usr.bookings;
+
+      // Itinerary Target Card
+      const res = anno.targetRes;
+      document.getElementById('resStatusBadge').textContent = res.status;
+      if (res.refunded) {
+        document.getElementById('resStatusBadge').className = 'status-badge badge-cancelled';
+        document.getElementById('refundLedgerRow').style.display = 'flex';
+      } else {
+        document.getElementById('resStatusBadge').className = 'status-badge badge-indigo';
+        document.getElementById('refundLedgerRow').style.display = 'none';
+      }
+    }
+
+    function jumpToStep(idx) {
+      if (idx < 1) idx = 1;
+      if (idx >= trajSteps.length) idx = trajSteps.length - 1;
+      updateStepView(idx);
+    }
+
+    function nextStep() {
+      if (currentStep < trajSteps.length - 1) {
+        jumpToStep(currentStep + 1);
+      } else {
+        if (isPlaying) togglePlay();
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        jumpToStep(currentStep - 1);
+      }
+    }
+
+    function resetReplay() {
+      if (isPlaying) togglePlay();
+      jumpToStep(1);
+    }
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      const playBtn = document.getElementById('playBtn');
+      const playText = document.getElementById('playText');
+      const playIcon = document.getElementById('playIcon');
+
+      if (isPlaying) {
+        playText.textContent = 'Pause';
+        playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+        playInterval = setInterval(() => {
+          if (currentStep >= trajSteps.length - 1) {
+            togglePlay();
+          } else {
+            nextStep();
+          }
+        }, playSpeed);
+      } else {
+        playText.textContent = 'Play';
+        playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+        clearInterval(playInterval);
+      }
+    }
+
+    function changeSpeed(val) {
+      playSpeed = parseInt(val, 10);
+      if (isPlaying) {
+        clearInterval(playInterval);
+        playInterval = setInterval(() => {
+          if (currentStep >= trajSteps.length - 1) {
+            togglePlay();
+          } else {
+            nextStep();
+          }
+        }, playSpeed);
+      }
+    }
+
+    function setFilter(filterType, elem) {
+      activeFilter = filterType;
+      const tabs = document.querySelectorAll('.filter-tab');
+      tabs.forEach(t => t.classList.remove('active'));
+      elem.classList.add('active');
+
+      const items = document.querySelectorAll('.message-item');
+      items.forEach(m => {
+        const stepNum = parseInt(m.getAttribute('data-step'), 10);
+        const st = trajSteps[stepNum];
+        let visible = true;
+
+        if (filterType === 'chat') {
+          visible = (st.role === 'user' || (st.role === 'assistant' && (!st.tool_calls || st.tool_calls.length === 0)));
+        } else if (filterType === 'tools') {
+          visible = (st.role === 'tool' || (st.tool_calls && st.tool_calls.length > 0));
+        } else if (filterType === 'policy') {
+          visible = (stepNum === 14 || stepNum === 16 || stepNum === 17 || stepNum === 18 || stepNum === 20);
+        }
+
+        m.style.display = visible ? 'flex' : 'none';
+      });
+    }
+
+    function switchPolicyTab(cat, btn) {
+      const tabs = document.querySelectorAll('.policy-tab-btn');
+      tabs.forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cards = document.querySelectorAll('.clause-card');
+      cards.forEach(c => {
+        if (cat === 'all' || c.getAttribute('data-cat') === cat) {
+          c.style.display = 'flex';
+        } else {
+          c.style.display = 'none';
+        }
+      });
+    }
+
+    // Modals
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    window.onclick = function(e) {
+      if (e.target.classList.contains('modal-backdrop')) {
+        e.target.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    };
+
+    function copyModalContent(id, btn) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => { btn.innerText = orig; }, 2000);
+      });
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', initReplay);
+  </script>
+</body>
+</html>

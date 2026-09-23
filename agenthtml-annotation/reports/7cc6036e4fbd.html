@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02_music_brainz_20k_query2 — Data Analysis</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --surface: #1a2332;
+    --surface2: #243044;
+    --border: #2d3a4f;
+    --text: #e7ecf3;
+    --muted: #8b9bb4;
+    --accent: #5b9fd4;
+    --accent2: #7c6cf0;
+    --green: #3ecf8e;
+    --amber: #e6b84d;
+    --red: #e86a6a;
+    --user: #3d6b9a;
+    --assistant: #4a3d7a;
+    --tool: #2d5a4a;
+    --mono: "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+  header.case-header {
+    border: 1px solid var(--border);
+    background: linear-gradient(145deg, #1b2740 0%, #151d2c 100%);
+    border-radius: 14px;
+    padding: 24px 26px;
+    margin-bottom: 22px;
+  }
+  header.case-header h1 {
+    font-size: 1.35rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  header.case-header .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  .meta-item {
+    background: rgba(0,0,0,0.22);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .meta-item .label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+  .meta-item .value {
+    font-size: 0.88rem;
+    font-weight: 550;
+    word-break: break-word;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .badge-domain { background: #1e3a5f; color: #7eb8ef; }
+  .badge-ok { background: #163d2c; color: var(--green); }
+  .badge-model { background: #2e2654; color: #b7a8ff; }
+
+  section.panel {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+  section.panel h2 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    font-weight: 650;
+  }
+  .question-box {
+    background: rgba(91, 159, 212, 0.08);
+    border-left: 3px solid var(--accent);
+    padding: 14px 16px;
+    border-radius: 0 8px 8px 0;
+    font-size: 1.05rem;
+    font-weight: 550;
+  }
+  .data-files {
+    margin-top: 14px;
+    list-style: none;
+  }
+  .data-files li {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    color: #c5d0e0;
+  }
+  .data-files .engine {
+    float: right;
+    color: var(--amber);
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+
+  .answer-banner {
+    border: 1px solid #2a5a40;
+    background: linear-gradient(135deg, #163528 0%, #1a2a3a 100%);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 22px;
+  }
+  .answer-banner h2 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+  .answer-banner .answer-main {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .answer-banner table {
+    width: 100%;
+    max-width: 420px;
+    border-collapse: collapse;
+    margin-top: 4px;
+  }
+  .answer-banner th, .answer-banner td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.92rem;
+  }
+  .answer-banner th { color: var(--muted); font-weight: 550; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .answer-banner tr.winner td { color: var(--green); font-weight: 650; }
+  .answer-banner .note {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .timeline { position: relative; padding-left: 0; }
+  .step {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    background: rgba(0,0,0,0.15);
+  }
+  .step-header:hover { background: rgba(0,0,0,0.25); }
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step.user .step-num { background: var(--user); color: #fff; }
+  .step.assistant .step-num { background: var(--assistant); color: #fff; }
+  .step.tool .step-num { background: var(--tool); color: #fff; }
+  .step-role {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 650;
+    color: var(--muted);
+  }
+  .step.user .step-role { color: #7eb8ef; }
+  .step.assistant .step-role { color: #b7a8ff; }
+  .step.tool .step-role { color: #6ed6a8; }
+  .step-title {
+    flex: 1;
+    font-size: 0.92rem;
+    font-weight: 550;
+  }
+  .step-time {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  .chev {
+    color: var(--muted);
+    font-size: 0.7rem;
+    transition: transform 0.15s;
+  }
+  .step.open .chev { transform: rotate(90deg); }
+  .step-body {
+    display: none;
+    padding: 14px 16px 16px;
+  }
+  .step.open .step-body { display: block; }
+
+  .text-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.95rem;
+  }
+  .text-content strong { color: #fff; }
+  .md-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  .md-table th, .md-table td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .md-table th {
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .md-table td:last-child, .md-table th:last-child { text-align: right; }
+
+  .code-block {
+    background: #0b1018;
+    border: 1px solid #1e2838;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .code-block .code-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    background: #141c28;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid #1e2838;
+  }
+  .code-block pre {
+    margin: 0;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: #c8d4e6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .code-block.stdout pre { color: #a8e6c5; }
+  .code-block.stderr pre { color: #f0a0a0; }
+
+  .tool-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .pill {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: #a8b8cc;
+  }
+  .pill b { color: var(--amber); font-weight: 600; }
+
+  .schema-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  @media (max-width: 680px) {
+    .schema-grid { grid-template-columns: 1fr; }
+  }
+  .schema-card {
+    background: #0b1018;
+    border: 1px solid #1e2838;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .schema-card h4 {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .schema-card .engine-tag {
+    font-size: 0.7rem;
+    color: var(--amber);
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .schema-card ul {
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: #b0c0d4;
+  }
+  .schema-card li {
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .schema-card li:last-child { border-bottom: none; }
+  .schema-card .col-type { color: var(--muted); float: right; }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .controls button {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  .controls button:hover {
+    background: #2c3a52;
+    border-color: #4a5d78;
+  }
+
+  footer {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+  .nav-toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .nav-toc a {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 10px;
+  }
+  .nav-toc a:hover { color: var(--text); border-color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="case-header">
+  <div style="margin-bottom:10px">
+    <span class="badge badge-domain">data_analysis</span>
+    <span class="badge badge-model">claude-opus-4-8</span>
+    <span class="badge badge-ok">exit 0 · 20.1s</span>
+  </div>
+  <h1>02_music_brainz_20k_query2</h1>
+  <p class="subtitle">DataAgentBench · Multi-store royalty for “Street Hype”</p>
+  <div class="meta-grid">
+    <div class="meta-item"><span class="label">Benchmark</span><span class="value">DataAgentBench</span></div>
+    <div class="meta-item"><span class="label">Domain</span><span class="value">data_analysis</span></div>
+    <div class="meta-item"><span class="label">Model</span><span class="value">claude-opus-4-8</span></div>
+    <div class="meta-item"><span class="label">Backend</span><span class="value">opus</span></div>
+    <div class="meta-item"><span class="label">Duration</span><span class="value">20.1 s</span></div>
+    <div class="meta-item"><span class="label">Exit code</span><span class="value">0</span></div>
+    <div class="meta-item"><span class="label">Collected</span><span class="value">2026-07-11</span></div>
+    <div class="meta-item"><span class="label">Trajectory</span><span class="value">claude-jsonl · 9 events</span></div>
+  </div>
+</header>
+
+<section class="panel">
+  <h2>Task</h2>
+  <div class="question-box">
+    Which store earned the most revenue in USD from Brucqe Maginnis&rsquo; song &lsquo;Street Hype&rsquo; across all countries?
+  </div>
+  <p style="margin-top:14px;color:var(--muted);font-size:0.9rem">
+    Write and run Python code that computes and prints the answer. Two databases hold complementary tables:
+  </p>
+  <ul class="data-files">
+    <li><span class="engine">DuckDB</span>data/sales.duckdb</li>
+    <li><span class="engine">SQLite</span>data/tracks.db</li>
+  </ul>
+</section>
+
+<div class="answer-banner" id="final-answer">
+  <h2>Final answer</h2>
+  <div class="answer-main">Amazon Music</div>
+  <table>
+    <thead>
+      <tr><th>Store</th><th>Total revenue (USD)</th></tr>
+    </thead>
+    <tbody>
+      <tr class="winner"><td>Amazon Music</td><td>$304.13</td></tr>
+      <tr><td>Apple Music</td><td>$47.52</td></tr>
+    </tbody>
+  </table>
+  <p class="note">
+    Matched one track (<code>track_id=4122</code>) for artist <em>Brucqe Maginnis</em>, title <em>Street Hype</em>,
+    then summed <code>revenue_usd</code> by store across all countries in the DuckDB sales table.
+  </p>
+</div>
+
+<section class="panel" style="padding-bottom:10px">
+  <h2>Discovered schemas</h2>
+  <div class="schema-grid">
+    <div class="schema-card">
+      <h4>sales <span class="engine-tag">DuckDB · sales.duckdb</span></h4>
+      <ul>
+        <li>sale_id <span class="col-type">INTEGER</span></li>
+        <li>track_id <span class="col-type">INTEGER</span></li>
+        <li>country <span class="col-type">VARCHAR</span></li>
+        <li>store <span class="col-type">VARCHAR</span></li>
+        <li>units_sold <span class="col-type">INTEGER</span></li>
+        <li>revenue_usd <span class="col-type">DOUBLE</span></li>
+      </ul>
+    </div>
+    <div class="schema-card">
+      <h4>tracks <span class="engine-tag">SQLite · tracks.db</span></h4>
+      <ul>
+        <li>track_id <span class="col-type">INTEGER</span></li>
+        <li>source_id <span class="col-type">INTEGER</span></li>
+        <li>source_track_id <span class="col-type">TEXT</span></li>
+        <li>title <span class="col-type">TEXT</span></li>
+        <li>artist <span class="col-type">TEXT</span></li>
+        <li>album <span class="col-type">TEXT</span></li>
+        <li>year <span class="col-type">TEXT</span></li>
+        <li>length <span class="col-type">TEXT</span></li>
+        <li>language <span class="col-type">TEXT</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<nav class="nav-toc">
+  <a href="#step-1">1 · User task</a>
+  <a href="#step-2">2 · Plan</a>
+  <a href="#step-3">3 · Schema inspect</a>
+  <a href="#step-4">4 · Schema result</a>
+  <a href="#step-5">5 · Revenue query</a>
+  <a href="#step-6">6 · Revenue result</a>
+  <a href="#step-7">7 · Final answer</a>
+</nav>
+
+<div class="controls">
+  <button type="button" onclick="setAll(true)">Expand all</button>
+  <button type="button" onclick="setAll(false)">Collapse all</button>
+</div>
+
+<div class="timeline">
+
+  <!-- Step 1: User prompt -->
+  <article class="step user open" id="step-1">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-role">User</div>
+        <div class="step-title">Task prompt — revenue leader for “Street Hype”</div>
+      </div>
+      <div class="step-time">22:16:51Z</div>
+      <span class="chev">▶</span>
+    </div>
+    <div class="step-body">
+      <div class="text-content">Answer this data analysis question. Write and run Python code that computes
+and prints the answer.
+
+Question: Which store earned the most revenue in USD from Brucqe Maginnis' song 'Street Hype' across all countries?
+
+Data files (query them with Python; engine noted per file):
+  - …/workspace/data/sales.duckdb (DuckDB)
+  - …/workspace/data/tracks.db (SQLite)</div>
+    </div>
+  </article>
+
+  <!-- Step 2: Assistant plan -->
+  <article class="step assistant open" id="step-2">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-role">Assistant</div>
+        <div class="step-title">Plan: explore both database schemas first</div>
+      </div>
+      <div class="step-time">22:16:54Z</div>
+      <span class="chev">▶</span>
+    </div>
+    <div class="step-body">
+      <div class="text-content">I'll explore both databases first to understand their schemas.</div>
+      <p style="margin-top:10px;color:var(--muted);font-size:0.82rem">
+        (A preceding thinking block was present in the trajectory but empty.)
+      </p>
+    </div>
+  </article>
+
+  <!-- Step 3: Tool use schema -->
+  <article class="step tool open" id="step-3">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-role">Tool · Bash</div>
+        <div class="step-title">Inspect schemas of both databases</div>
+      </div>
+      <div class="step-time">22:16:54Z</div>
+      <span class="chev">▶</span>
+    </div>
+    <div class="step-body">
+      <div class="tool-meta">
+        <span class="pill"><b>tool</b> Bash</span>
+        <span class="pill"><b>id</b> toolu_01DNYhzKtkVh2gs44pN8cFqN</span>
+        <span class="pill"><b>desc</b> Inspect schemas of both databases</span>
+      </div>
+      <div class="code-block">
+        <div class="code-label"><span>python3 · schema exploration</span></div>
+        <pre>import duckdb, sqlite3
+d = duckdb.connect('data/sales.duckdb', read_only=True)
+print('=== DuckDB tables ===')
+for t in d.execute("SELECT table_name FROM information_schema.tables").fetchall():
+    print(t[0])
+    for c in d.execute(f"PRAGMA table_info('{t[0]}')").fetchall():
+        print('  ', c[1], c[2])
+print()
+s = sqlite3.connect('data/tracks.db')
+print('=== SQLite tables ===')
+for (name,) in s.execute("SELECT name FROM sqlite_master WHERE type='table'"):
+    print(name)
+    for col in s.execute(f'PRAGMA table_info({name})'):
+        print('  ', col[1], col[2])</pre>
+      </div>
+    </div>
+  </article>
+
+  <!-- Step 4: Schema result -->
+  <article class="step user open" id="step-4">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num">4</div>
+      <div>
+        <div class="step-role">Tool result</div>
+        <div class="step-title">Schema output — sales + tracks tables</div>
+      </div>
+      <div class="step-time">22:16:55–06Z</div>
+      <span class="chev">▶</span>
+    </div>
+    <div class="step-body">
+      <div class="code-block stdout">
+        <div class="code-label"><span>stdout · success</span><span>is_error: false</span></div>
+        <pre>=== DuckDB tables ===
+sales
+    sale_id INTEGER
+    track_id INTEGER
+    country VARCHAR
+    store VARCHAR
+    units_sold INTEGER
+    revenue_usd DOUBLE
+
+=== SQLite tables ===
+tracks
+    track_id INTEGER
+    source_id INTEGER
+    source_track_id TEXT
+    title TEXT
+    artist TEXT
+    album TEXT
+    year TEXT
+    length TEXT
+    language TEXT</pre>
+      </div>
+      <p style="margin-top:10px;color:var(--muted);font-size:0.85rem">
+        Join key is clearly <code>track_id</code> across engines. Revenue lives in DuckDB; artist/title resolution in SQLite.
+      </p>
+    </div>
+  </article>
+
+  <!-- Step 5: Aggregation query -->
+  <article class="step tool open" id="step-5">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num">5</div>
+      <div>
+        <div class="step-role">Tool · Bash</div>
+        <div class="step-title">Find track ids and aggregate revenue by store</div>
+      </div>
+      <div class="step-time">22:17:06Z</div>
+      <span class="chev">▶</span>
+    </div>
+    <div class="step-body">
+      <div class="tool-meta">
+        <span class="pill"><b>tool</b> Bash</span>
+        <span class="pill"><b>id</b> toolu_018qaQGdRcjVEyJYjfNS9GCU</span>
+        <span class="pill"><b>desc</b> Find track ids and aggregate revenue by store</span>
+      </div>
+      <div class="code-block">
+        <div class="code-label"><span>python3 · cross-DB join via temp table</span></div>
+        <pre>import duckdb, sqlite3
+s = sqlite3.connect('data/tracks.db')
+rows = s.execute(
+    "SELECT track_id, title, artist FROM tracks "
+    "WHERE title='Street Hype' AND artist='Brucqe Maginnis'"
+).fetchall()
+print('matching tracks:', rows)
+ids = [r[0] for r in rows]
+
+d = duckdb.connect('data/sales.duckdb', read_only=True)
+d.execute('CREATE TEMP TABLE t(track_id INTEGER)')
+d.executemany('INSERT INTO t VALUES (?)', [(i,) for i in ids])
+res = d.execute('''
+  SELECT store, SUM(revenue_usd) AS total_rev
+  FROM sales WHERE track_id IN (SELECT track_id FROM t)
+  GROUP BY store ORDER BY total_rev DESC
+''').fetchall()
+print('Revenue by store (all countries):')
+for store, rev in res:
+    print(f'  {store}: ${rev:,.2f}')
+print()
+print('ANSWER:', res[0][0], f'(${res[0][1]:,.2f})')</pre>
+      </div>
+      <p style="margin-top:10px;color:var(--muted);font-size:0.85rem">
+        Strategy: resolve artist+title in SQLite, ferry track ids into a DuckDB temp table, then GROUP BY store on <code>revenue_usd</code> (all countries).
+      </p>
+    </div>
+  </article>
+
+  <!-- Step 6: Revenue result -->
+  <article class="step user open" id="step-6">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num">6</div>
+      <div>
+        <div class="step-role">Tool result</div>
+        <div class="step-title">Revenue by store — Amazon Music leads</div>
+      </div>
+      <div class="step-time">22:17:07Z</div>
+      <span class="chev">▶</span>
+    </div>
+    <div class="step-body">
+      <div class="code-block stdout">
+        <div class="code-label"><span>stdout · success</span><span>is_error: false</span></div>
+        <pre>matching tracks: [(4122, 'Street Hype', 'Brucqe Maginnis')]
+Revenue by store (all countries):
+  Amazon Music: $304.13
+  Apple Music: $47.52
+
+ANSWER: Amazon Music ($304.13)</pre>
+      </div>
+    </div>
+  </article>
+
+  <!-- Step 7: Final assistant message -->
+  <article class="step assistant open" id="step-7">
+    <div class="step-header" onclick="toggleStep(this)">
+      <div class="step-num">7</div>
+      <div>
+        <div class="step-role">Assistant</div>
+        <div class="step-title">Conclusion — Amazon Music ($304.13)</div>
+      </div>
+      <div class="step-time">22:17:10Z</div>
+      <span class="chev">▶</span>
+    </div>
+    <div class="step-body">
+      <div class="text-content"><strong>Amazon Music</strong> earned the most revenue from Brucqe Maginnis' song <em>'Street Hype'</em> across all countries.</div>
+      <table class="md-table">
+        <thead>
+          <tr><th>Store</th><th>Total Revenue (USD)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Amazon Music</strong></td><td><strong>$304.13</strong></td></tr>
+          <tr><td>Apple Music</td><td>$47.52</td></tr>
+        </tbody>
+      </table>
+      <div class="text-content" style="margin-top:8px;color:var(--muted);font-size:0.9rem">The song matched a single track (<code>track_id=4122</code>) in the SQLite <code>tracks</code> table, and I aggregated <code>revenue_usd</code> from the DuckDB <code>sales</code> table by store across all countries.</div>
+    </div>
+  </article>
+
+</div>
+
+<section class="panel" style="margin-top:18px">
+  <h2>Trajectory summary</h2>
+  <ul style="margin-left:18px;color:#c5d0e0;font-size:0.92rem">
+    <li style="margin-bottom:6px"><strong style="color:#fff">2 tool calls</strong> — both successful Bash/Python probes</li>
+    <li style="margin-bottom:6px"><strong style="color:#fff">Cross-engine join</strong> — SQLite for metadata, DuckDB for revenue; ids staged via temp table</li>
+    <li style="margin-bottom:6px"><strong style="color:#fff">Exact match filter</strong> — <code>title = 'Street Hype'</code> AND <code>artist = 'Brucqe Maginnis'</code> → single row (4122)</li>
+    <li style="margin-bottom:6px"><strong style="color:#fff">Aggregation</strong> — <code>SUM(revenue_usd) GROUP BY store</code> over all countries</li>
+    <li style="margin-bottom:6px"><strong style="color:#fff">Winner</strong> — Amazon Music at $304.13 vs Apple Music $47.52</li>
+    <li style="margin-bottom:6px"><strong style="color:#fff">Runtime</strong> — ~20s end-to-end, clean exit code 0</li>
+  </ul>
+</section>
+
+<footer>
+  Case <code>02_music_brainz_20k_query2</code> · DataAgentBench · trajectory_format claude-jsonl<br>
+  Source provenance: trajs_regen/data_analysis/02_music_brainz_20k_query2 · references: none<br>
+  Self-contained presentation · no external assets
+</footer>
+
+</div>
+<script>
+function toggleStep(header) {
+  var step = header.parentElement;
+  step.classList.toggle('open');
+}
+function setAll(open) {
+  document.querySelectorAll('.step').forEach(function(s) {
+    if (open) s.classList.add('open');
+    else s.classList.remove('open');
+  });
+}
+</script>
+</body>
+</html>

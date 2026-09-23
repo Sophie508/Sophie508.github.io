@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Routecase — Dubai Hotel Booking Trace</title>
+  <style>
+    :root{
+      --ink:#17202b;--muted:#657080;--paper:#f5f2eb;--white:#fffdf8;
+      --blue:#152d76;--blue2:#2458c6;--sun:#f5c542;--coral:#ee6b4d;
+      --mint:#ccebdd;--line:rgba(23,32,43,.13);--shadow:0 24px 60px rgba(32,39,51,.13);
+      --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      --serif:Iowan Old Style,Palatino Linotype,Book Antiqua,Georgia,serif;
+    }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5}button,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
+    .grain{position:fixed;inset:0;pointer-events:none;opacity:.22;z-index:50;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E")}
+    .nav{position:fixed;left:0;right:0;top:0;z-index:40;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100vw - 1180px)/2));transition:.3s;border-bottom:1px solid transparent;color:#fff}
+    .nav.scrolled{height:64px;background:rgba(245,242,235,.88);backdrop-filter:blur(18px);border-color:var(--line);color:var(--ink)}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:-.03em}.brand-mark{width:28px;height:28px;border-radius:50%;background:var(--sun);display:grid;place-items:center;color:var(--blue);font-size:13px;box-shadow:inset 0 0 0 6px rgba(255,255,255,.35)}
+    .nav-links{display:flex;align-items:center;gap:28px;font-size:13px;font-weight:700}.nav-links a{opacity:.78}.nav-links a:hover{opacity:1}.nav-cta{border:0;border-radius:999px;background:var(--sun);color:var(--blue);padding:10px 18px;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,.12)}
+    .hero{min-height:730px;background:var(--blue);color:#fff;overflow:hidden;position:relative;padding:150px max(24px,calc((100vw - 1180px)/2)) 76px}
+    .hero:before{content:"";position:absolute;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,#3468d3 0,rgba(52,104,211,.45) 40%,transparent 69%);right:-70px;top:-170px}.hero:after{content:"";position:absolute;left:-100px;bottom:-360px;width:650px;height:650px;border:1px solid rgba(255,255,255,.16);border-radius:50%;box-shadow:0 0 0 80px rgba(255,255,255,.025),0 0 0 160px rgba(255,255,255,.018)}
+    .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.02fr .98fr;align-items:center;gap:72px}
+    .eyebrow{display:flex;align-items:center;gap:10px;text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:800}.eyebrow:before{content:"";width:28px;height:2px;background:var(--sun)}
+    h1{font-family:var(--serif);font-size:clamp(54px,6vw,88px);line-height:.93;letter-spacing:-.055em;margin:24px 0}.hero h1 em{color:var(--sun);font-weight:400}.lead{font-size:18px;max-width:600px;color:rgba(255,255,255,.72);margin:0 0 32px}.hero-actions{display:flex;gap:12px;flex-wrap:wrap}.btn{border:1px solid transparent;border-radius:12px;padding:14px 19px;font-weight:800;display:inline-flex;align-items:center;gap:9px}.btn-primary{background:var(--sun);color:var(--blue)}.btn-ghost{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.25);color:#fff}.btn:hover{transform:translateY(-2px)}
+    .case-card{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);border-radius:26px;padding:18px;backdrop-filter:blur(18px);box-shadow:0 30px 70px rgba(0,0,0,.25);transform:rotate(1.5deg)}
+    .window{background:#fff;color:var(--ink);border-radius:17px;overflow:hidden}.window-top{height:42px;border-bottom:1px solid #e6e7eb;display:flex;align-items:center;padding:0 14px;gap:6px}.dot{width:8px;height:8px;border-radius:50%;background:#d9dce2}.dot:first-child{background:var(--coral)}.window-label{margin-left:auto;font-size:10px;letter-spacing:.12em;color:#89909a;text-transform:uppercase;font-weight:800}
+    .search-summary{background:#eff3ff;padding:17px 20px;display:grid;grid-template-columns:1.3fr 1fr;gap:12px}.summary-field{background:#fff;border:1px solid #d9dfef;border-radius:9px;padding:10px 12px}.summary-field small{display:block;text-transform:uppercase;font-size:8px;letter-spacing:.1em;color:#7a8293;font-weight:800}.summary-field b{font-size:12px}.hotel-mini{padding:20px}.hotel-head{display:flex;justify-content:space-between;gap:14px}.stars{color:#df9e00;font-size:11px;letter-spacing:1px}.hotel-mini h3{font-family:var(--serif);font-size:27px;line-height:1;margin:6px 0 7px}.distance{font-size:11px;color:var(--blue2);font-weight:800}.hotel-art{height:128px;border-radius:12px;margin-top:16px;position:relative;overflow:hidden;background:linear-gradient(180deg,#f5c867 0 46%,#e88d58 46% 54%,#243f69 54%)}
+    .hotel-art:before{content:"";position:absolute;bottom:0;left:12%;width:23%;height:86%;background:#f7efe0;box-shadow:86px 16px 0 -4px #ebe1d1,170px -8px 0 -12px #f7efe0}.hotel-art:after{content:"";position:absolute;bottom:12%;left:15%;width:4px;height:38%;background:#24446f;box-shadow:18px 0 #24446f,36px 0 #24446f,86px 0 #24446f,104px 0 #24446f,152px 0 #24446f,170px 0 #24446f}
+    .hotel-foot{display:flex;align-items:end;justify-content:space-between;padding-top:14px}.hotel-foot small{display:block;color:#7a8293}.price{font-size:22px;font-weight:900}.mini-btn{border:0;background:var(--blue2);color:#fff;border-radius:8px;padding:9px 13px;font-size:11px;font-weight:800}
+    .hero-meta{position:absolute;z-index:3;bottom:22px;left:max(24px,calc((100vw - 1180px)/2));right:max(24px,calc((100vw - 1180px)/2));display:flex;gap:20px;color:rgba(255,255,255,.58);font-size:10px;text-transform:uppercase;letter-spacing:.13em}.hero-meta span:last-child{margin-left:auto}
+    section{padding:104px max(24px,calc((100vw - 1180px)/2))}.section-kicker{text-transform:uppercase;letter-spacing:.16em;color:var(--blue2);font-size:11px;font-weight:900}.section-title{font-family:var(--serif);font-size:clamp(40px,5vw,62px);line-height:1;letter-spacing:-.04em;max-width:760px;margin:16px 0 18px}.section-intro{color:var(--muted);font-size:17px;max-width:700px;margin:0}
+    .brief{background:var(--white)}.brief-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:28px;margin-top:48px}.task-panel{background:var(--blue);color:#fff;border-radius:22px;padding:34px;box-shadow:var(--shadow);position:relative;overflow:hidden}.task-panel:after{content:"05";position:absolute;right:-10px;bottom:-55px;color:rgba(255,255,255,.05);font-family:var(--serif);font-size:210px;line-height:1}.task-panel blockquote{font-family:var(--serif);font-size:31px;line-height:1.25;margin:12px 0 34px;position:relative;z-index:2}.pills{display:flex;flex-wrap:wrap;gap:9px;position:relative;z-index:2}.pill{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);padding:8px 11px;border-radius:999px;font-size:11px;font-weight:750}.fact-stack{display:grid;gap:12px}.fact{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:19px;transition:.25s}.fact:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(32,39,51,.08)}.fact small{color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-size:9px;font-weight:800}.fact b{display:block;margin-top:5px;font-size:17px}.fact b.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+    .trace{background:linear-gradient(180deg,#eef1f7 0,#f5f2eb 100%)}.trace-header{display:flex;justify-content:space-between;align-items:end;gap:24px}.segment{display:flex;background:#e2e5eb;border-radius:10px;padding:4px}.segment button{border:0;background:transparent;padding:8px 13px;border-radius:7px;font-size:11px;font-weight:800;color:#69717e}.segment button.active{background:#fff;color:var(--blue);box-shadow:0 3px 9px rgba(0,0,0,.08)}
+    .trace-layout{display:grid;grid-template-columns:310px 1fr;gap:24px;margin-top:42px}.timeline{background:#fff;border-radius:19px;padding:12px;height:596px;overflow:auto;border:1px solid var(--line)}.timeline::-webkit-scrollbar{width:6px}.timeline::-webkit-scrollbar-thumb{background:#c9ced6;border-radius:8px}.step{width:100%;display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;border:0;background:transparent;text-align:left;padding:11px 9px;border-radius:11px;color:var(--ink)}.step:hover{background:#f4f6fb}.step.active{background:var(--blue);color:#fff}.step-num{width:26px;height:26px;border-radius:8px;border:1px solid currentColor;display:grid;place-items:center;font-size:10px;font-weight:900;opacity:.7}.step b{font-size:12px;display:block}.step small{font-size:9px;opacity:.6;text-transform:uppercase;letter-spacing:.09em}.op{font-size:8px;border-radius:999px;padding:4px 6px;background:#edf0f4;color:#647080;font-weight:900}.step.active .op{background:rgba(255,255,255,.15);color:#fff}
+    .inspector{background:#fff;border:1px solid var(--line);border-radius:19px;min-height:596px;overflow:hidden;box-shadow:0 15px 45px rgba(36,45,60,.08)}.inspector-top{padding:24px 28px;border-bottom:1px solid var(--line);display:flex;align-items:start;justify-content:space-between;gap:16px}.inspector-top .count{font-family:var(--serif);font-size:46px;line-height:1;color:#d8dce4}.inspector h3{font-family:var(--serif);font-size:32px;margin:7px 0 4px}.inspector p{color:var(--muted);margin:0}.evidence{padding:28px}.evidence-label{text-transform:uppercase;letter-spacing:.12em;font-size:9px;color:var(--muted);font-weight:900;margin-bottom:9px}.code{background:#17202b;color:#dbe4ef;border-radius:13px;padding:17px 18px;font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;min-height:88px}.code .key{color:#72b7ff}.code .val{color:#f4d16d}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}.detail{border:1px solid var(--line);border-radius:13px;padding:16px}.detail small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-size:8px;font-weight:900}.detail b{display:block;margin-top:7px;font-size:13px}.trace-note{display:none;margin-top:20px;padding:16px;border-radius:12px;background:#fff7dd;border:1px solid #eed591;color:#624f18;font-size:12px}.raw-mode .trace-note{display:block}
+    .findings{background:#17202b;color:#fff;position:relative;overflow:hidden}.findings:before{content:"";position:absolute;inset:auto -20% -50% 20%;height:650px;border-radius:50%;background:radial-gradient(circle,rgba(36,88,198,.35),transparent 65%)}.findings .section-kicker{color:var(--sun)}.findings .section-intro{color:rgba(255,255,255,.62)}.finding-grid{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:46px}.finding{border:1px solid rgba(255,255,255,.13);border-radius:18px;padding:25px;background:rgba(255,255,255,.055);backdrop-filter:blur(12px);transition:.25s}.finding:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.28)}.finding .icon{width:36px;height:36px;border-radius:11px;background:var(--sun);color:var(--blue);display:grid;place-items:center;font-weight:900}.finding.warning .icon{background:var(--coral);color:#fff}.finding h3{font-family:var(--serif);font-size:25px;margin:21px 0 8px}.finding p{font-size:13px;color:rgba(255,255,255,.61);margin:0}.finding strong{color:#fff}
+    .outcome{background:var(--white)}.result-card{margin-top:44px;border:1px solid var(--line);border-radius:24px;overflow:hidden;display:grid;grid-template-columns:.8fr 1.2fr;box-shadow:var(--shadow)}.result-visual{min-height:420px;position:relative;background:linear-gradient(160deg,#efbd59,#ee7d52 52%,#263f6b 52%);overflow:hidden}.result-visual:before{content:"";position:absolute;bottom:0;left:15%;width:30%;height:76%;background:#f7efe0;box-shadow:120px 32px 0 0 #e9ddca,230px -30px 0 -20px #fff7e9}.result-visual:after{content:"";position:absolute;bottom:14%;left:18%;width:7px;height:40%;background:#243f69;box-shadow:28px 0 #243f69,56px 0 #243f69,120px 0 #243f69,148px 0 #243f69,230px 0 #243f69,258px 0 #243f69}.map-chip{position:absolute;top:22px;left:22px;z-index:2;background:#fff;border-radius:999px;padding:9px 13px;font-size:11px;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.14)}.result-info{padding:40px}.result-info .stars{font-size:14px}.result-info h3{font-family:var(--serif);font-size:43px;line-height:1;margin:8px 0}.address{color:var(--muted);font-size:13px}.amenities{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0}.amenity{background:#eff3ff;color:var(--blue);padding:8px 10px;border-radius:8px;font-size:10px;font-weight:850}.receipt{border-top:1px solid var(--line);padding-top:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.receipt small{display:block;color:var(--muted);text-transform:uppercase;font-size:8px;letter-spacing:.1em;font-weight:800}.receipt b{font-size:17px}.outcome-banner{margin-top:20px;background:#e8f4ed;border:1px solid #c5e0d1;color:#194f34;border-radius:12px;padding:13px 16px;font-size:12px;font-weight:750}.faq{padding-top:84px}.faq details{border-top:1px solid var(--line);padding:20px 3px}.faq details:last-child{border-bottom:1px solid var(--line)}.faq summary{cursor:pointer;font-family:var(--serif);font-size:21px;list-style:none;display:flex;justify-content:space-between}.faq summary:after{content:"+";font-family:var(--sans);color:var(--blue2)}.faq details[open] summary:after{content:"−"}.faq details p{max-width:780px;color:var(--muted);font-size:14px}
+    footer{background:#0f1720;color:#fff;padding:42px max(24px,calc((100vw - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:20px}.footer-note{font-size:11px;color:rgba(255,255,255,.5);max-width:560px}.badge{border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:8px 12px;font:10px ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.75)}
+    .toast{position:fixed;right:24px;bottom:24px;z-index:60;background:#17202b;color:#fff;border-radius:10px;padding:13px 16px;font-size:12px;transform:translateY(100px);opacity:0;transition:.3s;box-shadow:var(--shadow)}.toast.show{transform:none;opacity:1}
+    .reveal{opacity:0;transform:translateY(22px);transition:.7s ease}.reveal.in{opacity:1;transform:none}
+    @media(max-width:860px){.nav-links a{display:none}.hero{padding-top:120px}.hero-grid,.brief-grid,.trace-layout,.result-card{grid-template-columns:1fr}.hero-grid{gap:38px}.case-card{transform:none}.hero-meta{display:none}.trace-header{align-items:start;flex-direction:column}.timeline{height:280px}.finding-grid{grid-template-columns:1fr}.result-visual{min-height:300px}.receipt{grid-template-columns:1fr 1fr}.result-info{padding:28px}section{padding-top:76px;padding-bottom:76px}}
+    @media(max-width:520px){.hero{min-height:auto;padding-bottom:70px}.search-summary{grid-template-columns:1fr}.hero h1{font-size:54px}.task-panel{padding:24px}.task-panel blockquote{font-size:25px}.detail-grid{grid-template-columns:1fr}.inspector-top,.evidence{padding:20px}.result-info h3{font-size:35px}.nav{padding-left:18px;padding-right:18px}.nav-cta{padding:9px 12px}.receipt{grid-template-columns:1fr}.footer-note{display:none}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}.btn,.fact,.finding{transition:none}}
+  </style>
+</head>
+<body>
+  <div class="grain"></div>
+  <nav class="nav" id="nav">
+    <a href="#top" class="brand"><span class="brand-mark">R</span>Routecase</a>
+    <div class="nav-links"><a href="#brief">Brief</a><a href="#trace">Trace</a><a href="#findings">Findings</a><a href="#outcome">Outcome</a></div>
+    <button class="nav-cta" data-scroll="#trace">Explore 21 steps</button>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Mind2Web · Case 05</div>
+        <h1>One hotel search.<br><em>Every turn</em> visible.</h1>
+        <p class="lead">An interactive reconstruction of a human booking demonstration—from a Dubai brief to the first room ready to book.</p>
+        <div class="hero-actions"><button class="btn btn-primary" data-scroll="#trace">Play the trace <span>→</span></button><button class="btn btn-ghost" data-scroll="#findings">Read the audit</button></div>
+      </div>
+      <div class="case-card" aria-label="Outcome preview">
+        <div class="window">
+          <div class="window-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="window-label">Final selected property</span></div>
+          <div class="search-summary">
+            <div class="summary-field"><small>Destination</small><b>Dubai, UAE</b></div>
+            <div class="summary-field"><small>Stay</small><b>13–16 Jul 2023</b></div>
+          </div>
+          <div class="hotel-mini">
+            <div class="hotel-head"><div><div class="stars">★★★★★</div><h3>Hyatt Regency Dubai</h3><div class="distance">0.93 km from city centre</div></div><div class="price"><small>3 nights from</small>$750.54</div></div>
+            <div class="hotel-art"></div>
+            <div class="hotel-foot"><div><small>2 rooms · 4 adults</small><b>Free cancellation · Wi-Fi</b></div><button class="mini-btn" data-scroll="#outcome">View evidence</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-meta"><span>Website · Ryanair</span><span>Format · mind2web-json</span><span>Human demonstration</span></div>
+  </header>
+
+  <main>
+    <section class="brief" id="brief">
+      <div class="reveal"><div class="section-kicker">01 / The assignment</div><h2 class="section-title">A precise brief, with six booking constraints.</h2><p class="section-intro">The case asks the demonstrator to balance capacity, amenities, quality and location—not merely find a room.</p></div>
+      <div class="brief-grid reveal">
+        <article class="task-panel"><div class="eyebrow">Confirmed task</div><blockquote>“Book two rooms for four adults in a 5-star hotel with pool, minibar, bathtub, and spa facilities, that are nearest to the city center in Dubai from June 13 to 16.”</blockquote><div class="pills"><span class="pill">Dubai</span><span class="pill">June 13–16</span><span class="pill">2 rooms</span><span class="pill">4 adults</span><span class="pill">5-star</span><span class="pill">4 amenities</span><span class="pill">Nearest first</span></div></article>
+        <div class="fact-stack"><div class="fact"><small>Benchmark</small><b>Mind2Web</b></div><div class="fact"><small>Domain</small><b>Travel · Airlines</b></div><div class="fact"><small>Demonstration</small><b>21 actions</b></div><div class="fact"><small>Annotation ID</small><b class="mono">81b23d7b-e0e9-47f5-92f1-a4fc7ac077fe</b></div></div>
+      </div>
+    </section>
+
+    <section class="trace" id="trace">
+      <div class="trace-header reveal"><div><div class="section-kicker">02 / Action trace</div><h2 class="section-title">From search tab to “Book now.”</h2><p class="section-intro">Select any action to inspect its operation, target and role in the journey.</p></div><div class="segment" aria-label="Trace view"><button class="active" data-mode="story">Story</button><button data-mode="raw">Audit notes</button></div></div>
+      <div class="trace-layout reveal" id="traceApp">
+        <div class="timeline" id="timeline" aria-label="Action timeline"></div>
+        <article class="inspector">
+          <div class="inspector-top"><div><div class="section-kicker" id="phase">SETUP</div><h3 id="stepTitle">Open hotels</h3><p id="stepDesc">Switch from the default flight search to the hotel booking flow.</p></div><div class="count" id="count">01</div></div>
+          <div class="evidence"><div class="evidence-label">Recorded action</div><div class="code" id="code"></div><div class="detail-grid"><div class="detail"><small>Element</small><b id="element">button · aria-label “hotels”</b></div><div class="detail"><small>Journey effect</small><b id="effect">Enters the hotel search experience</b></div></div><div class="trace-note" id="traceNote">Audit view distinguishes explicit recorded actions from facts inferred from the resulting page.</div></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="findings" id="findings">
+      <div class="reveal"><div class="section-kicker">03 / Audit findings</div><h2 class="section-title">The result is coherent. The trace is not fully compliant.</h2><p class="section-intro">Three evidence-backed observations emerge when the task statement is compared with the recorded demonstration.</p></div>
+      <div class="finding-grid reveal">
+        <article class="finding"><div class="icon">✓</div><h3>Capacity and amenities</h3><p>The trace sets <strong>2 rooms / 4 adults</strong> and explicitly applies Pool, Mini-bar, Bathtub and Spa before choosing a hotel.</p></article>
+        <article class="finding warning"><div class="icon">!</div><h3>Month mismatch</h3><p>The task says <strong>June 13–16</strong>, but the resulting summary records <strong>13–16 July 2023</strong>. Step 5 explicitly clicks “Jul.”</p></article>
+        <article class="finding warning"><div class="icon">?</div><h3>5-star not explicit</h3><p>The 21 action representations contain no star-rating click. The selected Hyatt is presented here as the intended 5-star outcome, but that constraint was <strong>not explicitly filtered</strong>.</p></article>
+      </div>
+    </section>
+
+    <section class="outcome" id="outcome">
+      <div class="reveal"><div class="section-kicker">04 / Demonstrated outcome</div><h2 class="section-title">The nearest displayed result becomes the booking target.</h2><p class="section-intro">After sorting by distance from city centre, the demonstrator chooses Hyatt Regency Dubai and selects the first listed room offer.</p></div>
+      <div class="result-card reveal">
+        <div class="result-visual"><span class="map-chip">⌖ Deira · Dubai</span></div>
+        <div class="result-info"><div class="stars">★★★★★</div><h3>Hyatt Regency Dubai</h3><div class="address">Deira Corniche Alkhaleej Road, Dubai</div><div class="amenities"><span class="amenity">Pool filter applied</span><span class="amenity">Mini-bar filter applied</span><span class="amenity">Bathtub filter applied</span><span class="amenity">Spa filter applied</span><span class="amenity">Free Wi-Fi</span><span class="amenity">Free cancellation</span></div><div class="receipt"><div><small>Distance</small><b>0.93 km</b></div><div><small>Stay</small><b>3 nights</b></div><div><small>Total shown</small><b>$750.54</b></div><div><small>Room</small><b>1 King Bed</b></div><div><small>Quantity</small><b>2 rooms</b></div><div><small>Local tax</small><b>$32.68</b></div></div><div class="outcome-banner">Trace terminates on the “Book now” click; it does not include payment or a completed reservation.</div></div>
+      </div>
+      <div class="faq reveal">
+        <details><summary>Was a booking actually completed?</summary><p>No. The final recorded action clicks “Book now” on the room card. There is no subsequent checkout, payment or confirmation action in the trajectory.</p></details>
+        <details><summary>Why is the selected hotel considered nearest?</summary><p>The demonstrator selects “Distance from city centre” as the sort order. Hyatt Regency Dubai is then the first displayed property at 0.93 km; the next visible results are 1.68 km and 1.72 km away.</p></details>
+        <details><summary>What source material is represented?</summary><p>The page summarizes the confirmed task, case metadata and 21 Mind2Web action representations in the assigned case. No external resources or reference files are used.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer><div><div class="brand"><span class="brand-mark">R</span>Routecase</div><div class="footer-note">A self-contained evidence presentation for one human web-navigation demonstration. No live booking functionality.</div></div><div class="badge">05_test_task_test_task_2_4</div></footer>
+  <div class="toast" id="toast">Step selected</div>
+  <script>
+    const steps=[
+      {t:'Open hotels',p:'Setup',op:'CLICK',v:'',el:'button · aria-label “hotels”',d:'Switch from the default flight search to the hotel booking flow.',e:'Enters the hotel search experience'},
+      {t:'Enter Dubai',p:'Search',op:'TYPE',v:'DUBAI',el:'textbox · destination or property',d:'Type the destination query into the hotel search field.',e:'Starts destination lookup'},
+      {t:'Choose Dubai',p:'Search',op:'CLICK',v:'Dubai, Dubai',el:'div · location result',d:'Select Dubai from the suggested locations.',e:'Locks the destination'},
+      {t:'Open dates',p:'Dates',op:'CLICK',v:'Choose date',el:'date control · role button',d:'Open the stay-date calendar.',e:'Reveals month and day controls'},
+      {t:'Choose Jul',p:'Dates',op:'CLICK',v:'Jul',el:'div · month toggle',d:'Select July in the calendar. This conflicts with the June task statement.',e:'Sets displayed month to July'},
+      {t:'Pick the 13th',p:'Dates',op:'CLICK',v:'13',el:'generic · calendar cell',d:'Choose the check-in day.',e:'Sets check-in to July 13'},
+      {t:'Pick the 16th',p:'Dates',op:'CLICK',v:'16',el:'generic · calendar cell',d:'Choose the check-out day.',e:'Sets checkout to July 16'},
+      {t:'Open occupancy',p:'Guests',op:'CLICK',v:'',el:'div · rooms control',d:'Open the room and guest selector.',e:'Shows occupancy controls'},
+      {t:'Add a room',p:'Guests',op:'CLICK',v:'+ Add room',el:'button · aria-label “+ Add room”',d:'Add the second room required by the brief.',e:'Raises room count to two'},
+      {t:'Add adults',p:'Guests',op:'CLICK',v:'',el:'div · adult increment control',d:'Adjust occupancy for the added room.',e:'Reaches four adults total'},
+      {t:'Confirm occupancy',p:'Guests',op:'CLICK',v:'Done',el:'button · aria-label “Done”',d:'Close the room and guest selector.',e:'Confirms 2 rooms, 4 adults'},
+      {t:'Search',p:'Results',op:'CLICK',v:'Search',el:'button · aria-label “Search”',d:'Submit the configured Dubai hotel search.',e:'Loads property results'},
+      {t:'Open filters',p:'Filters',op:'CLICK',v:'filter icon',el:'path · filter control',d:'Open the results filtering interface.',e:'Exposes amenity filters'},
+      {t:'Apply Pool',p:'Filters',op:'CLICK',v:'Pool',el:'checkbox · Pool',d:'Require a pool at the property.',e:'Applies amenity filter 1 of 4'},
+      {t:'Apply Mini-bar',p:'Filters',op:'CLICK',v:'Mini-bar',el:'checkbox · Mini-bar',d:'Require a mini-bar in the room.',e:'Applies amenity filter 2 of 4'},
+      {t:'Apply Bathtub',p:'Filters',op:'CLICK',v:'Bathtub',el:'checkbox · Bathtub',d:'Require a bathtub in the room.',e:'Applies amenity filter 3 of 4'},
+      {t:'Apply Spa',p:'Filters',op:'CLICK',v:'Spa',el:'checkbox · Spa',d:'Require spa facilities at the property.',e:'Applies amenity filter 4 of 4'},
+      {t:'Choose Hotels',p:'Filters',op:'CLICK',v:'Hotels',el:'checkbox · Hotels',d:'Limit the property type to hotels.',e:'Excludes apartments and other types'},
+      {t:'Sort by distance',p:'Ranking',op:'CLICK',v:'Distance from city centre',el:'label · sort option',d:'Order results by distance from the city centre.',e:'Places nearest matching property first'},
+      {t:'Choose Hyatt',p:'Selection',op:'CLICK',v:'Choose room',el:'button · hotel result card',d:'Open rooms for Hyatt Regency Dubai, shown first at 0.93 km.',e:'Selects the nearest displayed result'},
+      {t:'Book first offer',p:'Handoff',op:'CLICK',v:'Book now',el:'button · room card',d:'Choose the first room offer: two King rooms, free cancellation.',e:'Ends trace at booking handoff'}
+    ];
+    const timeline=document.getElementById('timeline');
+    steps.forEach((s,i)=>{const b=document.createElement('button');b.className='step'+(i===0?' active':'');b.innerHTML=`<span class="step-num">${String(i+1).padStart(2,'0')}</span><span><b>${s.t}</b><small>${s.p}</small></span><span class="op">${s.op}</span>`;b.onclick=()=>selectStep(i);timeline.appendChild(b)});
+    function esc(v){return v.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+    function selectStep(i){const s=steps[i];document.querySelectorAll('.step').forEach((b,n)=>b.classList.toggle('active',n===i));document.getElementById('phase').textContent=s.p.toUpperCase();document.getElementById('stepTitle').textContent=s.t;document.getElementById('stepDesc').textContent=s.d;document.getElementById('count').textContent=String(i+1).padStart(2,'0');document.getElementById('element').textContent=s.el;document.getElementById('effect').textContent=s.e;document.getElementById('code').innerHTML=`<span class="key">operation</span>: <span class="val">${s.op}</span><br><span class="key">value</span>: <span class="val">${s.v?`“${esc(s.v)}”`:'“”'}</span><br><span class="key">step</span>: ${i+1} / ${steps.length}`;const toast=document.getElementById('toast');toast.textContent=`Step ${i+1}: ${s.t}`;toast.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>toast.classList.remove('show'),1400)}
+    selectStep(0);
+    document.querySelectorAll('[data-scroll]').forEach(b=>b.addEventListener('click',()=>document.querySelector(b.dataset.scroll).scrollIntoView({behavior:'smooth'})));
+    document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x===b));document.getElementById('traceApp').classList.toggle('raw-mode',b.dataset.mode==='raw')}));
+    const nav=document.getElementById('nav');addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>40),{passive:true});
+    const observer=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(e=>observer.observe(e));
+  </script>
+</body>
+</html>

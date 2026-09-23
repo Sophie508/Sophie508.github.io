@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Crack the Archive — TerminalBench Case 04</title>
+  <style>
+    :root {
+      --paper:#eef3f2;
+      --paper-2:#f8faf8;
+      --ink:#17272d;
+      --muted:#64747a;
+      --line:#c7d3d2;
+      --steel:#9cb5ba;
+      --blue:#286c82;
+      --blue-dark:#174756;
+      --brass:#d49b45;
+      --coral:#d96858;
+      --good:#2f765e;
+      --terminal:#12252b;
+      --shadow:0 22px 55px rgba(24,49,56,.12);
+      --display:Georgia,"Times New Roman",serif;
+      --body:Arial,"Helvetica Neue",sans-serif;
+      --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);line-height:1.55}
+    button{font:inherit}
+    a{color:inherit}
+    .skip{position:absolute;left:1rem;top:-4rem;background:var(--ink);color:white;padding:.7rem 1rem;z-index:20}
+    .skip:focus{top:1rem}
+    .shell{width:min(1180px,calc(100% - 40px));margin:0 auto}
+    .topbar{height:68px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+    .brand{display:flex;align-items:center;gap:.7rem;font-weight:700}
+    .brand-mark{width:25px;height:25px;border:1px solid var(--ink);display:grid;place-items:center;transform:rotate(45deg)}
+    .brand-mark span{transform:rotate(-45deg);font-size:.63rem}
+    .top-meta{display:flex;gap:2rem;color:var(--muted)}
+    .hero{min-height:690px;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(380px,.88fr);gap:5vw;align-items:center;padding:72px 0 80px}
+    .eyebrow{display:flex;align-items:center;gap:.8rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-dark)}
+    .eyebrow:before{content:"";width:35px;height:1px;background:var(--blue)}
+    h1{font-family:var(--display);font-size:clamp(4rem,8.2vw,7.7rem);font-weight:400;line-height:.82;letter-spacing:-.065em;margin:1.3rem 0 1.8rem;max-width:760px}
+    h1 em{display:block;color:var(--blue);font-weight:400;padding-left:.68em}
+    .lede{max-width:620px;font-size:1.08rem;color:#41555b;margin:0 0 2rem}
+    .hero-tags{display:flex;flex-wrap:wrap;gap:.55rem}
+    .tag{border:1px solid var(--line);background:rgba(255,255,255,.38);padding:.48rem .7rem;font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+    .lock-stage{position:relative;min-height:530px;display:grid;place-items:center}
+    .lock-stage:before{content:"";position:absolute;inset:9% 2%;background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(155,181,186,.22));border:1px solid rgba(96,123,130,.2);clip-path:polygon(11% 0,100% 8%,92% 100%,0 86%)}
+    .dial{position:relative;width:min(410px,88vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 42% 34%,#f9fbf9 0 7%,#cfdddc 8% 18%,#78949a 19% 21%,#dbe4e3 22% 38%,#829ba0 39% 41%,#243b42 42% 63%,#14272d 64%);box-shadow:0 32px 45px rgba(20,43,50,.2),inset 0 0 0 2px rgba(255,255,255,.7);transition:transform .75s cubic-bezier(.2,.8,.2,1)}
+    .dial:before{content:"";position:absolute;inset:9%;border-radius:50%;border:1px dashed rgba(255,255,255,.43)}
+    .dial:after{content:"";position:absolute;width:16px;height:48px;left:calc(50% - 8px);top:-16px;background:var(--coral);clip-path:polygon(50% 0,100% 100%,0 100%);filter:drop-shadow(0 2px 0 rgba(0,0,0,.15))}
+    .dial-center{position:absolute;inset:0;display:grid;place-content:center;text-align:center;color:white;z-index:2}
+    .dial-center small{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:#afc4c7}
+    .dial-center strong{font-family:var(--display);font-weight:400;font-size:3.9rem;line-height:1;margin:.15rem 0 .35rem;letter-spacing:-.06em}
+    .dial-center span{font-family:var(--mono);font-size:.7rem;color:#dce7e7}
+    .ticks{position:absolute;inset:0;z-index:1}
+    .tick{position:absolute;left:50%;top:50%;width:2px;height:13px;background:rgba(255,255,255,.75);transform-origin:1px -158px}
+    .result-stamp{position:absolute;right:-8px;bottom:56px;z-index:3;background:var(--brass);color:#18272b;padding:1rem 1.15rem;box-shadow:8px 8px 0 rgba(23,39,45,.12);transform:rotate(-4deg)}
+    .result-stamp small{display:block;font-family:var(--mono);font-size:.59rem;letter-spacing:.14em;text-transform:uppercase}
+    .result-stamp b{font-family:var(--display);font-size:1.5rem;font-weight:400}
+    .chapter{padding:92px 0;border-top:1px solid var(--line)}
+    .chapter-head{display:grid;grid-template-columns:1fr 2fr;gap:3rem;margin-bottom:48px;align-items:start}
+    .chapter-kicker{font-family:var(--mono);font-size:.69rem;letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+    h2{font-family:var(--display);font-size:clamp(2.55rem,5vw,4.8rem);font-weight:400;line-height:.98;letter-spacing:-.045em;margin:0;max-width:780px}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:rgba(255,255,255,.35)}
+    .metric{padding:1.4rem;border-right:1px solid var(--line)}
+    .metric:last-child{border-right:0}
+    .metric label{display:block;font-family:var(--mono);font-size:.61rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.8rem}
+    .metric strong{font-family:var(--display);font-size:2.1rem;font-weight:400;letter-spacing:-.035em}
+    .path-layout{display:grid;grid-template-columns:320px minmax(0,1fr);gap:3rem;align-items:start}
+    .step-nav{position:sticky;top:24px;display:flex;flex-direction:column;border-top:1px solid var(--line)}
+    .step-button{appearance:none;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;padding:1rem .2rem;display:grid;grid-template-columns:34px 1fr;gap:.5rem;color:var(--muted);cursor:pointer;transition:color .2s,padding .2s,background .2s}
+    .step-button span{font-family:var(--mono);font-size:.65rem;padding-top:.24rem}
+    .step-button b{font-weight:500;color:inherit}
+    .step-button:hover,.step-button[aria-selected="true"]{color:var(--blue-dark);padding-left:.8rem;background:rgba(255,255,255,.46)}
+    .step-button[aria-selected="true"] b{font-weight:700}
+    .step-button:focus-visible,.filter:focus-visible,.copy:focus-visible{outline:3px solid var(--brass);outline-offset:3px}
+    .evidence{background:var(--terminal);color:#dce8e8;box-shadow:var(--shadow);min-height:520px;display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+    .term-bar{display:flex;justify-content:space-between;align-items:center;padding:.85rem 1rem;border-bottom:1px solid #30474e;font-family:var(--mono);font-size:.64rem;color:#91a9ad}
+    .lights{display:flex;gap:6px}
+    .lights i{display:block;width:8px;height:8px;border-radius:50%;background:#587078}
+    .lights i:first-child{background:var(--coral)}
+    .term-body{padding:clamp(1.4rem,4vw,3rem);display:grid;align-content:center}
+    .term-label{font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em;color:#7fa1a8;font-size:.62rem;margin-bottom:1.3rem}
+    .term-body h3{font-family:var(--display);font-size:2.5rem;font-weight:400;line-height:1.02;margin:0 0 1.4rem;color:white}
+    pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font-family:var(--mono);font-size:.78rem;line-height:1.75;color:#bcd0d3}
+    .prompt{color:#e3ad57}.ok{color:#69c89c}.bad{color:#ec8778}.dim{color:#7f999e}
+    .term-note{display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:center;padding:1rem 1.2rem;border-top:1px solid #30474e;background:#182e35;color:#a8bec2;font-size:.79rem}
+    .step-count{font-family:var(--mono);font-size:.65rem;color:#79969c}
+    .lesson{display:grid;grid-template-columns:1fr 1.15fr;gap:5rem;align-items:center}
+    .lesson-visual{position:relative;padding:3.5rem 0}
+    .pipe{display:grid;grid-template-columns:1fr 52px 1fr;align-items:center}
+    .pipe-box{background:var(--paper-2);border:1px solid var(--line);padding:1.5rem;min-height:145px}
+    .pipe-box small{font-family:var(--mono);font-size:.61rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+    .pipe-box b{display:block;font-family:var(--display);font-size:1.7rem;font-weight:400;margin:.8rem 0 .35rem}
+    .pipe-box code{font-family:var(--mono);font-size:.72rem;color:var(--coral)}
+    .pipe-arrow{height:1px;background:var(--ink);position:relative}
+    .pipe-arrow:after{content:"";position:absolute;right:0;top:-4px;width:8px;height:8px;border-top:1px solid;border-right:1px solid;transform:rotate(45deg)}
+    .false-badge{position:absolute;right:9%;top:12%;border:2px solid var(--coral);color:var(--coral);font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;padding:.5rem .7rem;transform:rotate(7deg);background:var(--paper)}
+    .lesson-copy p{color:#4d6166;max-width:580px}
+    .lesson-copy code{font-family:var(--mono);font-size:.86em;background:#dfe9e8;padding:.15rem .35rem}
+    .rule{margin-top:1.8rem;border-left:4px solid var(--brass);padding:.25rem 0 .25rem 1.3rem;font-weight:700;max-width:540px}
+    .trail-controls{display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:1.5rem}
+    .filter{border:1px solid var(--line);background:transparent;color:var(--muted);padding:.55rem .85rem;cursor:pointer;font-family:var(--mono);font-size:.67rem;text-transform:uppercase;letter-spacing:.08em}
+    .filter[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:white}
+    .trail{border-top:1px solid var(--line)}
+    .trail-row{display:grid;grid-template-columns:70px 110px minmax(0,1fr) 90px;gap:1rem;align-items:start;padding:1rem .4rem;border-bottom:1px solid var(--line)}
+    .trail-row[hidden]{display:none}
+    .trail-step,.trail-kind,.trail-status{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.07em}
+    .trail-step,.trail-kind{color:var(--muted)}
+    .trail-status{text-align:right;color:var(--good)}
+    .trail-status.fail{color:var(--coral)}
+    .trail-command{font-family:var(--mono);font-size:.78rem;overflow-wrap:anywhere}
+    .finale{background:var(--blue-dark);color:white;padding:90px 0}
+    .final-grid{display:grid;grid-template-columns:1fr 1fr;gap:6vw;align-items:end}
+    .finale .chapter-kicker{color:#9ec0c7}
+    .answer-card{background:var(--paper-2);color:var(--ink);padding:2rem;box-shadow:14px 14px 0 rgba(8,28,34,.35)}
+    .answer-card label{font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+    .answer-line{display:flex;justify-content:space-between;align-items:center;gap:1rem;border-bottom:1px solid var(--line);padding:1rem 0 .8rem;margin-bottom:1rem}
+    .answer-line strong{font-family:var(--display);font-size:clamp(2.3rem,5vw,4rem);font-weight:400;letter-spacing:-.04em}
+    .copy{border:1px solid var(--line);background:transparent;padding:.6rem .75rem;cursor:pointer;font-family:var(--mono);font-size:.65rem;text-transform:uppercase}
+    .answer-path{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+    footer{background:var(--blue-dark);color:#9bb3b8;border-top:1px solid rgba(255,255,255,.16);padding:1.4rem 0;font-family:var(--mono);font-size:.61rem;text-transform:uppercase;letter-spacing:.08em}
+    footer .shell{display:flex;justify-content:space-between;gap:1rem}
+    .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+    .reveal.in{opacity:1;transform:none}
+    @media (max-width:880px){
+      .hero{grid-template-columns:1fr;padding-top:55px}.lock-stage{min-height:470px}.chapter-head{grid-template-columns:1fr;gap:1rem}.summary-grid{grid-template-columns:1fr 1fr}.metric:nth-child(2){border-right:0}.metric:nth-child(-n+2){border-bottom:1px solid var(--line)}.path-layout{grid-template-columns:1fr}.step-nav{position:static;display:grid;grid-template-columns:repeat(3,1fr)}.step-button{border-right:1px solid var(--line)}.lesson{grid-template-columns:1fr;gap:2rem}.final-grid{grid-template-columns:1fr}.trail-row{grid-template-columns:50px 90px minmax(0,1fr)}.trail-status{grid-column:3;text-align:left}}
+    @media (max-width:560px){
+      .shell{width:min(100% - 24px,1180px)}.top-meta span:first-child{display:none}.top-meta{gap:.7rem}.hero{padding-bottom:55px}h1{font-size:3.8rem}.lock-stage{min-height:390px}.dial{width:310px}.tick{transform-origin:1px -120px}.result-stamp{right:0;bottom:28px}.chapter{padding:68px 0}.summary-grid{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--line)}.step-nav{grid-template-columns:1fr 1fr}.term-body h3{font-size:2rem}.pipe{grid-template-columns:1fr}.pipe-arrow{width:1px;height:40px;margin:auto}.pipe-arrow:after{right:-4px;top:auto;bottom:0;transform:rotate(135deg)}.false-badge{right:2%;top:46%}.trail-row{grid-template-columns:45px 1fr}.trail-kind{display:none}.trail-command{grid-column:2}.trail-status{grid-column:2}footer .shell{flex-direction:column}}
+    @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}.dial{transition:none}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to case</a>
+  <header class="shell topbar">
+    <div class="brand"><span class="brand-mark"><span>7z</span></span>Case file 04</div>
+    <div class="top-meta"><span>TerminalBench</span><span>564.1 s</span></div>
+  </header>
+
+  <main id="main">
+    <section class="shell hero">
+      <div class="hero-copy reveal">
+        <div class="eyebrow">Terminal / DevOps · solved</div>
+        <h1>Crack the <em>archive.</em></h1>
+        <p class="lede">One 215-byte 7z file. One encrypted payload. The useful clue was not a guessed password, but the password-cracking toolkit already waiting beside the archive.</p>
+        <div class="hero-tags">
+          <span class="tag">7zAES</span><span class="tag">John the Ripper</span><span class="tag">77 trajectory events</span><span class="tag">9-byte answer</span>
+        </div>
+      </div>
+      <div class="lock-stage reveal" aria-label="Archive combination: password 1998">
+        <div class="dial" id="dial">
+          <div class="ticks" aria-hidden="true"></div>
+          <div class="dial-center"><small>archive key</small><strong>1998</strong><span>7zAES / unlocked</span></div>
+        </div>
+        <div class="result-stamp"><small>payload recovered</small><b>honeybear</b></div>
+      </div>
+    </section>
+
+    <section class="chapter shell reveal" aria-labelledby="brief-title">
+      <div class="chapter-head">
+        <div class="chapter-kicker">The assignment</div>
+        <h2 id="brief-title">Recover the word in <code style="font:inherit;color:var(--blue)">secret_file.txt</code> and write it to <code style="font:inherit;color:var(--blue)">/app/solution.txt</code>.</h2>
+      </div>
+      <div class="summary-grid" aria-label="Case summary">
+        <div class="metric"><label>Archive size</label><strong>215 B</strong></div>
+        <div class="metric"><label>Elapsed</label><strong>09:24</strong></div>
+        <div class="metric"><label>Tool calls</label><strong>35</strong></div>
+        <div class="metric"><label>Cost</label><strong>18.94¢</strong></div>
+      </div>
+    </section>
+
+    <section class="chapter shell" aria-labelledby="path-title">
+      <div class="chapter-head reveal">
+        <div class="chapter-kicker">Decisive path</div>
+        <h2 id="path-title">Turn the dial through the six commands that opened the case.</h2>
+      </div>
+      <div class="path-layout reveal">
+        <div class="step-nav" role="tablist" aria-label="Decisive steps">
+          <button class="step-button" role="tab" aria-selected="true" data-step="0"><span>01</span><b>Inspect</b></button>
+          <button class="step-button" role="tab" aria-selected="false" data-step="1"><span>02</span><b>Identify encryption</b></button>
+          <button class="step-button" role="tab" aria-selected="false" data-step="2"><span>03</span><b>Convert to hash</b></button>
+          <button class="step-button" role="tab" aria-selected="false" data-step="3"><span>04</span><b>Crack with John</b></button>
+          <button class="step-button" role="tab" aria-selected="false" data-step="4"><span>05</span><b>Extract payload</b></button>
+          <button class="step-button" role="tab" aria-selected="false" data-step="5"><span>06</span><b>Write + verify</b></button>
+        </div>
+        <article class="evidence" role="tabpanel" aria-live="polite">
+          <div class="term-bar"><span>root@app — evidence console</span><span class="lights"><i></i><i></i><i></i></span></div>
+          <div class="term-body" id="term-body"></div>
+          <div class="term-note"><span id="term-note"></span><span class="step-count" id="step-count"></span></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="chapter shell lesson" aria-labelledby="lesson-title">
+      <div class="lesson-visual reveal" aria-label="Pipeline exit status explanation">
+        <div class="pipe">
+          <div class="pipe-box"><small>Command 1</small><b>7z failed</b><code>wrong password</code></div>
+          <div class="pipe-arrow"></div>
+          <div class="pipe-box"><small>Command 2</small><b>head succeeded</b><code>exit status 0</code></div>
+        </div>
+        <div class="false-badge">false positive</div>
+      </div>
+      <div class="lesson-copy reveal">
+        <div class="chapter-kicker">The sharp edge</div>
+        <h2 id="lesson-title">The first “success” was the pipeline talking.</h2>
+        <p>The initial loop piped each extraction attempt into <code>head -3</code>, then tested <code>$?</code>. Without <code>set -o pipefail</code> or <code>PIPESTATUS</code>, that value belonged to <code>head</code>—which succeeded—even though <code>7z</code> rejected the password.</p>
+        <div class="rule">Validate the producer’s status, or validate a success marker such as “Everything is Ok.”</div>
+      </div>
+    </section>
+
+    <section class="chapter shell" aria-labelledby="trail-title">
+      <div class="chapter-head reveal">
+        <div class="chapter-kicker">Evidence trail</div>
+        <h2 id="trail-title">A compact ledger of the meaningful terminal turns.</h2>
+      </div>
+      <div class="trail-controls reveal" aria-label="Filter evidence">
+        <button class="filter" data-filter="all" aria-pressed="true">All turns</button>
+        <button class="filter" data-filter="key" aria-pressed="false">Key path</button>
+        <button class="filter" data-filter="fail" aria-pressed="false">Detours</button>
+      </div>
+      <div class="trail reveal" id="trail"></div>
+    </section>
+
+    <section class="finale" aria-labelledby="answer-title">
+      <div class="shell final-grid reveal">
+        <div>
+          <div class="chapter-kicker">Verified result</div>
+          <h2 id="answer-title">The archive yielded exactly one word.</h2>
+        </div>
+        <div class="answer-card">
+          <label>solution.txt · 9 bytes</label>
+          <div class="answer-line"><strong>honeybear</strong><button class="copy" id="copy-answer">Copy word</button></div>
+          <div class="answer-path">/app/solution.txt · owner root · mode 0644</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="shell"><span>Model: claude-haiku-4-5-20251001@anthropic</span><span>Case 04_crack-7z-hash · upstream trajectory</span></div></footer>
+
+  <script>
+    const steps=[
+      {label:'01 / inventory',title:'The archive is present—and tiny.',code:'<span class="prompt">$</span> ls -la /app\n-rwxr-xr-x 1 root root 215 Jan  1  1970 secrets.7z\ndrwxr-xr-x 1 root root  40 Oct 30 05:46 john',note:'The adjacent john directory becomes the strongest environmental clue.',turn:'trajectory step 6'},
+      {label:'02 / probe',title:'Extraction reveals the real constraint.',code:'<span class="prompt">$</span> 7z x /app/secrets.7z -o/app\n<span class="dim">Method = LZMA2:12 7zAES</span>\nEnter password (will not be echoed):\n<span class="bad">Archives with Errors: 1</span>',note:'Installing p7zip exposes a password-protected 7zAES payload.',turn:'trajectory step 15'},
+      {label:'03 / conversion',title:'Turn the archive into a crackable hash.',code:'<span class="prompt">$</span> perl 7z2john.pl /app/secrets.7z &gt; /tmp/7z.hash\nsecrets.7z:$7z$2$19$0$$16$7f2a…$9$00',note:'After installing the missing LZMA Perl module, 7z2john produces a valid hash.',turn:'trajectory steps 55–59'},
+      {label:'04 / crack',title:'The bundled wordlist finds the key.',code:'<span class="prompt">$</span> ./john --format=7z &#92;<br>  --wordlist=/app/john/run/password.lst &#92;<br>  /tmp/7z.hash --fork=8<br><span class="ok">1998</span>     (secrets.7z)',note:'Explicitly selecting the 7z format and using John’s bundled list succeeds.',turn:'trajectory steps 63–68'},
+      {label:'05 / extraction',title:'Password 1998 opens the payload.',code:'<span class="prompt">$</span> 7z x -p1998 /app/secrets.7z -o/app\n<span class="ok">Everything is Ok</span>\nFolders: 1   Files: 1   Size: 9',note:'The positive extractor marker confirms the password and the 9-byte file.',turn:'trajectory step 69'},
+      {label:'06 / delivery',title:'The requested file is written and checked.',code:'<span class="prompt">$</span> cat /app/secrets/secret_file.txt\n<span class="ok">honeybear</span>\n<span class="prompt">$</span> cat /app/solution.txt && ls -l /app/solution.txt\n<span class="ok">honeybear</span>\n-rw-r--r-- 1 root root 9 /app/solution.txt',note:'The final readback proves both content and destination.',turn:'trajectory steps 71–75'}
+    ];
+
+    const ledger=[
+      ['06','key','ls -la /app','found','key'],
+      ['07','probe','file /app/secrets.7z','tool missing','fail'],
+      ['09','probe','7z x /app/secrets.7z -o/app','tool missing','fail'],
+      ['13','setup','apt-get install -y p7zip-full','installed','key'],
+      ['15','probe','7z x /app/secrets.7z -o/app','password prompt','key'],
+      ['23','guess','echo openwall | 7z x … -si','wrong invocation','fail'],
+      ['29','guess','candidate loop | head -3','false success','fail'],
+      ['33','verify','7z x -pnomoresecrets …','wrong password','fail'],
+      ['47','guess','test 33 “secret” variations','no match','fail'],
+      ['55','convert','perl 7z2john.pl secrets.7z','module missing','fail'],
+      ['57','setup','apt-get install libcompress-raw-lzma-perl','installed','key'],
+      ['59','convert','perl 7z2john.pl secrets.7z','hash emitted','key'],
+      ['61','crack','john with hand-built wordlist','no hashes loaded','fail'],
+      ['65','crack','john --format=7z with candidates','no match','fail'],
+      ['67','crack','john --format=7z password.lst --fork=8','1998','key'],
+      ['69','extract','7z x -p1998 secrets.7z','everything ok','key'],
+      ['71','read','read secret_file.txt','honeybear','key'],
+      ['73','write','write /app/solution.txt','created','key'],
+      ['75','verify','cat solution.txt && ls -la','verified','key']
+    ];
+
+    const termBody=document.querySelector('#term-body');
+    const termNote=document.querySelector('#term-note');
+    const stepCount=document.querySelector('#step-count');
+    const dial=document.querySelector('#dial');
+    function selectStep(i){
+      const s=steps[i];
+      document.querySelectorAll('.step-button').forEach((b,n)=>b.setAttribute('aria-selected',String(n===i)));
+      termBody.innerHTML=`<div class="term-label">${s.label}</div><h3>${s.title}</h3><pre>${s.code}</pre>`;
+      termNote.textContent=s.note;stepCount.textContent=s.turn;dial.style.transform=`rotate(${i*17-6}deg)`;
+    }
+    document.querySelectorAll('.step-button').forEach(b=>b.addEventListener('click',()=>selectStep(+b.dataset.step)));
+    selectStep(0);
+
+    const ticks=document.querySelector('.ticks');
+    for(let i=0;i<36;i++){const t=document.createElement('i');t.className='tick';t.style.transform=`translate(-1px,158px) rotate(${i*10}deg)`;ticks.append(t)}
+
+    const trail=document.querySelector('#trail');
+    trail.innerHTML=ledger.map(r=>`<div class="trail-row" data-group="${r[4]}"><span class="trail-step">#${r[0]}</span><span class="trail-kind">${r[1]}</span><span class="trail-command">${r[2]}</span><span class="trail-status ${r[4]==='fail'?'fail':''}">${r[3]}</span></div>`).join('');
+    document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{
+      document.querySelectorAll('.filter').forEach(b=>b.setAttribute('aria-pressed','false'));btn.setAttribute('aria-pressed','true');
+      const f=btn.dataset.filter;document.querySelectorAll('.trail-row').forEach(row=>row.hidden=f!=='all'&&row.dataset.group!==f);
+    }));
+
+    document.querySelector('#copy-answer').addEventListener('click',async e=>{
+      try{await navigator.clipboard.writeText('honeybear');e.currentTarget.textContent='Copied';setTimeout(()=>e.currentTarget.textContent='Copy word',1400)}
+      catch{e.currentTarget.textContent='honeybear'}
+    });
+
+    const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+  </script>
+</body>
+</html>

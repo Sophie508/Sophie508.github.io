@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DKPES RandomForest — Scientific Computing · ScienceAgentBench</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #080e1d;
+    --surface:  #0d1629;
+    --card:     rgba(255,255,255,0.04);
+    --border:   rgba(255,255,255,0.08);
+    --primary:  #06d6a0;
+    --prim-dim: #04a07a;
+    --accent:   #118ab2;
+    --warn:     #ffd166;
+    --danger:   #ef476f;
+    --text:     #e2e8f0;
+    --muted:    #94a3b8;
+    --dim:      #475569;
+    --radius:   14px;
+    --radius-sm: 8px;
+    --glow:     0 0 30px rgba(6,214,160,0.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 0.3s, border-color 0.3s, backdrop-filter 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(8,14,29,0.85);
+    border-color: var(--border);
+    backdrop-filter: blur(12px);
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 0.95rem; color: var(--text);
+    text-decoration: none;
+  }
+  .nav-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .nav-links {
+    display: flex; gap: 1.5rem; list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-badge {
+    background: rgba(6,214,160,0.1); color: var(--primary);
+    border: 1px solid rgba(6,214,160,0.25);
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 600;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 100px 1.5rem 4rem;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(6,214,160,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 60%, rgba(17,138,178,0.06) 0%, transparent 60%);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px
+    ),
+    repeating-linear-gradient(
+      90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px
+    );
+    pointer-events: none;
+  }
+
+  .hero-breadcrumb {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 14px; font-size: 0.75rem;
+    color: var(--muted); margin-bottom: 1.5rem;
+  }
+  .hero-breadcrumb span { color: var(--muted); }
+  .hero-breadcrumb .sep { color: var(--dim); }
+
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #ffffff 30%, var(--primary) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: clamp(0.95rem, 2vw, 1.15rem);
+    color: var(--muted); max-width: 600px; margin: 0 auto 2rem;
+  }
+
+  .hero-meta {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: center; margin-bottom: 3rem;
+  }
+  .meta-chip {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 0.8rem; color: var(--muted);
+  }
+  .meta-chip .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+  }
+  .dot-green { background: var(--primary); box-shadow: 0 0 6px var(--primary); }
+  .dot-blue  { background: var(--accent); }
+  .dot-yellow { background: var(--warn); }
+
+  .hero-stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem; max-width: 700px; width: 100%;
+  }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem;
+    backdrop-filter: blur(8px);
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-3px); border-color: rgba(6,214,160,0.3); }
+  .stat-value {
+    font-size: 1.6rem; font-weight: 800; color: var(--primary);
+    letter-spacing: -0.02em;
+  }
+  .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── SECTIONS ── */
+  section { padding: 5rem 1.5rem; }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--primary); margin-bottom: 0.75rem;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: rgba(6,214,160,0.2);
+  }
+  .section-title {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 800; letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .section-desc { color: var(--muted); max-width: 600px; margin-bottom: 2.5rem; }
+
+  /* ── DATA OVERVIEW ── */
+  .data-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 640px) { .data-grid { grid-template-columns: 1fr; } }
+
+  .data-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem;
+    backdrop-filter: blur(6px);
+  }
+  .data-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .data-card-title { font-weight: 700; font-size: 0.9rem; }
+  .data-badge {
+    background: rgba(6,214,160,0.1); color: var(--primary);
+    border: 1px solid rgba(6,214,160,0.2);
+    padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600;
+  }
+  .data-badge.test {
+    background: rgba(17,138,178,0.1); color: #4fc3f7;
+    border-color: rgba(17,138,178,0.2);
+  }
+  .data-rows {
+    font-family: 'SF Mono', 'Cascadia Mono', 'Fira Code', monospace;
+    font-size: 0.72rem; color: var(--muted); line-height: 1.8;
+    overflow-x: auto;
+  }
+  .data-rows .zinc { color: #81c784; }
+  .data-rows .num  { color: #4fc3f7; }
+  .data-rows .hdr  { color: var(--dim); border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 4px; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+  }
+  .feature-chip {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 0.6rem 1rem;
+    font-size: 0.78rem; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .feature-chip:hover {
+    transform: translateY(-2px);
+    border-color: rgba(6,214,160,0.3);
+    box-shadow: var(--glow);
+  }
+  .feat-icon {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    flex-shrink: 0;
+  }
+  .feat-type { font-size: 0.65rem; color: var(--dim); margin-left: auto; }
+
+  /* ── TRAJECTORY TIMELINE ── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--primary), var(--accent), transparent);
+    border-radius: 2px;
+  }
+  .tl-step {
+    position: relative; margin-bottom: 2rem;
+    opacity: 0; transform: translateX(-20px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+  .tl-step.visible { opacity: 1; transform: translateX(0); }
+
+  .tl-dot {
+    position: absolute; left: -2rem; top: 4px;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; z-index: 1;
+  }
+  .tl-dot.read   { background: rgba(17,138,178,0.2); border: 2px solid var(--accent); color: #4fc3f7; }
+  .tl-dot.write  { background: rgba(239,71,111,0.15); border: 2px solid var(--danger); color: var(--danger); }
+  .tl-dot.think  { background: rgba(6,214,160,0.15); border: 2px solid var(--primary); color: var(--primary); }
+  .tl-dot.end    { background: rgba(255,209,102,0.15); border: 2px solid var(--warn); color: var(--warn); }
+
+  .tl-content {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.25rem 1.5rem;
+    backdrop-filter: blur(6px);
+    transition: border-color 0.2s;
+  }
+  .tl-content:hover { border-color: rgba(255,255,255,0.15); }
+  .tl-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;
+  }
+  .tl-tool {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; padding: 2px 8px; border-radius: 4px;
+  }
+  .tl-tool.read   { background: rgba(17,138,178,0.15); color: #4fc3f7; }
+  .tl-tool.write  { background: rgba(239,71,111,0.15); color: var(--danger); }
+  .tl-tool.think  { background: rgba(6,214,160,0.1); color: var(--primary); }
+  .tl-tool.end    { background: rgba(255,209,102,0.1); color: var(--warn); }
+
+  .tl-title { font-weight: 600; font-size: 0.9rem; }
+  .tl-body  { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+  .tl-path  {
+    font-family: 'SF Mono', 'Cascadia Mono', monospace;
+    font-size: 0.75rem; color: var(--dim); margin-top: 0.5rem;
+    word-break: break-all;
+  }
+  .tl-denied {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(239,71,111,0.1); color: var(--danger);
+    border: 1px solid rgba(239,71,111,0.25);
+    border-radius: 6px; padding: 3px 10px;
+    font-size: 0.72rem; font-weight: 600; margin-top: 0.5rem;
+  }
+
+  /* ── CODE SECTION ── */
+  .code-wrap {
+    background: #010710; border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .code-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #0a1020; border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.25rem;
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 12px; height: 12px; border-radius: 50%;
+  }
+  .cd-r { background: #ff5f57; } .cd-y { background: #ffbd2e; } .cd-g { background: #28c840; }
+  .code-filename {
+    font-family: monospace; font-size: 0.78rem; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .code-lang {
+    font-size: 0.68rem; background: rgba(6,214,160,0.1); color: var(--primary);
+    border: 1px solid rgba(6,214,160,0.2); border-radius: 4px;
+    padding: 1px 7px;
+  }
+  .copy-btn {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--muted); border-radius: 6px; padding: 4px 12px;
+    font-size: 0.75rem; cursor: pointer; transition: all 0.2s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+  pre {
+    overflow-x: auto; padding: 1.5rem;
+    font-family: 'SF Mono', 'Cascadia Mono', 'Fira Code', monospace;
+    font-size: 0.8rem; line-height: 1.7;
+    color: #c9d1d9;
+    max-height: 600px;
+  }
+  pre::-webkit-scrollbar { width: 6px; height: 6px; }
+  pre::-webkit-scrollbar-track { background: transparent; }
+  pre::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 3px; }
+
+  /* Python syntax coloring */
+  .kw  { color: #ff7b72; }   /* keyword */
+  .fn  { color: #d2a8ff; }   /* function name */
+  .bi  { color: #79c0ff; }   /* builtin */
+  .st  { color: #a5d6ff; }   /* string */
+  .cm  { color: #8b949e; font-style: italic; } /* comment */
+  .nm  { color: #e3b341; }   /* number */
+  .dc  { color: #6e7681; font-style: italic; } /* docstring */
+  .op  { color: #ff7b72; }   /* operator */
+  .va  { color: #c9d1d9; }   /* variable */
+  .co  { color: #6e7681; }   /* comment line */
+  .dec { color: #d2a8ff; }   /* decorator */
+
+  /* ── OUTCOME ── */
+  .outcome-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  .outcome-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem;
+    backdrop-filter: blur(6px);
+  }
+  .outcome-card.success { border-color: rgba(6,214,160,0.3); }
+  .outcome-card.warning { border-color: rgba(255,209,102,0.3); }
+  .outcome-card.info    { border-color: rgba(17,138,178,0.3); }
+
+  .outcome-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .outcome-title { font-weight: 700; margin-bottom: 0.25rem; }
+  .outcome-desc  { font-size: 0.83rem; color: var(--muted); line-height: 1.5; }
+
+  /* ── PARAMS ── */
+  .params-table {
+    width: 100%; border-collapse: collapse; font-size: 0.85rem;
+  }
+  .params-table th {
+    text-align: left; color: var(--dim); font-weight: 600;
+    padding: 0.6rem 1rem; border-bottom: 1px solid var(--border);
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .params-table td {
+    padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--muted);
+  }
+  .params-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .param-key {
+    font-family: monospace; color: var(--text); font-size: 0.82rem;
+  }
+  .param-val {
+    font-family: monospace; color: var(--primary);
+  }
+
+  /* ── FAQ / DETAILS ── */
+  details {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); margin-bottom: 0.75rem;
+    overflow: hidden;
+  }
+  details[open] { border-color: rgba(6,214,160,0.25); }
+  summary {
+    padding: 1rem 1.25rem;
+    font-weight: 600; font-size: 0.88rem;
+    cursor: pointer; user-select: none;
+    display: flex; align-items: center; gap: 8px;
+    list-style: none;
+  }
+  summary::after {
+    content: '+'; margin-left: auto; color: var(--primary);
+    font-size: 1.1rem; font-weight: 300; transition: transform 0.2s;
+  }
+  details[open] summary::after { content: '−'; }
+  summary::-webkit-details-marker { display: none; }
+  .details-body {
+    padding: 0 1.25rem 1rem;
+    font-size: 0.85rem; color: var(--muted); line-height: 1.6;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    text-align: center; color: var(--dim); font-size: 0.8rem;
+  }
+  footer .footer-inner {
+    max-width: 900px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; justify-content: space-between;
+    align-items: center; gap: 1rem;
+  }
+  .footer-brand { color: var(--muted); font-weight: 600; }
+  .footer-meta  { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .footer-meta a { color: var(--dim); text-decoration: none; }
+  .footer-meta a:hover { color: var(--muted); }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    section { padding: 3.5rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-brand">
+    <div class="nav-icon">RF</div>
+    DKPES RandomForest
+  </a>
+  <ul class="nav-links">
+    <li><a href="#data">Data</a></li>
+    <li><a href="#trajectory">Trajectory</a></li>
+    <li><a href="#code">Code</a></li>
+    <li><a href="#outcome">Outcome</a></li>
+  </ul>
+  <span class="nav-badge">ScienceAgentBench</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-breadcrumb">
+    <span>scientific_computing</span>
+    <span class="sep">/</span>
+    <span>03_dkpes_randomforest</span>
+  </div>
+
+  <h1>DKPES Signal Inhibition<br>Classifier</h1>
+  <p class="hero-sub">
+    Predicting chemical signal inhibition from molecular descriptors using a
+    Random Forest binary classifier, driven by claude-opus-4-8 on ScienceAgentBench.
+  </p>
+
+  <div class="hero-meta">
+    <div class="meta-chip">
+      <span class="dot dot-green"></span>
+      claude-opus-4-8
+    </div>
+    <div class="meta-chip">
+      <span class="dot dot-blue"></span>
+      73 s · exit 0
+    </div>
+    <div class="meta-chip">
+      <span class="dot dot-yellow"></span>
+      Write blocked
+    </div>
+    <div class="meta-chip">
+      200 train · 50 test
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-card">
+      <div class="stat-value">200</div>
+      <div class="stat-label">Training samples</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">50</div>
+      <div class="stat-label">Test samples</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">15</div>
+      <div class="stat-label">Molecular features</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">200</div>
+      <div class="stat-label">RF estimators</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">73s</div>
+      <div class="stat-label">Total duration</div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA OVERVIEW -->
+<section id="data" style="background: var(--surface);">
+  <div class="container">
+    <div class="section-label">Dataset</div>
+    <h2 class="section-title reveal">DKPES Molecular Descriptor Data</h2>
+    <p class="section-desc reveal">
+      Chemical compounds identified by ZINC IDs with a continuous
+      <code style="color:var(--primary);font-size:0.85em;">Signal-inhibition</code> target,
+      binarized at the training-set median.
+    </p>
+
+    <div class="data-grid reveal">
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">Training Set</div>
+          <span class="data-badge">200 rows</span>
+        </div>
+        <div class="data-rows">
+          <div class="hdr">index · Signal-inhibition · [15 features…]</div>
+          <div><span class="zinc">ZINC00000000</span> <span class="num">0.3745</span> &nbsp;0.589&nbsp;1.396&nbsp;0.234&nbsp;…</div>
+          <div><span class="zinc">ZINC00000001</span> <span class="num">0.9507</span> &nbsp;0.770&nbsp;1.072&nbsp;1.880&nbsp;…</div>
+          <div><span class="zinc">ZINC00000002</span> <span class="num">0.7320</span> &nbsp;1.702&nbsp;0.619&nbsp;1.255&nbsp;…</div>
+          <div><span class="zinc">ZINC00000003</span> <span class="num">0.5987</span> &nbsp;0.634&nbsp;1.628&nbsp;0.670&nbsp;…</div>
+          <div style="color:var(--dim);margin-top:4px;">… 196 more rows</div>
+        </div>
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">Test Set</div>
+          <span class="data-badge test">50 rows</span>
+        </div>
+        <div class="data-rows">
+          <div class="hdr">index · Signal-inhibition · [15 features…]</div>
+          <div><span class="zinc">ZINC00000200</span> <span class="num">0.6420</span> &nbsp;1.554&nbsp;1.065&nbsp;1.201&nbsp;…</div>
+          <div><span class="zinc">ZINC00000201</span> <span class="num">0.0841</span> &nbsp;1.117&nbsp;0.104&nbsp;1.330&nbsp;…</div>
+          <div><span class="zinc">ZINC00000202</span> <span class="num">0.1616</span> &nbsp;0.848&nbsp;0.673&nbsp;0.351&nbsp;…</div>
+          <div><span class="zinc">ZINC00000203</span> <span class="num">0.8986</span> &nbsp;1.813&nbsp;0.269&nbsp;1.829&nbsp;…</div>
+          <div style="color:var(--dim);margin-top:4px;">… 46 more rows</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label reveal" style="margin-bottom:1rem;">Molecular Features (15)</div>
+    <div class="features-grid reveal">
+      <!-- Structural -->
+      <div class="feature-chip"><div class="feat-icon"></div>3-Keto<span class="feat-type">struct</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>3-Hydroxy<span class="feat-type">struct</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>12-Keto<span class="feat-type">struct</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>12-Hydroxy<span class="feat-type">struct</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>19-Methyl<span class="feat-type">struct</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>18-Methyl<span class="feat-type">struct</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>Sulfate-Ester<span class="feat-type">struct</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>Sulfate-Oxygens<span class="feat-type">struct</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>C4-C5-DB<span class="feat-type">bond</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>C6-C7-DB<span class="feat-type">bond</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>Sulfur<span class="feat-type">atom</span></div>
+      <!-- Similarity scores -->
+      <div class="feature-chip"><div class="feat-icon"></div>TanimotoCombo<span class="feat-type">sim</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>ShapeTanimoto<span class="feat-type">sim</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>ColorTanimoto<span class="feat-type">sim</span></div>
+      <div class="feature-chip"><div class="feat-icon"></div>Overlap<span class="feat-type">sim</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAJECTORY -->
+<section id="trajectory">
+  <div class="container">
+    <div class="section-label">Trajectory</div>
+    <h2 class="section-title reveal">Agent Steps</h2>
+    <p class="section-desc reveal">
+      The agent explored the data structure, produced a complete Python script,
+      then hit write-permission denials — leaving the code unwritten to disk despite exit 0.
+    </p>
+
+    <div class="timeline">
+
+      <div class="tl-step" data-delay="0">
+        <div class="tl-dot think">⚙</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <span class="tl-tool think">Think</span>
+            <span class="tl-title">Initial planning</span>
+          </div>
+          <div class="tl-body">
+            Agent decided to explore both CSV files before writing code, noting it
+            would delegate script execution to a subagent per its working guidelines.
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-step" data-delay="100">
+        <div class="tl-dot read">R</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <span class="tl-tool read">Read</span>
+            <span class="tl-title">Inspect training data (5 rows)</span>
+          </div>
+          <div class="tl-body">
+            Confirmed column layout: <code style="color:var(--text);font-size:0.8em;">index</code> (ZINC ID) · <code style="color:var(--primary);font-size:0.8em;">Signal-inhibition</code> · 15 numeric descriptor columns.
+          </div>
+          <div class="tl-path">dkpes/dkpes_train.csv — 202 total lines (200 data rows)</div>
+        </div>
+      </div>
+
+      <div class="tl-step" data-delay="200">
+        <div class="tl-dot read">R</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <span class="tl-tool read">Read</span>
+            <span class="tl-title">Inspect test data (5 rows)</span>
+          </div>
+          <div class="tl-body">
+            Same schema confirmed. Test indices start at ZINC00000200.
+          </div>
+          <div class="tl-path">dkpes/dkpes_test.csv — 52 total lines (50 data rows)</div>
+        </div>
+      </div>
+
+      <div class="tl-step" data-delay="300">
+        <div class="tl-dot write">W</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <span class="tl-tool write">Write</span>
+            <span class="tl-title">Write classifier script — attempt 1</span>
+          </div>
+          <div class="tl-body">
+            Generated the full <code style="color:var(--text);font-size:0.8em;">dkpes_rf_classifier.py</code>
+            (~130 lines) with all 5 required steps.
+          </div>
+          <div class="tl-path">workspace/dkpes_rf_classifier.py</div>
+          <div class="tl-denied">✕ DENIED — write permission not granted</div>
+        </div>
+      </div>
+
+      <div class="tl-step" data-delay="400">
+        <div class="tl-dot write">W</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <span class="tl-tool write">Write</span>
+            <span class="tl-title">Write classifier script — attempt 2</span>
+          </div>
+          <div class="tl-body">
+            Identical retry with same content after the first rejection.
+          </div>
+          <div class="tl-path">workspace/dkpes_rf_classifier.py</div>
+          <div class="tl-denied">✕ DENIED — write permission not granted</div>
+        </div>
+      </div>
+
+      <div class="tl-step" data-delay="500">
+        <div class="tl-dot end">✓</div>
+        <div class="tl-content">
+          <div class="tl-header">
+            <span class="tl-tool end">End turn</span>
+            <span class="tl-title">Summary + next-step request</span>
+          </div>
+          <div class="tl-body">
+            Agent summarised all 5 steps in plain text, explained the write is pending approval,
+            and offered to dispatch a subagent to run the script once written.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+  </div>
+</section>
+
+<!-- CODE -->
+<section id="code" style="background: var(--surface);">
+  <div class="container">
+    <div class="section-label">Generated Code</div>
+    <h2 class="section-title reveal">dkpes_rf_classifier.py</h2>
+    <p class="section-desc reveal">
+      Complete script produced by the agent — syntactically correct and ready to run,
+      but never persisted to disk due to write-permission denial.
+    </p>
+
+    <div class="code-wrap reveal">
+      <div class="code-toolbar">
+        <div class="code-dots">
+          <span class="cd-r"></span><span class="cd-y"></span><span class="cd-g"></span>
+        </div>
+        <div class="code-filename">
+          dkpes_rf_classifier.py
+          <span class="code-lang">Python 3</span>
+        </div>
+        <button class="copy-btn" onclick="copyCode()">Copy</button>
+      </div>
+      <pre id="code-block"><span class="dc">"""
+Random Forest classifier for predicting signal inhibition of chemicals
+from their molecular descriptors (DKPES dataset).
+
+The continuous "Signal-inhibition" target is binarized using the median of the
+training set as the threshold (values &gt;= median -&gt; 1 "inhibitor", else 0).
+"""</span>
+
+<span class="kw">import</span> os
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> <span class="bi">RandomForestClassifier</span>
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> (
+    <span class="bi">accuracy_score</span>,
+    <span class="bi">classification_report</span>,
+    <span class="bi">confusion_matrix</span>,
+    <span class="bi">roc_auc_score</span>,
+)
+
+<span class="co"># ---------------------------------------------------------------- #</span>
+<span class="co"># Configuration</span>
+<span class="co"># ---------------------------------------------------------------- #</span>
+HERE      <span class="op">=</span> os.path.<span class="fn">dirname</span>(os.path.<span class="fn">abspath</span>(<span class="bi">__file__</span>))
+TRAIN_PATH <span class="op">=</span> os.path.<span class="fn">join</span>(HERE, <span class="st">"dkpes"</span>, <span class="st">"dkpes_train.csv"</span>)
+TEST_PATH  <span class="op">=</span> os.path.<span class="fn">join</span>(HERE, <span class="st">"dkpes"</span>, <span class="st">"dkpes_test.csv"</span>)
+PRED_PATH  <span class="op">=</span> os.path.<span class="fn">join</span>(HERE, <span class="st">"dkpes_test_predictions.csv"</span>)
+
+TARGET   <span class="op">=</span> <span class="st">"Signal-inhibition"</span>
+ID_COL   <span class="op">=</span> <span class="st">"index"</span>
+FEATURES <span class="op">=</span> [
+    <span class="st">"3-Keto"</span>, <span class="st">"3-Hydroxy"</span>, <span class="st">"12-Keto"</span>, <span class="st">"12-Hydroxy"</span>, <span class="st">"19-Methyl"</span>, <span class="st">"18-Methyl"</span>,
+    <span class="st">"Sulfate-Ester"</span>, <span class="st">"Sulfate-Oxygens"</span>, <span class="st">"C4-C5-DB"</span>, <span class="st">"C6-C7-DB"</span>, <span class="st">"Sulfur"</span>,
+    <span class="st">"TanimotoCombo"</span>, <span class="st">"ShapeTanimoto"</span>, <span class="st">"ColorTanimoto"</span>, <span class="st">"Overlap"</span>,
+]
+RANDOM_STATE <span class="op">=</span> <span class="nm">42</span>
+
+
+<span class="kw">def</span> <span class="fn">main</span>():
+    <span class="co"># 1. Load and explore the data</span>
+    train_df <span class="op">=</span> pd.<span class="fn">read_csv</span>(TRAIN_PATH)
+    test_df  <span class="op">=</span> pd.<span class="fn">read_csv</span>(TEST_PATH)
+
+    <span class="bi">print</span>(<span class="st">"=" </span><span class="op">*</span> <span class="nm">70</span>)
+    <span class="bi">print</span>(<span class="st">"1. DATA OVERVIEW"</span>)
+    <span class="bi">print</span>(<span class="st">"=" </span><span class="op">*</span> <span class="nm">70</span>)
+    <span class="bi">print</span>(<span class="fn">f</span><span class="st">"Training set: {train_df.shape[0]} rows, {train_df.shape[1]} columns"</span>)
+    <span class="bi">print</span>(<span class="fn">f</span><span class="st">"Test set:     {test_df.shape[0]} rows, {test_df.shape[1]} columns"</span>)
+    <span class="bi">print</span>(<span class="fn">f</span><span class="st">"\nMissing values (train): {<span class="bi">int</span>(train_df.isna().<span class="fn">sum</span>().<span class="fn">sum</span>())}"</span>)
+    <span class="bi">print</span>(<span class="fn">f</span><span class="st">"\nTarget '{TARGET}' summary (train):"</span>)
+    <span class="bi">print</span>(train_df[TARGET].<span class="fn">describe</span>().<span class="fn">to_string</span>())
+
+    <span class="co"># 2. Binarize target using training-set median as threshold</span>
+    threshold <span class="op">=</span> train_df[TARGET].<span class="fn">median</span>()
+    <span class="bi">print</span>(<span class="fn">f</span><span class="st">"\nMedian threshold (from train): {threshold:.6f}"</span>)
+
+    y_train <span class="op">=</span> (train_df[TARGET] <span class="op">&gt;=</span> threshold).<span class="fn">astype</span>(<span class="bi">int</span>)
+    y_test  <span class="op">=</span> (test_df[TARGET]  <span class="op">&gt;=</span> threshold).<span class="fn">astype</span>(<span class="bi">int</span>)
+
+    X_train <span class="op">=</span> train_df[FEATURES]
+    X_test  <span class="op">=</span> test_df[FEATURES]
+
+    <span class="co"># 3. Train Random Forest classifier</span>
+    clf <span class="op">=</span> <span class="bi">RandomForestClassifier</span>(
+        n_estimators<span class="op">=</span><span class="nm">200</span>,
+        max_depth<span class="op">=</span><span class="kw">None</span>,
+        random_state<span class="op">=</span>RANDOM_STATE,
+        n_jobs<span class="op">=-</span><span class="nm">1</span>,
+    )
+    clf.<span class="fn">fit</span>(X_train, y_train)
+
+    importances <span class="op">=</span> (
+        pd.<span class="bi">Series</span>(clf.feature_importances_, index<span class="op">=</span>FEATURES)
+        .<span class="fn">sort_values</span>(ascending<span class="op">=</span><span class="kw">False</span>)
+    )
+    <span class="bi">print</span>(<span class="st">"\nFeature importances (descending):"</span>)
+    <span class="bi">print</span>(importances.<span class="fn">to_string</span>())
+
+    <span class="co"># 4. Evaluate on the test set</span>
+    y_pred  <span class="op">=</span> clf.<span class="fn">predict</span>(X_test)
+    y_proba <span class="op">=</span> clf.<span class="fn">predict_proba</span>(X_test)[:, <span class="nm">1</span>]
+
+    acc <span class="op">=</span> <span class="bi">accuracy_score</span>(y_test, y_pred)
+    <span class="bi">print</span>(<span class="fn">f</span><span class="st">"Accuracy: {acc:.4f}"</span>)
+
+    <span class="kw">if</span> y_test.<span class="fn">nunique</span>() <span class="op">&gt;</span> <span class="nm">1</span>:
+        <span class="bi">print</span>(<span class="fn">f</span><span class="st">"ROC-AUC:  {<span class="bi">roc_auc_score</span>(y_test, y_proba):.4f}"</span>)
+
+    <span class="bi">print</span>(<span class="st">"\nClassification report:"</span>)
+    <span class="bi">print</span>(<span class="bi">classification_report</span>(y_test, y_pred, digits<span class="op">=</span><span class="nm">4</span>, zero_division<span class="op">=</span><span class="nm">0</span>))
+    <span class="bi">print</span>(<span class="st">"Confusion matrix (rows=true, cols=pred):"</span>)
+    <span class="bi">print</span>(<span class="bi">confusion_matrix</span>(y_test, y_pred))
+
+    <span class="co"># 5. Save test predictions</span>
+    out <span class="op">=</span> pd.<span class="bi">DataFrame</span>({
+        ID_COL:                   test_df[ID_COL],
+        <span class="st">"signal_inhibition_true"</span>: test_df[TARGET],
+        <span class="st">"y_true"</span>:                 y_test,
+        <span class="st">"y_pred"</span>:                 y_pred,
+        <span class="st">"prob_class1"</span>:            y_proba,
+    })
+    out.<span class="fn">to_csv</span>(PRED_PATH, index<span class="op">=</span><span class="kw">False</span>)
+    <span class="bi">print</span>(<span class="fn">f</span><span class="st">"Saved {<span class="bi">len</span>(out)} test predictions to: {PRED_PATH}"</span>)
+
+
+<span class="kw">if</span> <span class="bi">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span>:
+    <span class="fn">main</span>()</pre>
+    </div>
+  </div>
+</section>
+
+<!-- MODEL PARAMS -->
+<section id="params">
+  <div class="container">
+    <div class="section-label">Model Configuration</div>
+    <h2 class="section-title reveal">RandomForestClassifier Parameters</h2>
+    <p class="section-desc reveal">
+      Hyperparameter choices embedded in the generated script.
+    </p>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;" class="reveal">
+      <table class="params-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="param-key">n_estimators</td>
+            <td class="param-val">200</td>
+            <td style="color:var(--muted);font-size:0.82rem;">Number of decision trees</td>
+          </tr>
+          <tr>
+            <td class="param-key">max_depth</td>
+            <td class="param-val">None</td>
+            <td style="color:var(--muted);font-size:0.82rem;">Trees grow until pure leaves</td>
+          </tr>
+          <tr>
+            <td class="param-key">random_state</td>
+            <td class="param-val">42</td>
+            <td style="color:var(--muted);font-size:0.82rem;">Reproducible results</td>
+          </tr>
+          <tr>
+            <td class="param-key">n_jobs</td>
+            <td class="param-val">-1</td>
+            <td style="color:var(--muted);font-size:0.82rem;">Use all CPU cores</td>
+          </tr>
+          <tr>
+            <td class="param-key">threshold strategy</td>
+            <td class="param-val">median(train)</td>
+            <td style="color:var(--muted);font-size:0.82rem;">Binarizes Signal-inhibition</td>
+          </tr>
+          <tr>
+            <td class="param-key">output file</td>
+            <td class="param-val" style="font-size:0.75rem;">dkpes_test_predictions.csv</td>
+            <td style="color:var(--muted);font-size:0.82rem;">index · true · pred · prob</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- OUTCOME -->
+<section id="outcome" style="background: var(--surface);">
+  <div class="container">
+    <div class="section-label">Outcome</div>
+    <h2 class="section-title reveal">Run Summary</h2>
+    <p class="section-desc reveal">
+      The agent produced a complete, correct solution but could not persist it.
+    </p>
+
+    <div class="outcome-grid reveal">
+      <div class="outcome-card success">
+        <div class="outcome-icon">✅</div>
+        <div class="outcome-title">Exit code 0</div>
+        <div class="outcome-desc">Session completed without error. The agent concluded gracefully after explaining the blocked writes.</div>
+      </div>
+      <div class="outcome-card warning">
+        <div class="outcome-icon">⚠️</div>
+        <div class="outcome-title">Write denied (×2)</div>
+        <div class="outcome-desc">Both Write-tool calls to <code style="font-size:0.8em;">dkpes_rf_classifier.py</code> were rejected by the permission system. No file was saved to disk.</div>
+      </div>
+      <div class="outcome-card info">
+        <div class="outcome-icon">📄</div>
+        <div class="outcome-title">Code complete</div>
+        <div class="outcome-desc">All 5 required steps (load, binarize, train, evaluate, save) are implemented in the generated script. Ready to run once written.</div>
+      </div>
+      <div class="outcome-card info">
+        <div class="outcome-icon">⏱️</div>
+        <div class="outcome-title">73 s · claude-opus-4-8</div>
+        <div class="outcome-desc">Two data reads (≈2 s) plus two write attempts and final turn produced the solution in just over a minute.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:2.5rem;" class="reveal">
+      <div class="section-label" style="margin-bottom:1rem;">FAQ</div>
+      <details>
+        <summary>Why is exit_code 0 if the writes were denied?</summary>
+        <div class="details-body">
+          The exit code reflects whether the agent process itself terminated cleanly,
+          not whether all tool calls succeeded. The session ended with an <code>end_turn</code>
+          stop reason (not an error), so the harness records exit 0.
+        </div>
+      </details>
+      <details>
+        <summary>What metrics would the script report?</summary>
+        <div class="details-body">
+          The script outputs: accuracy, ROC-AUC, a full <code>classification_report</code>
+          (precision, recall, F1 per class), and a confusion matrix on the 50-sample test set.
+          Feature importances from the forest are also printed in descending order.
+        </div>
+      </details>
+      <details>
+        <summary>How is binarization handled?</summary>
+        <div class="details-body">
+          The training-set median of <em>Signal-inhibition</em> is computed first (leak-free),
+          then applied to both sets: values ≥ median → class 1 ("inhibitor"), else → class 0.
+          Because the median is used, the training set is approximately balanced (~100 vs 100).
+        </div>
+      </details>
+      <details>
+        <summary>What are the Tanimoto-family features?</summary>
+        <div class="details-body">
+          <strong>TanimotoCombo</strong>, <strong>ShapeTanimoto</strong>, and <strong>ColorTanimoto</strong>
+          are 3D molecular similarity scores from OpenEye ROCS; <strong>Overlap</strong> is the
+          volumetric overlap. These capture 3D shape and pharmacophoric similarity, complementing
+          the binary structural flags (keto, hydroxy, methyl, sulfate, double bonds, sulfur).
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-brand">DKPES RandomForest · 03</span>
+    <div class="footer-meta">
+      <span>Benchmark: ScienceAgentBench</span>
+      <span>Model: claude-opus-4-8</span>
+      <span>Domain: scientific_computing</span>
+      <span>Collected: 2026-07-11</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Nav scroll color ──
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  // ── Scroll reveal (sections + timeline) ──
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        const delay = el.dataset.delay ? parseInt(el.dataset.delay) : 0;
+        setTimeout(() => el.classList.add('visible'), delay);
+        io.unobserve(el);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  document.querySelectorAll('.tl-step').forEach(el => io.observe(el));
+
+  // ── Copy code ──
+  function copyCode() {
+    const raw = `"""
+Random Forest classifier for predicting signal inhibition of chemicals
+from their molecular descriptors (DKPES dataset).
+
+The continuous "Signal-inhibition" target is binarized using the median of the
+training set as the threshold (values >= median -> 1 "inhibitor", else 0).
+"""
+
+import os
+
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    roc_auc_score,
+)
+
+HERE       = os.path.dirname(os.path.abspath(__file__))
+TRAIN_PATH = os.path.join(HERE, "dkpes", "dkpes_train.csv")
+TEST_PATH  = os.path.join(HERE, "dkpes", "dkpes_test.csv")
+PRED_PATH  = os.path.join(HERE, "dkpes_test_predictions.csv")
+
+TARGET   = "Signal-inhibition"
+ID_COL   = "index"
+FEATURES = [
+    "3-Keto", "3-Hydroxy", "12-Keto", "12-Hydroxy", "19-Methyl", "18-Methyl",
+    "Sulfate-Ester", "Sulfate-Oxygens", "C4-C5-DB", "C6-C7-DB", "Sulfur",
+    "TanimotoCombo", "ShapeTanimoto", "ColorTanimoto", "Overlap",
+]
+RANDOM_STATE = 42
+
+
+def main():
+    train_df = pd.read_csv(TRAIN_PATH)
+    test_df  = pd.read_csv(TEST_PATH)
+
+    print(f"Training set: {train_df.shape[0]} rows, {train_df.shape[1]} columns")
+    print(f"Test set:     {test_df.shape[0]} rows, {test_df.shape[1]} columns")
+    print(f"Missing values (train): {int(train_df.isna().sum().sum())}")
+
+    threshold = train_df[TARGET].median()
+    print(f"Median threshold (from train): {threshold:.6f}")
+
+    y_train = (train_df[TARGET] >= threshold).astype(int)
+    y_test  = (test_df[TARGET]  >= threshold).astype(int)
+
+    X_train = train_df[FEATURES]
+    X_test  = test_df[FEATURES]
+
+    clf = RandomForestClassifier(
+        n_estimators=200,
+        max_depth=None,
+        random_state=RANDOM_STATE,
+        n_jobs=-1,
+    )
+    clf.fit(X_train, y_train)
+
+    importances = (
+        pd.Series(clf.feature_importances_, index=FEATURES)
+        .sort_values(ascending=False)
+    )
+    print("\\nFeature importances (descending):")
+    print(importances.to_string())
+
+    y_pred  = clf.predict(X_test)
+    y_proba = clf.predict_proba(X_test)[:, 1]
+
+    print(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+    if y_test.nunique() > 1:
+        print(f"ROC-AUC:  {roc_auc_score(y_test, y_proba):.4f}")
+    print(classification_report(y_test, y_pred, digits=4, zero_division=0))
+    print(confusion_matrix(y_test, y_pred))
+
+    out = pd.DataFrame({
+        ID_COL:                   test_df[ID_COL],
+        "signal_inhibition_true": test_df[TARGET],
+        "y_true":                 y_test,
+        "y_pred":                 y_pred,
+        "prob_class1":            y_proba,
+    })
+    out.to_csv(PRED_PATH, index=False)
+    print(f"Saved {len(out)} test predictions to: {PRED_PATH}")
+
+
+if __name__ == "__main__":
+    main()`;
+
+    navigator.clipboard.writeText(raw).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    }).catch(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Failed';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+  }
+</script>
+</body>
+</html>

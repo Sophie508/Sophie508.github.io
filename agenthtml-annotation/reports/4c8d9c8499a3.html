@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>05_task_58994 · Size Code Lookup · SpreadsheetBench</title>
+<style>
+  :root {
+    --ink: #14110e;
+    --paper: #f3ecdf;
+    --paper-2: #e8dfcf;
+    --cream: #fff8ec;
+    --bark: #5c4a32;
+    --line: #d4c7b0;
+    --copper: #b15c2d;
+    --copper-deep: #8a3f18;
+    --hops: #2f6b4f;
+    --hops-light: #3f8f68;
+    --foam: #f7f0e2;
+    --amber: #e0a045;
+    --amber-soft: #f0c97a;
+    --rose: #a33b2c;
+    --slate: #2a3330;
+    --grid: #cfc2ab;
+    --shadow: 0 18px 50px rgba(20, 17, 14, 0.14);
+    --radius: 18px;
+    --mono: "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
+    --display: "Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", serif;
+    --body: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--body);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(224,160,69,0.18), transparent 55%),
+      radial-gradient(900px 500px at 100% 0%, rgba(47,107,79,0.12), transparent 50%),
+      linear-gradient(180deg, #efe6d5 0%, var(--paper) 40%, #ebe2d1 100%);
+    min-height: 100vh;
+    line-height: 1.55;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: min(1180px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 2rem 0 4rem;
+  }
+
+  /* Hero */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.35fr 0.9fr;
+    gap: 1.5rem;
+    align-items: stretch;
+    margin-bottom: 1.75rem;
+  }
+
+  .hero-card, .meta-card, .panel, .step, .sheet-card, .formula-stage {
+    background: rgba(255, 248, 236, 0.78);
+    border: 1px solid rgba(92, 74, 50, 0.14);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(8px);
+  }
+
+  .hero-card {
+    padding: 2rem 2.1rem 1.8rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card::after {
+    content: "";
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(224,160,69,0.35), rgba(177,92,45,0.05) 70%);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    gap: 0.55rem;
+    align-items: center;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--copper-deep);
+    font-weight: 700;
+  }
+
+  .eyebrow .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--hops);
+    box-shadow: 0 0 0 4px rgba(47,107,79,0.15);
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+    margin: 0.7rem 0 0.85rem;
+    letter-spacing: -0.02em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--copper);
+  }
+
+  .lede {
+    font-size: 1.05rem;
+    color: var(--slate);
+    max-width: 48ch;
+    margin: 0 0 1.25rem;
+  }
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--slate);
+  }
+
+  .chip strong { color: var(--ink); font-weight: 700; }
+  .chip.ok { background: rgba(47,107,79,0.12); border-color: rgba(47,107,79,0.28); color: var(--hops); }
+  .chip.warn { background: rgba(163,59,44,0.1); border-color: rgba(163,59,44,0.22); color: var(--rose); }
+
+  .meta-card {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    background:
+      linear-gradient(165deg, rgba(42,51,48,0.97), rgba(20,17,14,0.96));
+    color: var(--foam);
+    border-color: rgba(255,255,255,0.06);
+  }
+
+  .meta-card h2 {
+    font-family: var(--display);
+    font-size: 1.05rem;
+    margin: 0;
+    font-weight: 600;
+    color: var(--amber-soft);
+    letter-spacing: 0.02em;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+
+  .stat {
+    padding: 0.75rem 0.8rem;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .stat .k {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(247,240,226,0.55);
+    margin-bottom: 0.2rem;
+  }
+
+  .stat .v {
+    font-family: var(--mono);
+    font-size: 0.92rem;
+    color: #fff;
+  }
+
+  .progress {
+    margin-top: auto;
+    padding-top: 0.4rem;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: rgba(247,240,226,0.65);
+    margin-bottom: 0.35rem;
+  }
+
+  .bar {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+
+  .bar > i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--hops), var(--amber));
+    border-radius: inherit;
+    transform-origin: left;
+    animation: fill 1.2s ease-out 0.2s both;
+  }
+
+  @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  /* Nav */
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 1.75rem;
+    position: sticky;
+    top: 0.6rem;
+    z-index: 20;
+    padding: 0.55rem;
+    border-radius: 999px;
+    background: rgba(243,236,223,0.82);
+    border: 1px solid rgba(92,74,50,0.12);
+    backdrop-filter: blur(10px);
+    width: fit-content;
+    max-width: 100%;
+    box-shadow: 0 8px 24px rgba(20,17,14,0.08);
+  }
+
+  .toc a {
+    text-decoration: none;
+    color: var(--slate);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    transition: 0.18s ease;
+  }
+
+  .toc a:hover, .toc a.active {
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  section {
+    margin-bottom: 1.75rem;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .section-head h2 {
+    font-family: var(--display);
+    font-size: 1.65rem;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .section-head p {
+    margin: 0;
+    color: var(--bark);
+    font-size: 0.92rem;
+  }
+
+  .panel { padding: 1.35rem 1.4rem; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 1rem;
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9rem;
+  }
+
+  .callout {
+    border-left: 4px solid var(--copper);
+    padding: 0.85rem 1rem;
+    background: rgba(177,92,45,0.08);
+    border-radius: 0 12px 12px 0;
+    font-size: 0.95rem;
+  }
+
+  .callout code, code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: rgba(20,17,14,0.06);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+
+  /* Pattern diagram */
+  .pattern {
+    display: grid;
+    grid-template-columns: repeat(7, auto);
+    gap: 0.35rem;
+    align-items: center;
+    justify-content: start;
+    margin: 1rem 0;
+    font-family: var(--mono);
+    font-size: 0.95rem;
+  }
+
+  .tok {
+    padding: 0.55rem 0.7rem;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--cream);
+    min-width: 2.4rem;
+    text-align: center;
+  }
+
+  .tok.lit { background: transparent; color: var(--bark); border: 1px dashed var(--line); }
+  .tok.what { background: #355c52; }
+  .tok.who { background: #6b4a2f; }
+  .tok.size { background: var(--copper); box-shadow: 0 0 0 3px rgba(177,92,45,0.22); transform: translateY(-2px); }
+  .tok.sku { background: #3d4650; }
+
+  .pattern-caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.1rem;
+    font-size: 0.8rem;
+    color: var(--bark);
+  }
+
+  .pattern-caption span::before {
+    content: "";
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 2px;
+    margin-right: 0.35rem;
+    vertical-align: middle;
+  }
+  .lg-what::before { background: #355c52; }
+  .lg-who::before { background: #6b4a2f; }
+  .lg-size::before { background: var(--copper); }
+  .lg-sku::before { background: #3d4650; }
+
+  /* Sheets */
+  .sheets {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: 1rem;
+  }
+
+  .sheet-card {
+    padding: 1rem;
+    overflow: hidden;
+  }
+
+  .sheet-card header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.7rem;
+  }
+
+  .sheet-card h3 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 1.15rem;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 0.28rem 0.55rem;
+    border-radius: 999px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+  }
+
+  .badge.focus { background: rgba(177,92,45,0.15); border-color: rgba(177,92,45,0.35); color: var(--copper-deep); }
+
+  .table-scroll { overflow: auto; border-radius: 12px; border: 1px solid var(--line); }
+
+  table.sheet {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.78rem;
+    font-family: var(--mono);
+    background: var(--cream);
+  }
+
+  table.sheet th, table.sheet td {
+    border: 1px solid var(--grid);
+    padding: 0.38rem 0.45rem;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  table.sheet th {
+    background: #ddd1ba;
+    color: var(--bark);
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+  }
+
+  table.sheet td.rowhead {
+    background: #e7dcc8;
+    font-weight: 700;
+    color: var(--bark);
+    text-align: center;
+    width: 2rem;
+  }
+
+  table.sheet tr:hover td:not(.rowhead) { background: rgba(224,160,69,0.12); }
+
+  td.hl {
+    background: rgba(177,92,45,0.18) !important;
+    color: var(--copper-deep);
+    font-weight: 700;
+  }
+
+  td.answer {
+    background: rgba(47,107,79,0.16) !important;
+    color: var(--hops);
+    font-weight: 700;
+  }
+
+  td.broken {
+    background: rgba(163,59,44,0.14) !important;
+    color: var(--rose);
+  }
+
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 0.7rem;
+    font-size: 0.78rem;
+    color: var(--bark);
+  }
+
+  .swatch {
+    display: inline-block;
+    width: 11px; height: 11px;
+    border-radius: 3px;
+    margin-right: 0.3rem;
+    vertical-align: -1px;
+  }
+
+  /* Formula stage */
+  .formula-stage {
+    padding: 1.4rem;
+    background:
+      linear-gradient(180deg, rgba(255,248,236,0.9), rgba(243,236,223,0.95));
+  }
+
+  .formula-bar {
+    font-family: var(--mono);
+    font-size: clamp(0.78rem, 1.5vw, 0.95rem);
+    background: var(--ink);
+    color: #f4e7cf;
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
+    overflow-x: auto;
+    line-height: 1.7;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+
+  .formula-bar .part {
+    border-radius: 5px;
+    padding: 0.05em 0.2em;
+    cursor: pointer;
+    transition: 0.15s ease;
+    border-bottom: 2px solid transparent;
+  }
+
+  .formula-bar .part:hover,
+  .formula-bar .part.on {
+    background: rgba(224,160,69,0.25);
+    border-bottom-color: var(--amber);
+  }
+
+  .part-lookup { color: #7fdbb8; }
+  .part-search { color: #f0c97a; }
+  .part-range { color: #9ec9f0; }
+  .part-result { color: #f4a7a0; }
+  .part-const { color: #d0c3ae; }
+
+  .explainer-grid {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .part-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .part-nav button {
+    text-align: left;
+    border: 1px solid var(--line);
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 0.7rem 0.8rem;
+    cursor: pointer;
+    font: inherit;
+    color: var(--ink);
+    transition: 0.15s ease;
+  }
+
+  .part-nav button:hover { border-color: var(--copper); }
+  .part-nav button.on {
+    background: var(--ink);
+    color: var(--cream);
+    border-color: var(--ink);
+  }
+
+  .part-nav button small {
+    display: block;
+    opacity: 0.7;
+    font-size: 0.72rem;
+    margin-top: 0.15rem;
+  }
+
+  .part-detail {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+    background: rgba(255,255,255,0.45);
+    min-height: 160px;
+  }
+
+  .part-detail h4 {
+    margin: 0 0 0.4rem;
+    font-family: var(--display);
+    font-size: 1.2rem;
+  }
+
+  .part-detail p { margin: 0.35rem 0; color: var(--slate); }
+
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .flow-step {
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0.7rem;
+    position: relative;
+    font-size: 0.82rem;
+  }
+
+  .flow-step::after {
+    content: "→";
+    position: absolute;
+    right: -0.55rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--copper);
+    font-weight: 700;
+  }
+
+  .flow-step:last-child::after { content: ""; }
+
+  .flow-step b {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--copper-deep);
+    margin-bottom: 0.25rem;
+  }
+
+  /* Trajectory */
+  .timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(var(--copper), var(--hops));
+    opacity: 0.45;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    gap: 0.85rem;
+    padding: 1rem 1.1rem 1rem 0.85rem;
+    position: relative;
+  }
+
+  .step-num {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--ink);
+    color: var(--amber-soft);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 0.85rem;
+    z-index: 1;
+    box-shadow: 0 0 0 4px rgba(243,236,223,0.9);
+  }
+
+  .step.ok .step-num { background: var(--hops); color: white; }
+  .step.tool .step-num { background: var(--copper); color: white; }
+
+  .step-body h3 {
+    margin: 0.1rem 0 0.35rem;
+    font-size: 1.02rem;
+    font-family: var(--display);
+  }
+
+  .step-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .pill {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    font-family: var(--mono);
+    color: var(--bark);
+  }
+
+  .step pre {
+    margin: 0.55rem 0 0;
+    background: #1b1814;
+    color: #efe4d0;
+    padding: 0.8rem 0.9rem;
+    border-radius: 12px;
+    overflow: auto;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .step pre .c { color: #8fbfa4; }
+  .step pre .s { color: #e0a045; }
+
+  details.more {
+    margin-top: 0.5rem;
+  }
+
+  details.more summary {
+    cursor: pointer;
+    color: var(--copper-deep);
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+
+  /* Result */
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0.7rem;
+    align-items: stretch;
+  }
+
+  .cell-card {
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    padding: 1rem;
+    background: var(--cream);
+  }
+
+  .cell-card .addr {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--bark);
+    letter-spacing: 0.06em;
+  }
+
+  .cell-card .val {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    margin-top: 0.45rem;
+    word-break: break-word;
+  }
+
+  .cell-card.bad { border-color: rgba(163,59,44,0.35); background: rgba(163,59,44,0.06); }
+  .cell-card.good { border-color: rgba(47,107,79,0.35); background: rgba(47,107,79,0.07); }
+
+  .arrow {
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    color: var(--copper);
+    font-weight: 700;
+  }
+
+  .final-value {
+    margin-top: 1rem;
+    padding: 1.1rem 1.2rem;
+    border-radius: 16px;
+    background:
+      radial-gradient(circle at 0% 0%, rgba(224,160,69,0.25), transparent 45%),
+      linear-gradient(135deg, #22372e, #14231c);
+    color: var(--foam);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .final-value .label {
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .final-value .big {
+    font-family: var(--display);
+    font-size: 2rem;
+    margin-top: 0.15rem;
+  }
+
+  .final-value .note {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    opacity: 0.85;
+    text-align: right;
+    max-width: 34ch;
+  }
+
+  /* FAQ */
+  .faq {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .faq details {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(255,248,236,0.7);
+    padding: 0.85rem 1rem;
+  }
+
+  .faq summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-family: var(--display);
+    font-size: 1.05rem;
+  }
+
+  .faq details[open] summary { color: var(--copper-deep); margin-bottom: 0.45rem; }
+  .faq p { margin: 0.35rem 0; color: var(--slate); }
+
+  footer {
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    color: var(--bark);
+    font-size: 0.82rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: up 0.7s ease forwards;
+  }
+  .reveal:nth-child(2) { animation-delay: 0.05s; }
+  .reveal:nth-child(3) { animation-delay: 0.1s; }
+  @keyframes up { to { opacity: 1; transform: none; } }
+
+  @media (max-width: 920px) {
+    .hero, .two-col, .sheets, .result-grid, .explainer-grid, .before-after, .flow, .three-col {
+      grid-template-columns: 1fr;
+    }
+    .flow-step::after { content: ""; }
+    .toc { border-radius: 16px; }
+    .arrow { transform: rotate(90deg); padding: 0.2rem 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero reveal">
+      <div class="hero-card">
+        <div class="eyebrow"><span class="dot"></span> SpreadsheetBench · Case 05_task_58994</div>
+        <h1>Extract the hidden <em>size code</em> from a brewery SKU</h1>
+        <p class="lede">
+          An agent replaces a broken external <code>VLOOKUP</code> with an array-style
+          <code>LOOKUP + SEARCH</code> formula that finds the size token inside
+          <code>What:Who-Size-SKU</code> strings and maps it to a human label like <strong>750ml</strong>.
+        </p>
+        <div class="chip-row">
+          <span class="chip ok"><strong>Solved</strong> · exit 0</span>
+          <span class="chip"><strong>25.3s</strong> duration</span>
+          <span class="chip"><strong>gpt-5.6-sol</strong></span>
+          <span class="chip"><strong>Target</strong> Sheet1!F8</span>
+          <span class="chip warn"><strong>Was</strong> #REF! / broken VLOOKUP</span>
+        </div>
+      </div>
+      <aside class="meta-card">
+        <h2>Run dossier</h2>
+        <div class="stat-grid">
+          <div class="stat"><span class="k">Domain</span><span class="v">spreadsheet_office</span></div>
+          <div class="stat"><span class="k">Benchmark</span><span class="v">SpreadsheetBench</span></div>
+          <div class="stat"><span class="k">Format</span><span class="v">codex-jsonl</span></div>
+          <div class="stat"><span class="k">Backend</span><span class="v">gpt-5.6-sol</span></div>
+          <div class="stat"><span class="k">Collected</span><span class="v">2026-07-11</span></div>
+          <div class="stat"><span class="k">Answer cell</span><span class="v">Sheet1!F8</span></div>
+        </div>
+        <div class="progress">
+          <div class="progress-label"><span>Task completion</span><span>100%</span></div>
+          <div class="bar"><i></i></div>
+        </div>
+      </aside>
+    </header>
+
+    <nav class="toc" aria-label="Sections">
+      <a href="#problem" class="active">Problem</a>
+      <a href="#data">Sheets</a>
+      <a href="#formula">Formula</a>
+      <a href="#trajectory">Trajectory</a>
+      <a href="#result">Result</a>
+      <a href="#explain">Explain</a>
+    </nav>
+
+    <section id="problem" class="reveal">
+      <div class="section-head">
+        <h2>The puzzle</h2>
+        <p>Partial SKU sizes on Sheet1 must resolve values like FG:LA-750-00506</p>
+      </div>
+      <div class="two-col">
+        <div class="panel">
+          <div class="callout">
+            Values are shaped as <code>What:Who-Size-SKU</code>
+            (example <code>FG:BJ-155-00310</code>). Extract the <strong>Size</strong>
+            fragment and convert it through the local lookup table
+            (<code>A8:B18</code>) into a readable volume label.
+            A plain <code>VLOOKUP</code> on the entire SKU fails because the size is nested
+            between hyphens, not an exact key.
+          </div>
+
+          <div class="pattern" aria-label="SKU structure">
+            <span class="tok what">FG</span>
+            <span class="tok lit">:</span>
+            <span class="tok who">LA</span>
+            <span class="tok lit">-</span>
+            <span class="tok size">750</span>
+            <span class="tok lit">-</span>
+            <span class="tok sku">00506</span>
+          </div>
+          <div class="pattern-caption">
+            <span class="lg-what">What / class</span>
+            <span class="lg-who">Who / brand</span>
+            <span class="lg-size">Size code ← extract this</span>
+            <span class="lg-sku">SKU tail</span>
+          </div>
+
+          <p style="margin:1rem 0 0; color:var(--slate); font-size:0.95rem;">
+            The live value in <code>E8</code> is <code>FG:LA-750-00506</code>.
+            Nested size <code>750</code> should resolve via the Type table to <strong>750ml</strong>.
+            Prior formula pointed at a missing external workbook table and surfaced as <code>#REF!</code>.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h3 style="font-family:var(--display); margin:0 0 0.7rem;">What the user asked</h3>
+          <div class="three-col" style="grid-template-columns:1fr; gap:0.55rem;">
+            <div class="cell-card">
+              <div class="addr">Q1 · Formula strategy</div>
+              <div class="val">How do I filter/display the size component without brittle VLOOKUP?</div>
+            </div>
+            <div class="cell-card">
+              <div class="addr">Q2 · Syntax decode</div>
+              <div class="val">Explain <code>LOOKUP(2,1/(ISNUMBER(SEARCH(...))))</code> — is “-search” a separate formula?</div>
+            </div>
+            <div class="cell-card">
+              <div class="addr">Q3 · Cross-sheet</div>
+              <div class="val">How do I retarget the ranges if the lookup table lives on another worksheet?</div>
+            </div>
+          </div>
+          <p style="margin:0.9rem 0 0; font-size:0.88rem; color:var(--bark);">
+            Deliverable for the benchmark: write the correct formula into <code>Sheet1!F8</code>
+            via openpyxl, save <code>output.xlsx</code>, and print the cell value.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="data" class="reveal">
+      <div class="section-head">
+        <h2>Workbook under the lens</h2>
+        <p>Two sheets · lookup codes on Sheet1 · catalog noise on Sheet2</p>
+      </div>
+      <div class="sheets">
+        <article class="sheet-card">
+          <header>
+            <h3>Sheet2 · Item catalog</h3>
+            <span class="badge">Context only</span>
+          </header>
+          <div class="table-scroll">
+            <table class="sheet">
+              <thead>
+                <tr><th></th><th>A Item</th><th>B Type</th><th>C Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="rowhead">1</td><td>Item</td><td>Type</td><td>Description</td></tr>
+                <tr><td class="rowhead">2</td><td>FG</td><td></td><td>Finished Goods</td></tr>
+                <tr><td class="rowhead">3</td><td>FG:BJ-750-00310</td><td></td><td>750ml</td></tr>
+                <tr><td class="rowhead">4</td><td>FG:BJ-155-PK301</td><td></td><td>1/2 BBL 15.5Gal (other keg)</td></tr>
+                <tr><td class="rowhead">5</td><td>FG:BJ-155-PK310</td><td></td><td>1/2 BBL 15.5Gal (Port)</td></tr>
+                <tr><td class="rowhead">6</td><td>FG:BJ-516-PK305</td><td></td><td>1/6 BBL 5.16 Gal (OTHER KEG)</td></tr>
+                <tr><td class="rowhead">7</td><td>FG:BJ-750-00301</td><td></td><td>Grand Cru</td></tr>
+                <tr><td class="rowhead">8</td><td>FG:BJ-750-00301E</td><td></td><td>(Display)</td></tr>
+                <tr><td class="rowhead">9</td><td>FG:BJ-750-00303</td><td></td><td>Abbey Normal</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="sheet-card">
+          <header>
+            <h3>Sheet1 · Partial SKU map + target</h3>
+            <span class="badge focus">Answer surface</span>
+          </header>
+          <div class="table-scroll">
+            <table class="sheet" id="sheet1-table">
+              <thead>
+                <tr><th></th><th>A Partial SKU</th><th>B Type</th><th>C</th><th>D</th><th>E Source SKU</th><th>F Result</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="rowhead">7</td><td>Partial SKU</td><td>Type</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td class="rowhead">8</td><td class="hl">155</td><td class="hl">1/2bbl 15.5gal</td><td></td><td></td><td class="hl">FG:LA-750-00506</td><td class="answer" id="f8-cell">LOOKUP… → 750ml</td></tr>
+                <tr><td class="rowhead">9</td><td class="hl">750</td><td class="hl">750ml</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td class="rowhead">10</td><td>011</td><td>11gal</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td class="rowhead">11</td><td>022</td><td>22oz</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td class="rowhead">12</td><td>024</td><td>Costco 24pk</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td class="rowhead">13</td><td>416</td><td>16oz 4pk</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td class="rowhead">14</td><td>516</td><td>5.16gal</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td class="rowhead">15</td><td>616</td><td>16oz 6pk</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td class="rowhead">16</td><td>775</td><td>1/4bbl 7.75gal</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td class="rowhead">17</td><td>005</td><td>5 gal</td><td></td><td></td><td></td><td></td></tr>
+                <tr><td class="rowhead">18</td><td>475</td><td>375ml</td><td></td><td></td><td></td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="legend-row">
+            <span><i class="swatch" style="background:rgba(177,92,45,0.35)"></i>Lookup keys / source SKU</span>
+            <span><i class="swatch" style="background:rgba(47,107,79,0.35)"></i>Answer cell F8</span>
+            <span>Match path: <code>E8</code> contains <code>-750-</code> → row 9 → <code>B9 = 750ml</code></span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="formula" class="reveal">
+      <div class="section-head">
+        <h2>Formula anatomy</h2>
+        <p>Click a clause to see what it contributes · interactive breakdown</p>
+      </div>
+      <div class="formula-stage">
+        <div class="formula-bar" id="formulaBar" aria-label="Solution formula">
+          <span class="part part-lookup" data-part="lookup">=LOOKUP(</span><span class="part part-const" data-part="sentinel">2</span><span class="part part-const" data-part="sentinel">,</span><span class="part part-lookup" data-part="mask">1/(ISNUMBER(</span><span class="part part-search" data-part="search">SEARCH(</span><span class="part part-const" data-part="search">"-"&</span><span class="part part-range" data-part="codes">$A$8:$A$18</span><span class="part part-const" data-part="search">&"-"</span><span class="part part-const" data-part="search">,</span><span class="part part-range" data-part="needle">E8</span><span class="part part-search" data-part="search">)</span><span class="part part-lookup" data-part="mask">))</span><span class="part part-const" data-part="sentinel">,</span><span class="part part-result" data-part="return">$B$8:$B$18</span><span class="part part-lookup" data-part="lookup">)</span>
+        </div>
+
+        <div class="explainer-grid">
+          <div class="part-nav" id="partNav">
+            <button type="button" class="on" data-part="search"><strong>SEARCH bounds</strong><small>"-" & code & "-" inside E8</small></button>
+            <button type="button" data-part="mask"><strong>Boolean mask</strong><small>ISNUMBER → 1/TRUE array</small></button>
+            <button type="button" data-part="lookup"><strong>LOOKUP trick</strong><small>Find last 1 with sentinel 2</small></button>
+            <button type="button" data-part="return"><strong>Return vector</strong><small>Pull matching Type label</small></button>
+            <button type="button" data-part="codes"><strong>Code range</strong><small>$A$8:$A$18 partial SKUs</small></button>
+            <button type="button" data-part="needle"><strong>Needle cell</strong><small>E8 full product code</small></button>
+            <button type="button" data-part="sentinel"><strong>Sentinel 2</strong><small>Forces last numeric hit</small></button>
+          </div>
+          <div class="part-detail" id="partDetail">
+            <h4>SEARCH with hyphen guards</h4>
+            <p><code>SEARCH("-"&$A$8:$A$18&"-",E8)</code> does <em>not</em> call a fictional “-search” formula. <code>SEARCH</code> is the Excel function; the hyphens are ordinary text concatenated around each candidate code.</p>
+            <p>For code <code>750</code>, the pattern becomes <code>-750-</code>, which matches inside <code>FG:LA-750-00506</code> without false-hitting a neighboring number.</p>
+          </div>
+        </div>
+
+        <div class="flow">
+          <div class="flow-step"><b>1. Build</b>Wrap each A-code as <code>-155-</code>, <code>-750-</code>, …</div>
+          <div class="flow-step"><b>2. Probe</b>SEARCH each pattern against E8</div>
+          <div class="flow-step"><b>3. Cast</b>ISNUMBER → TRUE/FALSE; 1/x keeps hits as 1, misses as #DIV/0!</div>
+          <div class="flow-step"><b>4. Look</b>LOOKUP(2, mask) ignores errors, returns last 1</div>
+          <div class="flow-step"><b>5. Map</b>Same position in B8:B18 yields <code>750ml</code></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="trajectory" class="reveal">
+      <div class="section-head">
+        <h2>Agent trajectory</h2>
+        <p>Short, decisive path · inspect → reason → patch → verify</p>
+      </div>
+      <div class="timeline">
+        <article class="step">
+          <div class="step-num">01</div>
+          <div class="step-body">
+            <div class="step-meta"><span class="pill">commentary</span><span class="pill">22:11:34</span></div>
+            <h3>Orient on the workbook</h3>
+            <p style="margin:0;color:var(--slate);">“I’ll inspect the workbook layout, then write the cross-sheet lookup formula into <code>Sheet1!F8</code> and save the requested output file.”</p>
+          </div>
+        </article>
+
+        <article class="step tool">
+          <div class="step-num">02</div>
+          <div class="step-body">
+            <div class="step-meta"><span class="pill">exec · openpyxl</span><span class="pill">read input.xlsx</span></div>
+            <h3>Inventory both sheets</h3>
+            <p style="margin:0;color:var(--slate);">Confirmed Sheet2 catalog and Sheet1 lookup table. Critical cells:</p>
+            <pre><span class="c"># Sheet1 row 8</span>
+A8=<span class="s">'155'</span>  B8=<span class="s">'1/2bbl 15.5gal'</span>
+E8=<span class="s">'FG:LA-750-00506'</span>
+F8=<span class="s">=VLOOKUP(E8,[1]!Table3[#Data],2,FALSE)</span>  <span class="c"># broken external ref</span>
+
+<span class="c"># Size table rows include</span>
+A9=<span class="s">'750'</span>  B9=<span class="s">'750ml'</span></pre>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="step-num">03</div>
+          <div class="step-body">
+            <div class="step-meta"><span class="pill">commentary</span><span class="pill">reasoning</span></div>
+            <h3>Choose bounded SEARCH over exact VLOOKUP</h3>
+            <p style="margin:0;color:var(--slate);">
+              E8 embeds size code <code>750</code>; the matching display value is <code>750ml</code>.
+              A hyphen-bounded search avoids the exact-match limitation that made VLOOKUP fail.
+            </p>
+          </div>
+        </article>
+
+        <article class="step tool ok">
+          <div class="step-num">04</div>
+          <div class="step-body">
+            <div class="step-meta"><span class="pill">apply_patch</span><span class="pill">solve.py</span><span class="pill">0.7s</span></div>
+            <h3>Write solution script and emit output.xlsx</h3>
+            <pre>from openpyxl import load_workbook
+
+workbook = load_workbook(input_path)
+sheet = workbook["Sheet1"]
+
+<span class="c"># Find a size code from A8:A18 surrounded by hyphens in E8,</span>
+<span class="c"># then return its corresponding description from B8:B18.</span>
+sheet["F8"] = <span class="s">'=LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)'</span>
+
+workbook.save(output_path)
+print(f"Sheet1!F8 = {sheet['F8'].value}")</pre>
+            <details class="more">
+              <summary>Verification print</summary>
+              <pre>Sheet1!F8 = =LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)
+Verified: =LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)</pre>
+            </details>
+          </div>
+        </article>
+
+        <article class="step ok">
+          <div class="step-num">05</div>
+          <div class="step-body">
+            <div class="step-meta"><span class="pill">final_answer</span><span class="pill">22:11:57</span></div>
+            <h3>Ship formula, semantics, and cross-sheet variant</h3>
+            <p style="margin:0;color:var(--slate);">
+              Documented that calculated Excel result is <strong>750ml</strong>, clarified that
+              <code>SEARCH</code> is a function (not “-search”), and showed the Sheet2-qualified form
+              of the same pattern.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="result" class="reveal">
+      <div class="section-head">
+        <h2>Before → after</h2>
+        <p>One cell changed · semantics fully restored</p>
+      </div>
+      <div class="result-grid">
+        <div class="panel">
+          <div class="before-after">
+            <div class="cell-card bad">
+              <div class="addr">INPUT · Sheet1!F8</div>
+              <div class="val">=VLOOKUP(E8,[1]!Table3[#Data],2,FALSE)</div>
+              <p style="margin:0.55rem 0 0;font-size:0.82rem;color:var(--rose);">Displayed as #REF! · external table missing</p>
+            </div>
+            <div class="arrow" aria-hidden="true">⟶</div>
+            <div class="cell-card good">
+              <div class="addr">OUTPUT · Sheet1!F8</div>
+              <div class="val">=LOOKUP(2,1/(ISNUMBER(SEARCH("-"&$A$8:$A$18&"-",E8))),$B$8:$B$18)</div>
+              <p style="margin:0.55rem 0 0;font-size:0.82rem;color:var(--hops);">Self-contained · uses local Type map</p>
+            </div>
+          </div>
+
+          <div class="final-value">
+            <div>
+              <div class="label">Evaluated result</div>
+              <div class="big">750ml</div>
+            </div>
+            <div class="note">E8 holds FG:LA-750-00506<br/>hyphen search hits A9=750<br/>returns B9 Type label</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3 style="font-family:var(--display);margin:0 0 0.6rem;">Artifacts produced</h3>
+          <div class="cell-card" style="margin-bottom:0.55rem;">
+            <div class="addr">workspace/solve.py</div>
+            <div class="val">openpyxl loader · assigns F8 · saves output.xlsx · prints value</div>
+          </div>
+          <div class="cell-card" style="margin-bottom:0.55rem;">
+            <div class="addr">workspace/output.xlsx</div>
+            <div class="val">Sheet2 unchanged · Sheet1!F8 formula replaced · remaining Type table intact</div>
+          </div>
+          <div class="cell-card">
+            <div class="addr">cross-sheet recipe (if table moved)</div>
+            <div class="val">=LOOKUP(2,1/(ISNUMBER(SEARCH("-"&Sheet2!$A$8:$A$18&"-",E8))),Sheet2!$B$8:$B$18)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="explain" class="reveal">
+      <div class="section-head">
+        <h2>Answers to the human questions</h2>
+        <p>Beyond filling the cell · the agent closed the conceptual loop</p>
+      </div>
+      <div class="faq">
+        <details open>
+          <summary>Is “-search” an extra formula?</summary>
+          <p>No. The expression is plain string concatenation feeding the built-in <code>SEARCH</code> function.
+          <code>"-"&$A$8:$A$18&"-"</code> manufactures patterns like <code>-155-</code> and <code>-750-</code>
+          so a size code only matches when flanked by hyphens.</p>
+        </details>
+        <details>
+          <summary>Why does LOOKUP(2, 1/(…)) work as a filter?</summary>
+          <p><code>ISNUMBER(SEARCH(...))</code> produces TRUE for the matching row.
+          Dividing 1 by that array keeps <strong>1</strong> for hits and <strong>#DIV/0!</strong> for misses.
+          <code>LOOKUP</code> binary-searches for 2, never finds it, and returns the last numeric value less than 2 —
+          i.e. the final successful 1 — then pairs that position with the return vector <code>$B$8:$B$18</code>.</p>
+        </details>
+        <details>
+          <summary>Why did the original VLOOKUP fail?</summary>
+          <p>It required an exact match on the entire SKU and pointed at an external structured table
+          (<code>[1]!Table3[#Data]</code> / path on another machine). The size token is only a <em>substring</em>
+          of <code>E8</code>, so exact lookup cannot see it even if the workbook link were healthy.</p>
+        </details>
+        <details>
+          <summary>How do I point at another worksheet?</summary>
+          <p>Qualify every range: <code>Sheet2!$A$8:$A$18</code> and <code>Sheet2!$B$8:$B$18</code>.
+          The SEARCH / LOOKUP structure stays identical — only the sheet scope changes.</p>
+        </details>
+      </div>
+    </section>
+
+    <footer>
+      <div>05_task_58994 · SpreadsheetBench · trajectory codex-jsonl · model gpt-5.6-sol</div>
+      <div>Self-contained case narrative · no external assets</div>
+    </footer>
+  </div>
+
+<script>
+(function () {
+  const details = {
+    search: {
+      title: "SEARCH with hyphen guards",
+      body: `<p><code>SEARCH("-"&$A$8:$A$18&"-",E8)</code> does <em>not</em> call a fictional “-search” formula. <code>SEARCH</code> is the Excel function; the hyphens are ordinary text concatenated around each candidate code.</p>
+             <p>For code <code>750</code>, the pattern becomes <code>-750-</code>, which matches inside <code>FG:LA-750-00506</code> without false-hitting a neighboring number.</p>`
+    },
+    mask: {
+      title: "Boolean → numeric mask",
+      body: `<p><code>ISNUMBER(...)</code> turns each SEARCH result into TRUE/FALSE. Wrapping with <code>1/(...)</code> yields <strong>1</strong> where a code matched and <strong>#DIV/0!</strong> elsewhere.</p>
+             <p>Those errors are intentional: LOOKUP silently skips them while scanning for a numeric threshold.</p>`
+    },
+    lookup: {
+      title: "The LOOKUP(2, …) last-match trick",
+      body: `<p>Classic Excel idiom: ask LOOKUP for a value larger than any mask entry (here, <code>2</code>). It walks the numeric sequence and settles on the last 1 — the winning size-code row.</p>
+             <p>Because only one size code should appear in the SKU, “last match” is also “the match.”</p>`
+    },
+    return: {
+      title: "Return vector $B$8:$B$18",
+      body: `<p>Once LOOKUP locks onto the matched position inside the mask, it reads the parallel Type label from column B — <code>750ml</code>, <code>5.16gal</code>, <code>1/2bbl 15.5gal</code>, and so on.</p>`
+    },
+    codes: {
+      title: "Partial SKU codes $A$8:$A$18",
+      body: `<p>These compact tokens (155, 750, 516, …) are exactly the middle segment of full product IDs. Anchoring them with hyphens makes substring search safe and order-independent.</p>`
+    },
+    needle: {
+      title: "Needle cell E8",
+      body: `<p>Holds the complete finished-goods id <code>FG:LA-750-00506</code>. The formula never tears the string apart with LEFT/MID; it lets SEARCH discover which table code is embedded.</p>`
+    },
+    sentinel: {
+      title: "Sentinel value 2",
+      body: `<p>Any number greater than 1 works. Using <code>2</code> is a readable convention: “find something bigger than a successful 1,” which pushes LOOKUP to the final hit in the array.</p>`
+    }
+  };
+
+  const nav = document.getElementById("partNav");
+  const detail = document.getElementById("partDetail");
+  const barParts = [...document.querySelectorAll("#formulaBar .part")];
+
+  function activate(key) {
+    nav.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.part === key));
+    barParts.forEach((p) => p.classList.toggle("on", p.dataset.part === key));
+    const d = details[key];
+    if (!d) return;
+    detail.innerHTML = `<h4>${d.title}</h4>${d.body}`;
+  }
+
+  nav.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-part]");
+    if (!btn) return;
+    activate(btn.dataset.part);
+  });
+
+  barParts.forEach((p) => p.addEventListener("click", () => activate(p.dataset.part)));
+
+  // sticky TOC active state
+  const links = [...document.querySelectorAll(".toc a")];
+  const sections = links.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (!en.isIntersecting) return;
+      const id = "#" + en.target.id;
+      links.forEach((l) => l.classList.toggle("active", l.getAttribute("href") === id));
+    });
+  }, { rootMargin: "-40% 0px -50% 0px", threshold: 0.01 });
+  sections.forEach((s) => io.observe(s));
+})();
+</script>
+</body>
+</html>

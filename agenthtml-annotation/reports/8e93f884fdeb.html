@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case Report — St. Petersburg → Rockford (TravelPlanner)</title>
+<style>
+  :root{
+    --bg:#0f1420; --panel:#182033; --panel2:#1f2940; --ink:#e8edf7; --mut:#93a0bb;
+    --line:#2b3853; --accent:#5ea8ff; --good:#4fd18b; --warn:#ffb454; --bad:#ff6b6b;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0c111c,#0f1420 260px);color:var(--ink);
+       font-family:var(--sans);line-height:1.55;font-size:15px}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 22px 72px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:28px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  h1{font-size:27px;margin:.25em 0 .3em;line-height:1.25}
+  .sub{color:var(--mut);font-size:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;
+        padding:4px 12px;font-size:12.5px;color:var(--mut);font-family:var(--mono)}
+  .chip b{color:var(--ink);font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;margin:22px 0}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+  .stat .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+  .stat .v{font-size:20px;font-weight:700;margin-top:6px}
+  .stat .v.bad{color:var(--bad)} .stat .v.good{color:var(--good)} .stat .v.warn{color:var(--warn)}
+  .stat .n{font-size:12px;color:var(--mut);margin-top:3px}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+          padding:22px 24px;margin:18px 0}
+  h2{font-size:17px;margin:0 0 6px;display:flex;align-items:center;gap:9px}
+  h2 .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none;
+          box-shadow:0 0 0 4px rgba(94,168,255,.14)}
+  h3{font-size:14px;margin:20px 0 8px;color:var(--ink)}
+  .lead{color:var(--mut);font-size:14px;margin:0 0 14px}
+  .callout{border-left:3px solid var(--bad);background:rgba(255,107,107,.08);
+           padding:13px 16px;border-radius:0 10px 10px 0;margin:14px 0}
+  .callout.ok{border-left-color:var(--good);background:rgba(79,209,139,.08)}
+  .callout.info{border-left-color:var(--accent);background:rgba(94,168,255,.08)}
+  .callout strong{color:var(--ink)}
+  /* timeline */
+  .tl{list-style:none;padding:0;margin:8px 0 0;position:relative}
+  .tl:before{content:"";position:absolute;left:15px;top:6px;bottom:6px;width:2px;background:var(--line)}
+  .tl li{position:relative;padding:0 0 18px 46px}
+  .tl .ic{position:absolute;left:0;top:0;width:31px;height:31px;border-radius:50%;
+          background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;
+          justify-content:center;font-size:12px;font-family:var(--mono);color:var(--accent);z-index:1}
+  .tl .t{font-weight:600;font-size:14px}
+  .tl .m{color:var(--mut);font-size:13px;margin-top:2px}
+  .tl code{font-family:var(--mono);font-size:12px;background:#0e1524;border:1px solid var(--line);
+           border-radius:5px;padding:1px 5px;color:#bcd2f5}
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+  td.num,th.num{text-align:right;font-family:var(--mono);white-space:nowrap}
+  tr.total td{border-top:2px solid var(--line);border-bottom:none;font-weight:700;background:rgba(94,168,255,.05)}
+  tr.total.bad td{background:rgba(255,107,107,.08)}
+  .tag{display:inline-block;font-size:11px;font-family:var(--mono);border-radius:5px;
+       padding:1px 7px;border:1px solid var(--line);color:var(--mut);background:#0e1524}
+  .tag.bad{color:var(--bad);border-color:rgba(255,107,107,.4)}
+  .tag.good{color:var(--good);border-color:rgba(79,209,139,.4)}
+  /* bar */
+  .bar{height:22px;border-radius:6px;background:#0e1524;border:1px solid var(--line);
+       overflow:hidden;display:flex;margin:6px 0 4px}
+  .bar span{display:block;height:100%;font-size:0}
+  .bar .f{background:linear-gradient(90deg,#3d7fd6,#5ea8ff)}
+  .bar .l{background:linear-gradient(90deg,#c9922f,#ffb454)}
+  .bar .e{background:#2b3853}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--mut)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+  ul.tight{margin:8px 0 0;padding-left:20px} ul.tight li{margin:5px 0}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:700px){.two{grid-template-columns:1fr}}
+  footer{color:var(--mut);font-size:12px;text-align:center;margin-top:30px;
+         border-top:1px solid var(--line);padding-top:18px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Case Report · TravelPlanner Benchmark</div>
+  <h1>St. Petersburg → Rockford · 3-day trip on a $900 cap</h1>
+  <div class="sub">Case <code>01_task0_stpetersburg_to_rockford</code> — a completed agent run whose central finding is that the requested budget is <em>not achievable</em> with the available data.</div>
+  <div class="chips">
+    <span class="chip">domain <b>travel_planning</b></span>
+    <span class="chip">benchmark <b>TravelPlanner</b></span>
+    <span class="chip">model <b>claude-opus-4-8</b></span>
+    <span class="chip">backend <b>opus</b></span>
+    <span class="chip">exit <b>0</b></span>
+    <span class="chip">duration <b>74.9 s</b></span>
+    <span class="chip">format <b>claude-jsonl</b></span>
+    <span class="chip">records <b>17</b></span>
+  </div>
+</header>
+
+<div class="grid">
+  <div class="stat"><div class="k">Budget</div><div class="v">$900</div><div class="n">hard maximum</div></div>
+  <div class="stat"><div class="k">Round-trip flights</div><div class="v">$820</div><div class="n">only available option</div></div>
+  <div class="stat"><div class="k">Cheapest lodging</div><div class="v">$154</div><div class="n">whole stay</div></div>
+  <div class="stat"><div class="k">Absolute floor</div><div class="v bad">$974</div><div class="n">no food, no attractions</div></div>
+  <div class="stat"><div class="k">Min-cost plan total</div><div class="v bad">$1,085</div><div class="n">$185 over budget</div></div>
+  <div class="stat"><div class="k">Outcome</div><div class="v warn">Infeasible</div><div class="n">reported honestly</div></div>
+</div>
+
+<section>
+  <h2><span class="dot"></span>The task as given</h2>
+  <p class="lead">From <code>workspace/prompt.txt</code>. The agent was instructed to run four searches separately, budget step by step, and revise the plan if it went over.</p>
+  <div class="callout info">
+    <strong>Task:</strong> Plan a 3-day trip from St. Petersburg to Rockford for 1 person (March 16–18, 2022). Budget: $900 maximum.
+  </div>
+  <ul class="tight">
+    <li>Check flights first and compute the remaining budget after transportation.</li>
+    <li>Then accommodations — if the cheapest option still breaks the budget, look for alternatives or adjust.</li>
+    <li>Then restaurants, picking only options that fit; then attractions.</li>
+    <li>Write a day-by-day plan with a running total; verify and revise at the end if over budget.</li>
+  </ul>
+  <p class="lead" style="margin-top:12px">Tooling: <code>workspace/tools/tool_server.py</code>, a CLI wrapper that formats a per-task slice of the official TravelPlanner database (<code>workspace/tools/ref_info.json</code>) for four actions — <code>search_flights</code>, <code>search_accommodations</code>, <code>search_restaurants</code>, <code>search_attractions</code>.</p>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Recorded trajectory</h2>
+  <p class="lead">The run is short and linear: no re-plans, no retries, no errors. Four tool calls follow the prescribed order.</p>
+  <ul class="tl">
+    <li>
+      <div class="ic">01</div>
+      <div class="t">Flights searched</div>
+      <div class="m"><code>search_flights</code> → outbound F3573659 at <b>$474</b> (15:40→17:04), return F3573120 at <b>$346</b> (19:00→22:43). Self-driving and taxi both returned "No valid information."</div>
+    </li>
+    <li>
+      <div class="ic">02</div>
+      <div class="t">Gap identified</div>
+      <div class="m">Transport = $820, leaving <b>$80</b> for two nights of lodging, meals and attractions.</div>
+    </li>
+    <li>
+      <div class="ic">03</div>
+      <div class="t">Accommodations searched</div>
+      <div class="m"><code>search_accommodations</code> → 13 options; cheapest is "The heart of Brooklyn" at <b>$154</b>. Already $974 combined — over budget before any meal.</div>
+    </li>
+    <li>
+      <div class="ic">04</div>
+      <div class="t">Restaurants &amp; attractions searched</div>
+      <div class="m"><code>search_restaurants</code> → 27 options, cheapest credible picks $20–$26. <code>search_attractions</code> → 20 Rockford attractions, none with a listed fee.</div>
+    </li>
+    <li>
+      <div class="ic">05</div>
+      <div class="t">Final analysis delivered</div>
+      <div class="m">Instead of a compliant plan, the agent reported the budget as unattainable and produced the closest-achievable itinerary plus remedies.</div>
+    </li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Why the budget cannot be met</h2>
+  <p class="lead">The binding constraint is that the single available round-trip flight consumes 91% of the cap, and no transport alternative exists in the data.</p>
+  <div class="bar">
+    <span class="f" style="width:52.7%"></span>
+    <span class="l" style="width:17.1%"></span>
+    <span class="e" style="width:30.2%"></span>
+  </div>
+  <div class="legend">
+    <span><i style="background:#5ea8ff"></i>Flights $474 (outbound)</span>
+    <span><i style="background:#ffb454"></i>Flight $346 (return)</span>
+    <span><i style="background:#2b3853"></i>Remaining toward $900: $80</span>
+  </div>
+  <table>
+    <thead><tr><th>Component</th><th>Cheapest available</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Flights (fixed, only option)</td><td class="num">$820</td><td><span class="tag">no driving / taxi data</span></td></tr>
+      <tr><td>Cheapest lodging, whole stay</td><td class="num">$154</td><td>"The heart of Brooklyn" — entire home/apt</td></tr>
+      <tr class="total bad"><td>Subtotal — no food, no attractions</td><td class="num">$974</td><td><span class="tag bad">$74 over budget</span></td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    There is no combination of the available options that lands at or under $900. Even zeroing out food and attractions leaves the trip $74 over. The agent states this plainly rather than silently exceeding the cap.
+  </div>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Closest-achievable itinerary</h2>
+  <p class="lead">Presented as the minimum-cost realistic plan, built around free/low-cost attractions (none listed a fee) and the cheapest well-rated restaurants. Lodging: "The heart of Brooklyn", $154.</p>
+  <table>
+    <thead><tr><th>Day</th><th>Plan</th><th>Cost</th><th class="num">Running total</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Mar 16</b><br><span class="tag">arrive 17:04</span></td>
+        <td>Land and check in. Dinner at <b>Flying Mango</b> (American/BBQ/Seafood, rated 4.5).</td>
+        <td>Flight $474 · Lodging $154 · Dinner $20</td>
+        <td class="num">$648</td>
+      </tr>
+      <tr>
+        <td><b>Mar 17</b></td>
+        <td>Anderson Japanese Gardens + Nicholas Conservatory; lunch <b>Grappa</b> ($21). Afternoon at Burpee Museum of Natural History + Discovery Center Museum; dinner <b>Subway</b> ($26).</td>
+        <td>$21 + $26 = $47</td>
+        <td class="num">$695</td>
+      </tr>
+      <tr>
+        <td><b>Mar 18</b><br><span class="tag">depart 19:00</span></td>
+        <td>Breakfast <b>Dunkin'</b> ($24); Klehm Arboretum + Tinker Swiss Cottage; light lunch <b>Flying Mango</b> ($20); head to airport.</td>
+        <td>Breakfast $24 · Lunch $20 · Flight $346</td>
+        <td class="num">$1,085</td>
+      </tr>
+      <tr class="total bad"><td colspan="3">Verified total against $900 budget</td><td class="num">$1,085 &nbsp;<span class="tag bad">$185 over</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Verification ladder reported by the agent</h3>
+  <table>
+    <thead><tr><th>Scenario</th><th class="num">Total</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Full 3-day plan as drafted</td><td class="num">$1,085</td><td><span class="tag bad">$185 over</span></td></tr>
+      <tr><td>Food cut to one $20 meal per day</td><td class="num">$1,034</td><td><span class="tag bad">$134 over</span></td></tr>
+      <tr><td>Absolute floor — flights + cheapest bed, zero food</td><td class="num">$974</td><td><span class="tag bad">$74 over</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Recommendations the agent offered</h2>
+  <ul class="tight">
+    <li><b>Raise the budget to ~$1,050–$1,100</b> to cover flights, cheapest lodging and modest meals.</li>
+    <li><b>Shorten to one night</b> to drop a night of lodging and 1–2 meals — but flights alone still exceed the cap, so this only helps if the budget also rises.</li>
+    <li><b>Check alternative dates/airports</b> for a cheaper flight; the single fixed option is the binding constraint and nothing else in the plan can close a $74+ gap.</li>
+  </ul>
+  <div class="callout ok">
+    The run ends by offering to rebuild the itinerary around a revised budget or re-plan as a 1-night trip — an honest hand-off rather than a fabricated under-budget plan.
+  </div>
+</section>
+
+<section>
+  <h2><span class="dot"></span>Caveats &amp; data-quality notes</h2>
+  <ul class="tight">
+    <li><b>Infeasible by design or by data?</b> Only one flight option each way and a sparse, oddly-located accommodation set (many "Rockford" listings reference New York neighborhoods) suggest a synthetic/limited slice of the TravelPlanner DB. The infeasibility verdict is accurate <em>for this data</em>.</li>
+    <li><b>Attraction costs unlisted.</b> The <code>search_attractions</code> output returns names only, with no fees; the agent assumed free/low-cost. Real admission prices could push the total higher still, never lower the floor.</li>
+    <li><b>Lodging minimum stays ignored.</b> Several cheap-looking listings carry 7–30 night minimums, so "$154 whole stay" is not strictly bookable for 2 nights — this makes the true minimum even harder to reach, reinforcing the infeasibility conclusion.</li>
+    <li><b>No errors, no retries.</b> All four tool calls returned cleanly; the run's departure from the literal deliverable ("write a plan; revise if over budget") is a deliberate, well-reasoned refusal, not a failure.</li>
+    <li><b>No media.</b> The case contains no screenshots, frames or images; <code>case_meta.json</code> lists no <code>media_refs</code> and an empty <code>references</code> array.</li>
+  </ul>
+</section>
+
+<footer>
+  Case 01_task0_stpetersburg_to_rockford · TravelPlanner · recorded 2026-07-11 · trajectory sha256 46e2935b…a112a4<br>
+  Self-contained report — no external resources loaded.
+</footer>
+
+</div>
+</body>
+</html>

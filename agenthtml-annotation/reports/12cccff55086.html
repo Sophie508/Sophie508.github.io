@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Report: 03_gpt-4o-airline_51 | Tau-Bench Customer Service (Airline)</title>
+<style>
+  :root {
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --border-subtle: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --primary: #2563eb;
+    --primary-light: #eff6ff;
+    --primary-border: #bfdbfe;
+    --success: #059669;
+    --success-light: #ecfdf5;
+    --success-border: #a7f3d0;
+    --warning: #d97706;
+    --warning-light: #fffbeb;
+    --warning-border: #fde68a;
+    --danger: #dc2626;
+    --danger-light: #fef2f2;
+    --danger-border: #fecaca;
+    --purple: #7c3aed;
+    --purple-light: #f5f3ff;
+    --purple-border: #ddd6fe;
+    --code-bg: #0f172a;
+    --code-text: #f8fafc;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.5;
+    padding: 24px;
+    font-size: 14px;
+  }
+
+  .container {
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+
+  /* Header styles */
+  .header-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .breadcrumbs span {
+    color: var(--primary);
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .title-group h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .title-group p {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .badge-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .badge-primary { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
+  .badge-success { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
+  .badge-warning { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning-border); }
+  .badge-purple { background: var(--purple-light); color: var(--purple); border: 1px solid var(--purple-border); }
+  .badge-neutral { background: #f1f5f9; color: var(--text-secondary); border: 1px solid #e2e8f0; }
+
+  /* Task Statement Box */
+  .task-box {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-top: 14px;
+  }
+
+  .task-box-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+
+  .task-box-content {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .stat-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  /* Visual Pipeline / Workflow */
+  .workflow-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .workflow-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .workflow-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    position: relative;
+  }
+
+  .wf-step {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 14px;
+    position: relative;
+    border-top: 3px solid #94a3b8;
+  }
+
+  .wf-step.active {
+    border-top-color: var(--primary);
+  }
+  .wf-step.success {
+    border-top-color: var(--success);
+  }
+  .wf-step.warning {
+    border-top-color: var(--warning);
+  }
+
+  .wf-step-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .wf-step-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .wf-step-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* Entity & Policy Dashboards */
+  .dashboards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 960px) {
+    .dashboards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .dashboard-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .card-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Reservation Mini-cards */
+  .res-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #ffffff;
+  }
+
+  .res-card.targeted {
+    border-color: #cbd5e1;
+    background: #fdfefe;
+    border-left: 4px solid var(--danger);
+  }
+
+  .res-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .res-id {
+    font-family: ui-monospace, monospace;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+
+  .res-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 6px 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .res-field strong {
+    color: var(--text-primary);
+  }
+
+  /* Policy table */
+  .policy-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .policy-table th, .policy-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .policy-table th {
+    font-weight: 600;
+    color: var(--text-muted);
+    background: #f8fafc;
+  }
+
+  .policy-status-pass {
+    color: var(--success);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Interactive Timeline & Filters */
+  .timeline-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .timeline-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 8px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: var(--primary);
+  }
+
+  .filter-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .filter-btn {
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover {
+    background: #f1f5f9;
+  }
+
+  .filter-btn.active {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+  }
+
+  .action-btn {
+    background: #f8fafc;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .action-btn:hover {
+    background: #e2e8f0;
+  }
+
+  /* Trajectory Step Item */
+  .timeline-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .step-node {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: #ffffff;
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+
+  .step-node:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .step-node.role-system {
+    border-left: 4px solid var(--purple);
+  }
+  .step-node.role-user {
+    border-left: 4px solid var(--primary);
+  }
+  .step-node.role-assistant {
+    border-left: 4px solid var(--success);
+  }
+  .step-node.role-tool-call {
+    border-left: 4px solid var(--warning);
+  }
+  .step-node.role-tool {
+    border-left: 4px solid #0891b2;
+  }
+
+  .step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .step-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .step-index {
+    font-family: ui-monospace, monospace;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: #e2e8f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .role-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .role-tag.system { background: var(--purple-light); color: var(--purple); }
+  .role-tag.user { background: var(--primary-light); color: var(--primary); }
+  .role-tag.assistant { background: var(--success-light); color: var(--success); }
+  .role-tag.tool-call { background: var(--warning-light); color: var(--warning); }
+  .role-tag.tool { background: #cffafe; color: #0891b2; }
+
+  .step-title-preview {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .step-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toggle-icon {
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+
+  .step-body {
+    padding: 16px;
+  }
+
+  .step-body.collapsed {
+    display: none;
+  }
+
+  /* Highlighting callouts */
+  .event-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .banner-warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+  }
+
+  .banner-success {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+  }
+
+  .banner-info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+  }
+
+  .banner-danger {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+  }
+
+  .message-content {
+    font-size: 13.5px;
+    color: var(--text-primary);
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  .message-content code {
+    background: #f1f5f9;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    color: #db2777;
+  }
+
+  .stop-token {
+    display: inline-block;
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+  }
+
+  /* Tool invocation code block */
+  .tool-block {
+    margin-top: 10px;
+  }
+
+  .tool-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1e293b;
+    color: #cbd5e1;
+    padding: 6px 12px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: ui-monospace, monospace;
+  }
+
+  .copy-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #f8fafc;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+  }
+
+  .copy-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .json-viewer {
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 12px 14px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.45;
+  }
+
+  /* JSON Pretty tokens */
+  .json-key { color: #7dd3fc; }
+  .json-str { color: #86efac; }
+  .json-num { color: #fde047; }
+  .json-bool { color: #f472b6; }
+  .json-null { color: #94a3b8; }
+
+  /* Metadata drawer modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal-box {
+    background: #ffffff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 860px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .modal-header h4 {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-muted);
+  }
+
+  .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    font-size: 13px;
+  }
+
+  footer {
+    margin-top: 36px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 16px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header Section -->
+  <header class="header-card">
+    <div class="breadcrumbs">
+      <span>tau-bench</span> / <span>tool_use_customer_service</span> / <span>03_gpt-4o-airline_51</span>
+    </div>
+    <div class="header-top">
+      <div class="title-group">
+        <h1>Flight Modification &amp; Insurance Cancellation</h1>
+        <p>Execution trace of GPT-4o navigating airline policies, resolving booking conflicts, and executing insurance cancellation.</p>
+      </div>
+      <div class="badge-group">
+        <span class="badge badge-success">&#10003; Policy Compliant</span>
+        <span class="badge badge-primary">Model: gpt-4o</span>
+        <span class="badge badge-purple">Domain: Airline CS</span>
+        <span class="badge badge-neutral">22 Total Steps</span>
+        <span class="badge badge-warning">5 Tool Invocations</span>
+      </div>
+    </div>
+
+    <!-- Task Statement Box -->
+    <div class="task-box">
+      <div class="task-box-title">User Goal (Task Statement)</div>
+      <div class="task-box-content">&ldquo;Hi! I need to change my return flight from Texas to Newark.&rdquo;</div>
+    </div>
+  </header>
+
+  <!-- Metrics Grid -->
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Steps</div>
+      <div class="stat-value">22</div>
+      <div class="stat-desc">Complete multi-turn conversation</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Tool Calls</div>
+      <div class="stat-value">5</div>
+      <div class="stat-desc">4 read operations, 1 write action</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Key Constraint Handled</div>
+      <div class="stat-value" style="font-size: 16px; color: var(--danger); padding-top: 4px;">Basic Economy Locked</div>
+      <div class="stat-desc">Flight change correctly disallowed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Explicit Confirmation</div>
+      <div class="stat-value" style="font-size: 16px; color: var(--success); padding-top: 4px;">Mandatory Yes Acquired</div>
+      <div class="stat-desc">Policy followed before DB cancel</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Financial Outcome</div>
+      <div class="stat-value" style="color: var(--primary);">$169 Refund</div>
+      <div class="stat-desc">5-7 business days to gift card</div>
+    </div>
+  </section>
+
+  <!-- Visual Workflow / Decision Path -->
+  <section class="workflow-card">
+    <div class="workflow-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Resolution Lifecycle &amp; Decision Tree
+    </div>
+    <div class="workflow-steps">
+      <div class="wf-step active">
+        <div class="wf-step-num">Step 1 &bull; Identification</div>
+        <div class="wf-step-title">Locate User Profile</div>
+        <div class="wf-step-desc">User provides ID <code>olivia_gonzalez_2305</code>. Agent calls <code>get_user_details</code>, retrieving 3 candidate reservations.</div>
+      </div>
+      <div class="wf-step active">
+        <div class="wf-step-num">Step 2 &bull; Investigation</div>
+        <div class="wf-step-title">Inspect 3 Bookings</div>
+        <div class="wf-step-desc">Agent queries details for <code>Z7GOZK</code>, <code>K67C4W</code>, <code>THY2DG</code>. Pinpoints return flight Texas (IAH) &rarr; Newark (EWR) in <code>Z7GOZK</code>.</div>
+      </div>
+      <div class="wf-step warning">
+        <div class="wf-step-num">Step 3 &bull; Policy Enforcement</div>
+        <div class="wf-step-title">Modification Denied</div>
+        <div class="wf-step-desc">Cabin is <strong>Basic Economy</strong>. Per policy, basic economy cannot be modified. Agent halts change request and suggests alternatives.</div>
+      </div>
+      <div class="wf-step active">
+        <div class="wf-step-num">Step 4 &bull; Insurance Pivot</div>
+        <div class="wf-step-title">Illness Cancellation</div>
+        <div class="wf-step-desc">User reveals illness. Travel insurance allows full refund. Agent verifies coverage, details action, and requests explicit user confirmation.</div>
+      </div>
+      <div class="wf-step success">
+        <div class="wf-step-num">Step 5 &bull; Execution &amp; Closure</div>
+        <div class="wf-step-title">Cancel &amp; Refund</div>
+        <div class="wf-step-desc">User says "Yes". Agent invokes <code>cancel_reservation</code>, verifies -$169 refund, communicates 5-7 business day policy timeline, and terminates.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Entity & Policy Dashboards -->
+  <section class="dashboards-grid">
+    <!-- Entities Dashboard -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Customer &amp; Reservation Entities
+        </h3>
+        <span class="badge badge-primary">User: olivia_gonzalez_2305</span>
+      </div>
+      <div style="margin-bottom: 14px; font-size: 13px; color: var(--text-secondary); background: #f8fafc; padding: 10px; border-radius: 6px;">
+        <strong>Customer Profile:</strong> Olivia Gonzalez &bull; Los Angeles, CA &bull; Regular Tier Member<br>
+        <strong>Payment Methods:</strong> Gift Card (ending 2200803, $123 balance), Mastercard (ending 9475)
+      </div>
+
+      <!-- Reservation 1: Z7GOZK (Target) -->
+      <div class="res-card targeted">
+        <div class="res-header">
+          <div class="res-id">Z7GOZK <span class="badge badge-danger">TARGET MATCHED &bull; CANCELLED</span></div>
+          <span style="font-weight:700; color:var(--danger); font-size:12px;">-$169.00 Refunded</span>
+        </div>
+        <div class="res-details">
+          <div class="res-field"><strong>Route:</strong> EWR &rarr; IAH &rarr; EWR (Round Trip)</div>
+          <div class="res-field"><strong>Flights:</strong> HAT188, HAT207 (2024-05-28)</div>
+          <div class="res-field"><strong>Cabin:</strong> <span style="color:#b91c1c; font-weight:700;">Basic Economy</span></div>
+          <div class="res-field"><strong>Insurance:</strong> <span style="color:var(--success); font-weight:700;">YES</span></div>
+          <div class="res-field"><strong>Passengers:</strong> Olivia Gonzalez (1)</div>
+          <div class="res-field"><strong>Payment:</strong> Gift Card (gift_card_2200803)</div>
+        </div>
+      </div>
+
+      <!-- Reservation 2: K67C4W -->
+      <div class="res-card">
+        <div class="res-header">
+          <div class="res-id">K67C4W <span class="badge badge-neutral">Non-Matching</span></div>
+          <span style="font-weight:600; color:var(--text-muted); font-size:12px;">$342.00</span>
+        </div>
+        <div class="res-details">
+          <div class="res-field"><strong>Route:</strong> LAS &rarr; MCO (One Way)</div>
+          <div class="res-field"><strong>Flight:</strong> HAT137 (2024-05-17)</div>
+          <div class="res-field"><strong>Cabin:</strong> Economy</div>
+          <div class="res-field"><strong>Insurance:</strong> No</div>
+          <div class="res-field"><strong>Passengers:</strong> Olivia Gonzalez, Mei Johansson, Yara Lopez (3)</div>
+        </div>
+      </div>
+
+      <!-- Reservation 3: THY2DG -->
+      <div class="res-card">
+        <div class="res-header">
+          <div class="res-id">THY2DG <span class="badge badge-neutral">Non-Matching</span></div>
+          <span style="font-weight:600; color:var(--text-muted); font-size:12px;">$338.00</span>
+        </div>
+        <div class="res-details">
+          <div class="res-field"><strong>Route:</strong> MSP &rarr; DTW &rarr; ORD</div>
+          <div class="res-field"><strong>Flights:</strong> HAT248, HAT119 (2024-05-26)</div>
+          <div class="res-field"><strong>Cabin:</strong> Economy</div>
+          <div class="res-field"><strong>Insurance:</strong> No</div>
+          <div class="res-field"><strong>Passengers:</strong> Yara Martin (1)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Policy Compliance Dashboard -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Airline Policy Compliance Audit
+        </h3>
+        <span class="badge badge-success">5 / 5 Rules Passed</span>
+      </div>
+
+      <table class="policy-table">
+        <thead>
+          <tr>
+            <th>Policy Rule Requirement</th>
+            <th>Agent Adherence</th>
+            <th>Audit Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Basic Economy Modification Prohibition</strong><br>
+              <span style="color:var(--text-muted);">"Basic economy flights cannot be modified."</span>
+            </td>
+            <td>Agent accurately identified Z7GOZK is basic economy and explicitly refused modification on Step 14.</td>
+            <td><span class="policy-status-pass">&#10003; PASS</span></td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Travel Insurance Cancellation Prerequisite</strong><br>
+              <span style="color:var(--text-muted);">"Otherwise, basic economy or economy flights can be cancelled only if travel insurance is bought and condition is met."</span>
+            </td>
+            <td>Agent checked insurance status ("yes") and confirmed health illness clause on Step 16.</td>
+            <td><span class="policy-status-pass">&#10003; PASS</span></td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Mandatory Explicit Confirmation</strong><br>
+              <span style="color:var(--text-muted);">"Before taking any actions that update the booking database... you must list the action details and obtain explicit user confirmation (yes)."</span>
+            </td>
+            <td>Agent listed Reservation ID Z7GOZK &amp; reason (illness) on Step 16, waiting for user "Yes" before calling <code>cancel_reservation</code>.</td>
+            <td><span class="policy-status-pass">&#10003; PASS</span></td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Single Tool Call Constraint</strong><br>
+              <span style="color:var(--text-muted);">"You should only make one tool call at a time, and if you make a tool call, you should not respond to user simultaneously."</span>
+            </td>
+            <td>Agent executed exactly one tool call per turn with empty content string, without violating tool concurrency limits.</td>
+            <td><span class="policy-status-pass">&#10003; PASS</span></td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Accurate Refund Timeline Communication</strong><br>
+              <span style="color:var(--text-muted);">"The refund will go to original payment methods in 5 to 7 business days."</span>
+            </td>
+            <td>Agent communicated verbatim: "The refund will be processed to your original payment method within 5 to 7 business days."</td>
+            <td><span class="policy-status-pass">&#10003; PASS</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Interactive Timeline Section -->
+  <section class="timeline-section">
+    <div class="timeline-header">
+      <div class="timeline-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Full Dialogue &amp; Execution Timeline
+      </div>
+      <div>
+        <button class="action-btn" onclick="openMetaModal()">View Raw Trajectory JSON</button>
+      </div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search turns, tools, flights, or messages (e.g., 'Z7GOZK', 'insurance', 'HAT207')..." oninput="filterSteps()">
+      
+      <div class="filter-btn-group">
+        <button class="filter-btn active" data-filter="all" onclick="setRoleFilter('all')">All Turns (22)</button>
+        <button class="filter-btn" data-filter="user" onclick="setRoleFilter('user')">User (6)</button>
+        <button class="filter-btn" data-filter="assistant" onclick="setRoleFilter('assistant')">Assistant (5)</button>
+        <button class="filter-btn" data-filter="tool-call" onclick="setRoleFilter('tool-call')">Tool Calls (5)</button>
+        <button class="filter-btn" data-filter="tool" onclick="setRoleFilter('tool')">Tool Returns (5)</button>
+        <button class="filter-btn" data-filter="system" onclick="setRoleFilter('system')">System Prompt (1)</button>
+      </div>
+
+      <button class="action-btn" onclick="toggleAllSteps()">Toggle Expand All</button>
+    </div>
+
+    <!-- Step Items Container -->
+    <div class="timeline-flow" id="stepsContainer">
+
+    <div class="step-node role-system" data-category="system" data-step="0" id="turn-0">
+      <div class="step-header" onclick="toggleStep(0)">
+        <div class="step-header-left">
+          <span class="step-index">#0</span>
+          <span class="role-tag system">System Prompt</span>
+          <span class="step-title-preview">Airline Agent Policy &amp; Domain Rules</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-0">&#9656;</span>
+        </div>
+      </div>
+      <div class="step-body collapsed" id="step-body-0">
+        
+        <div class="event-banner banner-info">
+          <span>&#9432;</span>
+          <div><strong>Domain Guidelines:</strong> Defines strict cancellation rules, explicit confirmation protocols, and modification restrictions for Basic Economy.</div>
+        </div>
+        
+        
+            <div class="message-content" style="max-height: 380px; overflow-y: auto; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+              # Airline Agent Policy<br><br>The current time is 2024-05-15 15:00:00 EST.<br><br>As an airline agent, you can help users book, modify, or cancel flight reservations.<br><br>- Before taking any actions that update the booking database (booking, modifying flights, editing baggage, upgrading cabin class, or updating passenger information), you must list the action details and obtain explicit user confirmation (yes) to proceed.<br><br>- You should not provide any information, knowledge, or procedures not provided by the user or available tools, or give subjective recommendations or comments.<br><br>- You should only make one tool call at a time, and if you make a tool call, you should not respond to the user simultaneously. If you respond to the user, you should not make a tool call at the same time.<br><br>- You should deny user requests that are against this policy.<br><br>- You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions.<br><br>## Domain Basic<br><br>- Each user has a profile containing user id, email, addresses, date of birth, payment methods, reservation numbers, and membership tier.<br><br>- Each reservation has an reservation id, user id, trip type (one way, round trip), flights, passengers, payment methods, created time, baggages, and travel insurance information.<br><br>- Each flight has a flight number, an origin, destination, scheduled departure and arrival time (local time), and for each date:<br>  - If the status is &quot;available&quot;, the flight has not taken off, available seats and prices are listed.<br>  - If the status is &quot;delayed&quot; or &quot;on time&quot;, the flight has not taken off, cannot be booked.<br>  - If the status is &quot;flying&quot;, the flight has taken off but not landed, cannot be booked.<br><br>## Book flight<br><br>- The agent must first obtain the user id, then ask for the trip type, origin, destination.<br><br>- Passengers: Each reservation can have at most five passengers. The agent needs to collect the first name, last name, and date of birth for each passenger. All passengers must fly the same flights in the same cabin.<br><br>- Payment: each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards. The remaining amount of a travel certificate is not refundable. All payment methods must already be in user profile for safety reasons.<br><br>- Checked bag allowance: If the booking user is a regular member, 0 free checked bag for each basic economy passenger, 1 free checked bag for each economy passenger, and 2 free checked bags for each business passenger. If the booking user is a silver member, 1 free checked bag for each basic economy passenger, 2 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. If the booking user is a gold member, 2 free checked bag for each basic economy passenger, 3 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. Each extra baggage is 50 dollars.<br><br>- Travel insurance: the agent should ask if the user wants to buy the travel insurance, which is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons.<br><br>## Modify flight<br><br>- The agent must first obtain the user id and the reservation id.<br><br>- Change flights: Basic economy flights cannot be modified. Other reservations can be modified without changing the origin, destination, and trip type. Some flight segments can be kept, but their prices will not be updated based on the current price. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!<br><br>- Change cabin: all reservations, including basic economy, can change cabin without changing the flights. Cabin changes require the user to pay for the difference between their current cabin and the new cabin class. Cabin class must be the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible.<br><br>- Change baggage and insurance: The user can add but not remove checked bags. The user cannot add insurance after initial booking.<br><br>- Change passengers: The user can modify passengers but cannot modify the number of passengers. This is something that even a human agent cannot assist with.<br><br>- Payment: If the flights are changed, the user needs to provide one gift card or credit card for payment or refund method. The agent should ask for the payment or refund method instead.<br><br>## Cancel flight<br><br>- The agent must first obtain the user id, the reservation id, and the reason for cancellation (change of plan, airline cancelled flight, or other reasons)<br><br>- All reservations can be cancelled within 24 hours of booking, or if the airline cancelled the flight. Otherwise, basic economy or economy flights can be cancelled only if travel insurance is bought and the condition is met, and business flights can always be cancelled. The rules are strict regardless of the membership status. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!<br><br>- The agent can only cancel the whole trip that is not flown. If any of the segments are already used, the agent cannot help and transfer is needed.<br><br>- The refund will go to original payment methods in 5 to 7 business days.<br><br>## Refund<br><br>- If the user is silver/gold member or has travel insurance or flies business, and complains about cancelled flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $100 times the number of passengers.<br><br>- If the user is silver/gold member or has travel insurance or flies business, and complains about delayed flights in a reservation and wants to change or cancel the reservation, the agent can offer a certificate as a gesture after confirming the facts and changing or cancelling the reservation, with the amount being $50 times the number of passengers.<br><br>- Do not proactively offer these unless the user complains about the situation and explicitly asks for some compensation. Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy.<br>
+            </div>
+            
+      </div>
+    </div>
+    
+    <div class="step-node role-user" data-category="user" data-step="1" id="turn-1">
+      <div class="step-header" onclick="toggleStep(1)">
+        <div class="step-header-left">
+          <span class="step-index">#1</span>
+          <span class="role-tag user">User Message</span>
+          <span class="step-title-preview">Hi! I need to change my return flight from Texas to Newark.</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-1">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-1">
+        
+        <div class="message-content">Hi! I need to change my return flight from Texas to Newark.</div>
+      </div>
+    </div>
+    
+    <div class="step-node role-assistant" data-category="assistant" data-step="2" id="turn-2">
+      <div class="step-header" onclick="toggleStep(2)">
+        <div class="step-header-left">
+          <span class="step-index">#2</span>
+          <span class="role-tag assistant">Assistant Response</span>
+          <span class="step-title-preview">I can help you with that. Could you please provide your user ID and reservation ID?</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-2">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-2">
+        
+        <div class="message-content">I can help you with that. Could you please provide your user ID and reservation ID?</div>
+      </div>
+    </div>
+    
+    <div class="step-node role-user" data-category="user" data-step="3" id="turn-3">
+      <div class="step-header" onclick="toggleStep(3)">
+        <div class="step-header-left">
+          <span class="step-index">#3</span>
+          <span class="role-tag user">User Message</span>
+          <span class="step-title-preview">I know my user ID, it&#x27;s olivia_gonzalez_2305. But I don’t remember my reservation ID.</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-3">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-3">
+        
+        <div class="message-content">I know my user ID, it&#x27;s olivia_gonzalez_2305. But I don’t remember my reservation ID.</div>
+      </div>
+    </div>
+    
+    <div class="step-node role-tool-call" data-category="tool-call" data-step="4" id="turn-4">
+      <div class="step-header" onclick="toggleStep(4)">
+        <div class="step-header-left">
+          <span class="step-index">#4</span>
+          <span class="role-tag tool-call">Assistant Tool Call</span>
+          <span class="step-title-preview">Invoked: get_user_details</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-4">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-4">
+        
+        <div class="event-banner banner-info">
+          <span>&#128269;</span>
+          <div><strong>Identity Lookup:</strong> User had no reservation ID. Assistant queries customer profile by user ID <code>olivia_gonzalez_2305</code>.</div>
+        </div>
+        
+        
+            <div class="tool-block">
+              <div class="tool-block-header">
+                <span>Call: <strong>get_user_details</strong> (ID: call_MY94XAcnfHzfAZcVHqt5FRRQ)</span>
+                <button class="copy-btn" onclick="copyContent(this, 'tc-json-4-0')">Copy Arguments</button>
+              </div>
+              <pre class="json-viewer" id="tc-json-4-0">{
+  &quot;user_id&quot;: &quot;olivia_gonzalez_2305&quot;
+}</pre>
+            </div>
+            
+      </div>
+    </div>
+    
+    <div class="step-node role-tool" data-category="tool" data-step="5" id="turn-5">
+      <div class="step-header" onclick="toggleStep(5)">
+        <div class="step-header-left">
+          <span class="step-index">#5</span>
+          <span class="role-tag tool">Tool Return &bull; get_user_details</span>
+          <span class="step-title-preview">Result of get_user_details</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-5">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-5">
+        
+        
+                <div class="tool-block">
+                  <div class="tool-block-header">
+                    <span>Tool Output JSON (get_user_details)</span>
+                    <button class="copy-btn" onclick="copyContent(this, 'tool-json-5')">Copy JSON</button>
+                  </div>
+                  <pre class="json-viewer" id="tool-json-5">{
+  &quot;name&quot;: {
+    &quot;first_name&quot;: &quot;Olivia&quot;,
+    &quot;last_name&quot;: &quot;Gonzalez&quot;
+  },
+  &quot;address&quot;: {
+    &quot;address1&quot;: &quot;334 Laurel Lane&quot;,
+    &quot;address2&quot;: &quot;Suite 970&quot;,
+    &quot;city&quot;: &quot;Los Angeles&quot;,
+    &quot;country&quot;: &quot;USA&quot;,
+    &quot;province&quot;: &quot;CA&quot;,
+    &quot;zip&quot;: &quot;90504&quot;
+  },
+  &quot;email&quot;: &quot;olivia.gonzalez4421@example.com&quot;,
+  &quot;dob&quot;: &quot;1988-06-13&quot;,
+  &quot;payment_methods&quot;: {
+    &quot;gift_card_2200803&quot;: {
+      &quot;source&quot;: &quot;gift_card&quot;,
+      &quot;amount&quot;: 123,
+      &quot;id&quot;: &quot;gift_card_2200803&quot;
+    },
+    &quot;credit_card_9969263&quot;: {
+      &quot;source&quot;: &quot;credit_card&quot;,
+      &quot;brand&quot;: &quot;mastercard&quot;,
+      &quot;last_four&quot;: &quot;9475&quot;,
+      &quot;id&quot;: &quot;credit_card_9969263&quot;
+    }
+  },
+  &quot;saved_passengers&quot;: [
+    {
+      &quot;first_name&quot;: &quot;Mei&quot;,
+      &quot;last_name&quot;: &quot;Johansson&quot;,
+      &quot;dob&quot;: &quot;1981-09-25&quot;
+    },
+    {
+      &quot;first_name&quot;: &quot;Yara&quot;,
+      &quot;last_name&quot;: &quot;Lopez&quot;,
+      &quot;dob&quot;: &quot;1975-09-15&quot;
+    }
+  ],
+  &quot;membership&quot;: &quot;regular&quot;,
+  &quot;reservations&quot;: [
+    &quot;Z7GOZK&quot;,
+    &quot;K67C4W&quot;,
+    &quot;THY2DG&quot;
+  ]
+}</pre>
+                </div>
+                
+      </div>
+    </div>
+    
+    <div class="step-node role-assistant" data-category="assistant" data-step="6" id="turn-6">
+      <div class="step-header" onclick="toggleStep(6)">
+        <div class="step-header-left">
+          <span class="step-index">#6</span>
+          <span class="role-tag assistant">Assistant Response</span>
+          <span class="step-title-preview">I found your reservations. Could you please confirm which reservation ID you would like to...</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-6">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-6">
+        
+        <div class="message-content">I found your reservations. Could you please confirm which reservation ID you would like to modify? Here are your options:<br><br>1. Z7GOZK<br>2. K67C4W<br>3. THY2DG<br><br>Let me know which one corresponds to your return flight from Texas to Newark.</div>
+      </div>
+    </div>
+    
+    <div class="step-node role-user" data-category="user" data-step="7" id="turn-7">
+      <div class="step-header" onclick="toggleStep(7)">
+        <div class="step-header-left">
+          <span class="step-index">#7</span>
+          <span class="role-tag user">User Message</span>
+          <span class="step-title-preview">I&#x27;m not sure which one it is. I just want to change the return flight from Texas to Newark...</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-7">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-7">
+        
+        <div class="message-content">I&#x27;m not sure which one it is. I just want to change the return flight from Texas to Newark.</div>
+      </div>
+    </div>
+    
+    <div class="step-node role-tool-call" data-category="tool-call" data-step="8" id="turn-8">
+      <div class="step-header" onclick="toggleStep(8)">
+        <div class="step-header-left">
+          <span class="step-index">#8</span>
+          <span class="role-tag tool-call">Assistant Tool Call</span>
+          <span class="step-title-preview">Invoked: get_reservation_details</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-8">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-8">
+        
+        <div class="event-banner banner-info">
+          <span>&#9992;</span>
+          <div><strong>Candidate 1:</strong> Investigating reservation <code>Z7GOZK</code> for flight matching Texas (IAH) &rarr; Newark (EWR).</div>
+        </div>
+        
+        
+            <div class="tool-block">
+              <div class="tool-block-header">
+                <span>Call: <strong>get_reservation_details</strong> (ID: call_l1YtJ8E1m4eBoWiJjFlomdL4)</span>
+                <button class="copy-btn" onclick="copyContent(this, 'tc-json-8-0')">Copy Arguments</button>
+              </div>
+              <pre class="json-viewer" id="tc-json-8-0">{
+  &quot;reservation_id&quot;: &quot;Z7GOZK&quot;
+}</pre>
+            </div>
+            
+      </div>
+    </div>
+    
+    <div class="step-node role-tool" data-category="tool" data-step="9" id="turn-9">
+      <div class="step-header" onclick="toggleStep(9)">
+        <div class="step-header-left">
+          <span class="step-index">#9</span>
+          <span class="role-tag tool">Tool Return &bull; get_reservation_details</span>
+          <span class="step-title-preview">Result of get_reservation_details</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-9">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-9">
+        
+        
+                <div class="tool-block">
+                  <div class="tool-block-header">
+                    <span>Tool Output JSON (get_reservation_details)</span>
+                    <button class="copy-btn" onclick="copyContent(this, 'tool-json-9')">Copy JSON</button>
+                  </div>
+                  <pre class="json-viewer" id="tool-json-9">{
+  &quot;reservation_id&quot;: &quot;Z7GOZK&quot;,
+  &quot;user_id&quot;: &quot;olivia_gonzalez_2305&quot;,
+  &quot;origin&quot;: &quot;EWR&quot;,
+  &quot;destination&quot;: &quot;EWR&quot;,
+  &quot;flight_type&quot;: &quot;one_way&quot;,
+  &quot;cabin&quot;: &quot;basic_economy&quot;,
+  &quot;flights&quot;: [
+    {
+      &quot;origin&quot;: &quot;EWR&quot;,
+      &quot;destination&quot;: &quot;IAH&quot;,
+      &quot;flight_number&quot;: &quot;HAT188&quot;,
+      &quot;date&quot;: &quot;2024-05-28&quot;,
+      &quot;price&quot;: 52
+    },
+    {
+      &quot;origin&quot;: &quot;IAH&quot;,
+      &quot;destination&quot;: &quot;EWR&quot;,
+      &quot;flight_number&quot;: &quot;HAT207&quot;,
+      &quot;date&quot;: &quot;2024-05-28&quot;,
+      &quot;price&quot;: 87
+    }
+  ],
+  &quot;passengers&quot;: [
+    {
+      &quot;first_name&quot;: &quot;Olivia&quot;,
+      &quot;last_name&quot;: &quot;Gonzalez&quot;,
+      &quot;dob&quot;: &quot;1988-06-13&quot;
+    }
+  ],
+  &quot;payment_history&quot;: [
+    {
+      &quot;payment_id&quot;: &quot;gift_card_2200803&quot;,
+      &quot;amount&quot;: 169
+    }
+  ],
+  &quot;created_at&quot;: &quot;2024-05-13T19:41:32&quot;,
+  &quot;total_baggages&quot;: 0,
+  &quot;nonfree_baggages&quot;: 0,
+  &quot;insurance&quot;: &quot;yes&quot;
+}</pre>
+                </div>
+                
+      </div>
+    </div>
+    
+    <div class="step-node role-tool-call" data-category="tool-call" data-step="10" id="turn-10">
+      <div class="step-header" onclick="toggleStep(10)">
+        <div class="step-header-left">
+          <span class="step-index">#10</span>
+          <span class="role-tag tool-call">Assistant Tool Call</span>
+          <span class="step-title-preview">Invoked: get_reservation_details</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-10">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-10">
+        
+        
+            <div class="tool-block">
+              <div class="tool-block-header">
+                <span>Call: <strong>get_reservation_details</strong> (ID: call_dhYivf6VRUVJfU9DItC2EQ95)</span>
+                <button class="copy-btn" onclick="copyContent(this, 'tc-json-10-0')">Copy Arguments</button>
+              </div>
+              <pre class="json-viewer" id="tc-json-10-0">{
+  &quot;reservation_id&quot;: &quot;K67C4W&quot;
+}</pre>
+            </div>
+            
+      </div>
+    </div>
+    
+    <div class="step-node role-tool" data-category="tool" data-step="11" id="turn-11">
+      <div class="step-header" onclick="toggleStep(11)">
+        <div class="step-header-left">
+          <span class="step-index">#11</span>
+          <span class="role-tag tool">Tool Return &bull; get_reservation_details</span>
+          <span class="step-title-preview">Result of get_reservation_details</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-11">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-11">
+        
+        
+                <div class="tool-block">
+                  <div class="tool-block-header">
+                    <span>Tool Output JSON (get_reservation_details)</span>
+                    <button class="copy-btn" onclick="copyContent(this, 'tool-json-11')">Copy JSON</button>
+                  </div>
+                  <pre class="json-viewer" id="tool-json-11">{
+  &quot;reservation_id&quot;: &quot;K67C4W&quot;,
+  &quot;user_id&quot;: &quot;olivia_gonzalez_2305&quot;,
+  &quot;origin&quot;: &quot;LAS&quot;,
+  &quot;destination&quot;: &quot;MCO&quot;,
+  &quot;flight_type&quot;: &quot;one_way&quot;,
+  &quot;cabin&quot;: &quot;economy&quot;,
+  &quot;flights&quot;: [
+    {
+      &quot;origin&quot;: &quot;LAS&quot;,
+      &quot;destination&quot;: &quot;MCO&quot;,
+      &quot;flight_number&quot;: &quot;HAT137&quot;,
+      &quot;date&quot;: &quot;2024-05-17&quot;,
+      &quot;price&quot;: 114
+    }
+  ],
+  &quot;passengers&quot;: [
+    {
+      &quot;first_name&quot;: &quot;Olivia&quot;,
+      &quot;last_name&quot;: &quot;Gonzalez&quot;,
+      &quot;dob&quot;: &quot;1988-06-13&quot;
+    },
+    {
+      &quot;first_name&quot;: &quot;Mei&quot;,
+      &quot;last_name&quot;: &quot;Johansson&quot;,
+      &quot;dob&quot;: &quot;1981-09-25&quot;
+    },
+    {
+      &quot;first_name&quot;: &quot;Yara&quot;,
+      &quot;last_name&quot;: &quot;Lopez&quot;,
+      &quot;dob&quot;: &quot;1975-09-15&quot;
+    }
+  ],
+  &quot;payment_history&quot;: [
+    {
+      &quot;payment_id&quot;: &quot;credit_card_9969263&quot;,
+      &quot;amount&quot;: 342
+    }
+  ],
+  &quot;created_at&quot;: &quot;2024-05-11T06:28:05&quot;,
+  &quot;total_baggages&quot;: 1,
+  &quot;nonfree_baggages&quot;: 0,
+  &quot;insurance&quot;: &quot;no&quot;
+}</pre>
+                </div>
+                
+      </div>
+    </div>
+    
+    <div class="step-node role-tool-call" data-category="tool-call" data-step="12" id="turn-12">
+      <div class="step-header" onclick="toggleStep(12)">
+        <div class="step-header-left">
+          <span class="step-index">#12</span>
+          <span class="role-tag tool-call">Assistant Tool Call</span>
+          <span class="step-title-preview">Invoked: get_reservation_details</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-12">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-12">
+        
+        
+            <div class="tool-block">
+              <div class="tool-block-header">
+                <span>Call: <strong>get_reservation_details</strong> (ID: call_4T5zndIlDe4bKuURD2Snz7v8)</span>
+                <button class="copy-btn" onclick="copyContent(this, 'tc-json-12-0')">Copy Arguments</button>
+              </div>
+              <pre class="json-viewer" id="tc-json-12-0">{
+  &quot;reservation_id&quot;: &quot;THY2DG&quot;
+}</pre>
+            </div>
+            
+      </div>
+    </div>
+    
+    <div class="step-node role-tool" data-category="tool" data-step="13" id="turn-13">
+      <div class="step-header" onclick="toggleStep(13)">
+        <div class="step-header-left">
+          <span class="step-index">#13</span>
+          <span class="role-tag tool">Tool Return &bull; get_reservation_details</span>
+          <span class="step-title-preview">Result of get_reservation_details</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-13">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-13">
+        
+        
+                <div class="tool-block">
+                  <div class="tool-block-header">
+                    <span>Tool Output JSON (get_reservation_details)</span>
+                    <button class="copy-btn" onclick="copyContent(this, 'tool-json-13')">Copy JSON</button>
+                  </div>
+                  <pre class="json-viewer" id="tool-json-13">{
+  &quot;reservation_id&quot;: &quot;THY2DG&quot;,
+  &quot;user_id&quot;: &quot;olivia_gonzalez_2305&quot;,
+  &quot;origin&quot;: &quot;MSP&quot;,
+  &quot;destination&quot;: &quot;ORD&quot;,
+  &quot;flight_type&quot;: &quot;one_way&quot;,
+  &quot;cabin&quot;: &quot;economy&quot;,
+  &quot;flights&quot;: [
+    {
+      &quot;origin&quot;: &quot;MSP&quot;,
+      &quot;destination&quot;: &quot;DTW&quot;,
+      &quot;flight_number&quot;: &quot;HAT248&quot;,
+      &quot;date&quot;: &quot;2024-05-26&quot;,
+      &quot;price&quot;: 160
+    },
+    {
+      &quot;origin&quot;: &quot;DTW&quot;,
+      &quot;destination&quot;: &quot;ORD&quot;,
+      &quot;flight_number&quot;: &quot;HAT119&quot;,
+      &quot;date&quot;: &quot;2024-05-26&quot;,
+      &quot;price&quot;: 178
+    }
+  ],
+  &quot;passengers&quot;: [
+    {
+      &quot;first_name&quot;: &quot;Yara&quot;,
+      &quot;last_name&quot;: &quot;Martin&quot;,
+      &quot;dob&quot;: &quot;1950-01-15&quot;
+    }
+  ],
+  &quot;payment_history&quot;: [
+    {
+      &quot;payment_id&quot;: &quot;credit_card_9969263&quot;,
+      &quot;amount&quot;: 338
+    }
+  ],
+  &quot;created_at&quot;: &quot;2024-05-03T23:15:42&quot;,
+  &quot;total_baggages&quot;: 1,
+  &quot;nonfree_baggages&quot;: 0,
+  &quot;insurance&quot;: &quot;no&quot;
+}</pre>
+                </div>
+                
+      </div>
+    </div>
+    
+    <div class="step-node role-assistant" data-category="assistant" data-step="14" id="turn-14">
+      <div class="step-header" onclick="toggleStep(14)">
+        <div class="step-header-left">
+          <span class="step-index">#14</span>
+          <span class="role-tag assistant">Assistant Response</span>
+          <span class="step-title-preview">It seems that the reservation with ID **Z7GOZK** includes a return flight from Texas (IAH)...</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-14">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-14">
+        
+        <div class="event-banner banner-warning">
+          <span>&#9888;</span>
+          <div><strong>Policy Enforcement Checkpoint:</strong> Flight HAT207 matches return trip, but cabin is <strong>Basic Economy</strong>. Agent strictly adheres to airline policy prohibiting modifications.</div>
+        </div>
+        
+        <div class="message-content">It seems that the reservation with ID <strong>Z7GOZK</strong> includes a return flight from Texas (IAH) to Newark (EWR) on May 28, 2024. However, this reservation is in basic economy, which cannot be modified. <br><br>Would you like to explore other options, such as booking a new flight?</div>
+      </div>
+    </div>
+    
+    <div class="step-node role-user" data-category="user" data-step="15" id="turn-15">
+      <div class="step-header" onclick="toggleStep(15)">
+        <div class="step-header-left">
+          <span class="step-index">#15</span>
+          <span class="role-tag user">User Message</span>
+          <span class="step-title-preview">I&#x27;m willing to cancel the trip using travel insurance, as I&#x27;m feeling unwell. Can you help...</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-15">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-15">
+        
+        <div class="message-content">I&#x27;m willing to cancel the trip using travel insurance, as I&#x27;m feeling unwell. Can you help with that?</div>
+      </div>
+    </div>
+    
+    <div class="step-node role-assistant" data-category="assistant" data-step="16" id="turn-16">
+      <div class="step-header" onclick="toggleStep(16)">
+        <div class="step-header-left">
+          <span class="step-index">#16</span>
+          <span class="role-tag assistant">Assistant Response</span>
+          <span class="step-title-preview">Since you have travel insurance and are unwell, you are eligible to cancel the reservation...</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-16">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-16">
+        
+        <div class="event-banner banner-warning">
+          <span>&#9888;</span>
+          <div><strong>Mandatory Confirmation Protocol:</strong> Airline policy mandates detailing the action and obtaining explicit confirmation before executing database modifications.</div>
+        </div>
+        
+        <div class="message-content">Since you have travel insurance and are unwell, you are eligible to cancel the reservation. Here are the details for the cancellation:<br><br>- <strong>Reservation ID</strong>: Z7GOZK<br>- <strong>Reason for Cancellation</strong>: Health reasons (covered by travel insurance)<br><br>Please confirm if you would like to proceed with the cancellation.</div>
+      </div>
+    </div>
+    
+    <div class="step-node role-user" data-category="user" data-step="17" id="turn-17">
+      <div class="step-header" onclick="toggleStep(17)">
+        <div class="step-header-left">
+          <span class="step-index">#17</span>
+          <span class="role-tag user">User Message</span>
+          <span class="step-title-preview">Yes, please proceed with the cancellation.</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-17">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-17">
+        
+        <div class="message-content">Yes, please proceed with the cancellation.</div>
+      </div>
+    </div>
+    
+    <div class="step-node role-tool-call" data-category="tool-call" data-step="18" id="turn-18">
+      <div class="step-header" onclick="toggleStep(18)">
+        <div class="step-header-left">
+          <span class="step-index">#18</span>
+          <span class="role-tag tool-call">Assistant Tool Call</span>
+          <span class="step-title-preview">Invoked: cancel_reservation</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-18">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-18">
+        
+        <div class="event-banner banner-danger">
+          <span>&#9881;</span>
+          <div><strong>Database Mutation:</strong> Assistant executes <code>cancel_reservation(reservation_id='Z7GOZK')</code> following explicit user approval.</div>
+        </div>
+        
+        
+            <div class="tool-block">
+              <div class="tool-block-header">
+                <span>Call: <strong>cancel_reservation</strong> (ID: call_NIuPQiqio3fLd0a21tKnZJPd)</span>
+                <button class="copy-btn" onclick="copyContent(this, 'tc-json-18-0')">Copy Arguments</button>
+              </div>
+              <pre class="json-viewer" id="tc-json-18-0">{
+  &quot;reservation_id&quot;: &quot;Z7GOZK&quot;
+}</pre>
+            </div>
+            
+      </div>
+    </div>
+    
+    <div class="step-node role-tool" data-category="tool" data-step="19" id="turn-19">
+      <div class="step-header" onclick="toggleStep(19)">
+        <div class="step-header-left">
+          <span class="step-index">#19</span>
+          <span class="role-tag tool">Tool Return &bull; cancel_reservation</span>
+          <span class="step-title-preview">Result of cancel_reservation</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-19">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-19">
+        
+        
+                <div class="tool-block">
+                  <div class="tool-block-header">
+                    <span>Tool Output JSON (cancel_reservation)</span>
+                    <button class="copy-btn" onclick="copyContent(this, 'tool-json-19')">Copy JSON</button>
+                  </div>
+                  <pre class="json-viewer" id="tool-json-19">{
+  &quot;reservation_id&quot;: &quot;Z7GOZK&quot;,
+  &quot;user_id&quot;: &quot;olivia_gonzalez_2305&quot;,
+  &quot;origin&quot;: &quot;EWR&quot;,
+  &quot;destination&quot;: &quot;EWR&quot;,
+  &quot;flight_type&quot;: &quot;one_way&quot;,
+  &quot;cabin&quot;: &quot;basic_economy&quot;,
+  &quot;flights&quot;: [
+    {
+      &quot;origin&quot;: &quot;EWR&quot;,
+      &quot;destination&quot;: &quot;IAH&quot;,
+      &quot;flight_number&quot;: &quot;HAT188&quot;,
+      &quot;date&quot;: &quot;2024-05-28&quot;,
+      &quot;price&quot;: 52
+    },
+    {
+      &quot;origin&quot;: &quot;IAH&quot;,
+      &quot;destination&quot;: &quot;EWR&quot;,
+      &quot;flight_number&quot;: &quot;HAT207&quot;,
+      &quot;date&quot;: &quot;2024-05-28&quot;,
+      &quot;price&quot;: 87
+    }
+  ],
+  &quot;passengers&quot;: [
+    {
+      &quot;first_name&quot;: &quot;Olivia&quot;,
+      &quot;last_name&quot;: &quot;Gonzalez&quot;,
+      &quot;dob&quot;: &quot;1988-06-13&quot;
+    }
+  ],
+  &quot;payment_history&quot;: [
+    {
+      &quot;payment_id&quot;: &quot;gift_card_2200803&quot;,
+      &quot;amount&quot;: 169
+    },
+    {
+      &quot;payment_id&quot;: &quot;gift_card_2200803&quot;,
+      &quot;amount&quot;: -169
+    }
+  ],
+  &quot;created_at&quot;: &quot;2024-05-13T19:41:32&quot;,
+  &quot;total_baggages&quot;: 0,
+  &quot;nonfree_baggages&quot;: 0,
+  &quot;insurance&quot;: &quot;yes&quot;,
+  &quot;status&quot;: &quot;cancelled&quot;
+}</pre>
+                </div>
+                
+      </div>
+    </div>
+    
+    <div class="step-node role-assistant" data-category="assistant" data-step="20" id="turn-20">
+      <div class="step-header" onclick="toggleStep(20)">
+        <div class="step-header-left">
+          <span class="step-index">#20</span>
+          <span class="role-tag assistant">Assistant Response</span>
+          <span class="step-title-preview">Your reservation with ID **Z7GOZK** has been successfully cancelled due to health reasons ...</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-20">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-20">
+        
+        <div class="event-banner banner-success">
+          <span>&#10003;</span>
+          <div><strong>Successful Cancellation &amp; Refund:</strong> Agent notifies user of cancellation and communicates policy-specified 5 to 7 business day refund timeline.</div>
+        </div>
+        
+        <div class="message-content">Your reservation with ID <strong>Z7GOZK</strong> has been successfully cancelled due to health reasons covered by your travel insurance. The refund will be processed to your original payment method within 5 to 7 business days. If you need further assistance, feel free to ask!</div>
+      </div>
+    </div>
+    
+    <div class="step-node role-user" data-category="user" data-step="21" id="turn-21">
+      <div class="step-header" onclick="toggleStep(21)">
+        <div class="step-header-left">
+          <span class="step-index">#21</span>
+          <span class="role-tag user">User Message</span>
+          <span class="step-title-preview">Thank you so much for your help. That&#x27;s all I needed for now.###STOP###</span>
+        </div>
+        <div class="step-header-right">
+          <span class="toggle-icon" id="toggle-icon-21">&#9662;</span>
+        </div>
+      </div>
+      <div class="step-body " id="step-body-21">
+        
+        <div class="event-banner banner-success">
+          <span>&#127937;</span>
+          <div><strong>Task Completion:</strong> User expresses satisfaction and issues benchmark stop token <code>###STOP###</code>.</div>
+        </div>
+        
+        <div class="message-content">Thank you so much for your help. That&#x27;s all I needed for now.<span class="stop-token">###STOP###</span></div>
+      </div>
+    </div>
+    
+    </div>
+  </section>
+
+  <!-- Modal for Raw Trajectory Data -->
+  <div class="modal-overlay" id="rawMetaModal" onclick="closeMetaModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h4>Raw Trajectory &amp; Benchmark Metadata</h4>
+        <button class="modal-close" onclick="closeMetaModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h5 style="margin-bottom: 6px; font-weight: 700;">Case Metadata (case_meta.json)</h5>
+        <pre class="json-viewer" style="margin-bottom: 16px;">{
+  &quot;id&quot;: &quot;03_gpt-4o-airline_51&quot;,
+  &quot;domain&quot;: &quot;tool_use_customer_service&quot;,
+  &quot;benchmark&quot;: &quot;tau-bench&quot;,
+  &quot;source&quot;: &quot;upstream&quot;,
+  &quot;provenance&quot;: &quot;trajs/tool_use_customer_service/03_gpt-4o-airline_51.json&quot;,
+  &quot;model&quot;: &quot;gpt-4o&quot;,
+  &quot;trajectory_file&quot;: &quot;trajectory.json&quot;,
+  &quot;trajectory_format&quot;: &quot;tau-bench-json&quot;,
+  &quot;trajectory_sha256&quot;: &quot;89445ecfbec86f713b2f345eac75accf6eeec467baa1485c99d58459db3c848b&quot;,
+  &quot;task_statement_file&quot;: &quot;task/task_statement.md&quot;,
+  &quot;stripped_fields&quot;: [
+    &quot;info&quot;,
+    &quot;reward&quot;
+  ],
+  &quot;references&quot;: []
+}</pre>
+
+        <h5 style="margin-bottom: 6px; font-weight: 700;">Trajectory JSON (trajectory.json)</h5>
+        <pre class="json-viewer">{
+  &quot;task_id&quot;: 1,
+  &quot;traj&quot;: [
+    {
+      &quot;role&quot;: &quot;system&quot;,
+      &quot;content&quot;: &quot;# Airline Agent Policy\n\nThe current time is 2024-05-15 15:00:00 EST.\n\nAs an airline agent, you can help users book, modify, or cancel flight reservations.\n\n- Before taking any actions that update the booking database (booking, modifying flights, editing baggage, upgrading cabin class, or updating passenger information), you must list the action details and obtain explicit user confirmation (yes) to proceed.\n\n- You should not provide any information, knowledge, or procedures not provided by the user or available tools, or give subjective recommendations or comments.\n\n- You should only make one tool call at a time, and if you make a tool call, you should not respond to the user simultaneously. If you respond to the user, you should not make a tool call at the same time.\n\n- You should deny user requests that are against this policy.\n\n- You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions.\n\n## Domain Basic\n\n- Each user has a profile containing user id, email, addresses, date of birth, payment methods, reservation numbers, and membership tier.\n\n- Each reservation has an reservation id, user id, trip type (one way, round trip), flights, passengers, payment methods, created time, baggages, and travel insurance information.\n\n- Each flight has a flight number, an origin, destination, scheduled departure and arrival time (local time), and for each date:\n  - If the status is \&quot;available\&quot;, the flight has not taken off, available seats and prices are listed.\n  - If the status is \&quot;delayed\&quot; or \&quot;on time\&quot;, the flight has not taken off, cannot be booked.\n  - If the status is \&quot;flying\&quot;, the flight has taken off but not landed, cannot be booked.\n\n## Book flight\n\n- The agent must first obtain the user id, then ask for the trip type, origin, destination.\n\n- Passengers: Each reservation can have at most five passengers. The agent needs to collect the first name, last name, and date of birth for each passenger. All passengers must fly the same flights in the same cabin.\n\n- Payment: each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards. The remaining amount of a travel certificate is not refundable. All payment methods must already be in user profile for safety reasons.\n\n- Checked bag allowance: If the booking user is a regular member, 0 free checked bag for each basic economy passenger, 1 free checked bag for each economy passenger, and 2 free checked bags for each business passenger. If the booking user is a silver member, 1 free checked bag for each basic economy passenger, 2 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. If the booking user is a gold member, 2 free checked bag for each basic economy passenger, 3 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. Each extra baggage is 50 dollars.\n\n- Travel insurance: the agent should ask if the user wants to buy the travel insurance, which is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons.\n\n## Modify flight\n\n- The agent must first obtain the user id and the reservation id.\n\n- Change flights: Basic economy flights cannot be modified. Other reservations can be modified without changing the origin, destination, and trip type. Some flight segments can be kept, but their prices will not be updated based on the current price. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!\n\n- Change cabin: all reservations, including basic economy, can change cabin without changing the flights. Cabin changes require the user to pay for the difference between their current cabin and the new cabin class. Cabin class must be the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible.\n\n- Change baggage and insurance: The user can add but not remove checked bags. The user cannot add insurance after initial booking.\n\n- Change passengers: The user can modify passengers but cannot modify the number of passengers. This is something that even a human agent cannot assist with.\n\n- Payment: If the flights are changed, the user needs to provide one gift card or credit card for payment or refund method. The agent should ask for the payment or refund method instead.\n\n## Cancel flight\n\n- The agent must first obtain the user id, the reservation id, and the reason for cancellation (change of plan, airline cancelled flight, or other reasons)\n\n- All reservations can be cancelled within 24 hours of booking, or if the airline cancelled the flight. Otherwise, basic economy or economy flights can be cancelled only if travel insurance is bought and the condition is met, and business flights can always be cancelled. The rules are strict regardless of the membership status. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!\n\n- The agent can only cancel the whole trip that is not flown. If any of the segments are already used, the agent cannot help and transfer is needed.\n\n- The refund will go to original payment methods in 5 to 7 business days.\n\n## Refund\n\n- If the user is silver/gold member or has travel insurance or flies business, and complains about cancelled flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $100 times the number of passengers.\n\n- If the user is silver/gold member or has travel insurance or flies business, and complains about delayed flights in a reservation and wants to change or cancel the reservation, the agent can offer a certificate as a gesture after confirming the facts and changing or cancelling the reservation, with the amount being $50 times the number of passengers.\n\n- Do not proactively offer these unless the user complains about the situation and explicitly asks for some compensation. Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy.\n&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;Hi! I need to change my return flight from Texas to Newark.&quot;
+    },
+    {
+      &quot;content&quot;: &quot;I can help you with that. Could you please provide your user ID and reservation ID?&quot;,
+      &quot;role&quot;: &quot;assistant&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;I know my user ID, it&#x27;s olivia_gonzalez_2305. But I don\u2019t remember my reservation ID.&quot;
+    },
+    {
+      &quot;content&quot;: null,
+      &quot;role&quot;: &quot;assistant&quot;,
+      &quot;tool_calls&quot;: [
+        {
+          &quot;function&quot;: {
+            &quot;arguments&quot;: &quot;{\&quot;user_id\&quot;:\&quot;olivia_gonzalez_2305\&quot;}&quot;,
+            &quot;name&quot;: &quot;get_user_details&quot;
+          },
+          &quot;id&quot;: &quot;call_MY94XAcnfHzfAZcVHqt5FRRQ&quot;,
+          &quot;type&quot;: &quot;function&quot;
+        }
+      ]
+    },
+    {
+      &quot;role&quot;: &quot;tool&quot;,
+      &quot;tool_call_id&quot;: &quot;call_MY94XAcnfHzfAZcVHqt5FRRQ&quot;,
+      &quot;name&quot;: &quot;get_user_details&quot;,
+      &quot;content&quot;: &quot;{\&quot;name\&quot;: {\&quot;first_name\&quot;: \&quot;Olivia\&quot;, \&quot;last_name\&quot;: \&quot;Gonzalez\&quot;}, \&quot;address\&quot;: {\&quot;address1\&quot;: \&quot;334 Laurel Lane\&quot;, \&quot;address2\&quot;: \&quot;Suite 970\&quot;, \&quot;city\&quot;: \&quot;Los Angeles\&quot;, \&quot;country\&quot;: \&quot;USA\&quot;, \&quot;province\&quot;: \&quot;CA\&quot;, \&quot;zip\&quot;: \&quot;90504\&quot;}, \&quot;email\&quot;: \&quot;olivia.gonzalez4421@example.com\&quot;, \&quot;dob\&quot;: \&quot;1988-06-13\&quot;, \&quot;payment_methods\&quot;: {\&quot;gift_card_2200803\&quot;: {\&quot;source\&quot;: \&quot;gift_card\&quot;, \&quot;amount\&quot;: 123, \&quot;id\&quot;: \&quot;gift_card_2200803\&quot;}, \&quot;credit_card_9969263\&quot;: {\&quot;source\&quot;: \&quot;credit_card\&quot;, \&quot;brand\&quot;: \&quot;mastercard\&quot;, \&quot;last_four\&quot;: \&quot;9475\&quot;, \&quot;id\&quot;: \&quot;credit_card_9969263\&quot;}}, \&quot;saved_passengers\&quot;: [{\&quot;first_name\&quot;: \&quot;Mei\&quot;, \&quot;last_name\&quot;: \&quot;Johansson\&quot;, \&quot;dob\&quot;: \&quot;1981-09-25\&quot;}, {\&quot;first_name\&quot;: \&quot;Yara\&quot;, \&quot;last_name\&quot;: \&quot;Lopez\&quot;, \&quot;dob\&quot;: \&quot;1975-09-15\&quot;}], \&quot;membership\&quot;: \&quot;regular\&quot;, \&quot;reservations\&quot;: [\&quot;Z7GOZK\&quot;, \&quot;K67C4W\&quot;, \&quot;THY2DG\&quot;]}&quot;
+    },
+    {
+      &quot;content&quot;: &quot;I found your reservations. Could you please confirm which reservation ID you would like to modify? Here are your options:\n\n1. Z7GOZK\n2. K67C4W\n3. THY2DG\n\nLet me know which one corresponds to your return flight from Texas to Newark.&quot;,
+      &quot;role&quot;: &quot;assistant&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;I&#x27;m not sure which one it is. I just want to change the return flight from Texas to Newark.&quot;
+    },
+    {
+      &quot;content&quot;: null,
+      &quot;role&quot;: &quot;assistant&quot;,
+      &quot;tool_calls&quot;: [
+        {
+          &quot;function&quot;: {
+            &quot;arguments&quot;: &quot;{\&quot;reservation_id\&quot;: \&quot;Z7GOZK\&quot;}&quot;,
+            &quot;name&quot;: &quot;get_reservation_details&quot;
+          },
+          &quot;id&quot;: &quot;call_l1YtJ8E1m4eBoWiJjFlomdL4&quot;,
+          &quot;type&quot;: &quot;function&quot;
+        }
+      ]
+    },
+    {
+      &quot;role&quot;: &quot;tool&quot;,
+      &quot;tool_call_id&quot;: &quot;call_l1YtJ8E1m4eBoWiJjFlomdL4&quot;,
+      &quot;name&quot;: &quot;get_reservation_details&quot;,
+      &quot;content&quot;: &quot;{\&quot;reservation_id\&quot;: \&quot;Z7GOZK\&quot;, \&quot;user_id\&quot;: \&quot;olivia_gonzalez_2305\&quot;, \&quot;origin\&quot;: \&quot;EWR\&quot;, \&quot;destination\&quot;: \&quot;EWR\&quot;, \&quot;flight_type\&quot;: \&quot;one_way\&quot;, \&quot;cabin\&quot;: \&quot;basic_economy\&quot;, \&quot;flights\&quot;: [{\&quot;origin\&quot;: \&quot;EWR\&quot;, \&quot;destination\&quot;: \&quot;IAH\&quot;, \&quot;flight_number\&quot;: \&quot;HAT188\&quot;, \&quot;date\&quot;: \&quot;2024-05-28\&quot;, \&quot;price\&quot;: 52}, {\&quot;origin\&quot;: \&quot;IAH\&quot;, \&quot;destination\&quot;: \&quot;EWR\&quot;, \&quot;flight_number\&quot;: \&quot;HAT207\&quot;, \&quot;date\&quot;: \&quot;2024-05-28\&quot;, \&quot;price\&quot;: 87}], \&quot;passengers\&quot;: [{\&quot;first_name\&quot;: \&quot;Olivia\&quot;, \&quot;last_name\&quot;: \&quot;Gonzalez\&quot;, \&quot;dob\&quot;: \&quot;1988-06-13\&quot;}], \&quot;payment_history\&quot;: [{\&quot;payment_id\&quot;: \&quot;gift_card_2200803\&quot;, \&quot;amount\&quot;: 169}], \&quot;created_at\&quot;: \&quot;2024-05-13T19:41:32\&quot;, \&quot;total_baggages\&quot;: 0, \&quot;nonfree_baggages\&quot;: 0, \&quot;insurance\&quot;: \&quot;yes\&quot;}&quot;
+    },
+    {
+      &quot;content&quot;: null,
+      &quot;role&quot;: &quot;assistant&quot;,
+      &quot;tool_calls&quot;: [
+        {
+          &quot;function&quot;: {
+            &quot;arguments&quot;: &quot;{\&quot;reservation_id\&quot;:\&quot;K67C4W\&quot;}&quot;,
+            &quot;name&quot;: &quot;get_reservation_details&quot;
+          },
+          &quot;id&quot;: &quot;call_dhYivf6VRUVJfU9DItC2EQ95&quot;,
+          &quot;type&quot;: &quot;function&quot;
+        }
+      ]
+    },
+    {
+      &quot;role&quot;: &quot;tool&quot;,
+      &quot;tool_call_id&quot;: &quot;call_dhYivf6VRUVJfU9DItC2EQ95&quot;,
+      &quot;name&quot;: &quot;get_reservation_details&quot;,
+      &quot;content&quot;: &quot;{\&quot;reservation_id\&quot;: \&quot;K67C4W\&quot;, \&quot;user_id\&quot;: \&quot;olivia_gonzalez_2305\&quot;, \&quot;origin\&quot;: \&quot;LAS\&quot;, \&quot;destination\&quot;: \&quot;MCO\&quot;, \&quot;flight_type\&quot;: \&quot;one_way\&quot;, \&quot;cabin\&quot;: \&quot;economy\&quot;, \&quot;flights\&quot;: [{\&quot;origin\&quot;: \&quot;LAS\&quot;, \&quot;destination\&quot;: \&quot;MCO\&quot;, \&quot;flight_number\&quot;: \&quot;HAT137\&quot;, \&quot;date\&quot;: \&quot;2024-05-17\&quot;, \&quot;price\&quot;: 114}], \&quot;passengers\&quot;: [{\&quot;first_name\&quot;: \&quot;Olivia\&quot;, \&quot;last_name\&quot;: \&quot;Gonzalez\&quot;, \&quot;dob\&quot;: \&quot;1988-06-13\&quot;}, {\&quot;first_name\&quot;: \&quot;Mei\&quot;, \&quot;last_name\&quot;: \&quot;Johansson\&quot;, \&quot;dob\&quot;: \&quot;1981-09-25\&quot;}, {\&quot;first_name\&quot;: \&quot;Yara\&quot;, \&quot;last_name\&quot;: \&quot;Lopez\&quot;, \&quot;dob\&quot;: \&quot;1975-09-15\&quot;}], \&quot;payment_history\&quot;: [{\&quot;payment_id\&quot;: \&quot;credit_card_9969263\&quot;, \&quot;amount\&quot;: 342}], \&quot;created_at\&quot;: \&quot;2024-05-11T06:28:05\&quot;, \&quot;total_baggages\&quot;: 1, \&quot;nonfree_baggages\&quot;: 0, \&quot;insurance\&quot;: \&quot;no\&quot;}&quot;
+    },
+    {
+      &quot;content&quot;: null,
+      &quot;role&quot;: &quot;assistant&quot;,
+      &quot;tool_calls&quot;: [
+        {
+          &quot;function&quot;: {
+            &quot;arguments&quot;: &quot;{\&quot;reservation_id\&quot;:\&quot;THY2DG\&quot;}&quot;,
+            &quot;name&quot;: &quot;get_reservation_details&quot;
+          },
+          &quot;id&quot;: &quot;call_4T5zndIlDe4bKuURD2Snz7v8&quot;,
+          &quot;type&quot;: &quot;function&quot;
+        }
+      ]
+    },
+    {
+      &quot;role&quot;: &quot;tool&quot;,
+      &quot;tool_call_id&quot;: &quot;call_4T5zndIlDe4bKuURD2Snz7v8&quot;,
+      &quot;name&quot;: &quot;get_reservation_details&quot;,
+      &quot;content&quot;: &quot;{\&quot;reservation_id\&quot;: \&quot;THY2DG\&quot;, \&quot;user_id\&quot;: \&quot;olivia_gonzalez_2305\&quot;, \&quot;origin\&quot;: \&quot;MSP\&quot;, \&quot;destination\&quot;: \&quot;ORD\&quot;, \&quot;flight_type\&quot;: \&quot;one_way\&quot;, \&quot;cabin\&quot;: \&quot;economy\&quot;, \&quot;flights\&quot;: [{\&quot;origin\&quot;: \&quot;MSP\&quot;, \&quot;destination\&quot;: \&quot;DTW\&quot;, \&quot;flight_number\&quot;: \&quot;HAT248\&quot;, \&quot;date\&quot;: \&quot;2024-05-26\&quot;, \&quot;price\&quot;: 160}, {\&quot;origin\&quot;: \&quot;DTW\&quot;, \&quot;destination\&quot;: \&quot;ORD\&quot;, \&quot;flight_number\&quot;: \&quot;HAT119\&quot;, \&quot;date\&quot;: \&quot;2024-05-26\&quot;, \&quot;price\&quot;: 178}], \&quot;passengers\&quot;: [{\&quot;first_name\&quot;: \&quot;Yara\&quot;, \&quot;last_name\&quot;: \&quot;Martin\&quot;, \&quot;dob\&quot;: \&quot;1950-01-15\&quot;}], \&quot;payment_history\&quot;: [{\&quot;payment_id\&quot;: \&quot;credit_card_9969263\&quot;, \&quot;amount\&quot;: 338}], \&quot;created_at\&quot;: \&quot;2024-05-03T23:15:42\&quot;, \&quot;total_baggages\&quot;: 1, \&quot;nonfree_baggages\&quot;: 0, \&quot;insurance\&quot;: \&quot;no\&quot;}&quot;
+    },
+    {
+      &quot;content&quot;: &quot;It seems that the reservation with ID **Z7GOZK** includes a return flight from Texas (IAH) to Newark (EWR) on May 28, 2024. However, this reservation is in basic economy, which cannot be modified. \n\nWould you like to explore other options, such as booking a new flight?&quot;,
+      &quot;role&quot;: &quot;assistant&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;I&#x27;m willing to cancel the trip using travel insurance, as I&#x27;m feeling unwell. Can you help with that?&quot;
+    },
+    {
+      &quot;content&quot;: &quot;Since you have travel insurance and are unwell, you are eligible to cancel the reservation. Here are the details for the cancellation:\n\n- **Reservation ID**: Z7GOZK\n- **Reason for Cancellation**: Health reasons (covered by travel insurance)\n\nPlease confirm if you would like to proceed with the cancellation.&quot;,
+      &quot;role&quot;: &quot;assistant&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;Yes, please proceed with the cancellation.&quot;
+    },
+    {
+      &quot;content&quot;: null,
+      &quot;role&quot;: &quot;assistant&quot;,
+      &quot;tool_calls&quot;: [
+        {
+          &quot;function&quot;: {
+            &quot;arguments&quot;: &quot;{\&quot;reservation_id\&quot;:\&quot;Z7GOZK\&quot;}&quot;,
+            &quot;name&quot;: &quot;cancel_reservation&quot;
+          },
+          &quot;id&quot;: &quot;call_NIuPQiqio3fLd0a21tKnZJPd&quot;,
+          &quot;type&quot;: &quot;function&quot;
+        }
+      ]
+    },
+    {
+      &quot;role&quot;: &quot;tool&quot;,
+      &quot;tool_call_id&quot;: &quot;call_NIuPQiqio3fLd0a21tKnZJPd&quot;,
+      &quot;name&quot;: &quot;cancel_reservation&quot;,
+      &quot;content&quot;: &quot;{\&quot;reservation_id\&quot;: \&quot;Z7GOZK\&quot;, \&quot;user_id\&quot;: \&quot;olivia_gonzalez_2305\&quot;, \&quot;origin\&quot;: \&quot;EWR\&quot;, \&quot;destination\&quot;: \&quot;EWR\&quot;, \&quot;flight_type\&quot;: \&quot;one_way\&quot;, \&quot;cabin\&quot;: \&quot;basic_economy\&quot;, \&quot;flights\&quot;: [{\&quot;origin\&quot;: \&quot;EWR\&quot;, \&quot;destination\&quot;: \&quot;IAH\&quot;, \&quot;flight_number\&quot;: \&quot;HAT188\&quot;, \&quot;date\&quot;: \&quot;2024-05-28\&quot;, \&quot;price\&quot;: 52}, {\&quot;origin\&quot;: \&quot;IAH\&quot;, \&quot;destination\&quot;: \&quot;EWR\&quot;, \&quot;flight_number\&quot;: \&quot;HAT207\&quot;, \&quot;date\&quot;: \&quot;2024-05-28\&quot;, \&quot;price\&quot;: 87}], \&quot;passengers\&quot;: [{\&quot;first_name\&quot;: \&quot;Olivia\&quot;, \&quot;last_name\&quot;: \&quot;Gonzalez\&quot;, \&quot;dob\&quot;: \&quot;1988-06-13\&quot;}], \&quot;payment_history\&quot;: [{\&quot;payment_id\&quot;: \&quot;gift_card_2200803\&quot;, \&quot;amount\&quot;: 169}, {\&quot;payment_id\&quot;: \&quot;gift_card_2200803\&quot;, \&quot;amount\&quot;: -169}], \&quot;created_at\&quot;: \&quot;2024-05-13T19:41:32\&quot;, \&quot;total_baggages\&quot;: 0, \&quot;nonfree_baggages\&quot;: 0, \&quot;insurance\&quot;: \&quot;yes\&quot;, \&quot;status\&quot;: \&quot;cancelled\&quot;}&quot;
+    },
+    {
+      &quot;content&quot;: &quot;Your reservation with ID **Z7GOZK** has been successfully cancelled due to health reasons covered by your travel insurance. The refund will be processed to your original payment method within 5 to 7 business days. If you need further assistance, feel free to ask!&quot;,
+      &quot;role&quot;: &quot;assistant&quot;
+    },
+    {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;Thank you so much for your help. That&#x27;s all I needed for now.###STOP###&quot;
+    }
+  ],
+  &quot;trial&quot;: 1
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Benchmark Case: <code>03_gpt-4o-airline_51</code> &bull; Tau-Bench Customer Service &bull; Self-contained Trace Visualization
+  </footer>
+
+</div>
+
+<script>
+  let currentFilter = 'all';
+
+  function setRoleFilter(filterName) {
+    currentFilter = filterName;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      if (btn.getAttribute('data-filter') === filterName) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+    filterSteps();
+  }
+
+  function filterSteps() {
+    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    const stepNodes = document.querySelectorAll('.step-node');
+
+    stepNodes.forEach(node => {
+      const category = node.getAttribute('data-category');
+      const matchesFilter = (currentFilter === 'all') || (category === currentFilter);
+      const textContent = node.textContent.toLowerCase();
+      const matchesSearch = query === '' || textContent.includes(query);
+
+      if (matchesFilter && matchesSearch) {
+        node.style.display = 'block';
+      } else {
+        node.style.display = 'none';
+      }
+    });
+  }
+
+  function toggleStep(index) {
+    const body = document.getElementById('step-body-' + index);
+    const icon = document.getElementById('toggle-icon-' + index);
+    if (body.classList.contains('collapsed')) {
+      body.classList.remove('collapsed');
+      icon.innerHTML = '&#9662;';
+    } else {
+      body.classList.add('collapsed');
+      icon.innerHTML = '&#9656;';
+    }
+  }
+
+  let allExpanded = false;
+  function toggleAllSteps() {
+    allExpanded = !allExpanded;
+    const bodies = document.querySelectorAll('.step-body');
+    const icons = document.querySelectorAll('.toggle-icon');
+    bodies.forEach(b => {
+      if (allExpanded) {
+        b.classList.remove('collapsed');
+      } else {
+        b.classList.add('collapsed');
+      }
+    });
+    icons.forEach(ic => {
+      ic.innerHTML = allExpanded ? '&#9662;' : '&#9656;';
+    });
+  }
+
+  function copyContent(btn, elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const text = el.innerText || el.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalText = btn.innerText;
+      btn.innerText = 'Copied!';
+      btn.style.background = '#059669';
+      setTimeout(() => {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 1800);
+    }).catch(err => {
+      console.error('Failed to copy', err);
+    });
+  }
+
+  function openMetaModal() {
+    document.getElementById('rawMetaModal').classList.add('active');
+  }
+
+  function closeMetaModal(e) {
+    if (e && e.target !== e.currentTarget && !e.target.classList.contains('modal-close')) {
+      return;
+    }
+    document.getElementById('rawMetaModal').classList.remove('active');
+  }
+</script>
+</body>
+</html>

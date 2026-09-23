@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cancel Async Tasks — Terminal DevOps Case 03</title>
+<style>
+  :root {
+    --bg: #0a0e0a;
+    --bg-panel: #0f1410;
+    --bg-elevated: #131a14;
+    --fg: #c8d0c4;
+    --fg-dim: #7a8a74;
+    --accent: #4ad94a;
+    --accent-glow: rgba(74,217,74,0.15);
+    --accent-2: #d9a64a;
+    --accent-2-glow: rgba(217,166,74,0.15);
+    --danger: #d94a4a;
+    --danger-glow: rgba(217,74,74,0.12);
+    --border: #1e2a1e;
+    --border-bright: #2a3a2a;
+    --mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', 'Source Code Pro', monospace;
+    --display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(74,217,74,0.04), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(217,166,74,0.03), transparent);
+    background-attachment: fixed;
+  }
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(255,255,255,0.008) 2px,
+      rgba(255,255,255,0.008) 3px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+  /* Noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.5;
+  }
+
+  /* ── Layout ─────────────────────────────────────── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Header ─────────────────────────────────────── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 40px 0 32px;
+    position: relative;
+  }
+  .case-id {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
+  }
+  .case-id::before {
+    content: '◆ ';
+    color: var(--accent-2);
+  }
+  h1 {
+    font-family: var(--display);
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.05;
+    color: #e0e8dc;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease 0.1s forwards;
+  }
+  h1 .accent { color: var(--accent); font-style: italic; }
+  .subtitle {
+    font-size: 13px;
+    color: var(--fg-dim);
+    max-width: 620px;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease 0.2s forwards;
+  }
+
+  /* ── Stats Bar ─────────────────────────────────── */
+  .stats-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-top: 28px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease 0.3s forwards;
+  }
+  .stat {
+    flex: 1;
+    min-width: 140px;
+    padding: 14px 20px;
+    border-right: 1px solid var(--border);
+    background: var(--bg-panel);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 18px;
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.accent-2 { color: var(--accent-2); }
+
+  /* ── Section ────────────────────────────────────── */
+  section { padding: 48px 0; border-bottom: 1px solid var(--border); }
+  section:last-child { border-bottom: none; }
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 700;
+    color: #e0e8dc;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Task Card ─────────────────────────────────── */
+  .task-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-bright);
+    border-left: 3px solid var(--accent);
+    border-radius: 2px;
+    padding: 24px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .task-card::before {
+    content: '$ task_statement.md';
+    position: absolute;
+    top: 8px;
+    right: 14px;
+    font-size: 10px;
+    color: var(--fg-dim);
+    letter-spacing: 0.1em;
+  }
+  .task-body {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--fg);
+  }
+  .task-body code {
+    background: rgba(74,217,74,0.08);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-size: 13px;
+    border: 1px solid rgba(74,217,74,0.15);
+  }
+  .task-highlight {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: var(--danger-glow);
+    border-left: 2px solid var(--danger);
+    border-radius: 2px;
+    font-size: 13px;
+    color: #e0b0b0;
+  }
+  .task-highlight strong { color: var(--danger); }
+
+  /* ── Timeline ──────────────────────────────────── */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent), var(--border) 80%, transparent);
+  }
+  .step {
+    position: relative;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .step.visible { opacity: 1; transform: translateY(0); }
+  .step::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 6px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--border-bright);
+    z-index: 1;
+    transition: all 0.3s ease;
+  }
+  .step.user::before { border-color: var(--accent-2); }
+  .step.agent::before { border-color: var(--accent); }
+  .step.tool::before { border-color: var(--accent-2); background: var(--accent-2); }
+  .step:hover::before { box-shadow: 0 0 8px currentColor; }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .step-badge {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+  .step.user .step-badge { background: var(--accent-2-glow); color: var(--accent-2); border: 1px solid rgba(217,166,74,0.2); }
+  .step.agent .step-badge { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(74,217,74,0.2); }
+  .step.tool .step-badge { background: rgba(120,160,220,0.1); color: #7aa0dc; border: 1px solid rgba(120,160,220,0.2); }
+  .step-index { font-size: 11px; color: var(--fg-dim); }
+  .step-content {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 14px 18px;
+    font-size: 13px;
+    line-height: 1.7;
+    margin-top: 6px;
+  }
+  .step-content p { margin-bottom: 8px; }
+  .step-content p:last-child { margin-bottom: 0; }
+  .tool-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--fg-dim);
+  }
+  .tool-name {
+    color: #7aa0dc;
+    font-weight: 600;
+  }
+  .tool-cmd {
+    color: var(--accent);
+    font-size: 12px;
+  }
+  .tool-obs {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--bg-elevated);
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--fg-dim);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .todo-list {
+    margin-top: 8px;
+    padding-left: 0;
+    list-style: none;
+  }
+  .todo-list li {
+    padding: 3px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .todo-status {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .todo-status.in-progress { background: var(--accent-2-glow); color: var(--accent-2); }
+  .todo-status.pending { background: rgba(255,255,255,0.05); color: var(--fg-dim); }
+  .todo-status.completed { background: var(--accent-glow); color: var(--accent); }
+
+  /* ── Code Block ────────────────────────────────── */
+  .code-block {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-bright);
+    border-radius: 2px;
+    padding: 0;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--fg-dim);
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .code-dot.r { background: #d94a4a; }
+  .code-dot.y { background: #d9a64a; }
+  .code-dot.g { background: #4ad94a; }
+  .code-body {
+    padding: 18px 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+  .code-body pre { white-space: pre-wrap; word-break: break-word; }
+  .kw { color: #d97a4a; }
+  .fn { color: var(--accent); }
+  .str { color: #d9c84a; }
+  .com { color: var(--fg-dim); font-style: italic; }
+  .dec { color: #7aa0dc; }
+  .num { color: var(--accent-2); }
+
+  /* ── Analysis Card ─────────────────────────────── */
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 768px) { .analysis-grid { grid-template-columns: 1fr; } }
+  .analysis-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 20px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .analysis-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--accent), transparent);
+    opacity: 0.3;
+  }
+  .analysis-card h3 {
+    font-family: var(--display);
+    font-size: 17px;
+    color: #e0e8dc;
+    margin-bottom: 10px;
+  }
+  .analysis-card p {
+    font-size: 13px;
+    color: var(--fg-dim);
+    line-height: 1.7;
+  }
+  .analysis-card .icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  /* ── Footer ────────────────────────────────────── */
+  footer {
+    padding: 40px 0;
+    text-align: center;
+    font-size: 11px;
+    color: var(--fg-dim);
+    letter-spacing: 0.1em;
+    border-top: 1px solid var(--border);
+  }
+  footer span { color: var(--accent); }
+
+  /* ── Animations ────────────────────────────────── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: var(--accent);
+    animation: blink 1s steps(2) infinite;
+    vertical-align: text-bottom;
+    margin-left: 2px;
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+    50% { box-shadow: 0 0 0 4px transparent; }
+  }
+
+  /* ── Tabs ───────────────────────────────────────── */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 10px 20px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: var(--mono);
+  }
+  .tab:hover { color: var(--fg); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeInUp 0.4s ease forwards; }
+
+  /* ── Responsive ────────────────────────────────── */
+  @media (max-width: 640px) {
+    h1 { font-size: 32px; }
+    .section-title { font-size: 22px; }
+    .stat { min-width: 50%; }
+    .stat:nth-child(odd) { border-right: 1px solid var(--border); }
+    .stat:nth-child(even) { border-right: none; }
+    .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ─── HEADER ─────────────────────────────────── -->
+  <header>
+    <div class="case-id">TerminalBench / terminal_devops / 03_cancel-async-tasks</div>
+    <h1>Cancel <span class="accent">Async</span> Tasks</h1>
+    <p class="subtitle">
+      A coding agent implements a Python concurrency utility with bounded parallelism and resilient cleanup on keyboard interrupt. Trace of claude-haiku-4-5 navigating the full task lifecycle in under 74 seconds.
+    </p>
+
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-label">Model</div>
+        <div class="stat-value">claude-haiku-4-5</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Duration</div>
+        <div class="stat-value accent">73.9s</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Steps</div>
+        <div class="stat-value">14</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Input Tokens</div>
+        <div class="stat-value">139,949</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Cost</div>
+        <div class="stat-value accent-2">$0.0164</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── TASK ───────────────────────────────────── -->
+  <section>
+    <div class="section-label">§01 — The Brief</div>
+    <h2 class="section-title">Task Statement</h2>
+
+    <div class="tab-bar">
+      <button class="tab active" onclick="switchTab(event,'task')">Statement</button>
+      <button class="tab" onclick="switchTab(event,'meta')">Case Metadata</button>
+    </div>
+
+    <div id="tab-task" class="tab-content active">
+      <div class="task-card">
+        <div class="task-body">
+          <p>Create a Python function called <code>async run_tasks(tasks: list[Callable[[], Awaitable[None]]], max_concurrent: int) -&gt; None</code> where each task is an async job to be run and <code>max_concurrent</code> is the max number of tasks that can be run concurrently. Put the function in a file called <code>/app/run.py</code> so that it can be imported using <code>from run import run_tasks</code>.</p>
+          <p>Just use the system python to implement. Feel free to install packages if you need to.</p>
+          <div class="task-highlight">
+            <strong>⚠ Key requirement:</strong> Sometimes I cancel runs via keyboard interrupt but I want the tasks' cleanup code to still run.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-meta" class="tab-content">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span></div>
+          <span>case_meta.json</span>
+        </div>
+        <div class="code-body"><pre><span class="com">// Case Metadata</span>
+{
+  <span class="str">"id"</span>: <span class="str">"03_cancel-async-tasks"</span>,
+  <span class="str">"domain"</span>: <span class="str">"terminal_devops"</span>,
+  <span class="str">"benchmark"</span>: <span class="str">"TerminalBench"</span>,
+  <span class="str">"source"</span>: <span class="str">"upstream"</span>,
+  <span class="str">"model"</span>: <span class="str">"claude-haiku-4-5-20251001@anthropic"</span>,
+  <span class="str">"trajectory_format"</span>: <span class="str">"terminalbench-json"</span>,
+  <span class="str">"duration_s"</span>: <span class="num">73.904</span>,
+  <span class="str">"input_tokens"</span>: <span class="num">139949</span>,
+  <span class="str">"output_tokens"</span>: <span class="num">305</span>,
+  <span class="str">"cost_cents"</span>: <span class="num">1.637</span>,
+  <span class="str">"references"</span>: []
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TRAJECTORY ─────────────────────────────── -->
+  <section>
+    <div class="section-label">§02 — The Trace</div>
+    <h2 class="section-title">Agent Trajectory</h2>
+
+    <div class="timeline" id="timeline">
+
+      <!-- Step 0 -->
+      <div class="step user" data-idx="0">
+        <div class="step-header">
+          <span class="step-badge">USER</span>
+          <span class="step-index">Step 01 · Warmup</span>
+        </div>
+        <div class="step-content">
+          <p>Warmup signal — system initialization handshake.</p>
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="step user" data-idx="1">
+        <div class="step-header">
+          <span class="step-badge">USER</span>
+          <span class="step-index">Step 02 · Warmup</span>
+        </div>
+        <div class="step-content">
+          <p>Second warmup message confirming agent readiness.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step agent" data-idx="2">
+        <div class="step-header">
+          <span class="step-badge">AGENT</span>
+          <span class="step-index">Step 03 · Introduction</span>
+        </div>
+        <div class="step-content">
+          <p>I'm ready to help! I'm Claude Code, Anthropic's file search specialist for navigating and exploring codebases.</p>
+          <p>Currently in <span style="color:var(--accent)">/app</span> directory. Offering Glob, Grep, file reading, and Bash operations.</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step agent" data-idx="3">
+        <div class="step-header">
+          <span class="step-badge">AGENT</span>
+          <span class="step-index">Step 04 · Introduction</span>
+        </div>
+        <div class="step-content">
+          <p>Hello! I'm ready to help you search through your codebase. Equipped with Glob, Read, Bash, and Grep capabilities. Currently in <span style="color:var(--accent)">/app</span>.</p>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step user" data-idx="4">
+        <div class="step-header">
+          <span class="step-badge">USER</span>
+          <span class="step-index">Step 05 · Task Assignment</span>
+        </div>
+        <div class="step-content">
+          <p>Create a Python function called <code style="background:rgba(74,217,74,0.08);color:var(--accent);padding:2px 6px;border-radius:2px;font-size:12px;">async run_tasks(tasks, max_concurrent) -&gt; None</code> — manage concurrent async jobs with bounded parallelism in <code style="background:rgba(74,217,74,0.08);color:var(--accent);padding:2px 6px;border-radius:2px;font-size:12px;">/app/run.py</code>.</p>
+          <p style="color:var(--danger);">⚠ Keyboard interrupt cancellation must still run cleanup code.</p>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step agent" data-idx="5">
+        <div class="step-header">
+          <span class="step-badge">AGENT</span>
+          <span class="step-index">Step 06 · Planning</span>
+        </div>
+        <div class="step-content">
+          <p>I'll create a Python function that manages concurrent async tasks with proper cleanup handling. Let me start by planning this task.</p>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="step tool" data-idx="6">
+        <div class="step-header">
+          <span class="step-badge">TOOL</span>
+          <span class="step-index">Step 07 · TodoWrite</span>
+        </div>
+        <div class="step-content">
+          <div class="tool-line"><span class="tool-name">TodoWrite</span> → Initialize task plan</div>
+          <ul class="todo-list">
+            <li><span class="todo-status in-progress">In Progress</span> Create run_tasks async function with max_concurrent limiting</li>
+            <li><span class="todo-status pending">Pending</span> Ensure cleanup code runs even on keyboard interrupt</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 7 -->
+      <div class="step agent" data-idx="7">
+        <div class="step-header">
+          <span class="step-badge">AGENT</span>
+          <span class="step-index">Step 08 · Implementation</span>
+        </div>
+        <div class="step-content">
+          <p>Now I'll create the function in <span style="color:var(--accent)">/app/run.py</span>:</p>
+        </div>
+      </div>
+
+      <!-- Step 8 -->
+      <div class="step tool" data-idx="8">
+        <div class="step-header">
+          <span class="step-badge">TOOL</span>
+          <span class="step-index">Step 09 · Write</span>
+        </div>
+        <div class="step-content">
+          <div class="tool-line"><span class="tool-name">Write</span> → <span class="tool-cmd">/app/run.py</span></div>
+          <div class="tool-obs">File written successfully. The implementation uses asyncio.Semaphore for concurrency limiting and try/finally blocks for cleanup guarantee on KeyboardInterrupt.</div>
+        </div>
+      </div>
+
+      <!-- Step 9 -->
+      <div class="step agent" data-idx="9">
+        <div class="step-header">
+          <span class="step-badge">AGENT</span>
+          <span class="step-index">Step 10 · Verification</span>
+        </div>
+        <div class="step-content">
+          <p>Now let me verify the function works correctly by creating a test script:</p>
+        </div>
+      </div>
+
+      <!-- Step 10 -->
+      <div class="step tool" data-idx="10">
+        <div class="step-header">
+          <span class="step-badge">TOOL</span>
+          <span class="step-index">Step 11 · Bash</span>
+        </div>
+        <div class="step-content">
+          <div class="tool-line"><span class="tool-name">Bash</span> → Run test script to verify implementation</div>
+          <div class="tool-obs">Test passed. All tasks completed within concurrency limit. Cleanup code executed properly on simulated interrupt.</div>
+        </div>
+      </div>
+
+      <!-- Step 11 -->
+      <div class="step agent" data-idx="11">
+        <div class="step-header">
+          <span class="step-badge">AGENT</span>
+          <span class="step-index">Step 12 · Wrap-up</span>
+        </div>
+        <div class="step-content">
+          <p>Perfect! Now let me update the todo list to mark both items complete:</p>
+        </div>
+      </div>
+
+      <!-- Step 12 -->
+      <div class="step tool" data-idx="12">
+        <div class="step-header">
+          <span class="step-badge">TOOL</span>
+          <span class="step-index">Step 13 · TodoWrite</span>
+        </div>
+        <div class="step-content">
+          <div class="tool-line"><span class="tool-name">TodoWrite</span> → Mark all tasks complete</div>
+          <ul class="todo-list">
+            <li><span class="todo-status completed">Completed</span> Create run_tasks async function with max_concurrent limiting</li>
+            <li><span class="todo-status completed">Completed</span> Ensure cleanup code runs even on keyboard interrupt</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 13 -->
+      <div class="step agent" data-idx="13">
+        <div class="step-header">
+          <span class="step-badge">AGENT</span>
+          <span class="step-index">Step 14 · Done</span>
+        </div>
+        <div class="step-content">
+          <p>Task complete. The <code style="background:rgba(74,217,74,0.08);color:var(--accent);padding:2px 6px;border-radius:2px;font-size:12px;">run_tasks</code> function is implemented in <span style="color:var(--accent)">/app/run.py</span> with bounded concurrency and guaranteed cleanup on interrupt.<span class="cursor"></span></p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── IMPLEMENTATION ─────────────────────────── -->
+  <section>
+    <div class="section-label">§03 — The Solution</div>
+    <h2 class="section-title">Expected Implementation</h2>
+    <p style="color:var(--fg-dim);font-size:13px;margin-bottom:20px;max-width:680px;">
+      The agent wrote a file at <code style="color:var(--accent);background:rgba(74,217,74,0.06);padding:1px 5px;border-radius:2px;">/app/run.py</code> using <code style="color:var(--accent);background:rgba(74,217,74,0.06);padding:1px 5px;border-radius:2px;">asyncio.Semaphore</code> for concurrency control and a <code style="color:var(--accent);background:rgba(74,217,74,0.06);padding:1px 5px;border-radius:2px;">try/finally</code> pattern to guarantee cleanup. Below is a representative reconstruction of the approach.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span class="code-dot r"></span><span class="code-dot y"></span><span class="code-dot g"></span></div>
+        <span>run.py — reconstructed from trace</span>
+      </div>
+      <div class="code-body"><pre><span class="kw">import</span> asyncio
+<span class="kw">from</span> typing <span class="kw">import</span> Callable, Awaitable
+
+
+<span class="kw">async def</span> <span class="fn">run_tasks</span>(
+    tasks: list[Callable[[], Awaitable[<span class="dec">None</span>]]],
+    max_concurrent: <span class="dec">int</span>,
+) -> <span class="dec">None</span>:
+    semaphore = asyncio.Semaphore(max_concurrent)
+
+    <span class="kw">async def</span> <span class="fn">_runner</span>(task: Callable[[], Awaitable[<span class="dec">None</span>]]):
+        <span class="kw">async with</span> semaphore:
+            <span class="kw">try</span>:
+                <span class="kw">await</span> task()
+            <span class="kw">except</span> asyncio.CancelledError:
+                <span class="com"># cleanup still runs via finally</span>
+                <span class="kw">raise</span>
+            <span class="kw">finally</span>:
+                <span class="kw">pass</span>  <span class="com"># per-task cleanup hook</span>
+
+    coros = [_runner(t) <span class="kw">for</span> t <span class="kw">in</span> tasks]
+    <span class="kw">try</span>:
+        <span class="kw">await</span> asyncio.gather(*coros)
+    <span class="kw">except</span> (KeyboardInterrupt, asyncio.CancelledError):
+        <span class="com"># Cancel all pending tasks, let cleanup run</span>
+        <span class="kw">for</span> c <span class="kw">in</span> asyncio.all_tasks():
+            c.cancel()
+        <span class="kw">await</span> asyncio.gather(*coros, return_exceptions=<span class="kw">True</span>)</pre></div>
+    </div>
+  </section>
+
+  <!-- ─── ANALYSIS ───────────────────────────────── -->
+  <section>
+    <div class="section-label">§04 — The Read</div>
+    <h2 class="section-title">Analysis &amp; Observations</h2>
+
+    <div class="analysis-grid">
+      <div class="analysis-card">
+        <span class="icon" style="color:var(--accent);">◇</span>
+        <h3>Efficient Execution</h3>
+        <p>The agent completed the entire task — planning, implementation, and verification — in just 73.9 seconds across 14 steps. Only 305 output tokens were generated, indicating a highly direct approach with minimal deliberation overhead.</p>
+      </div>
+      <div class="analysis-card">
+        <span class="icon" style="color:var(--accent-2);">◈</span>
+        <h3>Structured Workflow</h3>
+        <p>The agent used TodoWrite to decompose the task into two tracked items: function creation and interrupt-safe cleanup. Both were marked complete after verification — a clean plan-then-execute pattern.</p>
+      </div>
+      <div class="analysis-card">
+        <span class="icon" style="color:var(--danger);">⚠</span>
+        <h3>Critical Edge Case</h3>
+        <p>The task's distinguishing requirement — cleanup code surviving KeyboardInterrupt — demands <code style="color:var(--accent);background:rgba(74,217,74,0.06);padding:1px 4px;border-radius:2px;font-size:12px;">try/finally</code> or <code style="color:var(--accent);background:rgba(74,217,74,0.06);padding:1px 4px;border-radius:2px;font-size:12px;">CancelledError</code> handling. The agent recognized this and built it into the initial design.</p>
+      </div>
+      <div class="analysis-card">
+        <span class="icon" style="color:#7aa0dc;">○</span>
+        <h3>Verification Step</h3>
+        <p>After writing <code style="color:var(--accent);background:rgba(74,217,74,0.06);padding:1px 4px;border-radius:2px;font-size:12px;">run.py</code>, the agent ran a Bash test script to confirm correctness — including the interrupt path — before declaring completion.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─────────────────────────────────── -->
+  <footer>
+    <p>TerminalBench · <span>cancel-async-tasks</span> · trajectory rendered from terminalbench-json format · 14 steps · claude-haiku-4-5</p>
+  </footer>
+
+</div>
+
+<script>
+  // ── Tab switching ──
+  function switchTab(evt, tabId) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    evt.currentTarget.classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+  }
+
+  // ── Scroll-triggered timeline reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), entry.target.dataset.idx * 60);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.step').forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

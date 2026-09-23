@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Street Hype — Revenue Analysis</title>
+  <style>
+    :root {
+      --ink: #f5f1e8;
+      --muted: #a9aaa4;
+      --dim: #73756f;
+      --paper: #101210;
+      --panel: #171a17;
+      --panel-2: #1d211d;
+      --line: #30362f;
+      --lime: #c9f36a;
+      --lime-soft: rgba(201, 243, 106, .12);
+      --orange: #ff9d5c;
+      --orange-soft: rgba(255, 157, 92, .12);
+      --shadow: 0 24px 80px rgba(0,0,0,.34);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 14% 0%, rgba(201,243,106,.07), transparent 27rem),
+        radial-gradient(circle at 100% 20%, rgba(255,157,92,.06), transparent 29rem),
+        var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .12;
+      background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(to bottom, black, transparent 70%);
+    }
+
+    button { font: inherit; }
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; position: relative; }
+
+    .topbar {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 760; letter-spacing: -.02em; }
+    .brand-mark { width: 12px; height: 12px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 24px rgba(201,243,106,.45); }
+    .case-id { color: var(--muted); font: 500 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
+
+    .status { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 12px; }
+    .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--lime); }
+
+    main { padding: 74px 0 96px; }
+    .eyebrow { margin: 0 0 18px; color: var(--lime); font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: .15em; }
+    h1 { margin: 0; max-width: 860px; font-size: clamp(44px, 7vw, 88px); line-height: .96; letter-spacing: -.065em; font-weight: 780; }
+    h1 em { color: var(--lime); font-style: normal; }
+    .lede { max-width: 740px; margin: 28px 0 0; color: #c7c8c2; font-size: clamp(17px, 2vw, 21px); line-height: 1.55; }
+    .lede strong { color: var(--ink); }
+
+    .hero-grid { display: grid; grid-template-columns: 1.35fr .65fr; gap: 18px; margin-top: 54px; }
+    .card { border: 1px solid var(--line); border-radius: 18px; background: rgba(23,26,23,.88); box-shadow: var(--shadow); overflow: hidden; }
+    .winner { min-height: 330px; padding: 32px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+    .winner::after { content: ""; position: absolute; width: 280px; height: 280px; right: -100px; top: -110px; border-radius: 50%; border: 52px solid rgba(201,243,106,.055); }
+    .card-label { position: relative; z-index: 1; color: var(--muted); font: 650 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: .12em; }
+    .winner-name { position: relative; z-index: 1; font-size: clamp(34px, 5vw, 62px); font-weight: 770; letter-spacing: -.055em; line-height: 1; }
+    .winner-name span { display: block; margin-top: 14px; color: var(--lime); font-size: .65em; letter-spacing: -.04em; }
+    .winner-foot { position: relative; z-index: 1; display: flex; gap: 22px; color: var(--muted); font-size: 13px; }
+    .winner-foot b { color: var(--ink); font-weight: 650; }
+
+    .metrics { display: grid; grid-template-rows: 1fr 1fr; gap: 18px; }
+    .metric { padding: 28px; display: flex; flex-direction: column; justify-content: space-between; min-height: 156px; }
+    .metric-value { font-size: clamp(29px, 4vw, 44px); font-weight: 750; letter-spacing: -.05em; }
+    .metric-value small { color: var(--muted); font-size: 14px; letter-spacing: 0; font-weight: 500; }
+
+    .section { margin-top: 88px; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 26px; }
+    h2 { margin: 0; font-size: clamp(28px, 4vw, 44px); letter-spacing: -.045em; line-height: 1.05; }
+    .section-note { max-width: 450px; margin: 0; color: var(--muted); font-size: 14px; text-align: right; }
+
+    .comparison { padding: 30px; }
+    .bar-row { display: grid; grid-template-columns: 145px 1fr 105px; align-items: center; gap: 18px; padding: 17px 0; }
+    .bar-row + .bar-row { border-top: 1px solid var(--line); }
+    .store { font-weight: 680; }
+    .track { height: 22px; border-radius: 999px; background: #262b26; overflow: hidden; }
+    .fill { display: block; height: 100%; width: var(--w); border-radius: inherit; background: var(--lime); transform-origin: left; animation: grow .9s cubic-bezier(.2,.7,.2,1) both; }
+    .bar-row:nth-child(2) .fill { background: var(--orange); animation-delay: .12s; }
+    .amount { font: 700 16px/1 ui-monospace, SFMono-Regular, Menlo, monospace; text-align: right; }
+    @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+    .method-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 18px; }
+    .steps { padding: 30px; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 14px; }
+    .step + .step { margin-top: 27px; }
+    .step-num { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--lime); font: 700 12px/1 ui-monospace, monospace; }
+    .step h3 { margin: 2px 0 6px; font-size: 15px; }
+    .step p { margin: 0; color: var(--muted); font-size: 13px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    code { color: #dcf7a0; }
+
+    .code-card { background: #0c0f0c; }
+    .code-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+    .dots { display: flex; gap: 6px; }
+    .dots i { display: block; width: 7px; height: 7px; background: var(--dim); border-radius: 50%; }
+    .copy-btn { border: 1px solid var(--line); background: transparent; color: var(--muted); padding: 6px 10px; border-radius: 7px; cursor: pointer; font-size: 11px; }
+    .copy-btn:hover, .copy-btn:focus-visible { color: var(--ink); border-color: var(--lime); outline: none; }
+    pre { margin: 0; padding: 24px; overflow: auto; color: #d8d9d2; font-size: 12px; line-height: 1.75; tab-size: 2; }
+    .kw { color: #ffb37f; } .str { color: #d7f79a; } .cm { color: #6f766d; }
+
+    .evidence-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .evidence { padding: 25px; min-height: 174px; box-shadow: none; }
+    .evidence h3 { margin: 24px 0 8px; font-size: 17px; }
+    .evidence p { margin: 0; color: var(--muted); font-size: 13px; }
+    .pill { display: inline-flex; align-items: center; min-height: 25px; padding: 0 9px; border-radius: 999px; background: var(--lime-soft); color: var(--lime); font: 700 10px/1 ui-monospace, monospace; text-transform: uppercase; letter-spacing: .08em; }
+    .pill.orange { color: var(--orange); background: var(--orange-soft); }
+
+    .trace { margin-top: 18px; }
+    .trace-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 18px; border: 0; background: transparent; color: var(--ink); padding: 22px 25px; cursor: pointer; text-align: left; }
+    .trace-toggle span { color: var(--muted); font-size: 12px; }
+    .chevron { transition: transform .25s ease; }
+    .trace.open .chevron { transform: rotate(180deg); }
+    .trace-body { display: none; border-top: 1px solid var(--line); padding: 8px 25px 25px; }
+    .trace.open .trace-body { display: block; }
+    .event { display: grid; grid-template-columns: 84px 1fr; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .event:last-child { border-bottom: 0; }
+    .event time { color: var(--dim); font: 600 11px/1.5 ui-monospace, monospace; }
+    .event b { display: block; margin-bottom: 4px; font-size: 14px; }
+    .event p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    footer { margin-top: 88px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 18px; color: var(--dim); font-size: 11px; }
+
+    @media (max-width: 780px) {
+      .shell { width: min(100% - 24px, 1180px); }
+      .topbar { min-height: 62px; }
+      .case-id { display: none; }
+      main { padding-top: 48px; }
+      .hero-grid, .method-grid { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .metric { min-height: 130px; }
+      .section { margin-top: 64px; }
+      .section-head { display: block; }
+      .section-note { text-align: left; margin-top: 12px; }
+      .evidence-grid { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 110px 1fr; }
+      .amount { grid-column: 2; text-align: left; color: var(--muted); font-size: 13px; }
+      footer { display: block; }
+      footer span { display: block; margin-top: 7px; }
+    }
+
+    @media (max-width: 480px) {
+      .metrics { grid-template-columns: 1fr; }
+      .winner { min-height: 290px; padding: 24px; }
+      .winner-foot { display: block; }
+      .winner-foot span { display: block; margin-top: 5px; }
+      .comparison, .steps { padding: 20px; }
+      .event { grid-template-columns: 1fr; gap: 7px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      body::before { display: none; }
+      .card { box-shadow: none; background: #fff; }
+      .trace-body { display: block; }
+      .copy-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span>DataAgentBench <span class="case-id">/ 02_music_brainz_20k_query2</span></div>
+    <div class="status">Completed · 20.1s</div>
+  </header>
+
+  <main class="shell">
+    <section aria-labelledby="page-title">
+      <p class="eyebrow">Revenue finding · Music sales</p>
+      <h1 id="page-title">The store that won <em>Street Hype</em></h1>
+      <p class="lede">Across every country in the sales data, <strong>Amazon Music earned the most USD revenue</strong> from Brucqe Maginnis’ “Street Hype.” The result comes from one exact catalog match and a store-level aggregation.</p>
+
+      <div class="hero-grid">
+        <article class="card winner">
+          <div class="card-label">Top-earning store</div>
+          <div class="winner-name">Amazon Music <span>$304.13 USD</span></div>
+          <div class="winner-foot">
+            <span><b>Track</b> 4122</span>
+            <span><b>Scope</b> All countries</span>
+            <span><b>Rank</b> 1 of 2</span>
+          </div>
+        </article>
+        <div class="metrics">
+          <article class="card metric">
+            <div class="card-label">Revenue share</div>
+            <div class="metric-value">86.5<small>% of total</small></div>
+          </article>
+          <article class="card metric">
+            <div class="card-label">Lead over runner-up</div>
+            <div class="metric-value">$256.61</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="comparison-title">
+      <div class="section-head">
+        <h2 id="comparison-title">Revenue by store</h2>
+        <p class="section-note">Summed <code>revenue_usd</code> for the matched track, grouped by store without a country filter.</p>
+      </div>
+      <div class="card comparison" role="img" aria-label="Amazon Music earned 304 dollars and 13 cents; Apple Music earned 47 dollars and 52 cents.">
+        <div class="bar-row">
+          <div class="store">Amazon Music</div>
+          <div class="track"><span class="fill" style="--w:100%"></span></div>
+          <div class="amount">$304.13</div>
+        </div>
+        <div class="bar-row">
+          <div class="store">Apple Music</div>
+          <div class="track"><span class="fill" style="--w:15.63%"></span></div>
+          <div class="amount">$47.52</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="method-title">
+      <div class="section-head">
+        <h2 id="method-title">How the answer was computed</h2>
+        <p class="section-note">The workflow joined the two sources in Python by carrying the catalog’s track ID into the sales query.</p>
+      </div>
+      <div class="method-grid">
+        <article class="card steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <div><h3>Inspect both schemas</h3><p>SQLite contains track identity and metadata; DuckDB contains country, store, units, and USD revenue.</p></div>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <div><h3>Resolve the exact recording</h3><p>An exact title + artist lookup returned one row: <code>track_id = 4122</code>.</p></div>
+          </div>
+          <div class="step">
+            <span class="step-num">3</span>
+            <div><h3>Aggregate and rank stores</h3><p>Revenue was summed across all sales rows for that ID, grouped by store, then sorted descending.</p></div>
+          </div>
+        </article>
+
+        <article class="card code-card">
+          <div class="code-top">
+            <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <button class="copy-btn" type="button" data-copy>Copy query logic</button>
+          </div>
+          <pre id="query-code"><span class="kw">import</span> sqlite3, duckdb
+
+tracks = sqlite3.connect(<span class="str">"data/tracks.db"</span>)
+ids = [row[0] <span class="kw">for</span> row <span class="kw">in</span> tracks.execute(<span class="str">"""
+  SELECT track_id FROM tracks
+  WHERE title = 'Street Hype'
+    AND artist = 'Brucqe Maginnis'
+"""</span>)]
+
+sales = duckdb.connect(<span class="str">"data/sales.duckdb"</span>, read_only=<span class="kw">True</span>)
+<span class="cm"># ids resolved to [4122]</span>
+result = sales.execute(<span class="str">"""
+  SELECT store, SUM(revenue_usd) AS total_rev
+  FROM sales WHERE track_id = 4122
+  GROUP BY store ORDER BY total_rev DESC
+"""</span>).fetchall()</pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="evidence-title">
+      <div class="section-head">
+        <h2 id="evidence-title">Evidence &amp; provenance</h2>
+        <p class="section-note">Compact audit details from the recorded Claude JSONL trajectory.</p>
+      </div>
+      <div class="evidence-grid">
+        <article class="card evidence">
+          <span class="pill">SQLite</span>
+          <h3>Catalog identity</h3>
+          <p><code>tracks.db → tracks</code><br>Exact match: Street Hype / Brucqe Maginnis / ID 4122.</p>
+        </article>
+        <article class="card evidence">
+          <span class="pill orange">DuckDB</span>
+          <h3>Commercial facts</h3>
+          <p><code>sales.duckdb → sales</code><br>Store, country, units sold, and revenue in USD.</p>
+        </article>
+        <article class="card evidence">
+          <span class="pill">Run</span>
+          <h3>Successful execution</h3>
+          <p>Exit code 0 · 9 trajectory records · model claude-opus-4-8 · collected 2026-07-11.</p>
+        </article>
+      </div>
+
+      <article class="card trace" id="trace">
+        <button class="trace-toggle" type="button" aria-expanded="false" aria-controls="trace-body">
+          <strong>View execution trace</strong>
+          <span>4 key moments <b class="chevron" aria-hidden="true">⌄</b></span>
+        </button>
+        <div class="trace-body" id="trace-body">
+          <div class="event"><time>22:16:51</time><div><b>Question received</b><p>Find the highest-revenue store for a named song and artist across all countries.</p></div></div>
+          <div class="event"><time>22:16:58</time><div><b>Schemas inspected</b><p>Identified the sales fact table in DuckDB and catalog metadata in SQLite.</p></div></div>
+          <div class="event"><time>22:17:06</time><div><b>Query executed</b><p>One matching track found; revenue aggregated into two store totals.</p></div></div>
+          <div class="event"><time>22:17:10</time><div><b>Answer delivered</b><p>Amazon Music ranked first at $304.13, ahead of Apple Music at $47.52.</p></div></div>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      <div>Case 02_music_brainz_20k_query2 · DataAgentBench</div>
+      <span>Source trajectory SHA-256 · 158133d1…d66a791</span>
+    </footer>
+  </main>
+
+  <script>
+    const trace = document.querySelector('#trace');
+    const toggle = trace.querySelector('.trace-toggle');
+    toggle.addEventListener('click', () => {
+      const open = trace.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+
+    const copyButton = document.querySelector('[data-copy]');
+    copyButton.addEventListener('click', async () => {
+      const text = document.querySelector('#query-code').innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+        copyButton.textContent = 'Copied';
+        setTimeout(() => copyButton.textContent = 'Copy query logic', 1400);
+      } catch (_) {
+        copyButton.textContent = 'Select code to copy';
+      }
+    });
+  </script>
+</body>
+</html>
