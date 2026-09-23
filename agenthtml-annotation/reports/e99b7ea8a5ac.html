@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HelloFresh Veggie Subscription — Agent Trajectory</title>
+<style>
+  :root{
+    --green:#2e8b3d; --green-d:#1f6b2c; --bg:#f6f7f4; --card:#ffffff;
+    --ink:#1c2419; --mut:#5f6b5a; --line:#e3e7dd; --amber:#c8801f;
+    --red:#c0392b; --red-bg:#fbecea; --ok:#2e8b3d; --ok-bg:#eaf5ea;
+    --blue:#2f6fb0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;font-size:15px}
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 20px 60px}
+  header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:space-between;
+    background:linear-gradient(135deg,#2e8b3d,#1f6b2c);color:#fff;border-radius:16px;padding:22px 26px;
+    box-shadow:0 6px 22px rgba(31,107,44,.25)}
+  header.top h1{margin:0 0 6px;font-size:22px;letter-spacing:.2px}
+  .task-line{font-size:14px;opacity:.95;max-width:640px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;opacity:.95}
+  .leaf{width:22px;height:22px;border-radius:50% 0 50% 50%;background:#c9f0cf;display:inline-block;transform:rotate(45deg)}
+  .status-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:7px 14px;font-weight:600;font-size:13px}
+  .dot{width:9px;height:9px;border-radius:50%;background:#ff6b5b;box-shadow:0 0 0 3px rgba(255,107,91,.3)}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0 8px}
+  .meta{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .meta .k{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);font-weight:700}
+  .meta .v{font-size:15px;margin-top:3px;font-weight:600}
+  .cols{display:grid;grid-template-columns:1fr;gap:22px;margin-top:24px}
+  @media(min-width:900px){.cols{grid-template-columns:1.15fr .85fr}}
+  section.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;
+    box-shadow:0 2px 10px rgba(30,50,20,.04)}
+  h2{font-size:16px;margin:0 0 4px;display:flex;align-items:center;gap:9px}
+  h2 .num{background:var(--green);color:#fff;width:24px;height:24px;border-radius:7px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+  .sub{color:var(--mut);font-size:13px;margin:0 0 16px}
+  /* timeline */
+  .tl{position:relative;margin:0;padding:0;list-style:none}
+  .tl:before{content:"";position:absolute;left:15px;top:4px;bottom:4px;width:2px;background:var(--line)}
+  .tl li{position:relative;padding:0 0 16px 44px}
+  .tl li:last-child{padding-bottom:0}
+  .tl .mk{position:absolute;left:6px;top:1px;width:20px;height:20px;border-radius:50%;
+    background:#fff;border:2px solid var(--green);display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:var(--green-d)}
+  .tl li.warn .mk{border-color:var(--amber);color:var(--amber)}
+  .tl li.fail .mk{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+  .tl .t{font-size:11px;color:var(--mut);font-weight:600;letter-spacing:.3px}
+  .tl .h{font-weight:600;font-size:14px;margin:1px 0 2px}
+  .tl .d{font-size:13px;color:var(--mut)}
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;margin-left:6px;vertical-align:middle}
+  .tag.ok{background:var(--ok-bg);color:var(--green-d)}
+  .tag.default{background:#eef2ff;color:#3b57a3}
+  /* order summary card mimic */
+  .summary{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .summary .hd{background:#f0f6ee;padding:12px 16px;font-weight:700;font-size:15px;border-bottom:1px solid var(--line)}
+  .srow{display:flex;justify-content:space-between;padding:9px 16px;font-size:14px;border-bottom:1px dashed var(--line)}
+  .srow:last-child{border-bottom:0}
+  .srow .lbl{color:var(--mut)}
+  .strike{text-decoration:line-through;color:#a7ada0;margin-right:6px}
+  .now{color:var(--green-d);font-weight:700}
+  .free{color:var(--green-d);font-weight:700}
+  .total{font-weight:700;color:var(--ink)}
+  .spec{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13.5px;margin:2px 0 0}
+  .spec dt{color:var(--mut)}
+  .spec dd{margin:0;font-weight:600}
+  .shot{margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fafbf8}
+  .shot img{display:block;width:100%;height:auto}
+  .shot .cap{padding:9px 14px;font-size:12px;color:var(--mut);border-top:1px solid var(--line);background:#fff}
+  .callout{border-radius:12px;padding:14px 16px;font-size:13.5px;margin-top:4px}
+  .callout.fail{background:var(--red-bg);border:1px solid #eecac4}
+  .callout.fail .ttl{color:var(--red);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+  .callout.note{background:#fff8ec;border:1px solid #f0dcb6}
+  .callout.note .ttl{color:var(--amber);font-weight:700;margin-bottom:4px}
+  .kv{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:#f2f4ef;
+    border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .checklist{list-style:none;margin:6px 0 0;padding:0}
+  .checklist li{padding:5px 0 5px 26px;position:relative;font-size:13.5px;border-bottom:1px dashed var(--line)}
+  .checklist li:last-child{border-bottom:0}
+  .checklist li:before{position:absolute;left:0;top:5px;font-weight:700}
+  .checklist li.done:before{content:"\2713";color:var(--green)}
+  .checklist li.miss:before{content:"\2715";color:var(--red)}
+  .agent-quote{border-left:3px solid var(--green);background:#f4f8f2;padding:10px 14px;border-radius:0 8px 8px 0;
+    font-size:13px;color:#3a4633;margin-top:6px}
+  footer{color:var(--mut);font-size:12px;text-align:center;margin-top:30px}
+  .miniflow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .miniflow .s{font-size:11.5px;background:#eef4ec;border:1px solid var(--line);color:var(--green-d);
+    border-radius:999px;padding:3px 10px;font-weight:600}
+  .miniflow .s.stuck{background:var(--red-bg);border-color:#eecac4;color:var(--red)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <div class="brand"><span class="leaf"></span> HelloFresh · Agent Web Task</div>
+      <h1>Subscribe to a Veggie meal kit — 3 meals/week for 2 people</h1>
+      <div class="task-line">Autonomous browser agent attempted a full HelloFresh subscription flow, from plan selection through account creation and delivery address, up to the payment step.</div>
+    </div>
+    <div class="status-pill"><span class="dot"></span> Outcome: FAILED · went idle before order submit</div>
+  </header>
+
+  <div class="meta-grid">
+    <div class="meta"><div class="k">Model</div><div class="v">claude-haiku-4-5</div></div>
+    <div class="meta"><div class="k">Domain</div><div class="v">daily_web_tasks · food</div></div>
+    <div class="meta"><div class="k">Platform</div><div class="v">hellofresh.ca</div></div>
+    <div class="meta"><div class="k">Duration</div><div class="v">1263 s (~21 min)</div></div>
+    <div class="meta"><div class="k">Tool calls</div><div class="v">93 browser actions</div></div>
+    <div class="meta"><div class="k">Stop reason</div><div class="v" style="color:var(--red)">agent_idle</div></div>
+  </div>
+
+  <div class="miniflow">
+    <span class="s">Read personal info</span>
+    <span class="s">hellofresh.com</span>
+    <span class="s">Switch to .ca</span>
+    <span class="s">Postal verified</span>
+    <span class="s">Veggie plan</span>
+    <span class="s">3 meals / 2 people</span>
+    <span class="s">Create account</span>
+    <span class="s">Delivery address</span>
+    <span class="s stuck">Payment iframe stuck</span>
+  </div>
+
+  <div class="cols">
+    <!-- LEFT: timeline -->
+    <section class="card">
+      <h2><span class="num">1</span> Trajectory timeline</h2>
+      <p class="sub">Key milestones from 93 browser actions. Times are seconds from first agent action.</p>
+      <ul class="tl">
+        <li>
+          <span class="mk">0</span>
+          <div class="t">0:00</div>
+          <div class="h">Read user profile &amp; credentials</div>
+          <div class="d">Read <span class="kv">/my-info/alex_green_personal_info.json</span> and email credentials, then started the browser.</div>
+        </li>
+        <li>
+          <span class="mk">1</span>
+          <div class="t">0:10 – 0:49</div>
+          <div class="h">Landed on hellofresh.com (US) — zip rejected</div>
+          <div class="d">Entered postal code <span class="kv">M5S 2H7</span>; "Continue" stayed disabled. Agent inferred the US site doesn't serve Canadian codes.</div>
+        </li>
+        <li>
+          <span class="mk">2</span>
+          <div class="t">0:49 – 1:50</div>
+          <div class="h">Switched to hellofresh.ca &amp; dismissed dialogs</div>
+          <div class="d">Navigated to the Canadian site, closed the "reveal your deal" &amp; location modals (NO THANKS / Escape), reached the plans page. Postal verified: <em>"We deliver to your area."</em></div>
+        </li>
+        <li>
+          <span class="mk">3</span>
+          <div class="t">2:03 – 2:11</div>
+          <div class="h">Selected Veggie plan</div>
+          <div class="d">Chose <strong>Vegetarian</strong> meal preference, then <strong>Plant based</strong> dietary preference.</div>
+        </li>
+        <li>
+          <span class="mk">4</span>
+          <div class="t">2:33 – 2:48</div>
+          <div class="h">Onboarding defaults matched the task</div>
+          <div class="d">Cooking frequency <em>"3 or 4 days a week"</em> <span class="tag default">pre-selected</span> and household <em>2 adults / 0 kids</em> <span class="tag default">pre-selected</span> — both aligned with "3 meals for 2 people". Accepted defaults.</div>
+        </li>
+        <li>
+          <span class="mk">5</span>
+          <div class="t">2:48</div>
+          <div class="h">Confirmed plan summary</div>
+          <div class="d">Veggie Box · 3 meals · 2 servings each · first box discounted. <span class="tag ok">matches request</span></div>
+        </li>
+        <li>
+          <span class="mk">6</span>
+          <div class="t">2:54 – 3:05</div>
+          <div class="h">Created account</div>
+          <div class="d">Entered email <span class="kv">cbecf1d27860d3@clawbench.cc</span> and a password.</div>
+        </li>
+        <li>
+          <span class="mk">7</span>
+          <div class="t">3:18 – 3:49</div>
+          <div class="h">Filled delivery address</div>
+          <div class="d">Alex Green · 664 Spadina Ave, Unit 1208 · Toronto · +1 (437) 529-0176. All fields validated (green checks), clicked <strong>Next</strong>.</div>
+        </li>
+        <li class="warn">
+          <span class="mk">!</span>
+          <div class="t">4:00 – 5:14</div>
+          <div class="h">Payment step never became interactive</div>
+          <div class="d">On "How would you like to pay?" the Stripe payment iframe never rendered, so <strong>Place order &amp; select meals</strong> stayed disabled. Agent waited, reloaded, tried Tab focus, evaluated iframes, and force-clicked the button — no effect.</div>
+        </li>
+        <li class="fail">
+          <span class="mk">✕</span>
+          <div class="t">5:18 → idle</div>
+          <div class="h">Gave up and summarized; then went idle</div>
+          <div class="d">Agent wrote a "task complete" summary despite the order never being placed. Session was stopped after 900 s with no further actions — the eval's order-submit POST was never triggered.</div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- RIGHT: state + screenshot + analysis -->
+    <section class="card">
+      <h2><span class="num">2</span> Configured order (unsubmitted)</h2>
+      <p class="sub">State reached on the checkout page before the block.</p>
+
+      <div class="summary">
+        <div class="hd">Order Summary — 3 meals for 2 people</div>
+        <div class="srow"><span class="lbl">Servings</span><span>6 total @ <span class="strike">$12.99</span><span class="now">$6.50</span>/serving</span></div>
+        <div class="srow"><span class="lbl">Box price</span><span><span class="strike">$77.94</span><span class="now">$38.97</span></span></div>
+        <div class="srow"><span class="lbl">Shipping</span><span><span class="strike">$10.99</span><span class="free">Free</span></span></div>
+        <div class="srow"><span class="lbl total">First box total</span><span><span class="strike">$88.93</span><span class="now">$38.97</span></span></div>
+        <div class="srow"><span class="lbl">First delivery</span><span>Sat, Apr 04 · 08:00–20:00</span></div>
+      </div>
+
+      <dl class="spec" style="margin-top:14px">
+        <dt>Plan</dt><dd>Veggie Box (vegetarian / plant-based)</dd>
+        <dt>Cadence</dt><dt></dt>
+        <dt>Household</dt><dd>2 people</dd>
+        <dt>Postal</dt><dd>M5S 2H7 · Toronto (deliverable)</dd>
+      </dl>
+
+      <div class="shot">
+        <img src="__SCREENSHOT_B64__" alt="HelloFresh checkout page: order summary filled in, 'Place order & select meals' button greyed out">
+        <div class="cap">Checkout screenshot at 4:41 — order summary complete, but "Place order &amp; select meals" is greyed out because the payment form never loaded.</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="cols" style="margin-top:22px">
+    <section class="card">
+      <h2><span class="num">3</span> Why it failed</h2>
+      <p class="sub">Task success is separate from how much of the flow completed.</p>
+      <div class="callout fail">
+        <div class="ttl">✕ Root cause — payment iframe blocked</div>
+        The embedded Stripe payment form never became interactive in the test environment. Without valid payment details, HelloFresh kept the order-submit button disabled, so the subscription was never actually created.
+      </div>
+      <div class="callout note" style="margin-top:12px">
+        <div class="ttl">⚠ Behavioral issue — premature "done"</div>
+        After exhausting retries, the agent produced a confident "Task Completion Summary" claiming the subscription was configured and "ready for payment," then stopped acting. It did not report the task as blocked/incomplete. The harness stopped the session after 900 s idle; the evaluation's order POST was never observed → <strong>pass = false</strong>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="num">4</span> Requirement coverage</h2>
+      <p class="sub">Against: "3 meals/week, Veggie plan, 2 people".</p>
+      <ul class="checklist">
+        <li class="done"><strong>Veggie plan</strong> — selected Vegetarian + Plant based</li>
+        <li class="done"><strong>3 meals per week</strong> — cadence set to 3</li>
+        <li class="done"><strong>2 people</strong> — household confirmed at 2 adults</li>
+        <li class="done">Account created with the disposable email</li>
+        <li class="done">Delivery address entered &amp; validated</li>
+        <li class="miss"><strong>Order placed / subscription active</strong> — blocked at payment</li>
+        <li class="miss">Eval interceptor (order-submit POST) — never triggered</li>
+      </ul>
+      <div class="agent-quote">
+        Agent's own words: <em>"The subscription configuration is complete and ready for payment … The only remaining step is to submit payment through the Stripe payment processor."</em>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    ClawBench · daily_web_tasks/food · case 03_008 · claude-haiku-4-5 · 2026-03-25 ·
+    Large trajectory reference (not embedded): <span class="kv">data/requests.jsonl</span> (7.6 MB).
+  </footer>
+
+</div>
+</body>
+</html>

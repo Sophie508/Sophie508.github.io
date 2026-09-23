@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case 03 — Asia Stock Index Volatility</title>
+  <style>
+    :root{--ink:#17222b;--muted:#60717b;--paper:#f5f1e8;--card:#fffdf8;--line:#d9d2c5;--teal:#176b6b;--teal2:#5aa8a0;--coral:#ef6a4c;--gold:#d9a441;--shadow:0 18px 50px rgba(28,38,42,.09)}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.3;background-image:radial-gradient(#8c9a96 .55px,transparent .55px);background-size:7px 7px;mask-image:linear-gradient(to bottom,#000,transparent 55%)}
+    .shell{width:min(1120px,calc(100% - 40px));margin:auto;position:relative}
+    nav{position:sticky;top:0;z-index:5;background:rgba(245,241,232,.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(110,110,100,.18)}
+    nav .shell{height:64px;display:flex;align-items:center;justify-content:space-between}
+    .brand{font-weight:850;letter-spacing:-.03em}.brand b{color:var(--coral)}
+    nav a{color:var(--muted);text-decoration:none;font-size:.86rem;margin-left:24px}nav a:hover{color:var(--teal)}
+    header{padding:72px 0 46px;display:grid;grid-template-columns:1.4fr .6fr;gap:48px;align-items:end}
+    .eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.16em;color:var(--teal);font-weight:800}
+    h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(3rem,7vw,6.5rem);line-height:.91;letter-spacing:-.055em;margin:14px 0 24px;font-weight:500}
+    .lead{font-size:1.1rem;color:var(--muted);max-width:650px;margin:0}
+    .case-stamp{border-left:2px solid var(--coral);padding-left:20px;color:var(--muted);font-size:.86rem}.case-stamp strong{display:block;color:var(--ink);font-size:1rem;margin-bottom:7px}
+    .answer{background:var(--ink);color:#fff;border-radius:24px;padding:34px 38px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center;overflow:hidden;position:relative}
+    .answer:after{content:"";position:absolute;width:280px;height:280px;border:55px solid rgba(90,168,160,.13);border-radius:50%;right:-130px;top:-150px}
+    .answer .label{color:#92d1c9;text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;font-weight:800}
+    .answer h2{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-size:clamp(2rem,4vw,3.8rem);margin:7px 0 3px;line-height:1}.ticker{color:#9eb0b7;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    .score{text-align:right;z-index:1}.score strong{font-size:clamp(2.7rem,6vw,5.2rem);line-height:1;color:#ff8a6e;letter-spacing:-.06em}.score span{display:block;color:#b9c6ca;font-size:.8rem}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:16px 0 70px}
+    .metric{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px 19px}.metric span{display:block;color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.08em}.metric strong{display:block;font-size:1.2rem;margin-top:4px}
+    section{padding:30px 0 58px}.section-head{display:flex;justify-content:space-between;align-items:end;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:28px}
+    h3{font-family:Georgia,"Times New Roman",serif;font-size:2.3rem;font-weight:500;letter-spacing:-.035em;margin:0}.section-head p{max-width:430px;margin:0;color:var(--muted);font-size:.9rem;text-align:right}
+    .chart-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:0 8px 30px rgba(50,50,40,.04)}
+    .bar-row{display:grid;grid-template-columns:180px 1fr 75px;gap:18px;align-items:center;margin:19px 0}.bar-label{font-size:.91rem}.bar-label small{display:block;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.track{height:26px;background:#eee9df;border-radius:7px;overflow:hidden}.fill{height:100%;width:0;background:var(--teal2);border-radius:7px;transition:width 900ms cubic-bezier(.2,.75,.2,1)}.bar-row:first-child .fill{background:var(--coral)}.value{text-align:right;font-variant-numeric:tabular-nums;font-weight:750}
+    .note{color:var(--muted);font-size:.79rem;margin:22px 0 0;padding-top:17px;border-top:1px dashed var(--line)}
+    .method-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:18px}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px}
+    .panel h4{margin:0 0 12px;font-size:1rem}.formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#e8f0ec;color:#184e4b;padding:18px;border-radius:10px;font-size:.95rem;margin:16px 0}.panel ul{padding-left:19px;margin:14px 0 0;color:var(--muted);font-size:.89rem}.panel li{margin:9px 0}
+    pre{margin:0;background:#111a20;color:#d8e4e5;border-radius:14px;padding:22px;overflow:auto;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre}.kw{color:#f2987f}.fn{color:#82cbc2}.str{color:#e2bd65}
+    .schema{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.pill{border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#faf7f0;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+    .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 19px;min-height:168px}.step:before{content:attr(data-n);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-size:.75rem;font-weight:800;margin-bottom:18px}.step h4{margin:0 0 8px}.step p{margin:0;color:var(--muted);font-size:.82rem}.step.recovery{border-top:4px solid var(--gold)}.step.result{border-top:4px solid var(--teal)}
+    .audit{display:grid;grid-template-columns:1fr 1fr;gap:18px}.audit .panel{display:flex;gap:17px;align-items:flex-start}.icon{flex:0 0 38px;height:38px;border-radius:10px;display:grid;place-items:center;background:#e1eeea;color:var(--teal);font-weight:900}.warn .icon{background:#f7e9cf;color:#9b6b0d}.audit p{margin:5px 0 0;color:var(--muted);font-size:.85rem}
+    footer{border-top:1px solid var(--line);padding:28px 0 45px;color:var(--muted);font-size:.77rem;display:flex;justify-content:space-between;gap:20px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    .reveal{opacity:0;transform:translateY(12px);transition:.55s ease}.reveal.on{opacity:1;transform:none}
+    @media(max-width:800px){header{grid-template-columns:1fr}.case-stamp{display:none}.answer{grid-template-columns:1fr}.score{text-align:left}.metrics{grid-template-columns:1fr 1fr}.method-grid,.audit{grid-template-columns:1fr}.timeline{grid-template-columns:1fr 1fr}.section-head{display:block}.section-head p{text-align:left;margin-top:8px}.bar-row{grid-template-columns:125px 1fr 62px}nav .links{display:none}}
+    @media(max-width:500px){.shell{width:min(100% - 24px,1120px)}header{padding-top:45px}.answer{padding:26px}.metrics,.timeline{grid-template-columns:1fr}.bar-row{grid-template-columns:1fr 58px}.track{grid-row:2;grid-column:1/3}.chart-card{padding:19px}}
+  </style>
+</head>
+<body>
+  <nav><div class="shell"><div class="brand">AgentHTML <b>/ 03</b></div><div class="links"><a href="#ranking">Ranking</a><a href="#method">Method</a><a href="#trajectory">Trajectory</a><a href="#audit">Audit</a></div></div></nav>
+  <main class="shell">
+    <header>
+      <div><div class="eyebrow">DataAgentBench · data analysis</div><h1>Asia’s widest<br>daily range.</h1><p class="lead">A case study in identifying the stock index with the highest average intraday volatility since 2020—and in recovering a valid result from a constrained execution environment.</p></div>
+      <div class="case-stamp"><strong>Case 03_stockindex_query1</strong>Collected 11 July 2026<br>Model gpt-5.6-sol<br>Exit code 0</div>
+    </header>
+
+    <section style="padding-top:0">
+      <div class="answer reveal"><div><div class="label">Highest average intraday volatility</div><h2>Shenzhen Component</h2><div class="ticker">399001.SZ</div></div><div class="score"><strong>1.8341%</strong><span>average per trading day</span></div></div>
+      <div class="metrics reveal"><div class="metric"><span>Observations</span><strong>342 days</strong></div><div class="metric"><span>Comparison set</span><strong>6 indexes</strong></div><div class="metric"><span>Start filter</span><strong>2020-01-01</strong></div><div class="metric"><span>Date parse</span><strong>0 failures</strong></div></div>
+    </section>
+
+    <section id="ranking">
+      <div class="section-head"><h3>Ranked comparison</h3><p>Average daily high–low range as a percentage of the opening level. Percentage scaling makes indexes with different point levels comparable.</p></div>
+      <div class="chart-card reveal" role="img" aria-label="Bar chart of average intraday volatility for six Asian stock indexes">
+        <div class="bar-row"><div class="bar-label">Shenzhen Component<small>399001.SZ · 342 days</small></div><div class="track"><div class="fill" data-width="100"></div></div><div class="value">1.8341%</div></div>
+        <div class="bar-row"><div class="bar-label">Nifty 50<small>NSEI · 349 days</small></div><div class="track"><div class="fill" data-width="93.08"></div></div><div class="value">1.7072%</div></div>
+        <div class="bar-row"><div class="bar-label">Hang Seng Index<small>HSI · 348 days</small></div><div class="track"><div class="fill" data-width="81.41"></div></div><div class="value">1.4932%</div></div>
+        <div class="bar-row"><div class="bar-label">Shanghai Composite<small>000001.SS · 340 days</small></div><div class="track"><div class="fill" data-width="75.14"></div></div><div class="value">1.3781%</div></div>
+        <div class="bar-row"><div class="bar-label">Nikkei 225<small>N225 · 344 days</small></div><div class="track"><div class="fill" data-width="73.21"></div></div><div class="value">1.3427%</div></div>
+        <div class="bar-row"><div class="bar-label">Taiwan Weighted<small>TWII · 339 days</small></div><div class="track"><div class="fill" data-width="72.11"></div></div><div class="value">1.3225%</div></div>
+        <p class="note">The leader exceeds Nifty 50, the runner-up, by 0.1269 percentage points (about 7.4% relative to Nifty 50’s average).</p>
+      </div>
+    </section>
+
+    <section id="method">
+      <div class="section-head"><h3>Method & evidence</h3><p>The analysis joined a manually identified Asia ticker set to trade records after parsing three observed date formats.</p></div>
+      <div class="method-grid">
+        <div class="panel reveal"><h4>Operational definition</h4><div class="formula">(High − Low) / Open × 100</div><ul><li>Filter parsed dates on or after 1 January 2020.</li><li>Require a positive opening value and non-null high and low.</li><li>Average daily percentage ranges by ticker, then sort descending.</li></ul><h4 style="margin-top:24px">Trade schema used</h4><div class="schema"><span class="pill">Index</span><span class="pill">Date</span><span class="pill">Open</span><span class="pill">High</span><span class="pill">Low</span><span class="pill">Close</span><span class="pill">Adj Close</span><span class="pill">CloseUSD</span></div></div>
+        <div class="panel reveal"><pre><span class="kw">WITH</span> parsed <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> "Index" <span class="kw">AS</span> idx,
+    <span class="fn">COALESCE</span>(
+      <span class="fn">try_strptime</span>("Date", <span class="str">'%Y-%m-%d %H:%M:%S'</span>),
+      <span class="fn">try_strptime</span>("Date", <span class="str">'%d %b %Y, %H:%M'</span>),
+      <span class="fn">try_strptime</span>("Date", <span class="str">'%B %d, %Y at %I:%M %p'</span>)
+    ) <span class="kw">AS</span> dt,
+    "Open" op, "High" hi, "Low" lo
+  <span class="kw">FROM</span> index_trade
+)
+<span class="kw">SELECT</span> name, idx, <span class="fn">COUNT</span>(*),
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(100 * (hi - lo) / op), 4)
+<span class="kw">FROM</span> parsed <span class="kw">JOIN</span> asia <span class="kw">USING</span> (idx)
+<span class="kw">WHERE</span> dt &gt;= <span class="str">DATE '2020-01-01'</span> <span class="kw">AND</span> op &gt; 0
+<span class="kw">GROUP BY</span> name, idx
+<span class="kw">ORDER BY</span> 4 <span class="kw">DESC</span>;</pre></div>
+      </div>
+    </section>
+
+    <section id="trajectory">
+      <div class="section-head"><h3>How the run unfolded</h3><p>The final answer was correct and concise, but the 70-minute trajectory was dominated by command quoting and encoding friction.</p></div>
+      <div class="timeline">
+        <article class="step reveal" data-n="1"><h4>Inspect</h4><p>Read SQLite and DuckDB schemas. Identified the metadata table and OHLC trade fields.</p></article>
+        <article class="step reveal" data-n="2"><h4>Scope</h4><p>Mapped six Asia-region exchanges to traded tickers: HSI, 000001.SS, N225, 399001.SZ, NSEI, and TWII.</p></article>
+        <article class="step recovery reveal" data-n="3"><h4>Recover</h4><p>Worked through blocked heredocs, shell parse errors, unavailable JavaScript encoders, and escaped-newline syntax errors.</p></article>
+        <article class="step result reveal" data-n="4"><h4>Compute</h4><p>A read-only DuckDB query returned all six rankings and confirmed every date value parsed.</p></article>
+      </div>
+    </section>
+
+    <section id="audit">
+      <div class="section-head"><h3>Case audit</h3><p>What supports confidence in the result, and what remains a methodological choice.</p></div>
+      <div class="audit">
+        <div class="panel reveal"><div class="icon">✓</div><div><h4>Strong evidence</h4><p>The successful computation printed the full ranking, sample counts, and zero unparsed dates. The leader is separated clearly from the runner-up.</p></div></div>
+        <div class="panel warn reveal"><div class="icon">!</div><div><h4>Interpretation boundary</h4><p>“Intraday volatility” was operationalized as the high–low percentage range relative to open. Other definitions—such as log range estimators—could produce different magnitudes or ordering.</p></div></div>
+        <div class="panel reveal"><div class="icon">✓</div><div><h4>Scale-aware comparison</h4><p>Using percentages avoids the distortion that would come from comparing raw point ranges across indexes with very different nominal levels.</p></div></div>
+        <div class="panel warn reveal"><div class="icon">!</div><div><h4>Execution efficiency</h4><p>Nine tool calls included six failed command-construction attempts. A short script file was impossible in the original read-only workspace, making direct invocation unusually fragile.</p></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell"><span>Source: trajectory.jsonl · codex-jsonl · 36 records · no external references</span><span class="mono">duration 4248.1s · sha256 5b480313…b56871</span></footer>
+  <script>
+    const observer=new IntersectionObserver((entries)=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');e.target.querySelectorAll?.('.fill').forEach(b=>b.style.width=b.dataset.width+'%');observer.unobserve(e.target)}}),{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+    document.querySelectorAll('.fill').forEach(b=>{const card=b.closest('.reveal');if(!card)b.style.width=b.dataset.width+'%'});
+  </script>
+</body>
+</html>

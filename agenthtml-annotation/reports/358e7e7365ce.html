@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>05_022 · Toronto → Niagara rental run · ClawBench</title>
+<style>
+  :root {
+    --lake-ink: #0B2C36;
+    --map-cream: #F7F1E6;
+    --paper: #FFFCF6;
+    --signal-amber: #D9A441;
+    --roadside-rust: #A9442E;
+    --freeze-teal: #1F6F78;
+    --graphite: #2A2E32;
+    --mist: #C9D5D8;
+    --chalk: #E6EEEF;
+    --shadow: rgba(11, 44, 54, 0.14);
+    --line: rgba(11, 44, 54, 0.12);
+    --display: "Avenir Next Condensed", "Avenir Next", "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+    --body: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --mono: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --radius: 6px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--graphite);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(31, 111, 120, 0.08), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(217, 164, 65, 0.10), transparent 55%),
+      linear-gradient(180deg, #E9F0F1 0%, var(--map-cream) 32%, #EFE7D8 100%);
+    font-family: var(--body);
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image:
+      repeating-linear-gradient(0deg, #0B2C36 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, #0B2C36 0 1px, transparent 1px 3px);
+    mix-blend-mode: multiply;
+    z-index: 0;
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    width: min(1120px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 2rem 0 4rem;
+  }
+
+  /* Top rail */
+  .rail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-family: var(--display);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    color: var(--lake-ink);
+  }
+  .rail .pills { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .pill {
+    border: 1px solid var(--line);
+    background: rgba(255, 252, 246, 0.75);
+    padding: 0.3rem 0.55rem;
+    border-radius: 999px;
+    backdrop-filter: blur(4px);
+  }
+  .pill strong { font-weight: 700; color: var(--freeze-teal); }
+
+  /* Ticket hero */
+  .ticket {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.35fr 0.85fr;
+    background: var(--paper);
+    border: 1.5px solid rgba(11, 44, 54, 0.22);
+    box-shadow: 0 18px 50px var(--shadow), 0 1px 0 rgba(255,255,255,0.7) inset;
+    border-radius: 10px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .ticket::before,
+  .ticket::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #DDE7E8;
+    transform: translateY(-50%);
+    box-shadow: inset 0 0 0 1px rgba(11,44,54,0.12);
+    z-index: 3;
+  }
+  .ticket::before { left: -11px; }
+  .ticket::after { right: -11px; }
+
+  .ticket-main {
+    padding: 1.6rem 1.8rem 1.5rem;
+    position: relative;
+  }
+  .ticket-main::after {
+    content: "";
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    right: 0;
+    border-right: 2px dashed rgba(11, 44, 54, 0.18);
+  }
+
+  .eyebrow {
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.7rem;
+    color: var(--freeze-teal);
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+  }
+  .route {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.55rem 0.9rem;
+    margin: 0 0 0.85rem;
+  }
+  .route h1 {
+    font-family: var(--display);
+    font-size: clamp(1.8rem, 4vw, 2.55rem);
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: 0.01em;
+    color: var(--lake-ink);
+    font-weight: 700;
+  }
+  .route .arrow {
+    font-family: var(--display);
+    color: var(--signal-amber);
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .route-sub {
+    margin: 0 0 1.2rem;
+    color: rgba(42, 46, 50, 0.78);
+    max-width: 46ch;
+    font-size: 1.02rem;
+  }
+
+  .params {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+  .param {
+    border-top: 2px solid var(--lake-ink);
+    padding-top: 0.45rem;
+  }
+  .param .k {
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.62rem;
+    color: rgba(11, 44, 54, 0.62);
+  }
+  .param .v {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--lake-ink);
+    margin-top: 0.15rem;
+  }
+
+  .ticket-side {
+    padding: 1.5rem 1.4rem;
+    background:
+      linear-gradient(160deg, rgba(217, 164, 65, 0.12), transparent 55%),
+      linear-gradient(180deg, #FBF5E8, #F2E7D1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    position: relative;
+  }
+
+  .barcode {
+    height: 42px;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        var(--lake-ink) 0 2px,
+        transparent 2px 4px,
+        var(--lake-ink) 4px 5px,
+        transparent 5px 8px,
+        var(--lake-ink) 8px 11px,
+        transparent 11px 13px
+      );
+    opacity: 0.75;
+    border-radius: 2px;
+  }
+  .side-meta {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: rgba(11, 44, 54, 0.8);
+  }
+  .side-meta div { margin-bottom: 0.25rem; }
+  .side-meta span { color: rgba(11, 44, 54, 0.55); }
+
+  .stamp {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-14deg);
+    border: 3px solid var(--roadside-rust);
+    color: var(--roadside-rust);
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 800;
+    font-size: 1.05rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: 4px;
+    background: rgba(255, 252, 246, 0.55);
+    box-shadow: 0 0 0 3px rgba(169, 68, 46, 0.08);
+    mix-blend-mode: multiply;
+    animation: stamp-in 0.7s cubic-bezier(.2,.8,.2,1) 0.25s both;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .stamp small {
+    display: block;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    margin-top: 0.15rem;
+    opacity: 0.9;
+  }
+  @keyframes stamp-in {
+    from { opacity: 0; transform: translate(-50%, -40%) rotate(-14deg) scale(1.25); }
+    to { opacity: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1); }
+  }
+
+  /* Layout sections */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 0.95fr 1.35fr;
+    gap: 1.1rem;
+    margin-top: 1.25rem;
+  }
+  .card {
+    background: rgba(255, 252, 246, 0.88);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(11, 44, 54, 0.05);
+    padding: 1.15rem 1.2rem 1.25rem;
+  }
+  .card h2 {
+    font-family: var(--display);
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0 0 0.85rem;
+    color: var(--lake-ink);
+  }
+
+  .task-quote {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    border-left: 4px solid var(--signal-amber);
+    background: linear-gradient(90deg, rgba(217,164,65,0.12), transparent);
+    font-size: 1.05rem;
+    color: var(--lake-ink);
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+    margin-top: 1rem;
+  }
+  .stat {
+    background: var(--chalk);
+    border-radius: 8px;
+    padding: 0.7rem 0.75rem;
+  }
+  .stat .n {
+    font-family: var(--display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--lake-ink);
+    line-height: 1;
+  }
+  .stat .l {
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.62rem;
+    color: rgba(11,44,54,0.6);
+    margin-top: 0.3rem;
+  }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.85rem; }
+  .chip {
+    font-family: var(--display);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    padding: 0.28rem 0.55rem;
+    border-radius: 999px;
+    background: var(--lake-ink);
+    color: var(--map-cream);
+  }
+  .chip.alt { background: var(--freeze-teal); }
+  .chip.warn { background: var(--roadside-rust); }
+  .chip.soft {
+    background: transparent;
+    color: var(--lake-ink);
+    border: 1px solid var(--line);
+  }
+
+  /* Highway timeline */
+  .timeline-card { margin-top: 1.25rem; }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-bottom: 1rem;
+  }
+  .filter-btn {
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.68rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--lake-ink);
+    border-radius: 999px;
+    padding: 0.4rem 0.7rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .filter-btn:hover, .filter-btn:focus-visible {
+    outline: none;
+    border-color: var(--freeze-teal);
+    color: var(--freeze-teal);
+  }
+  .filter-btn.active {
+    background: var(--lake-ink);
+    color: var(--map-cream);
+    border-color: var(--lake-ink);
+  }
+
+  .highway {
+    position: relative;
+    padding-left: 1.4rem;
+  }
+  .highway::before {
+    content: "";
+    position: absolute;
+    left: 0.45rem;
+    top: 0.2rem;
+    bottom: 0.2rem;
+    width: 4px;
+    border-radius: 4px;
+    background:
+      linear-gradient(180deg, var(--lake-ink), var(--freeze-teal) 45%, var(--roadside-rust));
+  }
+  .highway::after {
+    content: "";
+    position: absolute;
+    left: 0.55rem;
+    top: 0.4rem;
+    bottom: 0.4rem;
+    width: 0;
+    border-left: 2px dashed var(--signal-amber);
+    opacity: 0.8;
+  }
+
+  .stop {
+    position: relative;
+    margin: 0 0 0.85rem;
+    padding: 0.85rem 0.95rem 0.9rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .stop:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(11,44,54,0.07); }
+  .stop::before {
+    content: "";
+    position: absolute;
+    left: -1.18rem;
+    top: 1.1rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--signal-amber);
+    border: 2px solid var(--paper);
+    box-shadow: 0 0 0 2px var(--lake-ink);
+    z-index: 1;
+  }
+  .stop[data-site="rentalcars"]::before { background: var(--freeze-teal); }
+  .stop[data-kind="friction"]::before { background: var(--roadside-rust); }
+  .stop[data-kind="prep"]::before { background: var(--mist); }
+  .stop.hidden { display: none; }
+
+  .stop-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.35rem;
+  }
+  .stop-title {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--lake-ink);
+    margin: 0;
+  }
+  .stop-time {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: rgba(11,44,54,0.55);
+  }
+  .stop p {
+    margin: 0.25rem 0 0;
+    color: rgba(42, 46, 50, 0.88);
+    font-size: 0.95rem;
+  }
+  .stop details {
+    margin-top: 0.55rem;
+    font-size: 0.88rem;
+  }
+  .stop summary {
+    cursor: pointer;
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.68rem;
+    color: var(--freeze-teal);
+    list-style: none;
+  }
+  .stop summary::-webkit-details-marker { display: none; }
+  .stop summary:focus-visible { outline: 2px solid var(--freeze-teal); outline-offset: 2px; }
+  .stop pre, .mono-block {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    background: #0B2C36;
+    color: #E5F0F0;
+    padding: 0.7rem 0.8rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 0.45rem 0 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Friction + outcome */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+    margin-top: 1.25rem;
+  }
+  .friction-list { list-style: none; padding: 0; margin: 0; }
+  .friction-list li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.65rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .friction-list li:last-child { border-bottom: 0; }
+  .badge {
+    font-family: var(--display);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.4rem;
+    border-radius: 4px;
+    align-self: start;
+    background: rgba(169, 68, 46, 0.12);
+    color: var(--roadside-rust);
+    font-weight: 700;
+  }
+  .badge.mid { background: rgba(217,164,65,0.18); color: #8A6420; }
+  .badge.low { background: rgba(31,111,120,0.12); color: var(--freeze-teal); }
+
+  .outcome {
+    position: relative;
+    overflow: hidden;
+  }
+  .outcome .status {
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.75rem;
+    color: var(--roadside-rust);
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+  }
+  .outcome h3 {
+    margin: 0 0 0.5rem;
+    font-family: var(--display);
+    font-size: 1.25rem;
+    color: var(--lake-ink);
+  }
+  .outcome p { margin: 0 0 0.7rem; }
+  .checklist { list-style: none; padding: 0; margin: 0; }
+  .checklist li {
+    display: flex;
+    gap: 0.55rem;
+    align-items: flex-start;
+    padding: 0.35rem 0;
+    font-size: 0.95rem;
+  }
+  .mark {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    min-width: 1.2rem;
+    color: var(--freeze-teal);
+    font-weight: 700;
+  }
+  .mark.no { color: var(--roadside-rust); }
+  .mark.partial { color: #8A6420; }
+
+  /* Sites strip */
+  .sites {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .site {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.8rem;
+    background: linear-gradient(180deg, #FFFCF6, #F4EDE2);
+  }
+  .site h3 {
+    margin: 0 0 0.25rem;
+    font-family: var(--display);
+    font-size: 0.95rem;
+    color: var(--lake-ink);
+  }
+  .site p { margin: 0; font-size: 0.9rem; color: rgba(42,46,50,0.85); }
+  .site .tag {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-family: var(--display);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--freeze-teal);
+  }
+
+  /* Media / references */
+  .refs {
+    margin-top: 1.25rem;
+  }
+  .refs ul {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+  .refs li {
+    margin: 0.35rem 0;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: rgba(11,44,54,0.78);
+    word-break: break-all;
+  }
+
+  footer {
+    margin-top: 1.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--display);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(11,44,54,0.55);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    justify-content: space-between;
+  }
+
+  @media (max-width: 860px) {
+    .ticket, .grid-2, .split, .params, .sites { grid-template-columns: 1fr; }
+    .ticket-main::after { display: none; }
+    .params { grid-template-columns: 1fr 1fr; }
+    .shell { width: min(1120px, calc(100% - 1.25rem)); padding-top: 1.25rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stamp { animation: none; }
+    .stop { transition: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="rail">
+      <div>ClawBench · daily_web_tasks · 05_022</div>
+      <div class="pills">
+        <span class="pill">model <strong>claude-opus-4-6</strong></span>
+        <span class="pill">thinking <strong>medium</strong></span>
+        <span class="pill">format <strong>clawbench-dir</strong></span>
+        <span class="pill">run <strong>2026-03-27 14:45</strong></span>
+      </div>
+    </div>
+
+    <section class="ticket" aria-label="Rental itinerary ticket">
+      <div class="ticket-main">
+        <p class="eyebrow">One-day compact rental · browser agent run</p>
+        <div class="route">
+          <h1>Toronto</h1>
+          <span class="arrow" aria-hidden="true">→</span>
+          <h1>Niagara Falls</h1>
+        </div>
+        <p class="route-sub">
+          Agent was asked to book a compact car for a same-day trip on June 20,
+          pickup 9:00&nbsp;am, return by 6:00&nbsp;pm — entirely through the browser.
+        </p>
+        <div class="params">
+          <div class="param">
+            <div class="k">Date</div>
+            <div class="v">Sat · 20 Jun 2026</div>
+          </div>
+          <div class="param">
+            <div class="k">Pickup</div>
+            <div class="v">09:00</div>
+          </div>
+          <div class="param">
+            <div class="k">Return</div>
+            <div class="v">18:00</div>
+          </div>
+          <div class="param">
+            <div class="k">Class</div>
+            <div class="v">Compact</div>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-side">
+        <div class="side-meta">
+          <div><span>CASE</span> 05_022-daily-life-transportation-turo-enterprise</div>
+          <div><span>USER</span> Alex Green · cb507c63b6db63@clawbench.cc</div>
+          <div><span>PLATFORM LABEL</span> turo-enterprise</div>
+          <div><span>ACTUAL SITES</span> kayak.com · rentalcars.com</div>
+          <div><span>DURATION META</span> 1828s · time limit 30m</div>
+          <div><span>RECORDED SPAN</span> ~07m 21s of messages</div>
+        </div>
+        <div>
+          <div class="barcode" aria-hidden="true"></div>
+          <div class="side-meta" style="margin-top:0.55rem">
+            <div><span>CONFIRMATION</span> — none issued —</div>
+          </div>
+        </div>
+        <div class="stamp">Stalled<small>no booking sealed</small></div>
+      </div>
+    </section>
+
+    <div class="grid-2">
+      <section class="card">
+        <h2>The brief</h2>
+        <blockquote class="task-quote">
+          Book a car rental on June 20 from Toronto to Niagara Falls, pick up at 9am and return the car by 6pm, compact car
+        </blockquote>
+        <p style="margin:0.9rem 0 0; font-size:0.95rem;">
+          Constraints from the prompt: complete every step in the browser; use personal files under
+          <code style="font-family:var(--mono); font-size:0.85em;">/my-info/</code>; do not ask for confirmation; do not use CLI/API shortcuts for the booking itself.
+        </p>
+        <div class="chip-row">
+          <span class="chip">metaclass · daily-life</span>
+          <span class="chip alt">class · transportation</span>
+          <span class="chip soft">task id · 22</span>
+          <span class="chip warn">outcome · incomplete</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Run vitals</h2>
+        <div class="stat-row">
+          <div class="stat"><div class="n">60</div><div class="l">assistant turns</div></div>
+          <div class="stat"><div class="n">58</div><div class="l">browser tool calls</div></div>
+          <div class="stat"><div class="n">2</div><div class="l">sites attempted</div></div>
+          <div class="stat"><div class="n">0</div><div class="l">cars booked</div></div>
+        </div>
+        <div class="chip-row">
+          <span class="chip soft">tools · browser ×58 · exec ×2</span>
+          <span class="chip soft">actions.jsonl · 62 DOM events</span>
+          <span class="chip soft">screenshots · 6 media refs</span>
+        </div>
+        <p style="margin:0.9rem 0 0; font-size:0.95rem;">
+          The agent loaded personal info for <strong>Alex Green</strong> (Toronto address on Spadina Ave),
+          checked browser CDP status, then spent the rest of the run wrestling search forms—
+          never reaching a checkout flow.
+        </p>
+      </section>
+    </div>
+
+    <section class="card timeline-card">
+      <h2>Road log · agent journey</h2>
+      <div class="controls" role="toolbar" aria-label="Filter timeline by site">
+        <button class="filter-btn active" data-filter="all" type="button">All stops</button>
+        <button class="filter-btn" data-filter="prep" type="button">Prep</button>
+        <button class="filter-btn" data-filter="kayak" type="button">Kayak</button>
+        <button class="filter-btn" data-filter="rentalcars" type="button">Rentalcars</button>
+        <button class="filter-btn" data-filter="friction" type="button">Friction only</button>
+      </div>
+
+      <div class="highway" id="highway">
+        <article class="stop" data-site="prep" data-kind="prep">
+          <div class="stop-head">
+            <h3 class="stop-title">Prep · identity locker</h3>
+            <time class="stop-time">14:45:42Z</time>
+          </div>
+          <p>Lists <code style="font-family:var(--mono);font-size:0.85em;">/my-info/</code>, confirms browser CDP is running, then reads Alex Green’s personal profile (email, Toronto home address, DOB 1980-05-01).</p>
+          <details>
+            <summary>Tool trail</summary>
+            <pre>exec · ls /my-info/
+browser · status  → profile=container, cdpReady=true
+exec · cat /my-info/alex_green_personal_info.json</pre>
+          </details>
+        </article>
+
+        <article class="stop" data-site="kayak" data-kind="progress">
+          <div class="stop-head">
+            <h3 class="stop-title">Kayak cars · open the lot</h3>
+            <time class="stop-time">14:45:52Z</time>
+          </div>
+          <p>Navigates to <strong>kayak.com/cars</strong>. Snapshot already shows pick-up location as “Toronto, Ontario, Canada.” Agent decides the itinerary implies a one-way rental.</p>
+        </article>
+
+        <article class="stop" data-site="kayak" data-kind="progress">
+          <div class="stop-head">
+            <h3 class="stop-title">Form craft · one-way path</h3>
+            <time class="stop-time">14:46:06 – 14:48:01Z</time>
+          </div>
+          <p>Clicks <em>Same drop-off → Different drop-off</em>, types <strong>Niagara Falls</strong>, picks the Ontario suggestion, steps calendar from April/May to June, selects 20 June for both start and end.</p>
+          <details>
+            <summary>Form state observed</summary>
+            <pre>Pick-up:  Toronto, Ontario, Canada
+Drop-off: Niagara Falls, Ontario, Canada
+Dates:    Sat 6/20 → Sat 6/20
+Times:    Noon → 1:00 pm  (still defaults)</pre>
+          </details>
+        </article>
+
+        <article class="stop" data-site="kayak" data-kind="progress">
+          <div class="stop-head">
+            <h3 class="stop-title">Clock set · 9am / 6pm</h3>
+            <time class="stop-time">14:48:12 – 14:49:08Z</time>
+          </div>
+          <p>Opens start-time combobox and chooses <strong>9:00 am</strong>; sets end time to <strong>6:00 pm</strong>. Verifies the search strip before clicking the search control.</p>
+          <details>
+            <summary>Verified strip</summary>
+            <pre>Toronto, Ontario, Canada → Niagara Falls, Ontario…
+Sat 6/20, 9:00 am → Sat 6/20, 6:00 pm</pre>
+          </details>
+        </article>
+
+        <article class="stop" data-site="kayak" data-kind="friction">
+          <div class="stop-head">
+            <h3 class="stop-title">Dead end · zero one-way cars</h3>
+            <time class="stop-time">14:49:22Z</time>
+          </div>
+          <p>Search returns <strong>“No matching results were found”</strong> for Toronto → Niagara Falls one-way. Agent reinterprets the brief as possibly a same-day round trip from Toronto.</p>
+        </article>
+
+        <article class="stop" data-site="kayak" data-kind="friction">
+          <div class="stop-head">
+            <h3 class="stop-title">Deep-link retry · compact filter</h3>
+            <time class="stop-time">14:49:40 – 14:51:09Z</time>
+          </div>
+          <p>Navigates via constructed URLs with Toronto city id and compact filter, resets the Kayak search page, experiments with same drop-off. Location state goes wrong: UI shows <strong>Hoffman, Illinois</strong> instead of Toronto.</p>
+          <details>
+            <summary>URLs attempted</summary>
+            <pre>https://www.kayak.com/cars/Toronto,Ontario,Canada-c30560/2026-06-20-09h/2026-06-20-18h?sort=rank_a&carClass=compact
+https://www.kayak.com/cars
+https://www.kayak.com/cars/Toronto,ON-c30560/2026-06-20-09h/2026-06-20-18h</pre>
+          </details>
+        </article>
+
+        <article class="stop" data-site="rentalcars" data-kind="progress">
+          <div class="stop-head">
+            <h3 class="stop-title">Pivot · Rentalcars.com</h3>
+            <time class="stop-time">14:51:32Z</time>
+          </div>
+          <p>Abandons Kayak’s glitchy geo and loads <strong>rentalcars.com</strong>. Plans one-way again: Toronto pickup, Niagara drop, June 20, 9am–6pm.</p>
+        </article>
+
+        <article class="stop" data-site="rentalcars" data-kind="friction">
+          <div class="stop-head">
+            <h3 class="stop-title">Autocomplete block · “No Results Found”</h3>
+            <time class="stop-time">14:51:52 – 14:52:59Z</time>
+          </div>
+          <p>Types “Toronto” (fast, then slowly). Autocomplete keeps answering <strong>No Results Found</strong>. Final recorded move tries another click; explores a fill strategy—and the message log ends mid-attempt.</p>
+          <details>
+            <summary>Last assistant line</summary>
+            <pre>Still "No Results Found". The autocomplete might be blocked.
+Let me try using the fill action… or try a different approach
+entirely. Let me use the `fill` action to set the value directly.</pre>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <div class="split">
+      <section class="card">
+        <h2>Sites on the map</h2>
+        <div class="sites">
+          <div class="site">
+            <h3>KAYAK Cars</h3>
+            <p>Primary attempt. Successfully encoded one-way Toronto→Niagara with correct day and hours before the inventory came back empty, then suffered location-id drift to Illinois.</p>
+            <span class="tag">5 page loads · form mastery · empty inventory</span>
+          </div>
+          <div class="site">
+            <h3>Rentalcars.com</h3>
+            <p>Secondary pivot after Kayak geo failure. Never cleared the pickup autocomplete gate—so no dates, class filter, or booking cart was reached.</p>
+            <span class="tag">stalled at location field</span>
+          </div>
+        </div>
+        <p style="margin:0.95rem 0 0; font-size:0.92rem; color:rgba(42,46,50,0.82);">
+          Case metadata labels the platform <em>turo-enterprise</em> / sites_involved <em>turo.com</em>, but this trajectory never opened Turo. The agent chose comparison/aggregator car sites instead.
+        </p>
+      </section>
+
+      <section class="card outcome">
+        <div class="status">Outcome · incomplete</div>
+        <h3>Reservation never sealed</h3>
+        <p>No compact car was selected, no driver details submitted, no confirmation number produced. The recorded dialogue ends while location autocomplete is still failing on Rentalcars.</p>
+        <ul class="checklist">
+          <li><span class="mark">OK</span><span>Read allowed personal profile files</span></li>
+          <li><span class="mark">OK</span><span>Operated entirely in the browser after prep</span></li>
+          <li><span class="mark partial">~</span><span>Encoded Toronto / Niagara / Jun 20 / 9–6 once on Kayak</span></li>
+          <li><span class="mark no">×</span><span>Failed to surface bookable inventory</span></li>
+          <li><span class="mark no">×</span><span>Never filtered/selected a compact car to checkout</span></li>
+          <li><span class="mark no">×</span><span>No confirmed booking artifact</span></li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:1.25rem;">
+      <h2>Friction ledger</h2>
+      <ul class="friction-list">
+        <li>
+          <span class="badge">hard</span>
+          <div>
+            <strong>One-way inventory blackout.</strong>
+            Toronto→Niagara Falls same-day one-way returned zero matches on Kayak—even after the form was correctly filled.
+          </div>
+        </li>
+        <li>
+          <span class="badge mid">mid</span>
+          <div>
+            <strong>Ambiguous route wording.</strong>
+            “From Toronto to Niagara Falls” was first treated as one-way drop-off, then re-read as a same-city day trip after the empty search.
+          </div>
+        </li>
+        <li>
+          <span class="badge mid">mid</span>
+          <div>
+            <strong>City-id ghosting.</strong>
+            Direct Kayak deep links resolved to Hoffman, Illinois instead of Toronto—breaking the same-drop-off recovery plan.
+          </div>
+        </li>
+        <li>
+          <span class="badge">hard</span>
+          <div>
+            <strong>Autocomplete impermeability on Rentalcars.</strong>
+            Fast and slow typing both produced “No Results Found,” blocking the rest of the booking tree.
+          </div>
+        </li>
+        <li>
+          <span class="badge low">soft</span>
+          <div>
+            <strong>Trajectory cut mid-strategy.</strong>
+            Message log ends at 14:52:59Z (~7m tracked) while run_meta lasting 1828s / 30m limit suggests idle, timeout, or packaging truncation after the final toolResult.
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="card refs">
+      <h2>Artifacts & references</h2>
+      <p style="margin:0 0 0.55rem; font-size:0.95rem;">
+        Media files live only as agent-side paths (not embedded here). Large upstream logs are listed by path only.
+      </p>
+      <ul>
+        <li>MEDIA:/root/.openclaw/media/browser/a9883623-0795-4e45-88db-1e115219688d.jpg · Kayak form state</li>
+        <li>MEDIA:/root/.openclaw/media/browser/503c647b-079b-4feb-afb9-fcaf90eb6691.jpg</li>
+        <li>MEDIA:/root/.openclaw/media/browser/5ba146c1-bfeb-489d-bef9-0ed67825e518.png · empty search</li>
+        <li>MEDIA:/root/.openclaw/media/browser/70cce2fe-af72-453a-be1b-815e8b8661b6.png · deep-link attempt</li>
+        <li>MEDIA:/root/.openclaw/media/browser/5f1b8e0d-014f-4ded-9275-89fe45bda1a6.jpg</li>
+        <li>MEDIA:/root/.openclaw/media/browser/47a2e4cf-96c8-4d0f-a6ca-d9a2ac0f749b.png · Hoffman IL misfire</li>
+        <li>reference only · trajs/.../data/requests.jsonl · 6,218,346 bytes · over size cap</li>
+        <li>local trajectory · data/agent-messages.jsonl · 125 lines · 60 toolResult turns</li>
+        <li>local actions · data/actions.jsonl · 62 events · kayak ↔ rentalcars URL chain</li>
+      </ul>
+    </section>
+
+    <footer>
+      <span>Case 05_022 · daily-life · transportation</span>
+      <span>Self-contained presentation · no external assets</span>
+      <span>Shell design · highway itinerary folio</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll(".filter-btn");
+      var stops = document.querySelectorAll(".stop");
+
+      function applyFilter(key) {
+        stops.forEach(function (stop) {
+          var site = stop.getAttribute("data-site");
+          var kind = stop.getAttribute("data-kind");
+          var show = true;
+          if (key === "all") show = true;
+          else if (key === "friction") show = kind === "friction";
+          else if (key === "prep") show = site === "prep";
+          else show = site === key;
+          stop.classList.toggle("hidden", !show);
+        });
+      }
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          buttons.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          applyFilter(btn.getAttribute("data-filter"));
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpotHero Parking Reservation — ClawBench Trajectory</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222535;
+    --border: #2d3148;
+    --accent: #5b6af0;
+    --accent-dim: #3d4aba;
+    --green: #34c97b;
+    --red: #e05555;
+    --yellow: #f5c842;
+    --blue: #4fa3e0;
+    --purple: #9b72f5;
+    --text: #d8dce8;
+    --text-dim: #7e8499;
+    --text-bright: #f0f2ff;
+    --mono: "SF Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ─────────────────────────────────────────────── */
+  .page-header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px 24px;
+  }
+  .breadcrumb {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .breadcrumb span { color: var(--accent); }
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-bright);
+    line-height: 1.3;
+    margin-bottom: 14px;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    border: 1px solid;
+  }
+  .badge-model  { background: #1f1440; border-color: #6b46c1; color: #c084fc; }
+  .badge-domain { background: #0f2540; border-color: #2563eb; color: #60a5fa; }
+  .badge-site   { background: #132016; border-color: #15803d; color: #4ade80; }
+  .badge-result { background: #2a1212; border-color: #9b2020; color: #f87171; }
+  .badge-time   { background: #1c1a10; border-color: #854d0e; color: #fbbf24; }
+
+  /* ── Layout ─────────────────────────────────────────────── */
+  .layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 0;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ── Sidebar ─────────────────────────────────────────────── */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 24px 20px;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+  .sidebar-section { margin-bottom: 24px; }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .task-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-bright);
+    line-height: 1.5;
+  }
+  .info-grid { display: flex; flex-direction: column; gap: 6px; }
+  .info-row { display: flex; justify-content: space-between; font-size: 12px; }
+  .info-key { color: var(--text-dim); }
+  .info-val { color: var(--text); font-family: var(--mono); font-size: 11px; }
+  .toc-list { list-style: none; }
+  .toc-list li { margin-bottom: 4px; }
+  .toc-list a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    transition: background .15s, color .15s;
+  }
+  .toc-list a:hover { background: var(--surface2); color: var(--text); }
+  .toc-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .outcome-box {
+    background: #1a0d0d;
+    border: 1px solid #6b2020;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .outcome-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #9b2020; margin-bottom: 6px; }
+  .outcome-text { font-size: 13px; color: #f87171; line-height: 1.5; }
+
+  /* ── Main content ────────────────────────────────────────── */
+  .main { padding: 24px 32px; }
+
+  .section { margin-bottom: 36px; }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title-icon { font-size: 16px; }
+
+  /* ── Timeline ────────────────────────────────────────────── */
+  .timeline { position: relative; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .step {
+    position: relative;
+    padding-left: 50px;
+    margin-bottom: 2px;
+  }
+  .step-dot {
+    position: absolute;
+    left: 13px;
+    top: 14px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  .step-card:hover { border-color: #404468; }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+  .step-type-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    padding: 1px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .type-nav      { background: #12213d; color: #60a5fa; }
+  .type-action   { background: #0f2018; color: #4ade80; }
+  .type-form     { background: #1e1040; color: #c084fc; }
+  .type-payment  { background: #1a1300; color: #fbbf24; }
+  .type-result   { background: #220e0e; color: #f87171; }
+  .type-decision { background: #0f1a20; color: #67e8f9; }
+
+  .step-ts {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .step-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .step-body {
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-dim);
+  }
+  .step-body p { margin-bottom: 6px; }
+  .step-body p:last-child { margin-bottom: 0; }
+
+  /* Tool calls inside steps */
+  .tool-list { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .tool-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .tool-name { color: var(--accent); font-weight: 600; flex-shrink: 0; min-width: 60px; }
+  .tool-arg { color: var(--text-dim); word-break: break-all; }
+  .tool-arg code { color: var(--text); background: transparent; }
+
+  /* Highlight blocks */
+  .highlight {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .highlight.warn { border-left-color: var(--yellow); }
+  .highlight.error { border-left-color: var(--red); }
+  .highlight.success { border-left-color: var(--green); }
+
+  /* ── Summary section ─────────────────────────────────────── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 700; color: var(--text-bright); }
+  .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  .flow-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .flow-table th {
+    text-align: left;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+  .flow-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .flow-table tr:last-child td { border-bottom: none; }
+  .flow-table tr:hover td { background: var(--surface2); }
+  .phase-cell { font-weight: 600; color: var(--text); }
+  .status-ok  { color: var(--green); }
+  .status-warn { color: var(--yellow); }
+  .status-fail { color: var(--red); }
+
+  /* Collapsible details */
+  details summary { cursor: pointer; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  details[open] .step-card { border-color: var(--accent-dim); }
+
+  /* ── Scrollbar ───────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── Responsive ──────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    .page-header { padding: 20px 16px; }
+    .main { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Page Header ──────────────────────────────────────────── -->
+<div class="page-header">
+  <div class="breadcrumb">ClawBench &rsaquo; <span>Daily Web Tasks</span> &rsaquo; Transportation</div>
+  <h1>Reserve a parking spot on SpotHero for tomorrow 9am&ndash;5pm in downtown Toronto</h1>
+  <div class="meta-row">
+    <span class="badge badge-model">&#x1F916; claude-opus-4-6</span>
+    <span class="badge badge-domain">&#x1F30D; daily-life / transportation</span>
+    <span class="badge badge-site">&#x1F697; spothero.com</span>
+    <span class="badge badge-result">&#x274C; Payment Declined</span>
+    <span class="badge badge-time">&#x23F1; 30 min 28 s</span>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- ── Sidebar ────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Task</div>
+      <div class="task-box">
+        Reserve a parking spot on SpotHero for <strong>tomorrow 9am&ndash;5pm</strong> in <strong>downtown Toronto</strong>.
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Run Info</div>
+      <div class="info-grid">
+        <div class="info-row"><span class="info-key">Case ID</span><span class="info-val">04_024</span></div>
+        <div class="info-row"><span class="info-key">Model</span><span class="info-val">claude-opus-4-6</span></div>
+        <div class="info-row"><span class="info-key">Thinking</span><span class="info-val">medium</span></div>
+        <div class="info-row"><span class="info-key">Started</span><span class="info-val">2026-03-27 15:00</span></div>
+        <div class="info-row"><span class="info-key">Duration</span><span class="info-val">1828 s</span></div>
+        <div class="info-row"><span class="info-key">Persona</span><span class="info-val">Alex Green</span></div>
+        <div class="info-row"><span class="info-key">Email</span><span class="info-val" style="font-size:9.5px">cb01709d163de2@clawbench.cc</span></div>
+        <div class="info-row"><span class="info-key">Steps</span><span class="info-val">~45 agent turns</span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Outcome</div>
+      <div class="outcome-box">
+        <div class="outcome-label">Payment Declined</div>
+        <div class="outcome-text">The agent completed the full booking flow — searched, selected a lot, filled contact info, entered Stripe card details — but the final payment was declined because the test card (4519&nbsp;8734&nbsp;2460&nbsp;4532) is not a valid real-world card.</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Jump to phase</div>
+      <ul class="toc-list">
+        <li><a href="#phase-init"><span class="toc-dot" style="background:#60a5fa"></span>Setup &amp; Navigation</a></li>
+        <li><a href="#phase-search"><span class="toc-dot" style="background:#4ade80"></span>Search &amp; Date/Time</a></li>
+        <li><a href="#phase-select"><span class="toc-dot" style="background:#c084fc"></span>Lot Selection</a></li>
+        <li><a href="#phase-contact"><span class="toc-dot" style="background:#fbbf24"></span>Contact Info</a></li>
+        <li><a href="#phase-payment"><span class="toc-dot" style="background:#f87171"></span>Payment &amp; Result</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- ── Main ───────────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- Summary -->
+    <div class="section">
+      <div class="section-title"><span class="section-title-icon">&#x1F4CA;</span> Run Summary</div>
+      <div class="summary-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Duration</div>
+          <div class="stat-value">30<span style="font-size:14px;color:var(--text-dim)">m 28s</span></div>
+          <div class="stat-sub">1,828 seconds</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Browser Actions</div>
+          <div class="stat-value">~60</div>
+          <div class="stat-sub">clicks, types, scrolls</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Lot Selected</div>
+          <div class="stat-value" style="font-size:14px;line-height:1.3">63 Centre Ave.</div>
+          <div class="stat-sub">CA$9.49 total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Final Status</div>
+          <div class="stat-value" style="font-size:14px;color:var(--red)">Declined</div>
+          <div class="stat-sub">Test card rejected</div>
+        </div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+        <table class="flow-table">
+          <thead>
+            <tr><th>Phase</th><th>Actions</th><th>Outcome</th><th>Note</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="phase-cell">1. Setup</td>
+              <td>Read personal info, open spothero.com</td>
+              <td class="status-ok">&#x2713; Done</td>
+              <td>Found alex_green_personal_info.json</td>
+            </tr>
+            <tr>
+              <td class="phase-cell">2. Search</td>
+              <td>Type location, set Mar 28, 9AM&ndash;5PM</td>
+              <td class="status-ok">&#x2713; Done</td>
+              <td>Autocomplete &rarr; Downtown Old Toronto</td>
+            </tr>
+            <tr>
+              <td class="phase-cell">3. Lot Selection</td>
+              <td>Click Book Now on first result</td>
+              <td class="status-warn">&#x26A0; Partial</td>
+              <td>Lot enforces 9AM&ndash;6PM rate block (not 5PM)</td>
+            </tr>
+            <tr>
+              <td class="phase-cell">4. Contact Info</td>
+              <td>Fill email + placeholder phone</td>
+              <td class="status-ok">&#x2713; Done</td>
+              <td>Used JS injection to trigger React state</td>
+            </tr>
+            <tr>
+              <td class="phase-cell">5. Payment</td>
+              <td>Fill Stripe iframe, click Pay and Reserve</td>
+              <td class="status-fail">&#x2717; Declined</td>
+              <td>Test card not valid for real transactions</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Phase 1: Setup -->
+    <div class="section" id="phase-init">
+      <div class="section-title"><span class="section-title-icon">&#x1F680;</span> Phase 1: Setup &amp; Navigation</div>
+      <div class="timeline">
+
+        <div class="step">
+          <div class="step-dot" style="background:#60a5fa"></div>
+          <details open>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-nav">Init</span>
+                  <span class="step-title">Read personal info &amp; open spothero.com</span>
+                  <span class="step-ts">15:00:18</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>The agent first read the user persona file, then concurrently opened spothero.com in the browser.</p>
+                <div class="tool-list">
+                  <div class="tool-item">
+                    <span class="tool-name">exec</span>
+                    <span class="tool-arg"><code>ls /my-info/</code></span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">action=open url=<code>https://spothero.com</code></span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">exec</span>
+                    <span class="tool-arg"><code>cat /my-info/alex_green_personal_info.json</code></span>
+                  </div>
+                </div>
+                <div class="highlight">
+                  Retrieved personal info: Alex Green, email cb01709d163de2@clawbench.cc, card 4519&nbsp;8734&nbsp;2460&nbsp;4532 (exp 09/28, CVV 847).
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Phase 2: Search -->
+    <div class="section" id="phase-search">
+      <div class="section-title"><span class="section-title-icon">&#x1F50D;</span> Phase 2: Search &amp; Date/Time Selection</div>
+      <div class="timeline">
+
+        <div class="step">
+          <div class="step-dot" style="background:#4ade80"></div>
+          <details open>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-action">Type</span>
+                  <span class="step-title">Type "Downtown Toronto" in search box</span>
+                  <span class="step-ts">15:00:36</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>Clicked the search input and typed the location query. The autocomplete dropdown showed "Downtown, Old Toronto, Toronto, ON, Canada" as the first suggestion.</p>
+                <div class="tool-list">
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click ref=e37</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=type ref=e37 text=<code>"Downtown Toronto"</code></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="step">
+          <div class="step-dot" style="background:#4ade80"></div>
+          <details open>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-action">Select</span>
+                  <span class="step-title">Select autocomplete suggestion</span>
+                  <span class="step-ts">15:01:04</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>Clicked on "Downtown, Old Toronto, Toronto, ON, Canada" from the autocomplete dropdown.</p>
+                <div class="tool-list">
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click selector=<code>"text=Downtown, Old Toronto, Toronto, ON, Canada"</code></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="step">
+          <div class="step-dot" style="background:#4ade80"></div>
+          <details open>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-action">DateTime</span>
+                  <span class="step-title">Open date/time picker &amp; set March 28, 9AM&ndash;5PM</span>
+                  <span class="step-ts">15:01:08 &ndash; 15:02:18</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>Clicked the date/time button, opened the calendar, selected March 28 (tomorrow). Set start time to 9:00 AM and end time to 5:00 PM using combobox selects.</p>
+                <div class="tool-list">
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click ref=e11 (date/time button)</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click ref=e92 (calendar open)</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click ref=e123 (March 28)</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=select ref=e476 values=<code>["9:00 AM"]</code></span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=select ref=e490 values=<code>["5:00 PM"]</code></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="step">
+          <div class="step-dot" style="background:#4ade80"></div>
+          <details open>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-action">Search</span>
+                  <span class="step-title">Click Search &mdash; results appear</span>
+                  <span class="step-ts">15:02:18</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>Clicked the Search button. Results loaded showing parking spots in downtown Toronto for March 28, 9:00 AM&ndash;5:00 PM.</p>
+                <div class="tool-list">
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click ref=e494 (Search button)</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=wait timeMs=3000</span>
+                  </div>
+                </div>
+                <div class="highlight success">Results loaded. Multiple lots visible including "63 Centre Ave. - Lot" as the first result.</div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Phase 3: Lot Selection -->
+    <div class="section" id="phase-select">
+      <div class="section-title"><span class="section-title-icon">&#x1F3E2;</span> Phase 3: Lot Selection</div>
+      <div class="timeline">
+
+        <div class="step">
+          <div class="step-dot" style="background:#c084fc"></div>
+          <details open>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-form">Book</span>
+                  <span class="step-title">Click "Book Now" on 63 Centre Ave. - Lot (CA$9.49)</span>
+                  <span class="step-ts">15:02:45</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>The agent selected the first result: "63 Centre Ave. - Lot" and clicked its Book Now button. Navigated to the checkout page.</p>
+                <div class="tool-list">
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click ref=e119 (Book Now)</span>
+                  </div>
+                </div>
+                <div class="highlight warn">
+                  <strong>Note:</strong> Checkout showed end time as 6:00 PM, not 5:00 PM. The lot enforces a minimum rate block (9 AM&ndash;6 PM). Total was CA$9.49.
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="step">
+          <div class="step-dot" style="background:#c084fc"></div>
+          <details>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-decision">Decide</span>
+                  <span class="step-title">Attempt to adjust end time to 5:00 PM &mdash; lot overrides</span>
+                  <span class="step-ts">15:03:42 &ndash; 15:04:26</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>The agent opened the Reservation Period dialog and attempted to change end time from 6:00 PM to 5:00 PM. The URL briefly updated to <code>ends=17:00</code> but the lot's pricing tier locked it back to 6:00 PM.</p>
+                <div class="tool-list">
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=select ref=e224 values=<code>["5:00 PM"]</code></span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click ref=e226 (Update)</span>
+                  </div>
+                </div>
+                <div class="highlight warn">
+                  The agent decided to proceed with 9AM&ndash;6PM noting: "having extra time until 6 PM is better than not enough." The note "You're getting extra time for free!" was shown.
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Phase 4: Contact Info -->
+    <div class="section" id="phase-contact">
+      <div class="section-title"><span class="section-title-icon">&#x1F4DD;</span> Phase 4: Contact Info Form</div>
+      <div class="timeline">
+
+        <div class="step">
+          <div class="step-dot" style="background:#fbbf24"></div>
+          <details open>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-payment">Fill</span>
+                  <span class="step-title">Fill email &amp; phone fields (with JS injection fallback)</span>
+                  <span class="step-ts">15:03:15 &ndash; 15:06:30</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>Multiple attempts were needed to fill the React-controlled email field. The agent first tried direct fill/type, then observed the field looked empty after page state updates. Eventually used JavaScript injection to properly trigger React's synthetic events.</p>
+                <div class="tool-list">
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=type selector=<code>#email</code> text=<code>"cb01709d163de2@clawbench.cc"</code> slowly=true</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=type selector=<code>#phone</code> text=<code>"4165551234"</code> slowly=true</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click selector=<code>button:has-text("Continue")</code></span>
+                  </div>
+                </div>
+                <div class="highlight warn">
+                  <strong>Note:</strong> No phone number in the persona file; the agent used a placeholder (416) 555-1234. After clicking Continue, contact info was saved successfully.
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Phase 5: Payment -->
+    <div class="section" id="phase-payment">
+      <div class="section-title"><span class="section-title-icon">&#x1F4B3;</span> Phase 5: Payment &amp; Final Result</div>
+      <div class="timeline">
+
+        <div class="step">
+          <div class="step-dot" style="background:#f87171"></div>
+          <details open>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-result">Stripe</span>
+                  <span class="step-title">Enter card details into cross-origin Stripe iframe</span>
+                  <span class="step-ts">15:04:38 &ndash; 15:11:20</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>The Stripe card form is embedded in a cross-origin iframe (<code>__privateStripeFrame36031</code>, only 20px tall). The agent tried multiple approaches over ~6 minutes:</p>
+                <ul style="margin:8px 0 8px 16px;list-style:disc;">
+                  <li>Direct click + type on iframe selectors (failed: cross-origin)</li>
+                  <li>Playwright <code>frameLocator</code> approach via browser act</li>
+                  <li>JavaScript evaluation to read iframe state (blocked: cross-origin)</li>
+                  <li>Snapshot with <code>frame</code> parameter to read Stripe internal DOM</li>
+                  <li>Clicking by aria-ref from the accessible snapshot</li>
+                </ul>
+                <div class="tool-list">
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click ref=f105e9 (card number via aria ref in Stripe iframe)</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=type ref=f105e9 text=<code>"4519873424604532"</code> slowly=true</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=type ref=f105e14 text=<code>"0928"</code> (expiry) slowly=true</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=type ref=f105e18 text=<code>"847"</code> (CVC) slowly=true</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=type selector=<code>#creditCardName</code> text=<code>"Alex Green"</code></span>
+                  </div>
+                </div>
+                <div class="highlight success">
+                  After the final snapshot, all fields confirmed filled: Card 4519&nbsp;8734&nbsp;2460&nbsp;4532, Exp 09/28, CVC 847, Name Alex Green.
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="step">
+          <div class="step-dot" style="background:#f87171"></div>
+          <details open>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-result">Confirm</span>
+                  <span class="step-title">Confirm card &rarr; card accepted as VISA &bull;&bull;&bull;&bull; 4532</span>
+                  <span class="step-ts">15:11:20 &ndash; 15:11:41</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>Clicked the Confirm button (ref=e418). The payment card was accepted by Stripe — the checkout page updated to show "VISA &bull;&bull;&bull;&bull; 4532" in the Payment Method section, reaching the final review step.</p>
+                <div class="highlight success">
+                  Final review summary: Contact cb01709d163de2@clawbench.cc, (416)&nbsp;555-1234 &bull; Payment VISA &bull;&bull;&bull;&bull; 4532 &bull; 63 Centre Ave. &bull; Mar 28, 9:00 AM&ndash;6:00 PM &bull; CA$9.49
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="step">
+          <div class="step-dot" style="background:#e05555"></div>
+          <details open>
+            <summary>
+              <div class="step-card">
+                <div class="step-header">
+                  <span class="step-type-badge type-result">Result</span>
+                  <span class="step-title">Click "Pay and Reserve" &mdash; payment declined</span>
+                  <span class="step-ts">15:11:45 &ndash; 15:12:12</span>
+                </div>
+              </div>
+            </summary>
+            <div class="step-card" style="margin-top:-1px;border-top:none;border-radius:0 0 8px 8px">
+              <div class="step-body">
+                <p>Clicked "Pay and Reserve" button (ref=e501). After an 8-second wait, the payment failed.</p>
+                <div class="tool-list">
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=click ref=e501 (Pay and Reserve)</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">act kind=wait timeMs=8000</span>
+                  </div>
+                  <div class="tool-item">
+                    <span class="tool-name">browser</span>
+                    <span class="tool-arg">action=screenshot</span>
+                  </div>
+                </div>
+                <div class="highlight error">
+                  <strong>Error:</strong> "Unable to process payment. Please try again or select another payment method."
+                  <br><br>
+                  The card 4519&nbsp;8734&nbsp;2460&nbsp;4532 is a test/fixture card and was declined by the payment processor. The agent noted this was expected behavior — all prior steps in the booking flow were completed successfully.
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Notable Observations -->
+    <div class="section">
+      <div class="section-title"><span class="section-title-icon">&#x1F4A1;</span> Notable Observations</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="highlight warn">
+          <strong>Lot rate-block mismatch:</strong> The task asked for 9AM&ndash;5PM but the selected lot (63 Centre Ave.) enforces a 9AM&ndash;6PM rate block. The agent attempted to correct the end time but correctly identified this as the lot's minimum pricing tier and proceeded.
+        </div>
+        <div class="highlight warn">
+          <strong>React form state:</strong> Standard <code>fill</code> and <code>type</code> actions didn't trigger React state updates on the email field. The agent correctly diagnosed this and switched to slow typing with Tab key presses to trigger onBlur/onChange events.
+        </div>
+        <div class="highlight">
+          <strong>Stripe iframe challenge:</strong> Cross-origin Stripe iframe required ~6 minutes and multiple strategies. The agent ultimately succeeded by using aria-ref-based clicking from the accessibility snapshot, bypassing the cross-origin restriction.
+        </div>
+        <div class="highlight error">
+          <strong>Missing phone number:</strong> The persona (alex_green_personal_info.json) did not contain a phone number. The agent used a placeholder (416)&nbsp;555-1234 from a Toronto area code. This is a potential task gap if phone verification had been required.
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Make step cards collapsible via click on header
+  document.querySelectorAll('.step-header').forEach(header => {
+    header.addEventListener('click', function() {
+      const details = this.closest('details');
+      if (details) {
+        details.open = !details.open;
+      }
+    });
+  });
+</script>
+</body>
+</html>

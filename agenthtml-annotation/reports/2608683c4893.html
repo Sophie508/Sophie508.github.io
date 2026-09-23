@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trip Dossier — Toronto to Niagara Falls rental (not booked)</title>
+<style>
+  :root{
+    --green:#154538;      /* highway guide-sign green */
+    --green-d:#0d2c24;
+    --green-dd:#081b16;
+    --reflect:#f1f2ec;    /* reflective white */
+    --reflect-dim:#c3ccc4;
+    --amber:#e9a63c;      /* caution */
+    --amber-d:#c47f1e;
+    --closed:#c33a2b;     /* road closed */
+    --ink:#0a1512;
+    --line:rgba(241,242,236,.16);
+    --line-s:rgba(241,242,236,.32);
+    --ok:#67b98a;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 90% at 78% -10%, #1c574733 0%, transparent 55%),
+      linear-gradient(180deg,var(--green-dd) 0%, var(--green-d) 30%, #0a201a 100%);
+    color:var(--reflect);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:clamp(14px,3.5vw,44px);
+  }
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace}
+  .disp{font-family:"Helvetica Neue",Arial,sans-serif;font-weight:800;letter-spacing:.01em;line-height:.98}
+  .wrap{max-width:1080px;margin:0 auto}
+
+  /* ---- top signage bar ---- */
+  .rail{
+    display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;
+    padding-bottom:14px;border-bottom:1px solid var(--line);
+    font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--reflect-dim);
+  }
+  .rail .tag{display:inline-flex;align-items:center;gap:9px}
+  .dot{width:8px;height:8px;border-radius:2px;background:var(--amber);box-shadow:0 0 0 3px #e9a63c22}
+  .dot.bad{background:var(--closed);box-shadow:0 0 0 3px #c33a2b22}
+
+  /* ---- hero guide sign ---- */
+  .hero{
+    margin-top:26px;
+    border:3px solid var(--reflect);
+    border-radius:16px;
+    background:linear-gradient(180deg,var(--green) 0%, var(--green-d) 100%);
+    padding:clamp(20px,3.4vw,40px);
+    position:relative;overflow:hidden;
+    box-shadow:0 24px 60px -30px #000, inset 0 0 0 1px #ffffff14;
+  }
+  .exit{
+    position:absolute;top:18px;right:18px;text-align:center;
+    border:2px solid var(--reflect);border-radius:10px;padding:7px 12px 5px;
+    background:#0e2f26;
+  }
+  .exit small{display:block;font-size:9px;letter-spacing:.24em;color:var(--reflect-dim)}
+  .exit b{display:block;font-size:22px}
+  .eyebrow{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
+  .route{
+    display:flex;align-items:center;flex-wrap:wrap;gap:12px 16px;
+    font-size:clamp(30px,6.6vw,64px);
+  }
+  .route .arrow{color:var(--amber);font-weight:400;transform:translateY(-2px)}
+  .route .dest{opacity:.9}
+  .subline{margin-top:14px;font-size:clamp(14px,1.7vw,17px);color:var(--reflect-dim);max-width:60ch}
+  .params{
+    margin-top:26px;display:grid;gap:1px;background:var(--line);
+    grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  }
+  .params .p{background:#12362c;padding:14px 12px}
+  .params .p small{display:block;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--reflect-dim);margin-bottom:6px}
+  .params .p b{font-size:clamp(15px,2vw,20px);letter-spacing:.02em}
+  @media(max-width:640px){.params{grid-template-columns:repeat(2,1fr)} .exit{position:static;display:inline-block;margin-bottom:16px}}
+
+  /* verdict stamp */
+  .stamp{
+    margin-top:24px;display:inline-flex;align-items:center;gap:14px;
+    border:2px solid var(--closed);border-radius:10px;padding:12px 18px;
+    background:#2a120e;transform:rotate(-1.2deg);
+  }
+  .stamp .big{font-size:clamp(18px,2.6vw,26px);color:#f3b6ae;letter-spacing:.06em}
+  .stamp .why{font-size:12px;color:var(--reflect-dim);letter-spacing:.02em;text-transform:none}
+
+  /* ---- section frame ---- */
+  section{margin-top:clamp(34px,5vw,56px)}
+  h2.sec{
+    font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--amber);
+    margin:0 0 18px;display:flex;align-items:center;gap:12px;
+  }
+  h2.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---- route ribbon signature ---- */
+  .ribbon{
+    border:1px solid var(--line-s);border-radius:14px;background:#0c261f;
+    padding:clamp(16px,2.6vw,26px);
+  }
+  .lanes{position:relative;overflow-x:auto}
+  svg{display:block;width:100%;height:auto;min-width:640px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px 22px;margin-top:16px;font-size:12px;color:var(--reflect-dim)}
+  .legend span{display:inline-flex;align-items:center;gap:8px}
+  .sw{width:22px;height:4px;border-radius:2px;display:inline-block}
+
+  /* gauge */
+  .gaugewrap{display:flex;gap:22px;flex-wrap:wrap;align-items:center;margin-top:22px;border-top:1px dashed var(--line);padding-top:20px}
+  .gaugewrap .txt{flex:1;min-width:220px}
+  .gaugewrap h3{margin:0 0 4px;font-size:15px;letter-spacing:.02em}
+  .gaugewrap p{margin:0;font-size:13px;color:var(--reflect-dim)}
+
+  /* ---- trip log ---- */
+  .log{display:grid;gap:0}
+  .phase{
+    display:grid;grid-template-columns:132px 1fr;gap:0;
+    border-left:2px solid var(--line-s);position:relative;
+  }
+  .phase>.time{padding:16px 18px 22px 20px;position:relative}
+  .phase>.time::before{
+    content:"";position:absolute;left:-7px;top:20px;width:12px;height:12px;border-radius:50%;
+    background:var(--green-d);border:2px solid var(--amber);
+  }
+  .phase.fail>.time::before{border-color:var(--closed)}
+  .phase.ok>.time::before{border-color:var(--ok)}
+  .phase>.time .t{font-size:12px;letter-spacing:.04em;color:var(--reflect)}
+  .phase>.time .d{font-size:10.5px;color:var(--reflect-dim);margin-top:3px}
+  .phase>.body{padding:16px 4px 22px 22px}
+  .phase>.body h4{margin:0 0 6px;font-size:15.5px;letter-spacing:.01em}
+  .phase>.body p{margin:0;font-size:13.5px;color:var(--reflect-dim);max-width:64ch}
+  .chip{
+    display:inline-block;margin:8px 6px 0 0;font-size:11px;letter-spacing:.02em;
+    padding:3px 9px;border-radius:20px;border:1px solid var(--line-s);color:var(--reflect-dim);
+  }
+  .chip.bad{border-color:#c33a2b66;color:#efab9f;background:#2a120e}
+  .chip.ok{border-color:#67b98a55;color:#b7e6cb;background:#12332481}
+  @media(max-width:560px){.phase{grid-template-columns:96px 1fr}.phase>.time{padding-left:16px}}
+
+  /* ---- eval + notes grid ---- */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:760px){.cols{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line-s);border-radius:14px;padding:22px;background:#0c261f}
+  .card h3{margin:0 0 4px;font-size:15px}
+  .card .lead{font-size:12.5px;color:var(--reflect-dim);margin:0 0 16px}
+  .kv{font-size:12.5px;border-top:1px dashed var(--line);padding:11px 0;display:flex;justify-content:space-between;gap:14px}
+  .kv:last-child{border-bottom:1px dashed var(--line)}
+  .kv .k{color:var(--reflect-dim);letter-spacing:.03em}
+  .kv .v{text-align:right;color:var(--reflect)}
+  .req{background:var(--green-dd);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:6px;font-size:12px;overflow-x:auto}
+  .req .cm{color:var(--reflect-dim)}
+  .req .hl{color:var(--amber)}
+  .req .rd{color:#efab9f}
+
+  .note{display:flex;gap:12px;padding:14px 0;border-top:1px dashed var(--line);font-size:13px;color:var(--reflect-dim)}
+  .note:first-of-type{border-top:none}
+  .note .ic{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:13px;font-weight:800;background:#12362c;color:var(--amber)}
+  .note .ic.sec{color:var(--ok)}
+  .note b{color:var(--reflect);font-weight:700}
+
+  /* refs */
+  .refs{font-size:12px;color:var(--reflect-dim)}
+  .refs .r{padding:9px 0;border-top:1px dashed var(--line);display:flex;gap:12px;align-items:baseline}
+  .refs .r span.n{color:var(--amber);font-size:11px;min-width:22px}
+  .refs code{font-size:11px;color:var(--reflect-dim);word-break:break-all}
+
+  footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);
+    font-size:11px;letter-spacing:.06em;color:var(--reflect-dim);
+    display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between}
+
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:4px}
+
+  @keyframes dash{to{stroke-dashoffset:0}}
+  @keyframes drain{from{width:100%}to{width:2%}}
+  @keyframes riseIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .hero,.ribbon,section>.cols,.log{animation:riseIn .6s ease both}
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important}
+    .drainbar{width:2%!important}
+    .routepath{stroke-dashoffset:0!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="rail">
+    <span class="tag"><span class="dot bad"></span>Agent trajectory dossier · Car rental booking</span>
+    <span class="tag mono">05_022 · turo-enterprise</span>
+    <span class="tag mono">claude-opus-4-6 · thinking: medium</span>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="exit"><small>Target exit</small><b>TURO</b></div>
+    <div class="eyebrow">Trip request · June 20, 2026</div>
+    <div class="route disp">
+      Toronto <span class="arrow">→</span> <span class="dest">Niagara Falls</span>
+    </div>
+    <p class="subline">Book a compact car for driver Alex Green: pick up in Toronto at 9:00&nbsp;am and return by 6:00&nbsp;pm the same day, one-way to Niagara Falls, Ontario. The booking had to be completed entirely in the browser.</p>
+
+    <div class="params">
+      <div class="p"><small>Pick-up date</small><b class="mono">Sat Jun 20</b></div>
+      <div class="p"><small>Pick-up time</small><b class="mono">09:00</b></div>
+      <div class="p"><small>Return time</small><b class="mono">18:00</b></div>
+      <div class="p"><small>Car class</small><b class="mono">Compact</b></div>
+      <div class="p"><small>Direction</small><b class="mono">One-way</b></div>
+    </div>
+
+    <div class="stamp">
+      <span class="big disp">NOT BOOKED</span>
+      <span class="why">Time limit reached before any booking on Turo — the required site was never opened.</span>
+    </div>
+  </div>
+
+  <!-- ROUTE RIBBON -->
+  <section>
+    <h2 class="sec">The route it actually drove</h2>
+    <div class="ribbon">
+      <div class="lanes">
+        <svg viewBox="0 0 940 250" role="img" aria-label="Diagram of the agent's route: it started on KAYAK, hit dead ends, moved to rentalcars.com, and ran out of time before reaching the Turo booking exit.">
+          <defs>
+            <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#e9a63c"/>
+            </marker>
+          </defs>
+
+          <!-- main highway -->
+          <line x1="40" y1="70" x2="900" y2="70" stroke="#0d2c24" stroke-width="26"/>
+          <line class="routepath" x1="40" y1="70" x2="760" y2="70" stroke="#e9a63c" stroke-width="3" stroke-dasharray="14 10" style="stroke-dashoffset:730;animation:dash 2.4s .3s ease forwards"/>
+          <!-- unreached final leg -->
+          <line x1="760" y1="70" x2="900" y2="70" stroke="#c33a2b" stroke-width="3" stroke-dasharray="4 8"/>
+
+          <!-- START -->
+          <circle cx="40" cy="70" r="7" fill="#f1f2ec"/>
+          <text x="40" y="46" fill="#f1f2ec" font-size="13" font-family="ui-monospace,Menlo,monospace" text-anchor="middle">START</text>
+          <text x="40" y="102" fill="#c3ccc4" font-size="11" font-family="ui-monospace,Menlo,monospace" text-anchor="middle">read profile</text>
+
+          <!-- KAYAK node -->
+          <circle cx="250" cy="70" r="7" fill="#e9a63c"/>
+          <text x="250" y="46" fill="#f1f2ec" font-size="13" font-family="ui-monospace,Menlo,monospace" text-anchor="middle">KAYAK</text>
+          <!-- kayak dead ends -->
+          <line x1="250" y1="70" x2="250" y2="150" stroke="#c33a2b" stroke-width="2.5" marker-end="url(#ah)"/>
+          <rect x="182" y="150" width="136" height="26" rx="5" fill="#2a120e" stroke="#c33a2b"/>
+          <text x="250" y="167" fill="#efab9f" font-size="11" font-family="ui-monospace,Menlo,monospace" text-anchor="middle">no results · 1-way</text>
+          <line x1="250" y1="176" x2="250" y2="196" stroke="#c33a2b" stroke-width="2.5" marker-end="url(#ah)"/>
+          <rect x="168" y="196" width="164" height="26" rx="5" fill="#2a120e" stroke="#c33a2b"/>
+          <text x="250" y="213" fill="#efab9f" font-size="11" font-family="ui-monospace,Menlo,monospace" text-anchor="middle">geo → Hoffman, IL</text>
+
+          <!-- RENTALCARS node -->
+          <circle cx="520" cy="70" r="7" fill="#e9a63c"/>
+          <text x="520" y="46" fill="#f1f2ec" font-size="13" font-family="ui-monospace,Menlo,monospace" text-anchor="middle">RENTALCARS</text>
+          <line x1="520" y1="70" x2="520" y2="150" stroke="#c33a2b" stroke-width="2.5" marker-end="url(#ah)"/>
+          <rect x="440" y="150" width="160" height="26" rx="5" fill="#2a120e" stroke="#c33a2b"/>
+          <text x="520" y="167" fill="#efab9f" font-size="11" font-family="ui-monospace,Menlo,monospace" text-anchor="middle">"No Results Found"</text>
+
+          <!-- STALL node -->
+          <circle cx="760" cy="70" r="7" fill="#c33a2b"/>
+          <text x="760" y="46" fill="#f3b6ae" font-size="13" font-family="ui-monospace,Menlo,monospace" text-anchor="middle">STALLED</text>
+          <text x="760" y="102" fill="#c3ccc4" font-size="11" font-family="ui-monospace,Menlo,monospace" text-anchor="middle">gateway timeout</text>
+
+          <!-- TURO exit (never reached) -->
+          <g opacity="0.85">
+            <rect x="852" y="40" width="60" height="60" rx="9" fill="#0e2f26" stroke="#c33a2b" stroke-dasharray="5 4"/>
+            <text x="882" y="66" fill="#efab9f" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="800" text-anchor="middle">TURO</text>
+            <text x="882" y="84" fill="#c3ccc4" font-size="9" font-family="ui-monospace,Menlo,monospace" text-anchor="middle">unreached</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="legend">
+        <span><i class="sw" style="background:#e9a63c"></i>Path taken</span>
+        <span><i class="sw" style="background:#c33a2b"></i>Dead end / closed</span>
+        <span><i class="sw" style="background:#0e2f26;border:1px dashed #c33a2b"></i>Required exit, never taken</span>
+      </div>
+
+      <div class="gaugewrap">
+        <div class="txt">
+          <h3>Time on the meter</h3>
+          <p>A 30-minute limit. The recorded browser work stalled around minute&nbsp;7 on rentalcars.com; the session then idled against a dead browser gateway until the clock ran out at 30:28.</p>
+        </div>
+        <div style="flex:none;width:min(320px,100%)">
+          <div style="display:flex;justify-content:space-between;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#c3ccc4;margin-bottom:6px"><span>00:00</span><span>LIMIT 30:00</span></div>
+          <div style="height:16px;border:1px solid var(--line-s);border-radius:9px;overflow:hidden;background:#0d2c24">
+            <div class="drainbar" style="height:100%;width:2%;background:linear-gradient(90deg,#e9a63c,#c33a2b);animation:drain 2.2s .4s ease forwards"></div>
+          </div>
+          <div style="text-align:right;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#efab9f;margin-top:6px">stopped: time_limit_exceeded · 30:28</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRIP LOG -->
+  <section>
+    <h2 class="sec">Trip log · 60 browser actions, 0 bookings</h2>
+    <div class="log">
+
+      <div class="phase ok">
+        <div class="time"><div class="t mono">14:45:38</div><div class="d">+0:00</div></div>
+        <div class="body">
+          <h4>Read the driver profile</h4>
+          <p>Listed <span class="mono">/my-info/</span> and read Alex Green's personal details and email credentials, then confirmed the browser was live before starting.</p>
+          <span class="chip ok">handled correctly</span>
+        </div>
+      </div>
+
+      <div class="phase ok">
+        <div class="time"><div class="t mono">14:45:52</div><div class="d">+0:14</div></div>
+        <div class="body">
+          <h4>Filled the KAYAK search — accurately</h4>
+          <p>On kayak.com/cars: switched to "Different drop-off", set Toronto → Niagara Falls, navigated the calendar to June&nbsp;20, and set 9:00&nbsp;am pickup / 6:00&nbsp;pm return. Screenshots confirmed every field was correct.</p>
+          <span class="chip ok">Toronto → Niagara Falls</span><span class="chip ok">Jun 20 · 09:00 → 18:00</span>
+        </div>
+      </div>
+
+      <div class="phase fail">
+        <div class="time"><div class="t mono">14:49:22</div><div class="d">+3:44</div></div>
+        <div class="body">
+          <h4>Search returned nothing</h4>
+          <p>The one-way Toronto → Niagara Falls query came back "No matching results". The agent reasoned these are nearby cities that few providers serve one-way, and pivoted to a same-city Toronto search.</p>
+          <span class="chip bad">no matching results</span>
+        </div>
+      </div>
+
+      <div class="phase fail">
+        <div class="time"><div class="t mono">14:49:40</div><div class="d">+4:02</div></div>
+        <div class="body">
+          <h4>Direct-URL attempts landed in Illinois</h4>
+          <p>Two hand-built KAYAK URLs for Toronto resolved instead to "Hoffman, Illinois" — the city code didn't map. The search form also began timing out with a "restart the gateway" error.</p>
+          <span class="chip bad">geolocation mismatch</span><span class="chip bad">browser gateway timeout</span>
+        </div>
+      </div>
+
+      <div class="phase fail">
+        <div class="time"><div class="t mono">14:51:32</div><div class="d">+5:54</div></div>
+        <div class="body">
+          <h4>Switched to rentalcars.com — dead end</h4>
+          <p>Typed "Toronto" into the pickup field twice, including a slow character-by-character attempt, but the autocomplete kept showing "No Results Found". The last recorded action was another click on the field at 14:52:59.</p>
+          <span class="chip bad">autocomplete: no results</span>
+        </div>
+      </div>
+
+      <div class="phase fail">
+        <div class="time"><div class="t mono">15:16:06</div><div class="d">+30:28</div></div>
+        <div class="body">
+          <h4>Time limit reached</h4>
+          <p>No further progress was recorded. The session was stopped for exceeding its 30-minute budget. Turo — the site this task was graded against — was never opened, and no compact car was booked.</p>
+          <span class="chip bad">time_limit_exceeded</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- EVAL + NOTES -->
+  <section>
+    <h2 class="sec">What the checkpoint wanted</h2>
+    <div class="cols">
+      <div class="card">
+        <h3>Grading target</h3>
+        <p class="lead">The run passes only when the browser issues a Turo search request. That request never fired.</p>
+        <div class="req mono">
+<span class="cm"># expected network call</span><br>
+GET <span class="hl">turo.com/…/search</span><br>
+params:<br>
+&nbsp;&nbsp;startDate&nbsp;&nbsp;&nbsp;<span class="cm">(required)</span><br>
+&nbsp;&nbsp;endDate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">(required)</span><br>
+&nbsp;&nbsp;startTime&nbsp;&nbsp;&nbsp;<span class="cm">(required)</span><br>
+&nbsp;&nbsp;searchDurationType = <span class="hl">"DAILY"</span><br>
+<br>
+<span class="rd">result: interceptor never triggered</span>
+        </div>
+        <div class="kv"><span class="k">Verdict</span><span class="v">Fail</span></div>
+        <div class="kv"><span class="k">Stop reason</span><span class="v mono">time_limit_exceeded</span></div>
+        <div class="kv"><span class="k">Sites visited</span><span class="v">kayak.com, rentalcars.com</span></div>
+        <div class="kv"><span class="k">Required site</span><span class="v">turo.com — not opened</span></div>
+      </div>
+
+      <div class="card">
+        <h3>Field notes</h3>
+        <p class="lead">Behaviours worth flagging from the run.</p>
+        <div class="note">
+          <span class="ic">!</span>
+          <div><b>Wrong storefront the whole time.</b> The task is a Turo booking, but the agent chose aggregators (KAYAK, then rentalcars.com) and never navigated to Turo, so it could not satisfy the grader no matter how well it filled the forms.</div>
+        </div>
+        <div class="note">
+          <span class="ic">!</span>
+          <div><b>Ambiguity handled reasonably, then abandoned.</b> It correctly noticed one-way between two close cities rarely returns results, but its fallbacks (URL hacking, a different aggregator) each hit a new wall.</div>
+        </div>
+        <div class="note">
+          <span class="ic">!</span>
+          <div><b>Environment fought back.</b> Repeated "restart the gateway" timeouts and a geolocation that resolved Toronto to Hoffman, Illinois ate most of the remaining budget.</div>
+        </div>
+        <div class="note">
+          <span class="ic sec">✓</span>
+          <div><b>Injection attempts ignored.</b> Every page snapshot arrived wrapped in an "EXTERNAL UNTRUSTED CONTENT" security notice; the agent treated page text as data and never followed embedded instructions.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEDIA REFS -->
+  <section>
+    <h2 class="sec">Referenced captures (not embedded)</h2>
+    <div class="card">
+      <p class="lead">Six browser screenshots were taken during the run. They live on the eval container, not in this case bundle, and are cited here as paths only.</p>
+      <div class="refs">
+        <div class="r"><span class="n mono">01</span><div><b>KAYAK form, fields filled</b><br><code>/root/.openclaw/media/browser/a9883623-…​.jpg</code></div></div>
+        <div class="r"><span class="n mono">02</span><div><b>Times set to 09:00 / 18:00</b><br><code>/root/.openclaw/media/browser/503c647b-…​.jpg</code></div></div>
+        <div class="r"><span class="n mono">03</span><div><b>"No matching results" for one-way route</b><br><code>/root/.openclaw/media/browser/5ba146c1-…​.png</code></div></div>
+        <div class="r"><span class="n mono">04</span><div><b>Direct URL resolves to Hoffman, Illinois</b><br><code>/root/.openclaw/media/browser/70cce2fe-…​.png</code></div></div>
+        <div class="r"><span class="n mono">05</span><div><b>KAYAK form still holding old settings</b><br><code>/root/.openclaw/media/browser/5f1b8e0d-…​.jpg</code></div></div>
+        <div class="r"><span class="n mono">06</span><div><b>Second Illinois mis-resolve</b><br><code>/root/.openclaw/media/browser/47a2e4cf-…​.png</code></div></div>
+      </div>
+      <p class="lead" style="margin-top:16px;margin-bottom:0">Also large-only, reference-only: <code class="mono">data/requests.jsonl</code> (~6.2&nbsp;MB network log).</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>ClawBench · daily_web_tasks · 05_022-daily-life-transportation-turo-enterprise</span>
+    <span class="mono">duration 1828s · 60 browser actions · verdict: fail</span>
+  </footer>
+
+</div>
+</body>
+</html>

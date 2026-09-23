@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asia Stock Index Intraday Volatility — Case 03</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: ui-monospace, "Cascadia Code", "Fira Mono", Consolas, monospace;
+    background: #0d1117;
+    color: #c9d1d9;
+    line-height: 1.6;
+    padding: 2rem;
+    min-height: 100vh;
+  }
+  a { color: #58a6ff; }
+  h1 { font-size: 1.5rem; color: #f0f6fc; margin-bottom: 0.25rem; }
+  h2 { font-size: 1.05rem; color: #8b949e; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin: 2rem 0 0.75rem; border-bottom: 1px solid #21262d; padding-bottom: 0.4rem; }
+  h3 { font-size: 0.95rem; color: #79c0ff; margin-bottom: 0.5rem; }
+
+  .header-meta { color: #8b949e; font-size: 0.82rem; margin-bottom: 1.5rem; }
+  .header-meta span { margin-right: 1.5rem; }
+  .badge {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.4rem;
+  }
+  .badge-success { background: #1a4731; color: #3fb950; border: 1px solid #2ea043; }
+  .badge-domain  { background: #1c2d47; color: #79c0ff; border: 1px solid #1f6feb; }
+  .badge-model   { background: #2a1f3d; color: #d2a8ff; border: 1px solid #8957e5; }
+
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card.highlight {
+    border-color: #388bfd;
+    background: #0d2137;
+  }
+
+  .answer-box {
+    background: #0d2137;
+    border: 2px solid #388bfd;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .answer-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #58a6ff; margin-bottom: 0.4rem; }
+  .answer-title { font-size: 1.35rem; color: #f0f6fc; font-weight: 700; }
+  .answer-sub   { color: #8b949e; font-size: 0.88rem; margin-top: 0.25rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    background: #21262d;
+    color: #8b949e;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #30363d;
+  }
+  tbody tr { border-bottom: 1px solid #21262d; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #1c2128; }
+  tbody td { padding: 0.5rem 0.75rem; }
+  tbody tr.winner td { color: #f0f6fc; font-weight: 600; }
+  tbody tr.winner td.vol { color: #3fb950; }
+  .rank-1 { color: #ffd700; }
+  .rank-2 { color: #c0c0c0; }
+  .rank-3 { color: #cd7f32; }
+
+  .bar-wrap { display: flex; align-items: center; gap: 0.5rem; }
+  .bar { height: 10px; border-radius: 4px; background: #1f6feb; transition: width 0.3s; }
+  .bar.winner { background: #3fb950; }
+  .bar-val { font-size: 0.82rem; color: #8b949e; white-space: nowrap; }
+
+  .timeline { list-style: none; }
+  .timeline li {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    gap: 0 0.75rem;
+    margin-bottom: 0.9rem;
+    align-items: start;
+  }
+  .tl-dot {
+    width: 1rem; height: 1rem;
+    border-radius: 50%;
+    background: #21262d;
+    border: 2px solid #30363d;
+    margin-top: 0.3rem;
+    justify-self: center;
+  }
+  .tl-dot.ok  { border-color: #3fb950; background: #1a4731; }
+  .tl-dot.err { border-color: #f85149; background: #3d1a1a; }
+  .tl-dot.info{ border-color: #58a6ff; background: #0d2137; }
+  .tl-step-title { font-size: 0.9rem; color: #e6edf3; }
+  .tl-step-body  { font-size: 0.82rem; color: #8b949e; margin-top: 0.15rem; }
+
+  pre {
+    background: #010409;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 0.9rem 1rem;
+    overflow-x: auto;
+    font-size: 0.8rem;
+    color: #c9d1d9;
+    white-space: pre;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .pre-wrap { margin-top: 0.6rem; }
+
+  .kv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.75rem;
+    font-size: 0.85rem;
+  }
+  .kv { }
+  .kv-key { color: #8b949e; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .kv-val { color: #e6edf3; font-weight: 600; margin-top: 0.1rem; }
+
+  .schema-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 700px) { .schema-grid { grid-template-columns: 1fr; } }
+  .schema-block { }
+  .schema-title { font-size: 0.8rem; color: #8b949e; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .col-list { list-style: none; font-size: 0.82rem; }
+  .col-list li { padding: 0.2rem 0; border-bottom: 1px solid #21262d; display: flex; justify-content: space-between; }
+  .col-list li:last-child { border-bottom: none; }
+  .col-type { color: #8b949e; font-size: 0.78rem; }
+
+  .error-chip {
+    display: inline-block;
+    background: #3d1a1a;
+    color: #f85149;
+    border: 1px solid #f85149;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    padding: 0.1rem 0.4rem;
+    margin-right: 0.25rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div style="margin-bottom:1.5rem;">
+  <h1>Asia Stock Index — Intraday Volatility</h1>
+  <div class="header-meta">
+    <span>Case <code>03_stockindex_query1</code></span>
+    <span>·</span>
+    <span class="badge badge-domain">data_analysis</span>
+    <span class="badge badge-model">gpt-5.6-sol</span>
+    <span class="badge badge-success">&#10003; exit 0</span>
+  </div>
+  <div class="kv-grid" style="margin-top:0.5rem;">
+    <div class="kv"><div class="kv-key">Benchmark</div><div class="kv-val">DataAgentBench</div></div>
+    <div class="kv"><div class="kv-key">Duration</div><div class="kv-val">4248 s (~70 min)</div></div>
+    <div class="kv"><div class="kv-key">Collected</div><div class="kv-val">2026-07-11</div></div>
+    <div class="kv"><div class="kv-key">Trajectory entries</div><div class="kv-val">36</div></div>
+    <div class="kv"><div class="kv-key">Tool calls (exec)</div><div class="kv-val">7 (4 errors)</div></div>
+    <div class="kv"><div class="kv-key">Source</div><div class="kv-val">regen</div></div>
+  </div>
+</div>
+
+<!-- ===== QUESTION ===== -->
+<h2>Question</h2>
+<div class="card">
+  <p style="color:#e6edf3; font-size:1rem;">Which stock index in the Asia region has exhibited the <strong>highest average intraday volatility since 2020</strong>?</p>
+  <p style="color:#8b949e; font-size:0.85rem; margin-top:0.5rem;">
+    Data: <code>indexInfo_query.db</code> (SQLite) &amp; <code>indextrade_query.db</code> (DuckDB)
+  </p>
+</div>
+
+<!-- ===== ANSWER ===== -->
+<h2>Answer</h2>
+<div class="answer-box">
+  <div class="answer-label">Highest average intraday volatility (Asia, since 2020)</div>
+  <div class="answer-title">Shenzhen Component Index &nbsp;<code>399001.SZ</code></div>
+  <div class="answer-sub">1.8341 % average daily intraday range &nbsp;·&nbsp; 342 trading days observed</div>
+</div>
+
+<!-- ===== RESULTS TABLE ===== -->
+<h2>Ranked Results</h2>
+<div class="card" style="padding:0; overflow:hidden;">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:2.5rem;">#</th>
+        <th>Index</th>
+        <th>Ticker</th>
+        <th>Trading Days</th>
+        <th>Avg Intraday Volatility</th>
+        <th style="min-width:180px;">Bar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="winner">
+        <td><span class="rank-1">1</span></td>
+        <td>Shenzhen Component</td>
+        <td><code>399001.SZ</code></td>
+        <td>342</td>
+        <td class="vol">1.8341 %</td>
+        <td>
+          <div class="bar-wrap">
+            <div class="bar winner" style="width:100%;"></div>
+            <span class="bar-val">1.8341</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rank-2">2</span></td>
+        <td>Nifty 50</td>
+        <td><code>NSEI</code></td>
+        <td>349</td>
+        <td>1.7072 %</td>
+        <td>
+          <div class="bar-wrap">
+            <div class="bar" style="width:93.1%;"></div>
+            <span class="bar-val">1.7072</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="rank-3">3</span></td>
+        <td>Hang Seng Index</td>
+        <td><code>HSI</code></td>
+        <td>348</td>
+        <td>1.4932 %</td>
+        <td>
+          <div class="bar-wrap">
+            <div class="bar" style="width:81.4%;"></div>
+            <span class="bar-val">1.4932</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Shanghai Composite</td>
+        <td><code>000001.SS</code></td>
+        <td>340</td>
+        <td>1.3781 %</td>
+        <td>
+          <div class="bar-wrap">
+            <div class="bar" style="width:75.1%;"></div>
+            <span class="bar-val">1.3781</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Nikkei 225</td>
+        <td><code>N225</code></td>
+        <td>344</td>
+        <td>1.3427 %</td>
+        <td>
+          <div class="bar-wrap">
+            <div class="bar" style="width:73.2%;"></div>
+            <span class="bar-val">1.3427</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Taiwan Weighted</td>
+        <td><code>TWII</code></td>
+        <td>339</td>
+        <td>1.3225 %</td>
+        <td>
+          <div class="bar-wrap">
+            <div class="bar" style="width:72.1%;"></div>
+            <span class="bar-val">1.3225</span>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== METHODOLOGY ===== -->
+<h2>Methodology</h2>
+<div class="card">
+  <h3>Volatility Metric</h3>
+  <p style="font-size:0.88rem; color:#c9d1d9; margin:0.4rem 0 0.75rem;">
+    The agent used <strong>daily percentage intraday range</strong> as the volatility proxy, which is scale-neutral and comparable across indexes denominated in different currencies and at vastly different price levels.
+  </p>
+  <pre>intraday_volatility = (High − Low) / Open × 100</pre>
+
+  <h3 style="margin-top:1rem;">Filters Applied</h3>
+  <ul style="font-size:0.85rem; color:#c9d1d9; padding-left:1.2rem; margin-top:0.4rem;">
+    <li>Date &ge; 2020-01-01 (parsed from three heterogeneous date formats)</li>
+    <li>Open &gt; 0 (division-by-zero guard)</li>
+    <li>High and Low not NULL</li>
+    <li>Restricted to six identified Asia-region tickers only</li>
+    <li>Zero unparsed dates in the final dataset</li>
+  </ul>
+
+  <div class="pre-wrap">
+    <div class="schema-title" style="margin-top:1rem;">Core SQL (DuckDB)</div>
+    <pre>WITH parsed AS (
+  SELECT "Index" AS idx,
+    COALESCE(
+      try_strptime("Date", '%Y-%m-%d %H:%M:%S'),
+      try_strptime("Date", '%d %b %Y, %H:%M'),
+      try_strptime("Date", '%B %d, %Y at %I:%M %p')
+    ) AS dt,
+    "Open" AS op, "High" AS hi, "Low" AS lo
+  FROM index_trade
+),
+asia(idx, name) AS (
+  VALUES ('HSI','Hang Seng Index'),
+         ('000001.SS','Shanghai Composite'),
+         ('N225','Nikkei 225'),
+         ('399001.SZ','Shenzhen Component'),
+         ('NSEI','Nifty 50'),
+         ('TWII','Taiwan Weighted')
+)
+SELECT name, idx,
+       COUNT(*) AS trading_days,
+       ROUND(AVG(100*(hi-lo)/op), 4) AS avg_intraday_volatility_pct
+FROM parsed JOIN asia USING(idx)
+WHERE dt >= DATE '2020-01-01'
+  AND op &gt; 0
+  AND hi IS NOT NULL
+  AND lo IS NOT NULL
+GROUP BY name, idx
+ORDER BY avg_intraday_volatility_pct DESC</pre>
+  </div>
+</div>
+
+<!-- ===== DATA SCHEMAS ===== -->
+<h2>Data Sources</h2>
+<div class="schema-grid">
+  <div class="card schema-block">
+    <div class="schema-title">indexInfo_query.db &nbsp;&nbsp;<span style="color:#58a6ff;">SQLite</span></div>
+    <p style="font-size:0.82rem; color:#8b949e; margin-bottom:0.5rem;">Table: <code>index_info</code> &nbsp;(14 rows)</p>
+    <ul class="col-list">
+      <li><span>Exchange</span><span class="col-type">TEXT</span></li>
+      <li><span>Currency</span><span class="col-type">TEXT</span></li>
+    </ul>
+    <p style="font-size:0.78rem; color:#8b949e; margin-top:0.6rem;">Asia exchanges identified: Hong Kong SE (HKD), Shanghai SE (CNY), Tokyo SE (JPY), Shenzhen SE (CNY), National SE India (INR), Taiwan SE (TWD), Korea Exchange (KRW)</p>
+  </div>
+  <div class="card schema-block">
+    <div class="schema-title">indextrade_query.db &nbsp;&nbsp;<span style="color:#d2a8ff;">DuckDB</span></div>
+    <p style="font-size:0.82rem; color:#8b949e; margin-bottom:0.5rem;">Table: <code>index_trade</code> &nbsp;(13 tickers, heterogeneous dates)</p>
+    <ul class="col-list">
+      <li><span>Index</span><span class="col-type">VARCHAR</span></li>
+      <li><span>Date</span><span class="col-type">VARCHAR (3 formats)</span></li>
+      <li><span>Open</span><span class="col-type">DOUBLE</span></li>
+      <li><span>High</span><span class="col-type">DOUBLE</span></li>
+      <li><span>Low</span><span class="col-type">DOUBLE</span></li>
+      <li><span>Close</span><span class="col-type">DOUBLE</span></li>
+      <li><span>Adj Close</span><span class="col-type">DOUBLE</span></li>
+      <li><span>CloseUSD</span><span class="col-type">DOUBLE</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== TRAJECTORY ===== -->
+<h2>Agent Trajectory</h2>
+<ul class="timeline">
+
+  <li>
+    <div class="tl-dot info"></div>
+    <div>
+      <div class="tl-step-title">Step 1 — Schema exploration attempt (heredoc)</div>
+      <div class="tl-step-body">
+        Agent tried to inspect both database schemas via a Python heredoc embedded in a shell command.
+        <br><span class="error-chip">FAIL</span> <code>zsh: can't create temp file for here document: operation not permitted</code>
+      </div>
+    </div>
+  </li>
+
+  <li>
+    <div class="tl-dot ok"></div>
+    <div>
+      <div class="tl-step-title">Step 2 — Schema exploration (python -c)</div>
+      <div class="tl-step-body">
+        Switched to <code>python -c '...'</code>. Successfully retrieved both schemas.<br>
+        SQLite <code>index_info</code>: 14 exchanges with currencies.<br>
+        DuckDB <code>index_trade</code>: 13 tickers with OHLC + CloseUSD. Dates stored as VARCHAR in three mixed formats.
+      </div>
+    </div>
+  </li>
+
+  <li>
+    <div class="tl-dot ok"></div>
+    <div>
+      <div class="tl-step-title">Step 3 — Index enumeration &amp; date sampling</div>
+      <div class="tl-step-body">
+        Queried row counts per ticker and sampled raw date strings to understand parsing requirements.<br>
+        Found three date formats: <code>%Y-%m-%d %H:%M:%S</code>, <code>%d %b %Y, %H:%M</code>, and <code>%B %d, %Y at %I:%M %p</code>.
+      </div>
+    </div>
+  </li>
+
+  <li>
+    <div class="tl-dot info"></div>
+    <div>
+      <div class="tl-step-title">Step 4 — Reasoning checkpoint</div>
+      <div class="tl-step-body">
+        Agent identified six Asia-region indexes: Hang Seng, Shanghai Composite, Nikkei 225, Shenzhen Component, Nifty 50, Taiwan Weighted. Decided to use <code>(High−Low)/Open×100</code> rather than raw-point ranges to ensure cross-index comparability.
+      </div>
+    </div>
+  </li>
+
+  <li>
+    <div class="tl-dot err"></div>
+    <div>
+      <div class="tl-step-title">Step 5 — Volatility query attempt (inline python -c)</div>
+      <div class="tl-step-body">
+        First full-analysis query attempted using heavily-escaped <code>python -c</code>. Shell quoting depth caused failures.<br>
+        <span class="error-chip">FAIL</span> <code>zsh: parse error near ')'</code>
+      </div>
+    </div>
+  </li>
+
+  <li>
+    <div class="tl-dot err"></div>
+    <div>
+      <div class="tl-step-title">Step 6 — Template-literal encoding attempt #1</div>
+      <div class="tl-step-body">
+        Tried encoding Python script as a JS template literal + TextEncoder to avoid shell escaping.
+        <br><span class="error-chip">FAIL</span> <code>ReferenceError: TextEncoder is not defined</code>
+      </div>
+    </div>
+  </li>
+
+  <li>
+    <div class="tl-dot err"></div>
+    <div>
+      <div class="tl-step-title">Step 7 — Template-literal encoding attempt #2 (btoa)</div>
+      <div class="tl-step-body">
+        Tried base64 via <code>btoa()</code> to sidestep quoting.
+        <br><span class="error-chip">FAIL</span> <code>ReferenceError: btoa is not defined</code>
+      </div>
+    </div>
+  </li>
+
+  <li>
+    <div class="tl-dot err"></div>
+    <div>
+      <div class="tl-step-title">Step 8 — Template-literal + exec_command</div>
+      <div class="tl-step-body">
+        Passed the script via JS template literal to exec_command shell. Newlines escaped as <code>\n</code> and fed to <code>python -c</code> but produced a syntax error when Python received literal backslash-n instead of real newlines.
+        <br><span class="error-chip">FAIL</span> Python syntax error on <code>import duckdb\nc=…</code>
+      </div>
+    </div>
+  </li>
+
+  <li>
+    <div class="tl-dot ok"></div>
+    <div>
+      <div class="tl-step-title">Step 9 — Custom character-map encoding <span style="color:#3fb950;">(SUCCESS)</span></div>
+      <div class="tl-step-body">
+        Agent encoded the multiline Python script character-by-character using a custom JS alphabet map (avoiding special shell chars), decoded it at runtime, and executed via <code>python -c</code>. Wall time: 0.4 s.
+        <div class="pre-wrap">
+          <pre>name | ticker | days | avg intraday volatility (%)
+Shenzhen Component | 399001.SZ | 342 | 1.8341
+Nifty 50           | NSEI      | 349 | 1.7072
+Hang Seng Index    | HSI       | 348 | 1.4932
+Shanghai Composite | 000001.SS | 340 | 1.3781
+Nikkei 225         | N225      | 344 | 1.3427
+Taiwan Weighted    | TWII      | 339 | 1.3225
+unparsed dates 0</pre>
+        </div>
+      </div>
+    </div>
+  </li>
+
+  <li>
+    <div class="tl-dot ok"></div>
+    <div>
+      <div class="tl-step-title">Step 10 — Final answer</div>
+      <div class="tl-step-body">
+        Agent reported the Shenzhen Component Index (399001.SZ) as the winner with 1.8341 % average intraday volatility. Noted all date values parsed successfully (0 unparsed).
+      </div>
+    </div>
+  </li>
+
+</ul>
+
+<!-- ===== FOOTER ===== -->
+<div style="margin-top:2.5rem; padding-top:1rem; border-top:1px solid #21262d; font-size:0.78rem; color:#484f58; display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+  <span>AgentHTML · data_analysis · 03_stockindex_query1</span>
+  <span>Bash fallback used for trajectory.jsonl (file exceeded 25 000-token read limit)</span>
+</div>
+
+</body>
+</html>
