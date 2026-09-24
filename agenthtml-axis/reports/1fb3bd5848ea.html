@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Save a Coffee Mocha Recipe — AgentHTML</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #080502;
+  --surf-1:     #100806;
+  --surf-2:     #1a0e08;
+  --surf-3:     #241308;
+  --surf-4:     #301a0c;
+  --border:     #3d2010;
+  --border-hi:  #5e3318;
+  --amber:      #c47c30;
+  --gold:       #e4a040;
+  --cream:      #f0dfc6;
+  --milk:       #d0b898;
+  --taupe:      #906848;
+  --ash:        #584030;
+  --glow:       rgba(196, 124, 48, 0.18);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: Georgia, 'Times New Roman', serif;
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Radial depth lighting */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 50% at 50% -5%, #2c1408 0%, transparent 55%),
+    radial-gradient(ellipse 50% 30% at 5% 90%, #180c04 0%, transparent 45%),
+    radial-gradient(ellipse 40% 20% at 95% 80%, #1c1005 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Grain texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.038;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wrap {
+  position: relative;
+  z-index: 2;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 36px 100px;
+}
+
+/* ── TOP BAR ── */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--border);
+  animation: fadeDown 0.6s ease both;
+}
+
+.top-left, .top-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.chip {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid var(--border-hi);
+  color: var(--amber);
+  border-radius: 2px;
+  background: var(--surf-2);
+}
+
+.sep {
+  width: 3px;
+  height: 3px;
+  background: var(--ash);
+  border-radius: 50%;
+}
+
+.label {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 64px 0 0;
+  animation: fadeUp 0.7s 0.08s ease both;
+}
+
+.kicker {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--amber);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.kicker::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 1px;
+  background: var(--amber);
+  opacity: 0.7;
+}
+
+.hero-title {
+  font-size: clamp(40px, 7.5vw, 76px);
+  font-weight: normal;
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  color: var(--cream);
+  max-width: 700px;
+  margin-bottom: 28px;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ash);
+}
+
+/* ── COFFEE ART ── */
+.coffee-art {
+  margin: 56px 0 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  animation: fadeUp 0.7s 0.15s ease both;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  margin: 56px 0;
+  border: none;
+  border-top: 1px solid var(--border);
+  position: relative;
+}
+
+.divider::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg);
+  padding: 0 12px;
+  color: var(--ash);
+  font-size: 10px;
+}
+
+/* ── PATH SECTION ── */
+.section-head {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ash);
+  margin-bottom: 22px;
+}
+
+.path-section {
+  animation: fadeUp 0.7s 0.22s ease both;
+}
+
+.path-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  row-gap: 10px;
+}
+
+.path-crumb {
+  display: flex;
+  align-items: center;
+}
+
+.crumb-label {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 9px 16px;
+  background: var(--surf-2);
+  border: 1px solid var(--border);
+  color: var(--milk);
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.crumb-label:hover {
+  background: var(--surf-3);
+  border-color: var(--border-hi);
+}
+
+.crumb-label.terminal {
+  background: linear-gradient(135deg, var(--surf-4), var(--surf-3));
+  border-color: var(--amber);
+  color: var(--gold);
+  font-weight: bold;
+  box-shadow: 0 0 18px rgba(196,124,48,0.2);
+}
+
+.crumb-arrow {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  color: var(--border-hi);
+  padding: 0 8px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ── STEPS ── */
+.steps-section {
+  margin-top: 56px;
+  animation: fadeUp 0.7s 0.3s ease both;
+}
+
+.steps-list {
+  margin-top: 28px;
+  list-style: none;
+  position: relative;
+}
+
+/* vertical connector line */
+.steps-list::before {
+  content: '';
+  position: absolute;
+  left: 23px;
+  top: 12px;
+  bottom: 12px;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--border) 8%,
+    var(--border) 92%,
+    transparent 100%
+  );
+}
+
+.step-item {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 0 22px;
+  margin-bottom: 0;
+  opacity: 0;
+  animation: slideIn 0.55s ease both;
+  position: relative;
+}
+
+.step-item:nth-child(1) { animation-delay: 0.42s; }
+.step-item:nth-child(2) { animation-delay: 0.56s; }
+.step-item:nth-child(3) { animation-delay: 0.70s; }
+.step-item:nth-child(4) { animation-delay: 0.84s; }
+.step-item:nth-child(5) { animation-delay: 0.98s; }
+
+.step-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surf-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  color: var(--taupe);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  margin-top: 4px;
+}
+
+.step-item:last-child .step-num {
+  border-color: var(--amber);
+  color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(196,124,48,0.1);
+  background: var(--surf-3);
+}
+
+.step-body {
+  padding: 6px 0 36px;
+  border-bottom: 1px solid var(--border);
+  cursor: default;
+  transition: background 0.2s;
+  padding-left: 0;
+}
+
+.step-item:last-child .step-body {
+  border-bottom-color: transparent;
+}
+
+.step-item:hover .step-body {
+  background: linear-gradient(to right, var(--surf-2) 0%, transparent 100%);
+  border-radius: 0 4px 4px 0;
+  padding-left: 14px;
+}
+
+.step-item:hover .step-num {
+  border-color: var(--border-hi);
+}
+
+.step-badges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.badge-action {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: bold;
+  padding: 3px 9px;
+  border-radius: 2px;
+}
+
+.badge-action.ba-hover {
+  background: rgba(88,64,48,0.35);
+  color: var(--taupe);
+  border: 1px solid var(--border);
+}
+
+.badge-action.ba-click {
+  background: rgba(196,124,48,0.12);
+  color: var(--amber);
+  border: 1px solid rgba(196,124,48,0.3);
+}
+
+.badge-elem {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
+  border-radius: 2px;
+  background: var(--surf-2);
+  border: 1px solid var(--border);
+  color: var(--ash);
+}
+
+.step-label {
+  font-size: 24px;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  color: var(--cream);
+  font-weight: normal;
+  margin-bottom: 7px;
+}
+
+.step-item:last-child .step-label {
+  color: var(--gold);
+  font-style: italic;
+}
+
+.step-note {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  color: var(--ash);
+  letter-spacing: 0.07em;
+}
+
+/* ── OUTCOME ── */
+.outcome {
+  margin-top: 48px;
+  padding: 30px 32px;
+  background: linear-gradient(135deg, var(--surf-3) 0%, var(--surf-2) 100%);
+  border: 1px solid var(--amber);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  opacity: 0;
+  animation: fadeUp 0.6s 1.22s ease both;
+  position: relative;
+  overflow: hidden;
+}
+
+.outcome::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 0% 50%, rgba(196,124,48,0.07) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.outcome-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--bg);
+  flex-shrink: 0;
+  opacity: 0;
+  transform: scale(0.4) rotate(-15deg);
+  animation: checkPop 0.45s 1.52s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.outcome-text-title {
+  font-size: 19px;
+  font-style: italic;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.outcome-text-body {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11.5px;
+  color: var(--taupe);
+  letter-spacing: 0.06em;
+  line-height: 1.7;
+}
+
+/* ── FOOTER ── */
+.foot {
+  margin-top: 72px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  opacity: 0;
+  animation: fadeUp 0.6s 1.5s ease both;
+}
+
+.foot-col { }
+
+.foot-label {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ash);
+  margin-bottom: 7px;
+}
+
+.foot-val {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  color: var(--taupe);
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.foot-val.dimmer {
+  color: var(--ash);
+  font-size: 10px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes checkPop {
+  from { opacity: 0; transform: scale(0.4) rotate(-15deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+/* steam animation for SVG */
+@keyframes steam {
+  0%,100% { opacity: 0.18; transform: translateY(0) scaleX(1); }
+  50%      { opacity: 0.7;  transform: translateY(-7px) scaleX(0.75); }
+}
+
+.st1 { animation: steam 2.8s ease-in-out infinite; }
+.st2 { animation: steam 2.8s 0.45s ease-in-out infinite; }
+.st3 { animation: steam 2.8s 0.9s ease-in-out infinite; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .wrap { padding: 0 20px 60px; }
+  .hero-title { font-size: 36px; }
+  .foot { grid-template-columns: 1fr; }
+  .path-flow { gap: 0; row-gap: 8px; }
+  .crumb-label { font-size: 11px; padding: 7px 12px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="top-left">
+      <span class="chip">Mind2Web</span>
+      <span class="sep"></span>
+      <span class="label">Web Navigation</span>
+    </div>
+    <div class="top-right">
+      <span class="label">Allrecipes</span>
+      <span class="sep"></span>
+      <span class="label">Human Annotator</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="kicker">Trajectory Report</div>
+    <h1 class="hero-title">Save a <em>Coffee&nbsp;Mocha</em><br>Recipe.</h1>
+    <div class="hero-meta">
+      <span>5 actions</span>
+      <span class="sep"></span>
+      <span>Info / Cooking</span>
+      <span class="sep"></span>
+      <span>allrecipes.com</span>
+    </div>
+  </section>
+
+  <!-- COFFEE ART -->
+  <div class="coffee-art">
+    <svg width="88" height="80" viewBox="0 0 88 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- steam wisps -->
+      <path class="st1" d="M22 24 C22 19 18 17 18 12" stroke="#c47c30" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+      <path class="st2" d="M40 20 C40 15 36 13 36 8"  stroke="#c47c30" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+      <path class="st3" d="M58 24 C58 19 54 17 54 12" stroke="#c47c30" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+      <!-- cup body -->
+      <path d="M10 32 L15 70 L65 70 L70 32 Z" fill="#1a0e08" stroke="#3d2010" stroke-width="1.2"/>
+      <!-- liquid surface -->
+      <ellipse cx="40" cy="37" rx="29" ry="6" fill="#2c1408"/>
+      <!-- crema ring -->
+      <ellipse cx="40" cy="37" rx="29" ry="6" fill="none" stroke="#c47c30" stroke-width="1" stroke-dasharray="3 4" opacity="0.45"/>
+      <!-- highlight on liquid -->
+      <path d="M18 35 Q28 40 40 35 Q52 30 62 35" stroke="#e4a040" stroke-width="0.8" fill="none" opacity="0.3"/>
+      <!-- cup rim -->
+      <rect x="8" y="27" width="64" height="7" rx="3.5" fill="#241308" stroke="#3d2010" stroke-width="1.2"/>
+      <!-- handle -->
+      <path d="M70 44 Q82 44 82 56 Q82 68 70 68" stroke="#3d2010" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <!-- saucer -->
+      <ellipse cx="40" cy="72" rx="36" ry="5" fill="#1a0e08" stroke="#3d2010" stroke-width="1"/>
+      <ellipse cx="40" cy="72" rx="24" ry="3" fill="none" stroke="#241308" stroke-width="0.8"/>
+    </svg>
+  </div>
+
+  <hr class="divider">
+
+  <!-- NAVIGATION PATH -->
+  <section class="path-section">
+    <div class="section-head">Navigation Path</div>
+    <div class="path-flow">
+      <div class="path-crumb">
+        <div class="crumb-label">Meals</div>
+        <div class="crumb-arrow">—›</div>
+      </div>
+      <div class="path-crumb">
+        <div class="crumb-label">Drinks</div>
+        <div class="crumb-arrow">—›</div>
+      </div>
+      <div class="path-crumb">
+        <div class="crumb-label">Coffee Drinks</div>
+        <div class="crumb-arrow">—›</div>
+      </div>
+      <div class="path-crumb">
+        <div class="crumb-label">Mochas</div>
+        <div class="crumb-arrow">—›</div>
+      </div>
+      <div class="crumb-label terminal">Save Recipe</div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- TRAJECTORY STEPS -->
+  <section class="steps-section">
+    <div class="section-head">Action Sequence &middot; 5 Steps</div>
+
+    <ol class="steps-list">
+
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-badges">
+            <span class="badge-action ba-hover">Hover</span>
+            <span class="badge-elem">[link]</span>
+          </div>
+          <div class="step-label">MEALS</div>
+          <div class="step-note">Open top navigation &mdash; meals dropdown</div>
+        </div>
+      </li>
+
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-badges">
+            <span class="badge-action ba-click">Click</span>
+            <span class="badge-elem">[link]</span>
+          </div>
+          <div class="step-label">Drinks</div>
+          <div class="step-note">Navigate to Drinks category</div>
+        </div>
+      </li>
+
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-badges">
+            <span class="badge-action ba-click">Click</span>
+            <span class="badge-elem">[link]</span>
+          </div>
+          <div class="step-label">COFFEE DRINKS</div>
+          <div class="step-note">Navigate to Coffee Drinks subcategory</div>
+        </div>
+      </li>
+
+      <li class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-badges">
+            <span class="badge-action ba-click">Click</span>
+            <span class="badge-elem">[link]</span>
+          </div>
+          <div class="step-label">MOCHAS</div>
+          <div class="step-note">Navigate to Mochas recipe listing</div>
+        </div>
+      </li>
+
+      <li class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-badges">
+            <span class="badge-action ba-click">Click</span>
+            <span class="badge-elem">[button]</span>
+          </div>
+          <div class="step-label">Save Recipe</div>
+          <div class="step-note">Bookmark recipe to personal collection &mdash; task complete</div>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <!-- OUTCOME -->
+  <div class="outcome">
+    <div class="outcome-icon">&#10003;</div>
+    <div>
+      <div class="outcome-text-title">Task Completed Successfully</div>
+      <div class="outcome-text-body">
+        Coffee mocha recipe saved to collection.<br>
+        5 actions &nbsp;&middot;&nbsp; 1 goal &nbsp;&middot;&nbsp; human-annotated demonstration
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="foot">
+    <div class="foot-col">
+      <div class="foot-label">Case ID</div>
+      <div class="foot-val">03_test_domain_<wbr>test_domain_2_85</div>
+    </div>
+    <div class="foot-col">
+      <div class="foot-label">Annotation ID</div>
+      <div class="foot-val dimmer">547ed17c-da34-<wbr>4a20-93cd-<wbr>24a3603f4ccf</div>
+    </div>
+    <div class="foot-col" style="text-align:right">
+      <div class="foot-label">Trajectory SHA-256</div>
+      <div class="foot-val dimmer">af0436e6&hellip;80a87c7b</div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

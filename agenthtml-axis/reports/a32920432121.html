@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ryanair Hotel Booking Trajectory | Mind2Web Case 05_test_task_test_task_2_4</title>
+  <style>
+    :root {
+      --primary: #073590;
+      --primary-dark: #041e54;
+      --primary-light: #0d4bc0;
+      --accent: #f1c40f;
+      --accent-hover: #d4ac0d;
+      --accent-subtle: #fef9e7;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-faint: #94a3b8;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --warning: #d97706;
+      --warning-bg: #fffbeb;
+      --info: #2563eb;
+      --info-bg: #eff6ff;
+      --code-bg: #f1f5f9;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Navigation Chrome */
+    .top-header {
+      background: var(--primary-dark);
+      color: #ffffff;
+      border-bottom: 3px solid var(--accent);
+      padding: 0.875rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-md);
+    }
+
+    .top-header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-logo-badge {
+      background: var(--accent);
+      color: var(--primary-dark);
+      font-weight: 900;
+      font-size: 1.125rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: var(--radius-sm);
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .brand-title-group h1 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-title-group .sub {
+      font-size: 0.8125rem;
+      color: #cbd5e1;
+    }
+
+    .meta-tags {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(255, 255, 255, 0.12);
+      color: #f1f5f9;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .meta-tag.success {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #a7f3d0;
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 1400px;
+      margin: 1.5rem auto 3rem;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Hero Section */
+    .hero-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #ffffff;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .hero-kicker {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-statement {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.35;
+      color: #ffffff;
+      max-width: 1100px;
+      margin-bottom: 1rem;
+    }
+
+    .hero-metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      background: #ffffff;
+      padding: 1.25rem 2rem;
+      border-top: 1px solid var(--surface-border);
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .metric-item .label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .metric-item .val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .metric-item .subval {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Split Section Layout */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card Panels */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--surface-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fafbfc;
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .panel-body {
+      padding: 1.25rem 1.5rem;
+    }
+
+    /* Requirements Checklist Matrix */
+    .req-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .req-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+      transition: background-color 0.15s ease;
+    }
+
+    .req-row:hover {
+      background: #f1f5f9;
+    }
+
+    .req-status-icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-top: 1px;
+    }
+
+    .req-status-icon.match {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid rgba(5, 150, 105, 0.3);
+    }
+
+    .req-status-icon.divergence {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid rgba(217, 119, 6, 0.3);
+    }
+
+    .req-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .req-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .req-detail {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .req-step-ref {
+      font-size: 0.75rem;
+      font-family: ui-monospace, "SF Mono", monospace;
+      color: var(--primary);
+      background: rgba(7, 53, 144, 0.08);
+      padding: 0.15rem 0.4rem;
+      border-radius: var(--radius-sm);
+      align-self: flex-start;
+    }
+
+    /* Hotel Comparison Card */
+    .hotel-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #eef2ff;
+      color: #3730a3;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .hotel-card-preview {
+      border: 1.5px solid #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hotel-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 0.75rem;
+    }
+
+    .hotel-name {
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .hotel-stars {
+      color: #f59e0b;
+      font-size: 0.875rem;
+    }
+
+    .hotel-location {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .hotel-distance-highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--success);
+      background: var(--success-bg);
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(5, 150, 105, 0.2);
+    }
+
+    .amenities-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .chip {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      background: #f1f5f9;
+      color: var(--text-main);
+      border-radius: var(--radius-sm);
+      border: 1px solid #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .chip.active {
+      background: #e0e7ff;
+      color: #1e3a8a;
+      border-color: #c7d2fe;
+      font-weight: 600;
+    }
+
+    .price-calc-box {
+      background: #fafbfc;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 0.875rem;
+      font-size: 0.8125rem;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      color: var(--text-muted);
+    }
+
+    .price-row.total {
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 0;
+    }
+
+    /* Distance Sorting Table */
+    .distance-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      margin-top: 0.75rem;
+    }
+
+    .distance-table th {
+      background: #f8fafc;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--surface-border);
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+
+    .distance-table td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #f1f5f9;
+      color: var(--text-main);
+    }
+
+    .distance-table tr.selected-row {
+      background: #eff6ff;
+      font-weight: 600;
+    }
+
+    .distance-table tr.selected-row td:first-child {
+      border-left: 3px solid var(--primary);
+    }
+
+    /* Interactive Trajectory Explorer */
+    .explorer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .filter-tabs {
+      display: flex;
+      background: #e2e8f0;
+      padding: 0.25rem;
+      border-radius: var(--radius-md);
+      gap: 0.25rem;
+      overflow-x: auto;
+    }
+
+    .filter-tab {
+      border: none;
+      background: transparent;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .filter-tab:hover {
+      color: var(--text-main);
+    }
+
+    .filter-tab.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .step-search-input {
+      padding: 0.45rem 0.85rem;
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      font-size: 0.8125rem;
+      outline: none;
+      width: 220px;
+    }
+
+    .step-search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(7, 53, 144, 0.15);
+    }
+
+    /* 2-Column Trajectory Explorer: Steps List & Active Step Inspector */
+    .explorer-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .explorer-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .steps-scroller {
+      max-height: 720px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    .step-card {
+      border: 1px solid var(--surface-border);
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 0.875rem 1rem;
+      cursor: pointer;
+      display: flex;
+      gap: 0.875rem;
+      align-items: flex-start;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .step-card:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+      transform: translateY(-1px);
+    }
+
+    .step-card.active {
+      border-color: var(--primary);
+      background: #f8faff;
+      box-shadow: 0 0 0 1.5px var(--primary);
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: var(--text-main);
+      font-size: 0.75rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-card.active .step-number {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .step-summary {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .step-top-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .step-title-text {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .op-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      font-family: ui-monospace, "SF Mono", monospace;
+    }
+
+    .op-tag.click {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .op-tag.type {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .step-action-repr {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: var(--code-bg);
+      padding: 0.2rem 0.4rem;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.35rem;
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    .step-meta-chips {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      color: var(--text-faint);
+    }
+
+    /* Step Inspector Panel (Right Sticky Side) */
+    .inspector-panel {
+      position: sticky;
+      top: 5rem;
+      background: #ffffff;
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .inspector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 1rem;
+    }
+
+    .inspector-step-title {
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .inspector-step-phase {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .inspector-nav-btns {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .btn-nav {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.65rem;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .btn-nav:hover:not(:disabled) {
+      background: #e2e8f0;
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .code-block {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 0.875rem 1rem;
+      border-radius: var(--radius-md);
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 0.8125rem;
+      line-height: 1.4;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+
+    .attrs-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.5rem 1rem;
+      font-size: 0.8125rem;
+      background: #f8fafc;
+      padding: 0.875rem 1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--surface-border);
+    }
+
+    .attr-key {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 0.75rem;
+    }
+
+    .attr-val {
+      color: var(--text-main);
+      word-break: break-all;
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 0.75rem;
+    }
+
+    .inspector-notes {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      color: var(--text-main);
+      background: #fafbfc;
+      padding: 0.875rem 1rem;
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--primary);
+    }
+
+    /* Candidate Space Box */
+    .candidate-stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.75rem;
+    }
+
+    .stat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+    }
+
+    .stat-pill.pos {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .stat-pill.neg {
+      background: #f1f5f9;
+      color: var(--text-muted);
+    }
+
+    /* Footer / Audit Card */
+    .audit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .audit-card {
+      background: #fafbfc;
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
+
+    .audit-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .audit-card p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .footer-bar {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-faint);
+      padding: 2rem 0;
+      border-top: 1px solid var(--surface-border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header class="top-header">
+    <div class="top-header-inner">
+      <div class="brand-group">
+        <span class="brand-logo-badge">RYANAIR</span>
+        <div class="brand-title-group">
+          <h1>Mind2Web Trajectory Inspector</h1>
+          <div class="sub">Case 05_test_task_test_task_2_4 &bull; Web Navigation &bull; Travel / Airlines</div>
+        </div>
+      </div>
+      <div class="meta-tags">
+        <span class="meta-tag">Website: ryanair</span>
+        <span class="meta-tag">Domain: Travel</span>
+        <span class="meta-tag">Annotator: Human Gold</span>
+        <span class="meta-tag success">&check; 21 Actions Executed</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- Hero Card -->
+    <section class="hero-card">
+      <div class="hero-banner">
+        <div class="hero-kicker">Benchmark Mission Statement</div>
+        <p class="hero-statement">
+          &ldquo;Book two rooms for four adults in a 5-star hotel with pool, minibar, bathtub, and spa facilities, that are nearest to the city center in Dubai from June 13 to 16.&rdquo;
+        </p>
+      </div>
+      <div class="hero-metrics-bar">
+        <div class="metric-item">
+          <span class="label">Destination</span>
+          <span class="val">Dubai</span>
+          <span class="subval">United Arab Emirates</span>
+        </div>
+        <div class="metric-item">
+          <span class="label">Selected Property</span>
+          <span class="val">Hyatt Regency</span>
+          <span class="subval">0.93 km from city center</span>
+        </div>
+        <div class="metric-item">
+          <span class="label">Occupancy & Rooms</span>
+          <span class="val">2 Rooms, 4 Adults</span>
+          <span class="subval">2 Adults / Room (King Bed)</span>
+        </div>
+        <div class="metric-item">
+          <span class="label">Total Fare</span>
+          <span class="val">$750.54</span>
+          <span class="subval">3 nights ($612.66 + taxes)</span>
+        </div>
+        <div class="metric-item">
+          <span class="label">Constraint Score</span>
+          <span class="val">7 / 8 Criteria</span>
+          <span class="subval">1 Month Divergence Noted</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2-Column: Constraint Matrix & Selected Hotel Card -->
+    <div class="grid-2col">
+      <!-- Left: Constraint Verification Matrix -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Task Constraint Verification Matrix
+          </h2>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Step-by-step constraint compliance</span>
+        </div>
+        <div class="panel-body">
+          <div class="req-list">
+            
+            <div class="req-row">
+              <div class="req-status-icon match">&check;</div>
+              <div class="req-content">
+                <div class="req-name">
+                  <span>Destination: Dubai, UAE</span>
+                  <span class="req-step-ref">Steps 1 &ndash; 2</span>
+                </div>
+                <div class="req-detail">Typed 'DUBAI' and selected autocomplete 'Dubai, Dubai, United Arab Emirates'.</div>
+              </div>
+            </div>
+
+            <div class="req-row">
+              <div class="req-status-icon divergence">&excl;</div>
+              <div class="req-content">
+                <div class="req-name">
+                  <span>Dates: June 13 &ndash; 16 (Human Divergence)</span>
+                  <span class="req-step-ref">Steps 4 &ndash; 6</span>
+                </div>
+                <div class="req-detail"><strong>Annotator Slip:</strong> The prompt specified June 13–16, but the demonstrator clicked month tab 'Jul', booking July 13–16 (3 nights).</div>
+              </div>
+            </div>
+
+            <div class="req-row">
+              <div class="req-status-icon match">&check;</div>
+              <div class="req-content">
+                <div class="req-name">
+                  <span>Occupancy: Two Rooms for Four Adults</span>
+                  <span class="req-step-ref">Steps 7 &ndash; 10</span>
+                </div>
+                <div class="req-detail">Incremented Room 1 to 2 adults, added Room 2, and incremented Room 2 to 2 adults (4 adults total).</div>
+              </div>
+            </div>
+
+            <div class="req-row">
+              <div class="req-status-icon match">&check;</div>
+              <div class="req-content">
+                <div class="req-name">
+                  <span>Classification: 5-Star Hotel</span>
+                  <span class="req-step-ref">Step 12</span>
+                </div>
+                <div class="req-detail">Applied the 5-star rating filter chip (Mind2Web parsed SVG path click target).</div>
+              </div>
+            </div>
+
+            <div class="req-row">
+              <div class="req-status-icon match">&check;</div>
+              <div class="req-content">
+                <div class="req-name">
+                  <span>Required Amenities: Pool, Minibar, Bathtub, Spa</span>
+                  <span class="req-step-ref">Steps 13 &ndash; 16</span>
+                </div>
+                <div class="req-detail">Individually checked Pool (Step 13), Mini-bar (Step 14), Bathtub (Step 15), and Spa (Step 16) filters.</div>
+              </div>
+            </div>
+
+            <div class="req-row">
+              <div class="req-status-icon match">&check;</div>
+              <div class="req-content">
+                <div class="req-name">
+                  <span>Property Type: Hotels Only</span>
+                  <span class="req-step-ref">Step 17</span>
+                </div>
+                <div class="req-detail">Checked 'Hotels' checkbox, excluding vacation apartments, hostels, and guest houses.</div>
+              </div>
+            </div>
+
+            <div class="req-row">
+              <div class="req-status-icon match">&check;</div>
+              <div class="req-content">
+                <div class="req-name">
+                  <span>Geographic Proximity: Nearest to City Center</span>
+                  <span class="req-step-ref">Steps 18 &ndash; 19</span>
+                </div>
+                <div class="req-detail">Selected 'Distance from city centre' sort tab; picked Hyatt Regency Dubai at 0.93 km (#1 ranked).</div>
+              </div>
+            </div>
+
+            <div class="req-row">
+              <div class="req-status-icon match">&check;</div>
+              <div class="req-content">
+                <div class="req-name">
+                  <span>Booking Execution: Room Confirmation</span>
+                  <span class="req-step-ref">Step 20</span>
+                </div>
+                <div class="req-detail">Selected 'Room, 1 King Bed - 1 King' and executed 'Book now' for $750.54 total.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Booked Property Dossier & Proximity Ranking -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/><path d="M14 9h1"/><path d="M14 13h1"/><path d="M14 17h1"/></svg>
+            Selected Property Dossier
+          </h2>
+          <span class="hotel-badge">Selected & Booked</span>
+        </div>
+        <div class="panel-body" style="display: flex; flex-direction: column; gap: 1.25rem;">
+          
+          <div class="hotel-card-preview">
+            <div class="hotel-card-header">
+              <div>
+                <div class="hotel-name">Hyatt Regency Dubai</div>
+                <div class="hotel-location">Deira Corniche Alkhaleej Road, Dubai, UAE</div>
+              </div>
+              <div class="hotel-stars">&starf;&starf;&starf;&starf;&starf; (5-Star)</div>
+            </div>
+
+            <div>
+              <div class="hotel-distance-highlight">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                0.93 km from Dubai City Centre (Rank #1)
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase;">Verified Facilities & Amenities</div>
+              <div class="amenities-chips">
+                <span class="chip active">&check; Swimming Pool</span>
+                <span class="chip active">&check; Mini-bar</span>
+                <span class="chip active">&check; Bathtub</span>
+                <span class="chip active">&check; Spa Facility</span>
+                <span class="chip">&check; Free WiFi</span>
+                <span class="chip">&check; Free Parking</span>
+                <span class="chip">&check; Free Cancellation</span>
+              </div>
+            </div>
+
+            <div class="price-calc-box">
+              <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">Fare & Tax Breakdown (2 Rooms, 3 Nights)</div>
+              <div class="price-row">
+                <span>Room Fare (1 King Bed - 2 Rooms)</span>
+                <span>$612.66</span>
+              </div>
+              <div class="price-row">
+                <span>Ryanair Taxes & Booking Fees</span>
+                <span>$137.88</span>
+              </div>
+              <div class="price-row">
+                <span>Local Municipality Tax (Pay at Property)</span>
+                <span>$32.68</span>
+              </div>
+              <div class="price-row total">
+                <span>Total Amount Payable</span>
+                <span>$750.54</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Distance Ranking Table -->
+          <div>
+            <div style="font-size: 0.8125rem; font-weight: 700; color: var(--text-main);">Proximity Sorting Audit (5-Star + Filtered Pool/Spa/Minibar/Bathtub)</div>
+            <table class="distance-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>5-Star Property</th>
+                  <th>Distance</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="selected-row">
+                  <td>#1</td>
+                  <td>Hyatt Regency Dubai</td>
+                  <td>0.93 km</td>
+                  <td><strong style="color: var(--primary);">Chosen & Booked</strong></td>
+                </tr>
+                <tr>
+                  <td>#2</td>
+                  <td>Swissotel Al Ghurair</td>
+                  <td>1.68 km</td>
+                  <td>Passed over (+0.75 km)</td>
+                </tr>
+                <tr>
+                  <td>#3</td>
+                  <td>Sheraton Dubai Creek Hotel</td>
+                  <td>2.15 km</td>
+                  <td>Passed over (+1.22 km)</td>
+                </tr>
+                <tr>
+                  <td>#4</td>
+                  <td>Carlton Palace Hotel</td>
+                  <td>2.40 km</td>
+                  <td>Passed over (+1.47 km)</td>
+                </tr>
+                <tr>
+                  <td>#5</td>
+                  <td>The Canvas Dubai - MGallery</td>
+                  <td>3.10 km</td>
+                  <td>Passed over (+2.17 km)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+    <!-- Step-by-Step Trajectory Explorer -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Sequential Trajectory Explorer (21 Actions)
+        </h2>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Use keyboard &larr; &rarr; arrows to step through</span>
+      </div>
+      
+      <div class="panel-body">
+        
+        <!-- Controls Bar -->
+        <div class="explorer-header">
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-phase="all" onclick="filterPhase('all')">All Actions (21)</button>
+            <button class="filter-tab" data-phase="setup" onclick="filterPhase('setup')">Phase 1: Search & Dates (12)</button>
+            <button class="filter-tab" data-phase="filters" onclick="filterPhase('filters')">Phase 2: Filters & Sort (7)</button>
+            <button class="filter-tab" data-phase="booking" onclick="filterPhase('booking')">Phase 3: Selection & Checkout (2)</button>
+          </div>
+          <input type="text" id="stepSearch" class="step-search-input" placeholder="Search steps (e.g. pool, date)..." oninput="searchSteps(this.value)">
+        </div>
+
+        <!-- Layout: Steps List (Left) and Sticky Inspector (Right) -->
+        <div class="explorer-layout">
+          
+          <!-- Steps List -->
+          <div class="steps-scroller" id="stepsList">
+            <!-- Dynamically injected via JS -->
+          </div>
+
+          <!-- Active Step Inspector (Right) -->
+          <div class="inspector-panel" id="inspectorPanel">
+            <div class="inspector-header">
+              <div>
+                <div class="inspector-step-title" id="inspTitle">Step 0: Switch to Hotel Search Widget</div>
+                <div class="inspector-step-phase" id="inspPhase">Phase 1: Search Setup &bull; Action UID: bfaf7c00...</div>
+              </div>
+              <div class="inspector-nav-btns">
+                <button class="btn-nav" id="btnPrev" onclick="navigateStep(-1)">&larr; Prev</button>
+                <button class="btn-nav" id="btnNext" onclick="navigateStep(1)">Next &rarr;</button>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem;">Mind2Web Action Representation</div>
+              <div class="code-block" id="inspRepr">[div] hotels -&gt; CLICK</div>
+            </div>
+
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem;">Target DOM Element Attributes</div>
+              <div class="attrs-grid" id="inspAttrs">
+                <span class="attr-key">tag:</span><span class="attr-val" id="attrTag">button</span>
+                <span class="attr-key">class:</span><span class="attr-val" id="attrClass">search-widget-tabs__button</span>
+                <span class="attr-key">backend_id:</span><span class="attr-val" id="attrBackendId">399</span>
+                <span class="attr-key">aria_label:</span><span class="attr-val" id="attrAria">hotels</span>
+                <span class="attr-key">bounding_box:</span><span class="attr-val" id="attrBBox">337, 76, 132, 46</span>
+              </div>
+            </div>
+
+            <div class="candidate-stats-bar">
+              <span style="color: var(--text-muted); font-weight: 600;">Candidate Search Space:</span>
+              <span class="stat-pill pos" id="inspPos">1 Positive Target</span>
+              <span class="stat-pill neg" id="inspNeg">241 Negative Candidates</span>
+            </div>
+
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem;">Interaction Context & Rationale</div>
+              <div class="inspector-notes" id="inspNotes">
+                Ryanair defaults to flight booking; the annotator clicks the hotel tab in the search widget header to activate Ryanair Rooms accommodation booking.
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Benchmark Observations & Divergence Deep Dive -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="panel-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Technical Observations & Benchmark Evaluation Notes
+        </h2>
+      </div>
+      <div class="panel-body">
+        <div class="audit-grid">
+          
+          <div class="audit-card">
+            <h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Month Selection Divergence (Step 4)
+            </h3>
+            <p>
+              The task statement requests <em>"from June 13 to 16"</em>. However, at Step 4 (<code>1bc78758...</code>), the human demonstrator clicked the <code>[div] Jul</code> month tab rather than remaining on June. The stay was executed for July 13 to 16 (Thu 13 Jul &ndash; Sun 16 Jul). In downstream Mind2Web evaluation models, checking date string tolerance is essential for scoring.
+            </p>
+          </div>
+
+          <div class="audit-card">
+            <h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              DOM Parser SVG Anomaly (Step 12)
+            </h3>
+            <p>
+              At Step 12 (<code>dcd24c84...</code>), the demonstrator clicked the 5-star rating filter. Because the browser click landed on an inner <code>&lt;path&gt;</code> vector element inside the star chip, Mind2Web recorded <code>[path] -&gt; CLICK</code> but returned 0 positive candidates (<code>pos_candidates: []</code>). Downstream parsers must handle SVG child clicks as valid interactive hits.
+            </p>
+          </div>
+
+          <div class="audit-card">
+            <h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+              Occupancy Hierarchy (Steps 7 &ndash; 10)
+            </h3>
+            <p>
+              Ryanair Rooms structures guests per room rather than globally. The annotator successfully added a second room container via <code>+ Add room</code> (Step 8) and allocated 2 adults into each room container independently, fulfilling the strict 2-room / 4-adult constraint without leaving unpaired guests.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer-bar">
+      Case 05_test_task_test_task_2_4 &bull; Mind2Web Benchmark Trajectory Visualizer &bull; Generated for Agent HTML Evaluation
+    </footer>
+
+  </main>
+
+  <script>
+    const stepsData = [{"step_num": 0, "uid": "bfaf7c00-979d-4d17-a0b0-ef9d022423ac", "repr": "[div]  hotels -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 241, "tag": "button", "class_name": "search-widget-tabs__button ng-star-inserted", "backend_id": "399", "aria_label": "hotels", "role": "None", "bbox": "337,76,132,46", "phase": "Search Setup", "phase_id": "setup", "title": "Switch to Hotel Search Widget", "desc": "Ryanair defaults to flight booking; the annotator clicks the hotel tab in the search widget header to activate Ryanair Rooms accommodation booking.", "target_display": "Tab: hotels", "category": "Navigation", "notes": "Switches widget context to hotel accommodation mode"}, {"step_num": 1, "uid": "7c40c048-6ec5-4d6b-b8f0-f81a608d8124", "repr": "[textbox]  Destination or property -> TYPE: DUBAI", "op": "TYPE", "val": "DUBAI", "pos_count": 1, "neg_count": 223, "tag": "input", "class_name": "input-button__input ng-star-inserted", "backend_id": "2012", "aria_label": "None", "role": "None", "bbox": "77,163,836,22", "phase": "Search Setup", "phase_id": "setup", "title": "Input Destination 'DUBAI'", "desc": "Focuses the destination text input and types 'DUBAI' to query the geographic location search service.", "target_display": "Input: Destination or property", "category": "Input", "notes": "Typed query: DUBAI"}, {"step_num": 2, "uid": "4acc153b-00d4-4c7f-b9f6-d95329d01a17", "repr": "[div]  Dubai, Dubai -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 256, "tag": "div", "class_name": "location__name b2", "backend_id": "3913", "aria_label": "None", "role": "None", "bbox": "91,256.09375,78,18.1875", "phase": "Search Setup", "phase_id": "setup", "title": "Select Dubai Autocomplete", "desc": "Clicks 'Dubai, Dubai, United Arab Emirates' from the location suggestions dropdown to lock in the destination.", "target_display": "Dropdown: Dubai, Dubai", "category": "Selection", "notes": "Establishes Dubai city center coordinates"}, {"step_num": 3, "uid": "df6f34f0-74a9-4607-a82a-e08246519034", "repr": "[div]  Choose date -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 223, "tag": "hp-input-button", "class_name": "rooms-widget-controls__control rooms-widget-controls__control--date input-button--connected-right", "backend_id": "6305", "aria_label": "None", "role": "button", "bbox": "60,202,290,52", "phase": "Search Setup", "phase_id": "setup", "title": "Open Date Range Picker", "desc": "Clicks the date input container to open the interactive dual-month calendar popover.", "target_display": "Control: Choose date", "category": "Interaction", "notes": "Opens calendar overlay"}, {"step_num": 4, "uid": "1bc78758-39b2-4d89-bd6f-9a95059bec86", "repr": "[div]  Jul -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 354, "tag": "div", "class_name": "m-toggle__month", "backend_id": "8921", "aria_label": "None", "role": "None", "bbox": "353,280.5,65,21.796875", "phase": "Search Setup", "phase_id": "setup", "title": "Toggle Calendar Month to July", "desc": "Clicks 'Jul' month toggle. Note on annotator behavior: The prompt asked for June 13 to 16, but the demonstrator selected July 13 to 16.", "target_display": "Month tab: Jul", "category": "Navigation", "notes": "Human annotator month divergence (June requested, July chosen)"}, {"step_num": 5, "uid": "9b0de04a-03ee-46bd-896c-b27222a665c4", "repr": "[generic]  13 -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 355, "tag": "div", "class_name": "calendar-body__cell", "backend_id": "12931", "aria_label": "None", "role": "None", "bbox": "189.515625,446.3125,28.859375,28.859375", "phase": "Search Setup", "phase_id": "setup", "title": "Select Check-In Date (13th)", "desc": "Clicks calendar cell '13' (Thursday, 13 July) as the start date of the hotel stay.", "target_display": "Calendar cell: 13", "category": "Selection", "notes": "Check-in: Thu 13 Jul"}, {"step_num": 6, "uid": "cda83417-4717-4371-9a81-a59bfe684f7c", "repr": "[generic]  16 -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 355, "tag": "div", "class_name": "calendar-body__cell calendar-body__cell--weekend", "backend_id": "16939", "aria_label": "None", "role": "None", "bbox": "286.03125,446.3125,28.859375,28.859375", "phase": "Search Setup", "phase_id": "setup", "title": "Select Check-Out Date (16th)", "desc": "Clicks calendar cell '16' (Sunday, 16 July) as the departure date, establishing a 3-night duration.", "target_display": "Calendar cell: 16", "category": "Selection", "notes": "Check-out: Sun 16 Jul (3 nights)"}, {"step_num": 7, "uid": "8559ffb6-0941-4e11-8176-4c7026a5c5f9", "repr": "[div]   -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 250, "tag": "ry-counter-button", "class_name": "counter__button", "backend_id": "21057", "aria_label": "1Adults+1", "role": "None", "bbox": "905,326.984375,24,24", "phase": "Search Setup", "phase_id": "setup", "title": "Increment Room 1 Adult Occupancy", "desc": "Clicks the '+1' counter button for adults in Room 1, increasing occupancy from 1 to 2 adults.", "target_display": "Counter button: Adults +1", "category": "Counter", "notes": "Room 1 updated to 2 adults"}, {"step_num": 8, "uid": "2473d471-9cc4-4ae9-adf5-c7d340f2ddb6", "repr": "[button]  + Add room -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 250, "tag": "button", "class_name": "rooms__add-button ry-button--anchor-blue ry-button--anchor", "backend_id": "22228", "aria_label": "+ Add room", "role": "None", "bbox": "865,430.578125,63,12", "phase": "Search Setup", "phase_id": "setup", "title": "Add Second Room", "desc": "Clicks '+ Add room' button to create Room 2 under the booking allocation.", "target_display": "Button: + Add room", "category": "Configuration", "notes": "Fulfills 'two rooms' task requirement"}, {"step_num": 9, "uid": "0ff77c25-9075-4916-8073-90f4e63ab2b4", "repr": "[div]   -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 270, "tag": "ry-counter-button", "class_name": "counter__button", "backend_id": "25686", "aria_label": "1Adults+1", "role": "None", "bbox": "905,475.5625,24,24", "phase": "Search Setup", "phase_id": "setup", "title": "Increment Room 2 Adult Occupancy", "desc": "Clicks '+1' counter button for Room 2 adults, setting occupancy to 2 adults (giving 4 adults total across both rooms).", "target_display": "Counter button: Adults +1", "category": "Counter", "notes": "Room 2 updated to 2 adults (Total: 4 adults)"}, {"step_num": 10, "uid": "b12fbebd-3aeb-4a3e-8ce3-e9f007bed303", "repr": "[button]  Done -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 270, "tag": "button", "class_name": "rooms_done-button ry-button--anchor-blue ry-button--anchor", "backend_id": "26970", "aria_label": "Done", "role": "None", "bbox": "891,614.15625,37,16", "phase": "Search Setup", "phase_id": "setup", "title": "Confirm Guest & Room Allocation", "desc": "Clicks 'Done' to close the guest selection dialog and commit 2 rooms / 4 adults.", "target_display": "Button: Done", "category": "Confirmation", "notes": "Allocation locked: 2 rooms, 4 adults"}, {"step_num": 11, "uid": "0f0405ae-a90b-457f-bb78-95bba789792f", "repr": "[button]  Search -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 219, "tag": "button", "class_name": "rooms-search-widget__start-search ry-button--gradient-yellow", "backend_id": "29131", "aria_label": "Search", "role": "None", "bbox": "938,202,282,52", "phase": "Search Setup", "phase_id": "setup", "title": "Execute Search Query", "desc": "Clicks primary yellow 'Search' button to submit parameters and load initial hotel listings for Dubai.", "target_display": "Button: Search", "category": "Submission", "notes": "Executes query to fetch 30 properties"}, {"step_num": 12, "uid": "dcd24c84-c2ab-4888-8018-cc9977ac93ee", "repr": "[path]   -> CLICK", "op": "CLICK", "val": "", "pos_count": 0, "neg_count": 481, "tag": "None", "class_name": "None", "backend_id": "None", "aria_label": "None", "role": "None", "bbox": "None", "phase": "Filtering & Sorting", "phase_id": "filters", "title": "Apply 5-Star Hotel Rating Filter", "desc": "Clicks the '5' chip under Star Rating filter. In Mind2Web, the click landed on an SVG <path> child element, resulting in 0 pos candidates in the parsed representation.", "target_display": "Filter chip: 5 Stars", "category": "Filter", "notes": "Satisfies '5-star hotel' constraint (SVG path click anomaly)"}, {"step_num": 13, "uid": "7cb6169b-ff10-4887-9196-f89212f65638", "repr": "[checkbox]  Pool -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 1438, "tag": "input", "class_name": "checkbox-list__checkbox", "backend_id": "33238", "aria_label": "None", "role": "None", "bbox": "179,1175.84375,16,16", "phase": "Filtering & Sorting", "phase_id": "filters", "title": "Filter Amenity: Pool", "desc": "Checks the 'Pool' checkbox in the sidebar amenity list to filter for properties offering swimming pools.", "target_display": "Checkbox: Pool", "category": "Filter", "notes": "Amenity constraint 1 of 4"}, {"step_num": 14, "uid": "920db97e-5c54-4577-b457-86419decefc5", "repr": "[checkbox]  Mini-bar -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 1440, "tag": "input", "class_name": "checkbox-list__checkbox", "backend_id": "42828", "aria_label": "None", "role": "None", "bbox": "179,2067.03125,16,16", "phase": "Filtering & Sorting", "phase_id": "filters", "title": "Filter Amenity: Mini-bar", "desc": "Checks the 'Mini-bar' checkbox in the sidebar to require in-room minibar facilities.", "target_display": "Checkbox: Mini-bar", "category": "Filter", "notes": "Amenity constraint 2 of 4"}, {"step_num": 15, "uid": "7d6f7933-6836-4e2b-bf79-481589f2cf3d", "repr": "[checkbox]  Bathtub -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 1437, "tag": "input", "class_name": "checkbox-list__checkbox", "backend_id": "52428", "aria_label": "None", "role": "None", "bbox": "179,1867.03125,16,16", "phase": "Filtering & Sorting", "phase_id": "filters", "title": "Filter Amenity: Bathtub", "desc": "Checks the 'Bathtub' checkbox in the sidebar to ensure rooms contain private bathtubs.", "target_display": "Checkbox: Bathtub", "category": "Filter", "notes": "Amenity constraint 3 of 4"}, {"step_num": 16, "uid": "60104e14-a961-4e2e-9e75-cbd4c8a84060", "repr": "[checkbox]  Spa -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 1438, "tag": "input", "class_name": "checkbox-list__checkbox", "backend_id": "62014", "aria_label": "None", "role": "None", "bbox": "179,1575.84375,16,16", "phase": "Filtering & Sorting", "phase_id": "filters", "title": "Filter Amenity: Spa", "desc": "Checks the 'Spa' checkbox in the sidebar to filter for wellness and spa facilities.", "target_display": "Checkbox: Spa", "category": "Filter", "notes": "Amenity constraint 4 of 4"}, {"step_num": 17, "uid": "991faa8d-3370-40dc-9e77-c234ea1cc8e5", "repr": "[checkbox]  Hotels -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 1374, "tag": "input", "class_name": "checkbox-list__checkbox", "backend_id": "71592", "aria_label": "None", "role": "None", "bbox": "172,874,16,16", "phase": "Filtering & Sorting", "phase_id": "filters", "title": "Filter Property Type: Hotels", "desc": "Checks 'Hotels' under Accommodation Type, excluding vacation apartments, hostels, and B&Bs.", "target_display": "Checkbox: Hotels", "category": "Filter", "notes": "Restricts property classification to hotels"}, {"step_num": 18, "uid": "4e3b93de-18dd-45df-bb6b-e55b3f756d11", "repr": "[span]  Distance from city centre -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 1474, "tag": "label", "class_name": "None", "backend_id": "81653", "aria_label": "None", "role": "None", "bbox": "562,110.796875,188,49", "phase": "Filtering & Sorting", "phase_id": "filters", "title": "Sort by Distance from City Centre", "desc": "Clicks 'Distance from city centre' sort tab. Re-ranks filtered luxury hotels by proximity to Dubai center, placing Hyatt Regency Dubai (0.93 km) at #1.", "target_display": "Sort tab: Distance from city centre", "category": "Sorting", "notes": "Satisfies 'nearest to the city center' condition"}, {"step_num": 19, "uid": "31f7acfc-5a88-474c-99c8-99375b51b28b", "repr": "[button]  Choose room -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 1486, "tag": "button", "class_name": "accommodation-card-body__choose-room-btn one ry-button--gradient-blue", "backend_id": "86907", "aria_label": "None", "role": "None", "bbox": "950,374.796875,144,40", "phase": "Selection & Booking", "phase_id": "booking", "title": "Select Hyatt Regency Dubai", "desc": "Clicks 'Choose room' on the top-ranked hotel card: Hyatt Regency Dubai (Deira Corniche, 0.93 km from city center, 5 stars, all required amenities).", "target_display": "Button: Choose room (Hyatt Regency Dubai)", "category": "Selection", "notes": "Rank #1 property selected (0.93 km to center)"}, {"step_num": 20, "uid": "56663fb1-d23d-4a93-82db-274a00b8a0b5", "repr": "[button]  Book now -> CLICK", "op": "CLICK", "val": "", "pos_count": 1, "neg_count": 997, "tag": "button", "class_name": "room-card__book-button ry-button--gradient-blue", "backend_id": "96647", "aria_label": "None", "role": "None", "bbox": "944.953125,1084.375,160.03125,40", "phase": "Selection & Booking", "phase_id": "booking", "title": "Confirm Booking for King Room", "desc": "Clicks 'Book now' for 'Room, 1 King Bed - 1 King' ($750.54 total: $612.66 room fare + $137.88 taxes + $32.68 property tax; Free WiFi & cancellation). Completes task.", "target_display": "Button: Book now ($750.54)", "category": "Checkout", "notes": "Final booking action: $750.54 total for 2 rooms, 3 nights"}];
+    let currentStepIndex = 0;
+    let activePhaseFilter = 'all';
+    let searchQuery = '';
+
+    function renderStepsList() {
+      const container = document.getElementById('stepsList');
+      container.innerHTML = '';
+
+      const filtered = stepsData.filter(step => {
+        const matchesPhase = activePhaseFilter === 'all' || step.phase_id === activePhaseFilter;
+        const matchesSearch = !searchQuery || 
+          step.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          step.repr.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          step.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          step.target_display.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesPhase && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.875rem;">No steps match the filter criteria.</div>';
+        return;
+      }
+
+      filtered.forEach(step => {
+        const card = document.createElement('div');
+        card.className = 'step-card' + (step.step_num === currentStepIndex ? ' active' : '');
+        card.id = 'step-card-' + step.step_num;
+        card.onclick = () => selectStep(step.step_num);
+
+        const opClass = step.op.toLowerCase() === 'click' ? 'click' : 'type';
+
+        card.innerHTML = `
+          <div class="step-number">${step.step_num}</div>
+          <div class="step-summary">
+            <div class="step-top-line">
+              <span class="step-title-text">${step.title}</span>
+              <span class="op-tag ${opClass}">${step.op}</span>
+            </div>
+            <div class="step-action-repr">${escapeHtml(step.repr)}</div>
+            <div class="step-meta-chips">
+              <span>${step.phase}</span> &bull;
+              <span>${step.target_display}</span>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function selectStep(index) {
+      if (index < 0 || index >= stepsData.length) return;
+      currentStepIndex = index;
+      
+      // Update active cards
+      document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active'));
+      const activeCard = document.getElementById('step-card-' + index);
+      if (activeCard) {
+        activeCard.classList.add('active');
+        activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // Populate inspector
+      const s = stepsData[index];
+      document.getElementById('inspTitle').textContent = `Step ${s.step_num}: ${s.title}`;
+      document.getElementById('inspPhase').textContent = `${s.phase} &bull; UID: ${s.uid}`;
+      document.getElementById('inspRepr').textContent = s.repr;
+      
+      document.getElementById('attrTag').textContent = s.tag || 'None';
+      document.getElementById('attrClass').textContent = s.class_name || 'None';
+      document.getElementById('attrBackendId').textContent = s.backend_id || 'None';
+      document.getElementById('attrAria').textContent = s.aria_label || 'None';
+      document.getElementById('attrBBox').textContent = s.bbox || 'None';
+
+      document.getElementById('inspPos').textContent = `${s.pos_count} Positive Target${s.pos_count === 1 ? '' : 's'}`;
+      document.getElementById('inspNeg').textContent = `${s.neg_count} Negative Candidates`;
+      document.getElementById('inspNotes').innerHTML = `<strong>${s.desc}</strong><br><span style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.35rem; display: inline-block;">Note: ${s.notes}</span>`;
+
+      // Update Nav buttons
+      document.getElementById('btnPrev').disabled = (index === 0);
+      document.getElementById('btnNext').disabled = (index === stepsData.length - 1);
+    }
+
+    function navigateStep(direction) {
+      const newIndex = currentStepIndex + direction;
+      if (newIndex >= 0 && newIndex < stepsData.length) {
+        selectStep(newIndex);
+      }
+    }
+
+    function filterPhase(phase) {
+      activePhaseFilter = phase;
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-phase') === phase);
+      });
+      renderStepsList();
+    }
+
+    function searchSteps(query) {
+      searchQuery = query;
+      renderStepsList();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        navigateStep(1);
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        navigateStep(-1);
+      }
+    });
+
+    // Initial render
+    renderStepsList();
+    selectStep(0);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QuotaLens · Shorten Excel daily-quota formulas</title>
+<style>
+  :root {
+    --bg0: #07111f;
+    --bg1: #0c1b31;
+    --bg2: #122744;
+    --ink: #eef5ff;
+    --muted: #9db0c9;
+    --line: rgba(170, 200, 255, 0.14);
+    --brand: #5eead4;
+    --brand2: #60a5fa;
+    --brand3: #a78bfa;
+    --warn: #fbbf24;
+    --good: #34d399;
+    --bad: #fb7185;
+    --card: rgba(16, 32, 58, 0.72);
+    --glass: rgba(255, 255, 255, 0.045);
+    --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+    --radius: 22px;
+    --nav-h: 72px;
+    --max: 1140px;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --mono: "SF Mono", "Menlo", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(94, 234, 212, 0.16), transparent 55%),
+      radial-gradient(900px 500px at 90% 0%, rgba(96, 165, 250, 0.18), transparent 50%),
+      radial-gradient(800px 500px at 50% 100%, rgba(167, 139, 250, 0.12), transparent 55%),
+      linear-gradient(180deg, var(--bg0), var(--bg1) 40%, #08101c 100%);
+    min-height: 100vh;
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button, .btn {
+    font: inherit;
+    cursor: pointer;
+    border: 0;
+    background: none;
+    color: inherit;
+  }
+  img, svg { display: block; max-width: 100%; }
+  code, .mono { font-family: var(--mono); }
+
+  .wrap {
+    width: min(var(--max), calc(100% - 2.5rem));
+    margin-inline: auto;
+  }
+
+  /* NAV */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    transition: background .25s ease, box-shadow .25s ease, backdrop-filter .25s ease;
+  }
+  .nav.scrolled {
+    background: rgba(7, 17, 31, 0.78);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 10px 40px rgba(0,0,0,.25);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: min(var(--max), calc(100% - 2.5rem));
+    margin-inline: auto;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .brand-mark {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--brand), var(--brand2) 55%, var(--brand3));
+    display: grid; place-items: center;
+    box-shadow: 0 8px 24px rgba(94,234,212,.25);
+  }
+  .brand-mark span {
+    font-size: 14px; font-weight: 800; color: #042018;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.35rem;
+    color: var(--muted);
+    font-size: .94rem;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .68rem 1rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--brand), #2dd4bf 40%, var(--brand2));
+    color: #042018;
+    font-weight: 700;
+    font-size: .9rem;
+    box-shadow: 0 10px 30px rgba(45, 212, 191, 0.25);
+  }
+  .nav-cta:hover { filter: brightness(1.05); transform: translateY(-1px); }
+  .menu-btn {
+    display: none;
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--glass);
+  }
+  .menu-btn span,
+  .menu-btn span:before,
+  .menu-btn span:after {
+    content: "";
+    display: block;
+    width: 18px; height: 2px;
+    background: var(--ink);
+    margin: 4px auto;
+    border-radius: 2px;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    position: relative;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .4rem .75rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(94,234,212,.08);
+    color: var(--brand);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+  .eyebrow i {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 4px rgba(94,234,212,.18);
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 4.6vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    margin-bottom: 1.1rem;
+  }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(120deg, var(--brand), var(--brand2) 50%, var(--brand3));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .lede {
+    color: var(--muted);
+    font-size: 1.08rem;
+    max-width: 34rem;
+    margin-bottom: 1.75rem;
+  }
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .8rem;
+    margin-bottom: 1.75rem;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .9rem 1.25rem;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #5eead4, #38bdf8);
+    color: #041520;
+    font-weight: 750;
+    box-shadow: 0 16px 40px rgba(56, 189, 248, 0.22);
+  }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .9rem 1.25rem;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .btn-primary:hover, .btn-secondary:hover { transform: translateY(-2px); }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    color: var(--muted);
+    font-size: .9rem;
+  }
+  .meta-row strong { color: var(--ink); font-weight: 700; }
+
+  .hero-card {
+    position: relative;
+    border-radius: calc(var(--radius) + 6px);
+    padding: 1rem;
+    background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: "";
+    position: absolute;
+    inset: -40% auto auto 30%;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(96,165,250,.35), transparent 70%);
+    pointer-events: none;
+  }
+  .sheet-window {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: #0a1628;
+  }
+  .sheet-chrome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .7rem .9rem;
+    background: rgba(255,255,255,.03);
+    border-bottom: 1px solid var(--line);
+  }
+  .dots { display: flex; gap: .35rem; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; background: #334155; }
+  .dots i:nth-child(1){ background:#fb7185;}
+  .dots i:nth-child(2){ background:#fbbf24;}
+  .dots i:nth-child(3){ background:#34d399;}
+  .sheet-title { color: var(--muted); font-size: .78rem; }
+  .sheet-scroll { overflow: auto; }
+  table.sheet {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .72rem;
+    min-width: 520px;
+  }
+  table.sheet th, table.sheet td {
+    border: 1px solid rgba(148,163,184,.12);
+    padding: .42rem .45rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+  table.sheet th {
+    background: rgba(148,163,184,.08);
+    color: var(--muted);
+    font-weight: 600;
+  }
+  table.sheet td.label {
+    text-align: left;
+    color: #cbd5e1;
+    font-weight: 600;
+    background: rgba(255,255,255,.02);
+  }
+  table.sheet td.hi {
+    background: rgba(94,234,212,.12);
+    color: var(--brand);
+    font-weight: 700;
+  }
+  table.sheet td.dim { color: #64748b; }
+  .formula-pill {
+    margin-top: .9rem;
+    border-radius: 14px;
+    padding: .85rem 1rem;
+    background: rgba(8, 20, 36, 0.85);
+    border: 1px solid rgba(94,234,212,.25);
+  }
+  .formula-pill .k {
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--brand);
+    margin-bottom: .35rem;
+    font-weight: 700;
+  }
+  .formula-pill code {
+    display: block;
+    color: #dbeafe;
+    font-size: .86rem;
+    word-break: break-all;
+  }
+
+  /* sections common */
+  section { padding: 4.5rem 0; }
+  .section-head {
+    max-width: 640px;
+    margin-bottom: 2.2rem;
+  }
+  .section-head h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3vw, 2.55rem);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: .7rem;
+  }
+  .section-head p { color: var(--muted); font-size: 1.02rem; }
+  .tag {
+    display: inline-block;
+    margin-bottom: .7rem;
+    color: var(--brand2);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  /* FEATURES */
+  .features {
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,.015), transparent);
+  }
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .feature-card {
+    border-radius: var(--radius);
+    padding: 1.35rem;
+    background: var(--card);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 40px rgba(0,0,0,.12);
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+    min-height: 210px;
+  }
+  .feature-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(94,234,212,.35);
+    box-shadow: 0 24px 50px rgba(0,0,0,.28);
+  }
+  .icon-blob {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    display: grid; place-items: center;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, rgba(94,234,212,.18), rgba(96,165,250,.18));
+    border: 1px solid var(--line);
+    font-size: 1.15rem;
+  }
+  .feature-card h3 {
+    font-size: 1.08rem;
+    margin-bottom: .45rem;
+    letter-spacing: -0.01em;
+  }
+  .feature-card p { color: var(--muted); font-size: .93rem; }
+
+  /* COMPARE */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .compare-card {
+    border-radius: var(--radius);
+    padding: 1.4rem;
+    border: 1px solid var(--line);
+    background: var(--glass);
+    position: relative;
+    overflow: hidden;
+  }
+  .compare-card.bad { border-color: rgba(251,113,133,.28); }
+  .compare-card.good { border-color: rgba(52,211,153,.35); }
+  .compare-card .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: .9rem;
+    padding: .35rem .65rem;
+    border-radius: 999px;
+  }
+  .compare-card.bad .badge { color: #fecdd3; background: rgba(251,113,133,.12); }
+  .compare-card.good .badge { color: #a7f3d0; background: rgba(52,211,153,.12); }
+  .compare-card h3 {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    margin-bottom: .7rem;
+  }
+  .code-block {
+    border-radius: 14px;
+    padding: 1rem;
+    background: rgba(2, 8, 18, 0.72);
+    border: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: .82rem;
+    line-height: 1.55;
+    color: #dbeafe;
+    overflow-x: auto;
+    margin-bottom: .9rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .compare-card ul {
+    margin-left: 1.1rem;
+    color: var(--muted);
+    font-size: .92rem;
+  }
+  .compare-card li + li { margin-top: .35rem; }
+
+  /* HOW */
+  .how {
+    position: relative;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    counter-reset: step;
+  }
+  .step {
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+    position: relative;
+  }
+  .step::before {
+    counter-increment: step;
+    content: counter(step, decimal-leading-zero);
+    display: block;
+    font-family: var(--mono);
+    color: var(--brand);
+    font-weight: 700;
+    font-size: .85rem;
+    margin-bottom: .8rem;
+    letter-spacing: .08em;
+  }
+  .step h3 { font-size: 1rem; margin-bottom: .45rem; }
+  .step p { color: var(--muted); font-size: .9rem; }
+
+  /* DATA BOARD */
+  .board {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 1rem;
+  }
+  .panel {
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--card);
+    padding: 1.3rem;
+    backdrop-filter: blur(8px);
+  }
+  .panel h3 {
+    font-size: 1.05rem;
+    margin-bottom: .8rem;
+  }
+  .kv {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .7rem;
+  }
+  .kv .item {
+    border-radius: 14px;
+    padding: .85rem;
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--line);
+  }
+  .kv .item span {
+    display: block;
+    color: var(--muted);
+    font-size: .75rem;
+    margin-bottom: .25rem;
+  }
+  .kv .item strong {
+    font-size: 1.05rem;
+    letter-spacing: -0.02em;
+  }
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+  }
+  .t-item {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: .7rem;
+  }
+  .t-item .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-top: .4rem;
+    background: var(--brand2);
+    box-shadow: 0 0 0 4px rgba(96,165,250,.15);
+  }
+  .t-item .dot.done { background: var(--good); box-shadow: 0 0 0 4px rgba(52,211,153,.15); }
+  .t-item h4 { font-size: .95rem; margin-bottom: .15rem; }
+  .t-item p { color: var(--muted); font-size: .86rem; }
+
+  /* PROOF */
+  .proof-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  .metric {
+    text-align: center;
+    border-radius: var(--radius);
+    padding: 1.4rem 1rem;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+  }
+  .metric .n {
+    font-family: var(--serif);
+    font-size: 2rem;
+    color: var(--brand);
+    letter-spacing: -0.03em;
+    margin-bottom: .25rem;
+  }
+  .metric .l { color: var(--muted); font-size: .9rem; }
+
+  .quote-row {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 1rem;
+  }
+  .quote {
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(96,165,250,.08), rgba(94,234,212,.05));
+  }
+  .quote p {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    line-height: 1.35;
+    margin-bottom: .9rem;
+  }
+  .quote .who { color: var(--muted); font-size: .9rem; }
+  .logo-wall {
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--glass);
+    padding: 1.3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .7rem;
+    align-content: center;
+  }
+  .logo-wall span {
+    display: grid;
+    place-items: center;
+    min-height: 52px;
+    border-radius: 12px;
+    border: 1px dashed rgba(148,163,184,.25);
+    color: #94a3b8;
+    font-weight: 700;
+    letter-spacing: .04em;
+    font-size: .85rem;
+  }
+
+  /* PRICING-ish answer callout */
+  .answer {
+    border-radius: calc(var(--radius) + 4px);
+    padding: 2rem;
+    border: 1px solid rgba(94,234,212,.28);
+    background:
+      radial-gradient(600px 200px at 10% 0%, rgba(94,234,212,.15), transparent 60%),
+      radial-gradient(500px 200px at 90% 100%, rgba(96,165,250,.12), transparent 60%),
+      rgba(10, 22, 40, 0.85);
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .answer h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+    margin-bottom: .7rem;
+  }
+  .answer p { color: var(--muted); margin-bottom: 1rem; }
+  .answer-box {
+    border-radius: 16px;
+    padding: 1.1rem 1.2rem;
+    background: #06101d;
+    border: 1px solid rgba(94,234,212,.25);
+  }
+  .answer-box .cell {
+    font-size: .75rem;
+    color: var(--brand);
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: .35rem;
+  }
+  .answer-box code {
+    font-size: 1.02rem;
+    color: #ecfeff;
+    word-break: break-all;
+  }
+  .side-stats {
+    display: grid;
+    gap: .7rem;
+  }
+  .side-stats .s {
+    border-radius: 14px;
+    padding: .9rem 1rem;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+  }
+  .side-stats .s span {
+    display: block;
+    color: var(--muted);
+    font-size: .78rem;
+    margin-bottom: .2rem;
+  }
+  .side-stats .s strong { font-size: 1.05rem; }
+
+  /* FAQ */
+  .faq-list {
+    display: grid;
+    gap: .7rem;
+    max-width: 820px;
+  }
+  details.faq {
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.03);
+    padding: 1rem 1.15rem;
+    transition: border-color .2s ease;
+  }
+  details.faq[open] { border-color: rgba(96,165,250,.35); }
+  details.faq summary {
+    cursor: pointer;
+    list-style: none;
+    font-weight: 650;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+  }
+  details.faq summary::-webkit-details-marker { display: none; }
+  details.faq summary::after {
+    content: "+";
+    color: var(--brand);
+    font-family: var(--mono);
+    font-size: 1.2rem;
+  }
+  details.faq[open] summary::after { content: "–"; }
+  details.faq p {
+    color: var(--muted);
+    margin-top: .75rem;
+    font-size: .95rem;
+  }
+  details.faq code {
+    color: #c7d2fe;
+    font-size: .88em;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 2.5rem 0 2.8rem;
+    margin-top: 1rem;
+  }
+  .foot {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .foot h4 {
+    font-size: .85rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #cbd5e1;
+    margin-bottom: .7rem;
+  }
+  .foot a, .foot p {
+    display: block;
+    color: var(--muted);
+    font-size: .9rem;
+    margin-bottom: .4rem;
+  }
+  .foot a:hover { color: var(--ink); }
+  .copy {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    color: #64748b;
+    font-size: .82rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* mobile nav */
+  .mobile-panel {
+    display: none;
+    position: fixed;
+    inset: var(--nav-h) 0 auto 0;
+    background: rgba(7,17,31,.96);
+    border-bottom: 1px solid var(--line);
+    padding: 1rem 1.25rem 1.25rem;
+    z-index: 49;
+  }
+  .mobile-panel.open { display: grid; gap: .85rem; }
+  .mobile-panel a {
+    color: var(--muted);
+    padding: .5rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  @media (max-width: 960px) {
+    .hero-grid,
+    .compare-grid,
+    .board,
+    .quote-row,
+    .answer,
+    .foot { grid-template-columns: 1fr; }
+    .feature-grid { grid-template-columns: 1fr 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .proof-strip { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+    .menu-btn { display: grid; place-items: center; }
+  }
+  @media (max-width: 640px) {
+    .feature-grid,
+    .steps,
+    .proof-strip,
+    .kv { grid-template-columns: 1fr; }
+    .wrap { width: min(var(--max), calc(100% - 1.4rem)); }
+    h1 { font-size: 2.2rem; }
+    section { padding: 3.2rem 0; }
+  }
+</style>
+</head>
+<body>
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="QuotaLens home">
+        <div class="brand-mark"><span>Q</span></div>
+        <span>QuotaLens</span>
+      </a>
+      <div class="nav-links">
+        <a href="#problem">Problem</a>
+        <a href="#solution">Solution</a>
+        <a href="#workbook">Workbook</a>
+        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
+        <a class="nav-cta" href="#answer">Get E1 formula</a>
+      </div>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu"><span></span></button>
+    </div>
+  </nav>
+  <div class="mobile-panel" id="mobilePanel">
+    <a href="#problem">Problem</a>
+    <a href="#solution">Solution</a>
+    <a href="#workbook">Workbook</a>
+    <a href="#how">How it works</a>
+    <a href="#faq">FAQ</a>
+    <a href="#answer">Get E1 formula</a>
+  </div>
+
+  <header class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div class="reveal">
+        <div class="eyebrow"><i></i> SpreadsheetBench · Task 15027</div>
+        <h1>Shorten the array formula that finds your <em>latest daily quota</em>.</h1>
+        <p class="lede">
+          A TEXTILES weekly tracker already computes progressive daily quotas in
+          <strong>B6:H6</strong>. Cell <strong>E1</strong> should return the last non-zero value —
+          without a bulky array-entered <span class="mono">INDEX/MAX/IF</span> formula.
+        </p>
+        <div class="cta-row">
+          <a class="btn-primary" href="#answer">See the shortened formula</a>
+          <a class="btn-secondary" href="#workbook">Inspect the sheet</a>
+        </div>
+        <div class="meta-row">
+          <div><strong>Answer cell</strong> · E1</div>
+          <div><strong>Domain</strong> · spreadsheet_office</div>
+          <div><strong>Runtime</strong> · 34.8s</div>
+          <div><strong>Status</strong> · exit 0</div>
+        </div>
+      </div>
+
+      <div class="hero-card reveal">
+        <div class="sheet-window">
+          <div class="sheet-chrome">
+            <div class="dots"><i></i><i></i><i></i></div>
+            <div class="sheet-title">Sheet1 · TEXTILES weekly quota</div>
+          </div>
+          <div class="sheet-scroll">
+            <table class="sheet" aria-label="quota spreadsheet preview">
+              <thead>
+                <tr>
+                  <th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>1</th>
+                  <td class="label">TEXTILES</td>
+                  <td class="label">DAILY QUOTA TO DATE</td>
+                  <td class="dim">—</td>
+                  <td class="dim">▶▶▶▶▶</td>
+                  <td class="hi">1008.33</td>
+                  <td class="dim">—</td>
+                  <td class="dim">—</td>
+                  <td class="dim">—</td>
+                </tr>
+                <tr>
+                  <th>3</th>
+                  <td class="label">WEEK'S QUOTA ↓↓</td>
+                  <td>Jul 1</td><td>Jul 2</td><td>Jul 3</td><td>Jul 4</td><td>Jul 5</td><td>Jul 6</td><td>Jul 7</td>
+                </tr>
+                <tr>
+                  <th>4</th>
+                  <td class="label">7000</td>
+                  <td>Sun</td><td>Mon</td><td>Tue</td><td>Wed</td><td>Thu</td><td>Fri</td><td>Sat</td>
+                </tr>
+                <tr>
+                  <th>5</th>
+                  <td class="label">SOLD ▶▶▶</td>
+                  <td>950</td><td>953</td>
+                  <td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td>
+                </tr>
+                <tr>
+                  <th>6</th>
+                  <td class="label">DAILY QUOTA…</td>
+                  <td class="hi">1000</td>
+                  <td class="hi">1008.33</td>
+                  <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
+                </tr>
+                <tr>
+                  <th>7</th>
+                  <td class="label">REMAINING…</td>
+                  <td>6050</td><td>5097</td><td>5097</td><td>5097</td><td>5097</td><td>5097</td><td>5097</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="formula-pill">
+          <div class="k">Target formula · E1</div>
+          <code>=LOOKUP(2,1/(B6:H6<>0),B6:H6)</code>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="features" id="problem">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="tag">The challenge</div>
+        <h2>One KPI. Too much array ceremony.</h2>
+        <p>
+          Row 6 walks the week left-to-right and only fills quotas for days with sales.
+          E1 should always surface the progressive daily quota so far — the last non-zero
+          entry in B6:H6 — preferably as a normal formula, not CSE array magic.
+        </p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card reveal">
+          <div class="icon-blob">Σ</div>
+          <h3>Progressive daily quota</h3>
+          <p>
+            Each day recalculates remaining week quota divided by remaining days.
+            B6 starts as <span class="mono">A4/7</span>; later days use the leftover chain in row 7.
+          </p>
+        </article>
+        <article class="feature-card reveal">
+          <div class="icon-blob">⌁</div>
+          <h3>Zeros mean “not yet”</h3>
+          <p>
+            Days without sold units force a zero quota cell. Any “latest value” formula must ignore those trailing zeros.
+          </p>
+        </article>
+        <article class="feature-card reveal">
+          <div class="icon-blob">↗</div>
+          <h3>Dashboard cell E1</h3>
+          <p>
+            Labelled “DAILY QUOTA TO DATE”, E1 powers the header metric. It should stay readable when someone audits the model.
+          </p>
+        </article>
+        <article class="feature-card reveal">
+          <div class="icon-blob">{}</div>
+          <h3>Legacy array formula</h3>
+          <p>
+            The starter solution nested <span class="mono">INDEX</span>, <span class="mono">MAX</span>, and
+            <span class="mono">IF</span> with column arithmetic — correct, but long and array-entered.
+          </p>
+        </article>
+        <article class="feature-card reveal">
+          <div class="icon-blob">✓</div>
+          <h3>False path provided</h3>
+          <p>
+            The task explicitly marks the long <span class="mono">INDEX(...MAX(IF(...)))</span> pattern as the wrong answer to shrink.
+          </p>
+        </article>
+        <article class="feature-card reveal">
+          <div class="icon-blob">π</div>
+          <h3>openpyxl delivery</h3>
+          <p>
+            The agent had to load <span class="mono">input.xlsx</span>, write the formula to E1, save
+            <span class="mono">output.xlsx</span>, and print the final cell value.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="solution">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="tag">Before / after</div>
+        <h2>Replace nested array logic with a classic LOOKUP trick.</h2>
+        <p>
+          The shortened formula builds a reciprocal mask of non-zeros, then asks LOOKUP for an impossibly large lookup value so it lands on the last numeric 1.
+        </p>
+      </div>
+      <div class="compare-grid">
+        <article class="compare-card bad reveal">
+          <div class="badge">Rejected · too long</div>
+          <h3>Array-entered INDEX path</h3>
+          <div class="code-block">=INDEX($B$6:$H$6,,MAX(IF($B$6:$H$6<>0,
+  COLUMN($B$6:$H$6)-COLUMN($B$6)+1)))</div>
+          <ul>
+            <li>Needs array evaluation / legacy CSE hygiene</li>
+            <li>Column arithmetic is hard to read at a glance</li>
+            <li>Same intent, much more surface area</li>
+          </ul>
+        </article>
+        <article class="compare-card good reveal">
+          <div class="badge">Accepted · answer cell E1</div>
+          <h3>Compact LOOKUP form</h3>
+          <div class="code-block">=LOOKUP(2,1/(B6:H6<>0),B6:H6)</div>
+          <ul>
+            <li>Works as a normal worksheet formula</li>
+            <li>Returns the last non-zero daily quota (1008.33…)</li>
+            <li>Directly related to the B6:H6 progressive row</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="workbook">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="tag">Workbook anatomy</div>
+        <h2>How the week’s numbers feed E1.</h2>
+        <p>
+          Two sold days are filled. The remaining day formula cells stay zero until sales appear, while remaining-to-date carries forward.
+        </p>
+      </div>
+      <div class="board">
+        <div class="panel reveal">
+          <h3>Key formulas already on the sheet</h3>
+          <div class="code-block" style="margin-bottom:1rem">B6 = IF(B5=0,0,A4/7)
+C6 = IF(C5=0,0,B7/6)
+D6 = IF(D5=0,0,C7/5)
+… through H6
+
+B7 = A4-B5
+C7 = B7-C5
+D7 = C7-D5
+… through H7</div>
+          <div class="kv">
+            <div class="item"><span>Week quota (A4)</span><strong>7,000</strong></div>
+            <div class="item"><span>Sold Sun / Mon</span><strong>950 / 953</strong></div>
+            <div class="item"><span>B6 daily quota</span><strong>1,000</strong></div>
+            <div class="item"><span>C6 daily quota</span><strong>1,008.33…</strong></div>
+            <div class="item"><span>Remaining after Mon</span><strong>5,097</strong></div>
+            <div class="item"><span>E1 should show</span><strong>Last non-zero of row 6</strong></div>
+          </div>
+        </div>
+        <div class="panel reveal">
+          <h3>Why LOOKUP(2, 1/(…)) works</h3>
+          <div class="timeline">
+            <div class="t-item">
+              <div class="dot done"></div>
+              <div>
+                <h4>Build a mask</h4>
+                <p><span class="mono">B6:H6<>0</span> becomes TRUE/FALSE for filled quota days.</p>
+              </div>
+            </div>
+            <div class="t-item">
+              <div class="dot done"></div>
+              <div>
+                <h4>Reciprocal vector</h4>
+                <p><span class="mono">1/(…)</span> turns TRUE→1 and FALSE→#DIV/0!, which LOOKUP ignores.</p>
+              </div>
+            </div>
+            <div class="t-item">
+              <div class="dot done"></div>
+              <div>
+                <h4>Overshoot lookup</h4>
+                <p>Lookup value <span class="mono">2</span> is larger than any 1, so LOOKUP settles on the last 1.</p>
+              </div>
+            </div>
+            <div class="t-item">
+              <div class="dot"></div>
+              <div>
+                <h4>Return paired value</h4>
+                <p>Result vector <span class="mono">B6:H6</span> yields the matching latest quota for the header metric.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how" id="how">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="tag">Agent trajectory</div>
+        <h2>From inspection to verified output in four moves.</h2>
+        <p>
+          Model <strong>gpt-5.6-sol</strong> completed the regen trajectory with exit code 0 after roughly half a minute.
+        </p>
+      </div>
+      <div class="steps">
+        <article class="step reveal">
+          <h3>Read the live formulas</h3>
+          <p>Opened <span class="mono">input.xlsx</span> with openpyxl and printed rows 1–7, confirming E1 held an array formula object.</p>
+        </article>
+        <article class="step reveal">
+          <h3>Author solve.py</h3>
+          <p>Patched in a short script that loads Sheet1 and overwrites only the answer cell with the LOOKUP formula.</p>
+        </article>
+        <article class="step reveal">
+          <h3>Write output.xlsx</h3>
+          <p>Saved the workbook and echoed <span class="mono">E1==LOOKUP(2,1/(B6:H6<>0),B6:H6)</span>.</p>
+        </article>
+        <article class="step reveal">
+          <h3>Verify & summarize</h3>
+          <p>Reloaded the result workbook, confirmed the formula text, and reported the final answer cell.</p>
+        </article>
+      </div>
+
+      <div style="height:1.4rem"></div>
+      <div class="panel reveal">
+        <h3>solve.py (delivered)</h3>
+        <div class="code-block">from openpyxl import load_workbook
+
+INPUT_PATH = ".../workspace/input.xlsx"
+OUTPUT_PATH = ".../workspace/output.xlsx"
+
+wb = load_workbook(INPUT_PATH)
+ws = wb["Sheet1"]
+
+# Return the last non-zero daily quota from B6:H6
+# without an array-entered formula.
+ws["E1"] = "=LOOKUP(2,1/(B6:H6<>0),B6:H6)"
+
+wb.save(OUTPUT_PATH)
+print(f"E1={ws['E1'].value}")</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="proof">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="tag">Case signals</div>
+        <h2>Compact proof that the run stayed on rails.</h2>
+        <p>Metadata from case_meta.json and the trajectory transcript.</p>
+      </div>
+      <div class="proof-strip reveal">
+        <div class="metric"><div class="n">34.8s</div><div class="l">Duration</div></div>
+        <div class="metric"><div class="n">0</div><div class="l">Exit code</div></div>
+        <div class="metric"><div class="n">14</div><div class="l">Trajectory events</div></div>
+        <div class="metric"><div class="n">E1</div><div class="l">Answer cells</div></div>
+      </div>
+      <div class="quote-row">
+        <div class="quote reveal">
+          <p>“Created output.xlsx and solve.py. Final value written: E1 = =LOOKUP(2,1/(B6:H6<>0),B6:H6)”</p>
+          <div class="who">Assistant closing message · codex-jsonl trajectory</div>
+        </div>
+        <div class="logo-wall reveal" aria-label="case badges">
+          <span>SpreadsheetBench</span>
+          <span>openpyxl</span>
+          <span>gpt-5.6-sol</span>
+          <span>regen</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="answer">
+    <div class="wrap">
+      <div class="answer reveal">
+        <div>
+          <div class="tag">Final answer</div>
+          <h2>Place this formula in cell E1.</h2>
+          <p>
+            It shortens the original array formula while staying faithful to the progressive
+            daily-quota row. With Sunday and Monday filled, Excel evaluates it to
+            <strong>1008.333…</strong>.
+          </p>
+          <div class="answer-box">
+            <div class="cell">Cell E1</div>
+            <code id="answerCode">=LOOKUP(2,1/(B6:H6<>0),B6:H6)</code>
+          </div>
+          <div class="cta-row" style="margin-top:1rem;margin-bottom:0">
+            <button class="btn-primary" id="copyBtn" type="button">Copy formula</button>
+            <a class="btn-secondary" href="#faq">Why this works</a>
+          </div>
+        </div>
+        <div class="side-stats">
+          <div class="s"><span>Benchmark</span><strong>SpreadsheetBench</strong></div>
+          <div class="s"><span>Case id</span><strong>04_task_15027</strong></div>
+          <div class="s"><span>Trajectory format</span><strong>codex-jsonl</strong></div>
+          <div class="s"><span>References</span><strong>none listed</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="tag">FAQ</div>
+        <h2>Questions auditors ask next.</h2>
+        <p>Quick answers about semantics, edge cases, and delivery constraints.</p>
+      </div>
+      <div class="faq-list">
+        <details class="faq reveal">
+          <summary>What exactly was wrong with the provided INDEX formula?</summary>
+          <p>
+            Nothing mathematically fatal — it finds the rightmost non-zero column position and indexes into B6:H6.
+            The task asked to <em>shorten</em> that pattern. It is verbose, depends on column number arithmetic,
+            and was stored as an array formula in the input workbook.
+          </p>
+        </details>
+        <details class="faq reveal">
+          <summary>Does LOOKUP require sorted data here?</summary>
+          <p>
+            The classic “LOOKUP big number in a 1/condition mask” pattern intentionally relies on LOOKUP’s approximate-match behavior.
+            Because successful matches are 1s and failures become errors that are skipped, the oversize lookup value 2 lands on the last valid 1.
+          </p>
+        </details>
+        <details class="faq reveal">
+          <summary>What happens mid-week when more sales land?</summary>
+          <p>
+            As soon as a later day in row 5 becomes non-zero, its row-6 quota formula activates and E1 automatically advances to that newer non-zero quota. No formula edit required.
+          </p>
+        </details>
+        <details class="faq reveal">
+          <summary>Why not TAKE/FILTER/XLOOKUP?</summary>
+          <p>
+            Modern dynamic-array functions could also express “last non-blank/non-zero”, but LOOKUP stays short, widely compatible with older desktop Excel, and matches the spirit of shrinking the legacy array formula.
+          </p>
+        </details>
+        <details class="faq reveal">
+          <summary>What files did the agent touch?</summary>
+          <p>
+            It wrote <code>solve.py</code> and <code>output.xlsx</code> inside the case workspace after inspecting
+            <code>input.xlsx</code>. The trajectory format is <code>codex-jsonl</code>; case_meta lists no external references.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot">
+        <div>
+          <a class="brand" href="#top" style="margin-bottom:.8rem">
+            <div class="brand-mark"><span>Q</span></div>
+            <span>QuotaLens</span>
+          </a>
+          <p>A prototype narrative for SpreadsheetBench task 15027 — shortening the daily-quota-to-date formula for a TEXTILES week tracker.</p>
+        </div>
+        <div>
+          <h4>Explore</h4>
+          <a href="#problem">Problem</a>
+          <a href="#solution">Solution</a>
+          <a href="#workbook">Workbook</a>
+          <a href="#how">Trajectory</a>
+        </div>
+        <div>
+          <h4>Answer</h4>
+          <a href="#answer">Cell E1</a>
+          <a href="#faq">FAQ</a>
+          <a href="#proof">Case signals</a>
+        </div>
+        <div>
+          <h4>Case meta</h4>
+          <p>Domain: spreadsheet_office</p>
+          <p>Benchmark: SpreadsheetBench</p>
+          <p>Collected: 2026-07-11</p>
+          <p>Model: gpt-5.6-sol</p>
+        </div>
+      </div>
+      <div class="copy">
+        <span>Prototype presentation · 04_task_15027 · no external assets</span>
+        <span>Formula: =LOOKUP(2,1/(B6:H6<>0),B6:H6)</span>
+      </div>
+    </div>
+  </footer>
+
+<script>
+(function () {
+  var nav = document.getElementById('nav');
+  var menuBtn = document.getElementById('menuBtn');
+  var mobilePanel = document.getElementById('mobilePanel');
+  var copyBtn = document.getElementById('copyBtn');
+
+  function onScroll() {
+    if (window.scrollY > 12) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  }
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  menuBtn.addEventListener('click', function () {
+    mobilePanel.classList.toggle('open');
+  });
+  mobilePanel.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', function () { mobilePanel.classList.remove('open'); });
+  });
+
+  var reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  copyBtn.addEventListener('click', function () {
+    var text = '=LOOKUP(2,1/(B6:H6<>0),B6:H6)';
+    function done(ok) {
+      copyBtn.textContent = ok ? 'Copied' : 'Copy formula';
+      if (ok) setTimeout(function () { copyBtn.textContent = 'Copy formula'; }, 1400);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }).catch(function () { done(false); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(true); } catch (e) { done(false); }
+      document.body.removeChild(ta);
+    }
+  });
+})();
+</script>
+</body>
+</html>

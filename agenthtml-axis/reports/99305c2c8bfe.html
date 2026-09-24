@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>biomedsheets · Allow hyphens in patientName — Code Repair Case</title>
+<style>
+  :root{
+    --bg:#0a0f14;
+    --bg-2:#0e161e;
+    --panel:rgba(255,255,255,.045);
+    --panel-2:rgba(255,255,255,.03);
+    --stroke:rgba(255,255,255,.09);
+    --stroke-2:rgba(255,255,255,.06);
+    --ink:#eaf2f0;
+    --muted:#8ba0a5;
+    --dim:#5f757b;
+    --teal:#2dd4bf;
+    --teal-2:#5eead4;
+    --lime:#a3e635;
+    --amber:#fbbf24;
+    --rose:#fb7185;
+    --violet:#a78bfa;
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--sans);line-height:1.6;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(900px 520px at 78% -8%, rgba(45,212,191,.14), transparent 62%),
+      radial-gradient(760px 480px at 8% 8%, rgba(167,139,250,.10), transparent 60%),
+      radial-gradient(1000px 700px at 50% 118%, rgba(163,230,53,.07), transparent 60%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:-1;opacity:.5;
+    background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+    background-size:46px 46px;mask-image:radial-gradient(circle at 50% 20%,#000,transparent 78%);
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 26px}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    transition:background .35s ease,border-color .35s ease,backdrop-filter .35s ease,padding .35s ease;
+    border-bottom:1px solid transparent;padding:18px 0;
+  }
+  nav.scrolled{
+    background:rgba(9,14,18,.78);backdrop-filter:blur(16px) saturate(140%);
+    border-bottom:1px solid var(--stroke);padding:11px 0;
+  }
+  .nav-inner{display:flex;align-items:center;gap:26px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:600;letter-spacing:-.01em}
+  .brand .glyph{
+    width:32px;height:32px;border-radius:9px;flex:none;display:grid;place-items:center;
+    background:linear-gradient(140deg,var(--teal),var(--violet));color:#04110f;
+    font-family:var(--mono);font-weight:700;font-size:15px;
+    box-shadow:0 6px 18px rgba(45,212,191,.28);
+  }
+  .brand small{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:.02em}
+  .nav-links{display:none;gap:24px;margin-left:auto;font-size:14px}
+  .nav-links a{color:var(--muted);transition:color .2s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{
+    margin-left:auto;display:inline-flex;align-items:center;gap:8px;
+    padding:9px 16px;border-radius:10px;font-size:13.5px;font-weight:600;
+    background:linear-gradient(140deg,var(--teal),var(--teal-2));color:#04110f;
+    border:1px solid rgba(255,255,255,.18);transition:transform .2s,box-shadow .2s;
+  }
+  .nav-links + .nav-cta{margin-left:0}
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(45,212,191,.32)}
+  @media(min-width:880px){.nav-links{display:flex}}
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:150px 0 70px;position:relative}
+  .pill{
+    display:inline-flex;align-items:center;gap:9px;font-size:12.5px;color:var(--teal-2);
+    background:rgba(45,212,191,.09);border:1px solid rgba(45,212,191,.28);
+    padding:6px 13px;border-radius:999px;font-family:var(--mono);letter-spacing:.01em;
+  }
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(45,212,191,.18)}
+  h1{
+    font-size:clamp(38px,6.2vw,68px);line-height:1.02;letter-spacing:-.03em;
+    margin:24px 0 0;font-weight:700;
+  }
+  h1 .accent{
+    background:linear-gradient(120deg,var(--teal-2),var(--lime) 60%,var(--teal));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{font-size:clamp(16px,2.1vw,20px);color:var(--muted);max-width:640px;margin:22px 0 0}
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:12px;
+    font-size:15px;font-weight:600;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;
+    border:1px solid var(--stroke);
+  }
+  .btn.primary{background:linear-gradient(140deg,var(--teal),var(--teal-2));color:#04110f;border-color:transparent}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(45,212,191,.3)}
+  .btn.ghost{background:var(--panel);color:var(--ink)}
+  .btn.ghost:hover{transform:translateY(-2px);background:rgba(255,255,255,.07)}
+
+  /* hero visual: terminal + diff */
+  .hero-visual{margin-top:56px}
+  .window{
+    border:1px solid var(--stroke);border-radius:16px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(14,22,30,.9),rgba(9,14,18,.92));
+    box-shadow:0 30px 70px -30px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.02) inset;
+    backdrop-filter:blur(6px);
+  }
+  .win-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--stroke-2);background:rgba(255,255,255,.02)}
+  .win-bar i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .win-bar .r{background:#ff5f57}.win-bar .y{background:#febc2e}.win-bar .g{background:#28c840}
+  .win-bar span{margin-left:10px;font-family:var(--mono);font-size:12.5px;color:var(--dim)}
+  .win-bar .tag{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--stroke);padding:3px 9px;border-radius:6px}
+  .code{font-family:var(--mono);font-size:13px;line-height:1.7;padding:20px 22px;overflow-x:auto;white-space:pre}
+  .code .c{color:var(--dim)}
+  .code .del{color:var(--rose);background:rgba(251,113,133,.08);display:block;margin:0 -22px;padding:0 22px}
+  .code .add{color:var(--lime);background:rgba(163,230,53,.08);display:block;margin:0 -22px;padding:0 22px}
+  .code .kw{color:var(--violet)}
+  .code .str{color:var(--teal-2)}
+
+  /* ---------- STAT STRIP ---------- */
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:64px}
+  @media(min-width:760px){.stats{grid-template-columns:repeat(4,1fr)}}
+  .stat{
+    border:1px solid var(--stroke);border-radius:14px;padding:20px;background:var(--panel);
+    transition:transform .25s,border-color .25s;
+  }
+  .stat:hover{transform:translateY(-4px);border-color:rgba(45,212,191,.4)}
+  .stat .n{font-size:30px;font-weight:700;letter-spacing:-.02em;font-family:var(--mono)}
+  .stat .n.teal{color:var(--teal-2)}.stat .n.lime{color:var(--lime)}.stat .n.violet{color:var(--violet)}.stat .n.amber{color:var(--amber)}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:4px}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:78px 0;position:relative}
+  .eyebrow{font-family:var(--mono);font-size:12.5px;color:var(--teal-2);letter-spacing:.08em;text-transform:uppercase}
+  h2{font-size:clamp(28px,4vw,42px);letter-spacing:-.025em;margin:12px 0 0;font-weight:700;line-height:1.08}
+  .sec-lede{color:var(--muted);max-width:620px;margin:16px 0 0;font-size:16.5px}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* problem grid */
+  .split{display:grid;gap:26px;margin-top:40px}
+  @media(min-width:900px){.split{grid-template-columns:1fr 1fr;align-items:start}}
+  .card{
+    border:1px solid var(--stroke);border-radius:16px;padding:24px;background:var(--panel);
+    backdrop-filter:blur(8px);
+  }
+  .card h3{margin:0 0 6px;font-size:17px;letter-spacing:-.01em}
+  .card p{margin:0;color:var(--muted);font-size:14.5px}
+  .trace{font-family:var(--mono);font-size:12px;line-height:1.75;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+  .trace .err{color:var(--rose)}
+  .trace .fn{color:var(--teal-2)}
+  .quote{
+    border-left:2px solid var(--teal);padding:2px 0 2px 18px;margin:18px 0 0;color:var(--muted);
+    font-style:italic;font-size:15px;
+  }
+  .kbd{font-family:var(--mono);font-size:12.5px;color:var(--teal-2);background:rgba(45,212,191,.08);padding:2px 7px;border-radius:5px;border:1px solid rgba(45,212,191,.2)}
+
+  /* feature cards */
+  .features{display:grid;gap:18px;margin-top:44px}
+  @media(min-width:680px){.features{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1000px){.features{grid-template-columns:repeat(3,1fr)}}
+  .feat{
+    border:1px solid var(--stroke);border-radius:16px;padding:24px;background:var(--panel);
+    transition:transform .28s,border-color .28s,background .28s;position:relative;overflow:hidden;
+  }
+  .feat::after{content:"";position:absolute;inset:0;border-radius:16px;pointer-events:none;
+    background:radial-gradient(300px 120px at var(--mx,50%) 0%,rgba(45,212,191,.10),transparent 70%);opacity:0;transition:opacity .3s}
+  .feat:hover{transform:translateY(-6px);border-color:rgba(45,212,191,.35);background:rgba(255,255,255,.06)}
+  .feat:hover::after{opacity:1}
+  .feat .ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-family:var(--mono);font-weight:700;
+    background:linear-gradient(140deg,rgba(45,212,191,.18),rgba(167,139,250,.14));border:1px solid var(--stroke);color:var(--teal-2)}
+  .feat h3{margin:16px 0 7px;font-size:16.5px}
+  .feat p{margin:0;color:var(--muted);font-size:14px}
+
+  /* timeline / how it works */
+  .timeline{margin-top:44px;position:relative;padding-left:0}
+  .step{
+    display:grid;grid-template-columns:44px 1fr;gap:18px;padding:0 0 30px;position:relative;
+  }
+  .step:not(:last-child)::before{content:"";position:absolute;left:21px;top:44px;bottom:-2px;width:2px;
+    background:linear-gradient(var(--stroke),transparent)}
+  .step .idx{
+    width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none;
+    font-family:var(--mono);font-weight:700;font-size:15px;color:var(--teal-2);
+    background:var(--panel);border:1px solid var(--stroke);
+  }
+  .step .body{padding-top:3px}
+  .step h4{margin:0;font-size:16px;letter-spacing:-.01em}
+  .step p{margin:6px 0 0;color:var(--muted);font-size:14px}
+  .step .cmd{font-family:var(--mono);font-size:12.5px;color:var(--lime);margin-top:9px;
+    background:rgba(163,230,53,.06);border:1px solid rgba(163,230,53,.16);border-radius:8px;padding:8px 12px;display:inline-block;white-space:pre-wrap;word-break:break-word;max-width:100%}
+
+  /* debug accordion (social proof of iteration) */
+  .debug{margin-top:40px;border:1px solid var(--stroke);border-radius:16px;overflow:hidden;background:var(--panel)}
+  details{border-bottom:1px solid var(--stroke-2)}
+  details:last-child{border-bottom:none}
+  summary{
+    list-style:none;cursor:pointer;padding:17px 22px;display:flex;align-items:center;gap:14px;
+    font-size:14.5px;transition:background .2s;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary:hover{background:rgba(255,255,255,.03)}
+  summary .num{font-family:var(--mono);font-size:12px;color:var(--dim);width:24px;flex:none}
+  summary .st{width:9px;height:9px;border-radius:50%;flex:none}
+  .st.fail{background:var(--rose);box-shadow:0 0 0 4px rgba(251,113,133,.14)}
+  .st.pass{background:var(--lime);box-shadow:0 0 0 4px rgba(163,230,53,.16)}
+  summary .txt{flex:1;min-width:0}
+  summary .chev{color:var(--dim);transition:transform .25s;font-family:var(--mono)}
+  details[open] summary .chev{transform:rotate(90deg)}
+  .det-body{padding:0 22px 20px 60px;color:var(--muted);font-size:13.5px}
+  .det-body .out{font-family:var(--mono);font-size:12.5px;color:var(--rose);background:rgba(251,113,133,.06);
+    border:1px solid rgba(251,113,133,.16);border-radius:8px;padding:10px 13px;margin:0 0 10px;white-space:pre-wrap;word-break:break-word}
+  .det-body .out.ok{color:var(--lime);background:rgba(163,230,53,.06);border-color:rgba(163,230,53,.18)}
+
+  /* outcome banner */
+  .outcome{
+    margin-top:20px;border:1px solid rgba(45,212,191,.3);border-radius:18px;padding:34px;
+    background:linear-gradient(140deg,rgba(45,212,191,.10),rgba(167,139,250,.06));
+    display:flex;flex-wrap:wrap;align-items:center;gap:22px;justify-content:space-between;
+  }
+  .outcome .lft{max-width:560px}
+  .outcome h3{margin:0 0 8px;font-size:22px;letter-spacing:-.02em}
+  .outcome p{margin:0;color:var(--muted);font-size:15px}
+  .badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;font-weight:600;
+    padding:8px 15px;border-radius:999px;background:rgba(163,230,53,.12);color:var(--lime);border:1px solid rgba(163,230,53,.3)}
+
+  /* footer */
+  footer{border-top:1px solid var(--stroke);padding:50px 0 44px;margin-top:24px}
+  .foot-grid{display:flex;flex-wrap:wrap;gap:26px;justify-content:space-between;align-items:flex-start}
+  .foot-meta{font-family:var(--mono);font-size:12.5px;color:var(--dim);line-height:2}
+  .foot-meta b{color:var(--muted);font-weight:600}
+  .foot-note{font-size:12.5px;color:var(--dim);margin-top:26px;max-width:640px;line-height:1.7}
+
+  ::selection{background:rgba(45,212,191,.3);color:#fff}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-inner">
+    <div class="brand">
+      <div class="glyph">bs</div>
+      <div>biomedsheets<small>code repair · SWE-bench</small></div>
+    </div>
+    <div class="nav-links">
+      <a href="#problem">Issue</a>
+      <a href="#fix">Fix</a>
+      <a href="#how">Trajectory</a>
+      <a href="#verify">Verification</a>
+    </div>
+    <a href="#fix" class="nav-cta">View patch →</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="pill reveal"><span class="dot"></span>bihealth / biomedsheets · issue #23</span>
+    <h1 class="reveal">Hyphens, finally allowed in <span class="accent">patientName</span>.</h1>
+    <p class="lede reveal">A germline sample sheet blocked genomic pipeline runs because a leftover naming
+      constraint rejected any hyphen in the patient column. The agent traced the exception, relaxed the rule,
+      and proved the fix end-to-end.</p>
+    <div class="cta-row reveal">
+      <a href="#fix" class="btn primary">See the one-file patch →</a>
+      <a href="#how" class="btn ghost">Walk the trajectory</a>
+    </div>
+
+    <div class="hero-visual reveal">
+      <div class="window">
+        <div class="win-bar">
+          <i class="r"></i><i class="y"></i><i class="g"></i>
+          <span>biomedsheets/io_tsv/germline.py</span>
+          <span class="tag">check_tsv_line()</span>
+        </div>
+<div class="code"><span class="c">    def <span class="kw">check_tsv_line</span>(self, mapping, lineno):</span>
+        <span class="c"># Check for hyphen in patient or sample name</span>
+<span class="del">-       if '-' in mapping['patientName']:</span>
+<span class="del">-           raise GermlineTSVSheetException(</span>
+<span class="del">-               'Hyphen not allowed in patientName column')</span>
+<span class="del">-       if mapping['fatherName'] and '-' in mapping['fatherName']:</span>
+<span class="del">-           raise GermlineTSVSheetException(...)</span>
+<span class="del">-       if mapping['motherName'] and '-' in mapping['motherName']:</span>
+<span class="del">-           raise GermlineTSVSheetException(...)</span>
+<span class="add">+       # if '-' in mapping['patientName']:</span>
+<span class="add">+       #    raise GermlineTSVSheetException(</span>
+<span class="add">+       #        'Hyphen not allowed in patientName column')</span>
+<span class="add">+       # ... fatherName / motherName checks likewise disabled</span>
+        <span class="c"># Check "libraryType" field  <span class="kw">(unchanged)</span></span></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat reveal"><div class="n teal">37</div><div class="l">trajectory steps</div></div>
+      <div class="stat reveal"><div class="n lime">1</div><div class="l">file changed</div></div>
+      <div class="stat reveal"><div class="n violet">5</div><div class="l">debug iterations to green</div></div>
+      <div class="stat reveal"><div class="n amber">submitted</div><div class="l">exit status</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">The issue</span>
+      <h2>A validation rule outlived its purpose.</h2>
+      <p class="sec-lede">SODAR sample sheets permit hyphens in the patient column, but <span class="kbd">biomedsheets</span>
+        rejected them — halting the SNAPPY genomic pipeline mid-run.</p>
+    </div>
+
+    <div class="split">
+      <div class="card reveal">
+        <h3>Where it broke</h3>
+        <p>Snakemake aborted while loading the germline TSV sheet. The traceback lands squarely inside the
+          reader's per-line validation.</p>
+        <div class="trace" style="margin-top:16px"><span class="err">GermlineTSVSheetException</span>: Hyphen not allowed in patientName column
+  ...abstract/__init__.py, line 266
+    _cached_read_germline_tsv_sheet
+  io_tsv/germline.py, line 186
+    read_germline_tsv_sheet
+  io_tsv/base.py, line 395
+    _create_sheet_json
+  io_tsv/germline.py, line 110
+    <span class="fn">check_tsv_line</span>  ←  the guard</div>
+      </div>
+
+      <div class="card reveal">
+        <h3>Why the rule existed</h3>
+        <p>The maintainer explained the constraint was a relic — and safe to lift.</p>
+        <div class="quote">“Its origin is that I originally wanted to resolve
+          <span class="kbd">SAMPLE-NORMALTUMORNUMBER-EXTRACTIONNUMBER-LIBRARYNUMBER</span>
+          unambiguously to SAMPLE. This functionality isn't actually used — it can be removed.”</div>
+        <p style="margin-top:18px">So the fix isn't a workaround. It removes a guard that no longer guards anything,
+          restoring parity with SODAR's own naming rules. Environment: <span class="kbd">biomedsheets 0.11.1</span>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FIX -->
+<section id="fix">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">The fix</span>
+      <h2>Three checks, cleanly disabled.</h2>
+      <p class="sec-lede">The patch touches a single method in one file. The hyphen guards on
+        <span class="kbd">patientName</span>, <span class="kbd">fatherName</span> and
+        <span class="kbd">motherName</span> are commented out; every other validation stays intact.</p>
+    </div>
+
+    <div class="window reveal" style="margin-top:38px">
+      <div class="win-bar">
+        <i class="r"></i><i class="y"></i><i class="g"></i>
+        <span>diff — biomedsheets/io_tsv/germline.py</span>
+        <span class="tag">+8 / −8 · @@ 106</span>
+      </div>
+<div class="code">     def check_tsv_line(self, mapping, lineno):
+         <span class="str">"""Cancer sample sheet--specific valiation"""</span>
+         <span class="c"># Check for hyphen in patient or sample name</span>
+<span class="del">-        if '-' in mapping['patientName']:</span>
+<span class="del">-            raise GermlineTSVSheetException(</span>
+<span class="del">-                'Hyphen not allowed in patientName column')  # pragma: no cover</span>
+<span class="del">-        if mapping['fatherName'] and '-' in mapping['fatherName']:</span>
+<span class="del">-            raise GermlineTSVSheetException(</span>
+<span class="del">-                'Hyphen not allowed in fatherName column')  # pragma: no cover</span>
+<span class="del">-        if mapping['motherName'] and '-' in mapping['motherName']:</span>
+<span class="del">-            raise GermlineTSVSheetException(</span>
+<span class="del">-                'Hyphen not allowed in motherName column')  # pragma: no cover</span>
+<span class="add">+        # if '-' in mapping['patientName']:</span>
+<span class="add">+        #    raise GermlineTSVSheetException(</span>
+<span class="add">+        #        'Hyphen not allowed in patientName column')  # pragma: no cover</span>
+<span class="add">+        # if mapping['fatherName'] and '-' in mapping['fatherName']:</span>
+<span class="add">+        #    raise GermlineTSVSheetException(</span>
+<span class="add">+        #        'Hyphen not allowed in fatherName column')  # pragma: no cover</span>
+<span class="add">+        # if mapping['motherName'] and '-' in mapping['motherName']:</span>
+<span class="add">+        #    raise GermlineTSVSheetException(</span>
+<span class="add">+        #        'Hyphen not allowed in motherName column')  # pragma: no cover</span>
+         <span class="c"># Check "libraryType" field</span>
+         if mapping['libraryType'] and (
+                 mapping['libraryType'] not in LIBRARY_TYPES):</div>
+    </div>
+
+    <div class="features">
+      <div class="feat reveal">
+        <div class="ic">✓</div>
+        <h3>Minimal blast radius</h3>
+        <p>One method, one file. No signatures change, no callers touched — the reader still validates every
+          other column exactly as before.</p>
+      </div>
+      <div class="feat reveal">
+        <div class="ic">≈</div>
+        <h3>Parity with SODAR</h3>
+        <p>Hyphenated patient identifiers now flow through the germline reader the same way they do upstream,
+          removing a silent mismatch between systems.</p>
+      </div>
+      <div class="feat reveal">
+        <div class="ic">↻</div>
+        <h3>Reversible by design</h3>
+        <p>The guards are commented rather than deleted — the original intent stays legible for anyone who
+          later needs the SAMPLE-prefix resolution back.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW / TRAJECTORY -->
+<section id="how">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">The trajectory</span>
+      <h2>How the agent got there.</h2>
+      <p class="sec-lede">Model <span class="kbd">swe-agent-llama-70b</span> worked one command at a time —
+        locating the guard from the stack trace, then verifying the change against a live reader.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="step reveal">
+        <div class="idx">01</div>
+        <div class="body">
+          <h4>Read the traceback</h4>
+          <p>The exception points at <span class="kbd">check_tsv_line</span> in <span class="kbd">io_tsv/germline.py</span>.
+            Start by finding the file.</p>
+          <div class="cmd">find_file "germline.py" biomedsheets  →  2 matches (io_tsv, shortcuts)</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="idx">02</div>
+        <div class="body">
+          <h4>Locate the guard</h4>
+          <p>Search inside the right file and open it at the method definition.</p>
+          <div class="cmd">search_file "def check_tsv_line" …/io_tsv/germline.py  →  Line 106</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="idx">03</div>
+        <div class="body">
+          <h4>Disable the three hyphen checks</h4>
+          <p>Comment out the <span class="kbd">patientName</span>, <span class="kbd">fatherName</span> and
+            <span class="kbd">motherName</span> raises, leaving the rest of the validation untouched.</p>
+          <div class="cmd">edit 109:117  →  guards commented, file now 196 lines</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="idx">04</div>
+        <div class="body">
+          <h4>Write a reproduction harness</h4>
+          <p>Build a minimal TSV with a hyphenated patient name and feed it through a real
+            <span class="kbd">GermlineTSVReader</span>, printing success only if no exception fires.</p>
+          <div class="cmd">create test_hyphen.py  →  reader.read_sheet()</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="idx">05</div>
+        <div class="body">
+          <h4>Iterate until green</h4>
+          <p>The harness surfaced four unrelated schema errors in a row. Each was fixed by making the fixture
+            valid — never by re-touching the source. See the run log below.</p>
+          <div class="cmd">python test_hyphen.py  ×5  →  Test completed successfully, no errors.</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="idx">06</div>
+        <div class="body">
+          <h4>Clean up &amp; submit</h4>
+          <p>Remove the scratch harness so only the source patch remains, then submit.</p>
+          <div class="cmd">rm test_hyphen.py  →  submit</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VERIFY / debug accordion -->
+<section id="verify">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">Verification log</span>
+      <h2>Five runs to a clean pass.</h2>
+      <p class="sec-lede">The reproduction script was tightened iteratively — each failure was a fixture problem,
+        confirming the hyphen guard itself was truly gone. Expand any run.</p>
+    </div>
+
+    <div class="debug reveal">
+      <details>
+        <summary><span class="num">R1</span><span class="st fail"></span>
+          <span class="txt">Missing required columns</span><span class="chev">›</span></summary>
+        <div class="det-body">
+          <div class="out">Test failed: Empty or invalid data column names… missing {libraryType, hpoTerms, fatherName, motherName, folderName, sex, isAffected}</div>
+          Fixture had only <span class="kbd">patientName</span> and <span class="kbd">bioSample</span>. Added the full
+          germline body header.
+        </div>
+      </details>
+      <details>
+        <summary><span class="num">R2</span><span class="st fail"></span>
+          <span class="txt">Invalid library type <code>single</code></span><span class="chev">›</span></summary>
+        <div class="det-body">
+          <div class="out">Test failed: Invalid library type single, must be in {WES, WGS, Panel_seq, mRNA_seq, total_RNA_seq}</div>
+          Swapped the placeholder to <span class="kbd">WGS</span>.
+        </div>
+      </details>
+      <details>
+        <summary><span class="num">R3</span><span class="st fail"></span>
+          <span class="txt">Invalid sex value <code>male</code></span><span class="chev">›</span></summary>
+        <div class="det-body">
+          <div class="out">Test failed: Invalid "sex" value male in line 2 of data section</div>
+          The reader expects coded values — used <span class="kbd">1</span> for male.
+        </div>
+      </details>
+      <details>
+        <summary><span class="num">R4</span><span class="st fail"></span>
+          <span class="txt">Invalid isAffected value <code>unaffected</code></span><span class="chev">›</span></summary>
+        <div class="det-body">
+          <div class="out">Test failed: Invalid "isAffected" value unaffected in line 2 of data section</div>
+          Replaced with the coded <span class="kbd">1</span>.
+        </div>
+      </details>
+      <details open>
+        <summary><span class="num">R5</span><span class="st pass"></span>
+          <span class="txt">Hyphenated patient name accepted</span><span class="chev">›</span></summary>
+        <div class="det-body">
+          <div class="out ok">Test completed successfully, no errors.</div>
+          A fully-valid row with <span class="kbd">test-patient-1</span> loaded without raising — the guard is gone,
+          and every other validation still fires. Harness deleted; changes submitted.
+        </div>
+      </details>
+    </div>
+
+    <div class="outcome reveal">
+      <div class="lft">
+        <h3>Issue resolved with a single-file patch.</h3>
+        <p>Hyphens now pass through the germline TSV reader while the rest of the schema validation is preserved,
+          matching SODAR's naming rules and unblocking the pipeline.</p>
+      </div>
+      <span class="badge">● exit: submitted</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="brand">
+        <div class="glyph">bs</div>
+        <div>biomedsheets<small>Case 02 · code repair</small></div>
+      </div>
+      <div class="foot-meta">
+        <div><b>instance</b>&nbsp; bihealth__biomedsheets-23</div>
+        <div><b>benchmark</b>&nbsp; SWE-bench</div>
+        <div><b>model</b>&nbsp; swe-agent-llama-70b</div>
+        <div><b>format</b>&nbsp; swe-agent-traj · 37 steps</div>
+      </div>
+    </div>
+    <p class="foot-note">Presentation generated from the case trajectory. Content — issue text, traceback,
+      the diff, and the verification run log — is reproduced from the recorded agent session; nothing here is
+      executable. Eval logs and target were stripped from the source record.</p>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var nav=document.getElementById('nav');
+    var onScroll=function(){ nav.classList.toggle('scrolled', window.scrollY>24); };
+    onScroll(); window.addEventListener('scroll',onScroll,{passive:true});
+
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el,i){
+      el.style.transitionDelay=(Math.min(i%4,3)*70)+'ms';
+      io.observe(el);
+    });
+
+    document.querySelectorAll('.feat').forEach(function(c){
+      c.addEventListener('pointermove',function(e){
+        var r=c.getBoundingClientRect();
+        c.style.setProperty('--mx',(e.clientX-r.left)+'px');
+      });
+    });
+  })();
+</script>
+</body>
+</html>

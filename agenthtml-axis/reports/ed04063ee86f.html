@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case report · 03_gpt-4o-airline_51 · τ-bench airline</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --bg2:#eef1fa; --ink:#14162b; --ink-2:#4a4f6a; --ink-3:#7c819c;
+    --line:rgba(20,22,43,.10); --card:rgba(255,255,255,.72); --card-solid:#ffffff;
+    --accent:#4f46e5; --accent-2:#0ea5e9; --accent-soft:rgba(79,70,229,.10);
+    --ok:#15803d; --ok-bg:#dcfce7; --warn:#b45309; --warn-bg:#fef3c7; --bad:#b91c1c; --bad-bg:#fee2e2;
+    --info:#1d4ed8; --info-bg:#dbeafe; --muted-bg:#eef0f6;
+    --radius:18px; --shadow:0 10px 30px rgba(20,22,43,.08); --shadow-lg:0 24px 60px rgba(20,22,43,.14);
+    --max:1120px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;background:
+    radial-gradient(900px 500px at 8% -10%, rgba(79,70,229,.16), transparent 60%),
+    radial-gradient(800px 500px at 100% 0%, rgba(14,165,233,.14), transparent 60%),
+    radial-gradient(700px 400px at 50% 110%, rgba(236,72,153,.10), transparent 60%),
+    linear-gradient(180deg,var(--bg),var(--bg2));}
+  code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+  a{color:var(--accent)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+  h1,h2,h3,h4{line-height:1.15;margin:0 0 .5em;letter-spacing:-.01em}
+  h1{font-size:clamp(30px,5vw,54px);font-weight:800}
+  h2{font-size:clamp(24px,3.2vw,36px);font-weight:750}
+  h3{font-size:19px;font-weight:700}
+  p{margin:0 0 1em}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:6px 12px;border-radius:999px;margin-bottom:16px}
+  .lead{font-size:clamp(16px,1.6vw,19px);color:var(--ink-2);max-width:62ch}
+
+  /* nav */
+  .nav{position:sticky;top:0;z-index:50;backdrop-filter:saturate(160%) blur(12px);-webkit-backdrop-filter:saturate(160%) blur(12px);background:rgba(246,247,251,.55);border-bottom:1px solid transparent;transition:background .3s,border-color .3s,box-shadow .3s}
+  .nav.scrolled{background:rgba(255,255,255,.85);border-bottom-color:var(--line);box-shadow:0 6px 24px rgba(20,22,43,.06)}
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;text-decoration:none;color:var(--ink);white-space:nowrap}
+  .brand .dot{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 6px 14px rgba(79,70,229,.35)}
+  .brand small{font-weight:600;color:var(--ink-3);font-size:12px;margin-left:6px}
+  .links{display:none;gap:4px}
+  .links a{color:var(--ink-2);text-decoration:none;font-weight:600;font-size:14px;padding:8px 12px;border-radius:10px}
+  .links a:hover{background:var(--accent-soft);color:var(--accent)}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:12px;font-weight:700;font-size:14.5px;text-decoration:none;border:1px solid transparent;transition:transform .15s,box-shadow .2s,background .2s;cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#6366f1);color:#fff;box-shadow:0 8px 20px rgba(79,70,229,.30)}
+  .btn-primary:hover{box-shadow:0 12px 28px rgba(79,70,229,.38);transform:translateY(-1px)}
+  .btn-ghost{background:rgba(255,255,255,.7);color:var(--ink);border-color:var(--line)}
+  .btn-ghost:hover{background:#fff;transform:translateY(-1px);box-shadow:var(--shadow)}
+  .nav .btn{padding:9px 14px}
+  .menu-btn{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.7);cursor:pointer;font-size:18px}
+  .mobile-links{display:none;flex-direction:column;padding:8px 20px 14px;border-top:1px solid var(--line);background:rgba(255,255,255,.95)}
+  .mobile-links a{padding:10px 8px;text-decoration:none;color:var(--ink-2);font-weight:600;border-radius:8px}
+  .mobile-links.open{display:flex}
+
+  /* hero */
+  .hero{padding:64px 0 40px}
+  .hero-grid{display:grid;gap:32px;align-items:center}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+  .glass{background:var(--card);border:1px solid rgba(255,255,255,.7);box-shadow:var(--shadow-lg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:var(--radius)}
+  .outcome{padding:22px}
+  .outcome h3{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+  .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat{background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .stat .k{font-size:12px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+  .stat .v{font-size:20px;font-weight:800;margin-top:2px;word-break:break-word}
+  .stat .v.small{font-size:15px}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.bad{background:var(--bad-bg);color:var(--bad)} .pill.info{background:var(--info-bg);color:var(--info)} .pill.muted{background:var(--muted-bg);color:var(--ink-2)}
+
+  /* sections */
+  section{padding:56px 0}
+  .section-head{max-width:70ch;margin-bottom:28px}
+  .section-head p{color:var(--ink-2)}
+  .cards{display:grid;gap:16px;grid-template-columns:1fr}
+  .card{background:var(--card-solid);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 2px 8px rgba(20,22,43,.04);transition:transform .2s,box-shadow .25s;position:relative}
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .card .icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:18px;margin-bottom:12px;background:var(--accent-soft);color:var(--accent);font-weight:800}
+  .card h3{font-size:17px}
+  .card p{color:var(--ink-2);font-size:15px;margin-bottom:8px}
+  .card .ref{font-size:12.5px;color:var(--ink-3)}
+  .card .tag{position:absolute;top:18px;right:18px}
+
+  /* timeline */
+  .timeline{position:relative;display:grid;gap:14px}
+  .step{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+  .step .n{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 8px 18px rgba(79,70,229,.25);font-size:15px}
+  .step .body{background:var(--card-solid);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+  .step .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px;font-size:13px;color:var(--ink-3)}
+  .role{padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700}
+  .role.user{background:#fce7f3;color:#9d174d} .role.assistant{background:var(--accent-soft);color:var(--accent)} .role.tool{background:#ecfeff;color:#0e7490} .role.system{background:var(--muted-bg);color:var(--ink-2)}
+  .step p{margin:0 0 6px;font-size:15px}
+  .quote{border-left:3px solid var(--accent);padding:6px 12px;margin:6px 0 8px;background:#f8f8ff;border-radius:0 10px 10px 0;color:var(--ink-2);font-size:14.5px;white-space:pre-wrap}
+  .note{font-size:13.5px;color:var(--ink-3)}
+
+  /* evidence */
+  details{background:var(--card-solid);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+  summary{cursor:pointer;padding:14px 18px;font-weight:700;list-style:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"+";display:inline-grid;place-items:center;width:24px;height:24px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:800;flex:none}
+  details[open] summary::before{content:"–"}
+  details .inner{padding:0 18px 18px;border-top:1px solid var(--line)}
+  details .inner h4{margin:14px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)}
+  pre{background:#0f1222;color:#e6e8f4;padding:14px 16px;border-radius:12px;overflow:auto;font-size:12.5px;line-height:1.5;margin:0;white-space:pre-wrap;word-break:break-word}
+  pre.light{background:#f4f5fa;color:var(--ink);border:1px solid var(--line)}
+  .kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;font-size:14px;margin:10px 0}
+  .kv div:nth-child(odd){color:var(--ink-3);font-weight:600}
+
+  /* tables */
+  .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--card-solid)}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+  th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+  th{background:#f8f9fd;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3)}
+  tr:last-child td{border-bottom:none}
+
+  /* misc */
+  .callout{border-radius:16px;padding:18px 20px;border:1px solid var(--line);background:var(--card-solid)}
+  .callout.warn{background:#fffbeb;border-color:#fde68a}
+  .callout.info{background:#eff6ff;border-color:#bfdbfe}
+  ul.clean{padding-left:20px;margin:0}
+  ul.clean li{margin-bottom:8px;color:var(--ink-2)}
+  footer{padding:40px 0 60px;color:var(--ink-3);font-size:13.5px;border-top:1px solid var(--line);margin-top:20px}
+  footer .mono{word-break:break-all}
+  .two{display:grid;gap:20px;grid-template-columns:1fr}
+
+  /* reveal */
+  .js .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+  .js .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.js .reveal{opacity:1;transform:none;transition:none}.card:hover,.btn:hover{transform:none}}
+
+  @media (min-width:768px){
+    .links{display:flex}
+    .menu-btn{display:none}
+    .hero-grid{grid-template-columns:1.15fr .85fr}
+    .cards{grid-template-columns:repeat(2,1fr)}
+    .two{grid-template-columns:1fr 1fr}
+    section{padding:72px 0}
+    .hero{padding:80px 0 48px}
+  }
+  @media (min-width:1024px){
+    .cards{grid-template-columns:repeat(3,1fr)}
+  }
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="dot"></span>Case 03_gpt-4o-airline_51 <small>τ-bench · airline · gpt-4o</small></a>
+    <nav class="links" aria-label="Sections">
+      <a href="#findings">Findings</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#compliance">Compliance</a>
+      <a href="#failures">Failures</a>
+      <a href="#notes">Notes</a>
+    </nav>
+    <div style="display:flex;gap:8px;align-items:center">
+      <a class="btn btn-primary" href="#result">Final result</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+  <div class="mobile-links" id="mobileLinks">
+    <a href="#findings">Findings</a><a href="#timeline">Timeline</a><a href="#evidence">Evidence</a><a href="#compliance">Compliance</a><a href="#failures">Failures</a><a href="#notes">Notes</a>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="reveal">
+        <span class="eyebrow">Recorded trajectory · task_id 1 · trial 1</span>
+        <h1>A return-flight change that could not be made, resolved as an insured cancellation</h1>
+        <p class="lead">The user asked the airline agent to change a return flight from Texas to Newark. The agent located the reservation without a reservation ID, found it was basic economy and therefore not modifiable, and, at the user's request, cancelled the trip under travel insurance for a health reason after obtaining explicit confirmation.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#timeline">Walk the timeline</a>
+          <a class="btn btn-ghost" href="#evidence">Inspect raw evidence</a>
+        </div>
+      </div>
+      <div class="glass outcome reveal" id="result">
+        <h3>Recorded final state <span class="pill ok">Cancelled</span></h3>
+        <div class="stat-grid">
+          <div class="stat"><div class="k">Reservation</div><div class="v mono">Z7GOZK</div></div>
+          <div class="stat"><div class="k">Status after tool call</div><div class="v">cancelled</div></div>
+          <div class="stat"><div class="k">Refund posted</div><div class="v">−169 <span class="v small" style="font-weight:600">to gift_card_2200803</span></div></div>
+          <div class="stat"><div class="k">Cabin / insurance</div><div class="v small">basic_economy · insurance: yes</div></div>
+          <div class="stat"><div class="k">Tool calls / errors</div><div class="v">5 / 0</div></div>
+          <div class="stat"><div class="k">Benchmark reward</div><div class="v small"><span class="pill muted">stripped · unavailable</span></div></div>
+        </div>
+        <p class="note" style="margin:12px 0 0">The original objective (modify the flight) was not achieved. The conversation ended with the user saying the cancellation was all they needed. Whether this matches the benchmark's expected outcome cannot be determined from the supplied files.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OBJECTIVE -->
+  <section id="objective">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Objective</span>
+        <h2>What was asked</h2>
+        <p>The task statement supplied with the case is a single line, identical to the user's opening message in the trajectory.</p>
+      </div>
+      <div class="two">
+        <div class="callout reveal">
+          <h3>Task statement (task/task_statement.md)</h3>
+          <div class="quote">Hi! I need to change my return flight from Texas to Newark.</div>
+          <p class="note">No hidden instructions, expected actions, or grading criteria are included. The case metadata lists the fields <code>info</code> and <code>reward</code> as stripped.</p>
+        </div>
+        <div class="callout reveal">
+          <h3>Operating context</h3>
+          <div class="kv">
+            <div>Benchmark</div><div>τ-bench, domain tool_use_customer_service</div>
+            <div>Model under test</div><div>gpt-4o</div>
+            <div>Simulated clock</div><div>2024-05-15 15:00:00 EST (from the system policy)</div>
+            <div>Identity given</div><div>user ID olivia_gonzalez_2305, reservation ID unknown to the user</div>
+            <div>Policy source</div><div>Airline Agent Policy in the system message, reproduced in full under Evidence</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINDINGS -->
+  <section id="findings">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Findings</span>
+        <h2>Six things the record shows</h2>
+        <p>Each card states what happened and points to the turn in the timeline where it can be checked.</p>
+      </div>
+      <div class="cards">
+        <div class="card reveal">
+          <span class="tag pill bad">Blocked</span>
+          <div class="icon">1</div>
+          <h3>The requested change was not permitted</h3>
+          <p>Reservation Z7GOZK is booked in basic economy. The policy states basic economy flights cannot be modified. The agent said so and did not attempt a flight change.</p>
+          <div class="ref">Timeline step 11</div>
+        </div>
+        <div class="card reveal">
+          <span class="tag pill ok">Recovered</span>
+          <div class="icon">2</div>
+          <h3>Reservation found without an ID</h3>
+          <p>The user could not name the reservation. The agent pulled the profile, then fetched all three reservations one at a time and picked the only one touching IAH and EWR.</p>
+          <div class="ref">Timeline steps 4 to 10</div>
+        </div>
+        <div class="card reveal">
+          <span class="tag pill ok">Compliant</span>
+          <div class="icon">3</div>
+          <h3>Explicit confirmation before the write</h3>
+          <p>Before calling cancel_reservation the agent listed the reservation ID and reason and asked the user to confirm. The user replied "Yes, please proceed with the cancellation."</p>
+          <div class="ref">Timeline steps 13 to 15</div>
+        </div>
+        <div class="card reveal">
+          <span class="tag pill ok">Supported</span>
+          <div class="icon">4</div>
+          <h3>Cancellation eligibility holds on the data</h3>
+          <p>The reservation shows insurance "yes" and the user cited feeling unwell, which the policy treats as a health reason. The 24-hour window had already passed (booked 2024-05-13 19:41, clock 2024-05-15 15:00), so insurance was the operative basis.</p>
+          <div class="ref">Evidence: reservation Z7GOZK</div>
+        </div>
+        <div class="card reveal">
+          <span class="tag pill ok">Clean</span>
+          <div class="icon">5</div>
+          <h3>One tool call per turn, zero tool errors</h3>
+          <p>All five tool calls were issued in separate assistant turns with no simultaneous user-facing text, and every tool returned a normal payload.</p>
+          <div class="ref">Evidence: tool calls</div>
+        </div>
+        <div class="card reveal">
+          <span class="tag pill warn">Unknown</span>
+          <div class="icon">6</div>
+          <h3>Outcome grading is not in the record</h3>
+          <p>The benchmark's expected actions and reward were removed before this case was supplied. This report can describe what the agent did, not whether the benchmark scored it as correct.</p>
+          <div class="ref">case_meta.json · stripped_fields</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="timeline">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">How it unfolded</span>
+        <h2>Turn-by-turn timeline</h2>
+        <p>Fifteen recorded turns after the system message. Quoted text is verbatim from the trajectory; tool payloads are summarised here and shown in full under Evidence.</p>
+      </div>
+      <div class="timeline">
+
+        <div class="step reveal"><div class="n">0</div><div class="body">
+          <div class="meta"><span class="role system">system</span> Airline Agent Policy</div>
+          <p>Sets the clock to 2024-05-15 15:00:00 EST and defines rules for booking, modifying, cancelling, and refunds. Key rules for this case: confirm before any database update; basic economy cannot be modified; basic economy or economy can be cancelled outside 24 hours only with travel insurance and a qualifying condition; refunds go to original payment methods in 5 to 7 business days.</p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">1</div><div class="body">
+          <div class="meta"><span class="role user">user</span></div>
+          <div class="quote">Hi! I need to change my return flight from Texas to Newark.</div>
+        </div></div>
+
+        <div class="step reveal"><div class="n">2</div><div class="body">
+          <div class="meta"><span class="role assistant">assistant</span></div>
+          <div class="quote">I can help you with that. Could you please provide your user ID and reservation ID?</div>
+          <p class="note">Matches the policy requirement to obtain user ID and reservation ID before modifying a flight.</p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">3</div><div class="body">
+          <div class="meta"><span class="role user">user</span></div>
+          <div class="quote">I know my user ID, it's olivia_gonzalez_2305. But I don’t remember my reservation ID.</div>
+        </div></div>
+
+        <div class="step reveal"><div class="n">4</div><div class="body">
+          <div class="meta"><span class="role assistant">assistant</span> <span class="pill info">tool call</span> get_user_details</div>
+          <p>Arguments: <code>{"user_id":"olivia_gonzalez_2305"}</code></p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">5</div><div class="body">
+          <div class="meta"><span class="role tool">tool</span> get_user_details result</div>
+          <p>Profile for Olivia Gonzalez, regular member, two payment methods (gift card with 123 remaining, Mastercard ending 9475), two saved passengers, and three reservations: Z7GOZK, K67C4W, THY2DG.</p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">6</div><div class="body">
+          <div class="meta"><span class="role assistant">assistant</span></div>
+          <div class="quote">I found your reservations. Could you please confirm which reservation ID you would like to modify? Here are your options:
+
+1. Z7GOZK
+2. K67C4W
+3. THY2DG
+
+Let me know which one corresponds to your return flight from Texas to Newark.</div>
+        </div></div>
+
+        <div class="step reveal"><div class="n">7</div><div class="body">
+          <div class="meta"><span class="role user">user</span></div>
+          <div class="quote">I'm not sure which one it is. I just want to change the return flight from Texas to Newark.</div>
+        </div></div>
+
+        <div class="step reveal"><div class="n">8</div><div class="body">
+          <div class="meta"><span class="role assistant">assistant</span> <span class="pill info">tool call</span> get_reservation_details · Z7GOZK</div>
+          <div class="meta" style="margin-top:6px"><span class="role tool">tool</span> result</div>
+          <p>One-way, origin EWR, destination EWR, cabin basic_economy, one passenger (Olivia Gonzalez). Two segments on 2024-05-28: HAT188 EWR→IAH ($52) and HAT207 IAH→EWR ($87). Paid 169 with gift_card_2200803. Created 2024-05-13T19:41:32. Insurance: yes. Bags: 0.</p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">9</div><div class="body">
+          <div class="meta"><span class="role assistant">assistant</span> <span class="pill info">tool call</span> get_reservation_details · K67C4W</div>
+          <div class="meta" style="margin-top:6px"><span class="role tool">tool</span> result</div>
+          <p>One-way LAS→MCO, economy, HAT137 on 2024-05-17, three passengers, paid 342 by credit card, created 2024-05-11, insurance: no. Does not involve Texas or Newark.</p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">10</div><div class="body">
+          <div class="meta"><span class="role assistant">assistant</span> <span class="pill info">tool call</span> get_reservation_details · THY2DG</div>
+          <div class="meta" style="margin-top:6px"><span class="role tool">tool</span> result</div>
+          <p>One-way MSP→ORD via DTW, economy, two segments on 2024-05-26, one passenger (Yara Martin), paid 338 by credit card, created 2024-05-03, insurance: no. Does not involve Texas or Newark.</p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">11</div><div class="body">
+          <div class="meta"><span class="role assistant">assistant</span> <span class="pill bad">request denied by policy</span></div>
+          <div class="quote">It seems that the reservation with ID **Z7GOZK** includes a return flight from Texas (IAH) to Newark (EWR) on May 28, 2024. However, this reservation is in basic economy, which cannot be modified.
+
+Would you like to explore other options, such as booking a new flight?</div>
+          <p class="note">The identification is well supported: Z7GOZK is the only reservation with IAH and EWR segments. The closing question offers an alternative rather than a subjective recommendation.</p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">12</div><div class="body">
+          <div class="meta"><span class="role user">user</span> <span class="pill warn">pivot</span></div>
+          <div class="quote">I'm willing to cancel the trip using travel insurance, as I'm feeling unwell. Can you help with that?</div>
+        </div></div>
+
+        <div class="step reveal"><div class="n">13</div><div class="body">
+          <div class="meta"><span class="role assistant">assistant</span> <span class="pill info">confirmation request</span></div>
+          <div class="quote">Since you have travel insurance and are unwell, you are eligible to cancel the reservation. Here are the details for the cancellation:
+
+- **Reservation ID**: Z7GOZK
+- **Reason for Cancellation**: Health reasons (covered by travel insurance)
+
+Please confirm if you would like to proceed with the cancellation.</div>
+          <p class="note">The agent already held the reservation details showing insurance "yes" from step 8, so the eligibility claim is grounded in tool output rather than the user's word alone.</p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">14</div><div class="body">
+          <div class="meta"><span class="role user">user</span></div>
+          <div class="quote">Yes, please proceed with the cancellation.</div>
+        </div></div>
+
+        <div class="step reveal"><div class="n">15</div><div class="body">
+          <div class="meta"><span class="role assistant">assistant</span> <span class="pill info">tool call</span> cancel_reservation</div>
+          <p>Arguments: <code>{"reservation_id":"Z7GOZK"}</code></p>
+          <div class="meta" style="margin-top:6px"><span class="role tool">tool</span> result</div>
+          <p>Same reservation payload with <code>"status": "cancelled"</code> and a second payment_history entry of −169 to gift_card_2200803.</p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">16</div><div class="body">
+          <div class="meta"><span class="role assistant">assistant</span> <span class="pill ok">closing</span></div>
+          <div class="quote">Your reservation with ID **Z7GOZK** has been successfully cancelled due to health reasons covered by your travel insurance. The refund will be processed to your original payment method within 5 to 7 business days. If you need further assistance, feel free to ask!</div>
+          <p class="note">The refund timing statement is taken from the policy text, not invented.</p>
+        </div></div>
+
+        <div class="step reveal"><div class="n">17</div><div class="body">
+          <div class="meta"><span class="role user">user</span> <span class="pill muted">end of conversation</span></div>
+          <div class="quote">Thank you so much for your help. That's all I needed for now.###STOP###</div>
+          <p class="note">The trailing ###STOP### marker is the simulated user's termination signal as recorded.</p>
+        </div></div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- EVIDENCE -->
+  <section id="evidence">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Evidence</span>
+        <h2>Raw tool calls, results, and policy</h2>
+        <p>Every tool exchange from trajectory.json, with JSON reformatted for readability but otherwise unchanged. Expand a block to read it.</p>
+      </div>
+
+      <details class="reveal">
+        <summary>Tool call 1 · get_user_details <span class="pill muted mono">call_MY94XAcnfHzfAZcVHqt5FRRQ</span></summary>
+        <div class="inner">
+          <h4>Arguments</h4>
+          <pre>{"user_id": "olivia_gonzalez_2305"}</pre>
+          <h4>Result</h4>
+          <pre>{
+  "name": {"first_name": "Olivia", "last_name": "Gonzalez"},
+  "address": {"address1": "334 Laurel Lane", "address2": "Suite 970", "city": "Los Angeles",
+              "country": "USA", "province": "CA", "zip": "90504"},
+  "email": "olivia.gonzalez4421@example.com",
+  "dob": "1988-06-13",
+  "payment_methods": {
+    "gift_card_2200803":  {"source": "gift_card", "amount": 123, "id": "gift_card_2200803"},
+    "credit_card_9969263": {"source": "credit_card", "brand": "mastercard", "last_four": "9475", "id": "credit_card_9969263"}
+  },
+  "saved_passengers": [
+    {"first_name": "Mei",  "last_name": "Johansson", "dob": "1981-09-25"},
+    {"first_name": "Yara", "last_name": "Lopez",     "dob": "1975-09-15"}
+  ],
+  "membership": "regular",
+  "reservations": ["Z7GOZK", "K67C4W", "THY2DG"]
+}</pre>
+        </div>
+      </details>
+
+      <details class="reveal" open>
+        <summary>Tool call 2 · get_reservation_details · Z7GOZK <span class="pill info">target reservation</span> <span class="pill muted mono">call_l1YtJ8E1m4eBoWiJjFlomdL4</span></summary>
+        <div class="inner">
+          <h4>Arguments</h4>
+          <pre>{"reservation_id": "Z7GOZK"}</pre>
+          <h4>Result</h4>
+          <pre>{
+  "reservation_id": "Z7GOZK",
+  "user_id": "olivia_gonzalez_2305",
+  "origin": "EWR",
+  "destination": "EWR",
+  "flight_type": "one_way",
+  "cabin": "basic_economy",
+  "flights": [
+    {"origin": "EWR", "destination": "IAH", "flight_number": "HAT188", "date": "2024-05-28", "price": 52},
+    {"origin": "IAH", "destination": "EWR", "flight_number": "HAT207", "date": "2024-05-28", "price": 87}
+  ],
+  "passengers": [{"first_name": "Olivia", "last_name": "Gonzalez", "dob": "1988-06-13"}],
+  "payment_history": [{"payment_id": "gift_card_2200803", "amount": 169}],
+  "created_at": "2024-05-13T19:41:32",
+  "total_baggages": 0,
+  "nonfree_baggages": 0,
+  "insurance": "yes"
+}</pre>
+          <p class="note" style="margin-top:10px">Data oddity: the reservation is typed one_way with origin and destination both EWR, yet it contains an out-and-back pair of segments on the same day. The user described this as a "return flight". The agent treated the IAH→EWR segment as the return leg.</p>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>Tool call 3 · get_reservation_details · K67C4W <span class="pill muted mono">call_dhYivf6VRUVJfU9DItC2EQ95</span></summary>
+        <div class="inner">
+          <h4>Arguments</h4>
+          <pre>{"reservation_id": "K67C4W"}</pre>
+          <h4>Result</h4>
+          <pre>{
+  "reservation_id": "K67C4W",
+  "user_id": "olivia_gonzalez_2305",
+  "origin": "LAS",
+  "destination": "MCO",
+  "flight_type": "one_way",
+  "cabin": "economy",
+  "flights": [
+    {"origin": "LAS", "destination": "MCO", "flight_number": "HAT137", "date": "2024-05-17", "price": 114}
+  ],
+  "passengers": [
+    {"first_name": "Olivia", "last_name": "Gonzalez",  "dob": "1988-06-13"},
+    {"first_name": "Mei",    "last_name": "Johansson", "dob": "1981-09-25"},
+    {"first_name": "Yara",   "last_name": "Lopez",     "dob": "1975-09-15"}
+  ],
+  "payment_history": [{"payment_id": "credit_card_9969263", "amount": 342}],
+  "created_at": "2024-05-11T06:28:05",
+  "total_baggages": 1,
+  "nonfree_baggages": 0,
+  "insurance": "no"
+}</pre>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>Tool call 4 · get_reservation_details · THY2DG <span class="pill muted mono">call_4T5zndIlDe4bKuURD2Snz7v8</span></summary>
+        <div class="inner">
+          <h4>Arguments</h4>
+          <pre>{"reservation_id": "THY2DG"}</pre>
+          <h4>Result</h4>
+          <pre>{
+  "reservation_id": "THY2DG",
+  "user_id": "olivia_gonzalez_2305",
+  "origin": "MSP",
+  "destination": "ORD",
+  "flight_type": "one_way",
+  "cabin": "economy",
+  "flights": [
+    {"origin": "MSP", "destination": "DTW", "flight_number": "HAT248", "date": "2024-05-26", "price": 160},
+    {"origin": "DTW", "destination": "ORD", "flight_number": "HAT119", "date": "2024-05-26", "price": 178}
+  ],
+  "passengers": [{"first_name": "Yara", "last_name": "Martin", "dob": "1950-01-15"}],
+  "payment_history": [{"payment_id": "credit_card_9969263", "amount": 338}],
+  "created_at": "2024-05-03T23:15:42",
+  "total_baggages": 1,
+  "nonfree_baggages": 0,
+  "insurance": "no"
+}</pre>
+        </div>
+      </details>
+
+      <details class="reveal" open>
+        <summary>Tool call 5 · cancel_reservation · Z7GOZK <span class="pill ok">database write</span> <span class="pill muted mono">call_NIuPQiqio3fLd0a21tKnZJPd</span></summary>
+        <div class="inner">
+          <h4>Arguments</h4>
+          <pre>{"reservation_id": "Z7GOZK"}</pre>
+          <h4>Result</h4>
+          <pre>{
+  "reservation_id": "Z7GOZK",
+  "user_id": "olivia_gonzalez_2305",
+  "origin": "EWR",
+  "destination": "EWR",
+  "flight_type": "one_way",
+  "cabin": "basic_economy",
+  "flights": [
+    {"origin": "EWR", "destination": "IAH", "flight_number": "HAT188", "date": "2024-05-28", "price": 52},
+    {"origin": "IAH", "destination": "EWR", "flight_number": "HAT207", "date": "2024-05-28", "price": 87}
+  ],
+  "passengers": [{"first_name": "Olivia", "last_name": "Gonzalez", "dob": "1988-06-13"}],
+  "payment_history": [
+    {"payment_id": "gift_card_2200803", "amount": 169},
+    {"payment_id": "gift_card_2200803", "amount": -169}
+  ],
+  "created_at": "2024-05-13T19:41:32",
+  "total_baggages": 0,
+  "nonfree_baggages": 0,
+  "insurance": "yes",
+  "status": "cancelled"
+}</pre>
+          <p class="note" style="margin-top:10px">Only the reservation ID was passed. The cancellation reason the agent stated to the user was not sent to the tool. The tool's parameter schema is not part of the supplied evidence, so it is unknown whether a reason argument exists.</p>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>System message · Airline Agent Policy (verbatim)</summary>
+        <div class="inner">
+          <pre class="light"># Airline Agent Policy
+
+The current time is 2024-05-15 15:00:00 EST.
+
+As an airline agent, you can help users book, modify, or cancel flight reservations.
+
+- Before taking any actions that update the booking database (booking, modifying flights, editing baggage, upgrading cabin class, or updating passenger information), you must list the action details and obtain explicit user confirmation (yes) to proceed.
+
+- You should not provide any information, knowledge, or procedures not provided by the user or available tools, or give subjective recommendations or comments.
+
+- You should only make one tool call at a time, and if you make a tool call, you should not respond to the user simultaneously. If you respond to the user, you should not make a tool call at the same time.
+
+- You should deny user requests that are against this policy.
+
+- You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions.
+
+## Domain Basic
+
+- Each user has a profile containing user id, email, addresses, date of birth, payment methods, reservation numbers, and membership tier.
+
+- Each reservation has an reservation id, user id, trip type (one way, round trip), flights, passengers, payment methods, created time, baggages, and travel insurance information.
+
+- Each flight has a flight number, an origin, destination, scheduled departure and arrival time (local time), and for each date:
+  - If the status is "available", the flight has not taken off, available seats and prices are listed.
+  - If the status is "delayed" or "on time", the flight has not taken off, cannot be booked.
+  - If the status is "flying", the flight has taken off but not landed, cannot be booked.
+
+## Book flight
+
+- The agent must first obtain the user id, then ask for the trip type, origin, destination.
+
+- Passengers: Each reservation can have at most five passengers. The agent needs to collect the first name, last name, and date of birth for each passenger. All passengers must fly the same flights in the same cabin.
+
+- Payment: each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards. The remaining amount of a travel certificate is not refundable. All payment methods must already be in user profile for safety reasons.
+
+- Checked bag allowance: If the booking user is a regular member, 0 free checked bag for each basic economy passenger, 1 free checked bag for each economy passenger, and 2 free checked bags for each business passenger. If the booking user is a silver member, 1 free checked bag for each basic economy passenger, 2 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. If the booking user is a gold member, 2 free checked bag for each basic economy passenger, 3 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. Each extra baggage is 50 dollars.
+
+- Travel insurance: the agent should ask if the user wants to buy the travel insurance, which is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons.
+
+## Modify flight
+
+- The agent must first obtain the user id and the reservation id.
+
+- Change flights: Basic economy flights cannot be modified. Other reservations can be modified without changing the origin, destination, and trip type. Some flight segments can be kept, but their prices will not be updated based on the current price. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!
+
+- Change cabin: all reservations, including basic economy, can change cabin without changing the flights. Cabin changes require the user to pay for the difference between their current cabin and the new cabin class. Cabin class must be the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible.
+
+- Change baggage and insurance: The user can add but not remove checked bags. The user cannot add insurance after initial booking.
+
+- Change passengers: The user can modify passengers but cannot modify the number of passengers. This is something that even a human agent cannot assist with.
+
+- Payment: If the flights are changed, the user needs to provide one gift card or credit card for payment or refund method. The agent should ask for the payment or refund method instead.
+
+## Cancel flight
+
+- The agent must first obtain the user id, the reservation id, and the reason for cancellation (change of plan, airline cancelled flight, or other reasons)
+
+- All reservations can be cancelled within 24 hours of booking, or if the airline cancelled the flight. Otherwise, basic economy or economy flights can be cancelled only if travel insurance is bought and the condition is met, and business flights can always be cancelled. The rules are strict regardless of the membership status. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!
+
+- The agent can only cancel the whole trip that is not flown. If any of the segments are already used, the agent cannot help and transfer is needed.
+
+- The refund will go to original payment methods in 5 to 7 business days.
+
+## Refund
+
+- If the user is silver/gold member or has travel insurance or flies business, and complains about cancelled flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $100 times the number of passengers.
+
+- If the user is silver/gold member or has travel insurance or flies business, and complains about delayed flights in a reservation and wants to change or cancel the reservation, the agent can offer a certificate as a gesture after confirming the facts and changing or cancelling the reservation, with the amount being $50 times the number of passengers.
+
+- Do not proactively offer these unless the user complains about the situation and explicitly asks for some compensation. Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy.</pre>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>Case metadata · case_meta.json</summary>
+        <div class="inner">
+          <pre class="light">{
+  "id": "03_gpt-4o-airline_51",
+  "domain": "tool_use_customer_service",
+  "benchmark": "tau-bench",
+  "source": "upstream",
+  "provenance": "trajs/tool_use_customer_service/03_gpt-4o-airline_51.json",
+  "model": "gpt-4o",
+  "trajectory_file": "trajectory.json",
+  "trajectory_format": "tau-bench-json",
+  "trajectory_sha256": "89445ecfbec86f713b2f345eac75accf6eeec467baa1485c99d58459db3c848b",
+  "task_statement_file": "task/task_statement.md",
+  "stripped_fields": ["info", "reward"],
+  "references": []
+}</pre>
+          <p class="note" style="margin-top:10px">The provenance path is a reference only. That file was not supplied and was not read.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- COMPLIANCE -->
+  <section id="compliance">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Policy check</span>
+        <h2>Agent behaviour against the stated policy</h2>
+        <p>This is the report author's assessment of the recorded turns against the system policy. It is not a benchmark score.</p>
+      </div>
+      <div class="table-wrap reveal">
+        <table>
+          <thead><tr><th>Policy rule</th><th>What the record shows</th><th>Assessment</th></tr></thead>
+          <tbody>
+            <tr><td>Modify: obtain user ID and reservation ID first</td><td>Asked for both at turn 2. User supplied only the user ID; agent derived the reservation from tool data.</td><td><span class="pill ok">Met</span></td></tr>
+            <tr><td>Modify: basic economy cannot be modified</td><td>Z7GOZK cabin is basic_economy. Agent declined the change and made no update call.</td><td><span class="pill ok">Met</span></td></tr>
+            <tr><td>Cancel: obtain user ID, reservation ID, and reason</td><td>User ID given; reservation identified; user stated "feeling unwell" and invoked travel insurance.</td><td><span class="pill ok">Met</span></td></tr>
+            <tr><td>Cancel: outside 24 h, basic economy needs insurance and a qualifying condition</td><td>Booked 2024-05-13T19:41:32; clock 2024-05-15 15:00, so past 24 h. insurance is "yes". Health reason stated by user; policy names health as an insured reason.</td><td><span class="pill ok">Met</span></td></tr>
+            <tr><td>Cancel: only whole trips not yet flown</td><td>Both segments dated 2024-05-28, after the simulated clock. Whole reservation cancelled.</td><td><span class="pill ok">Met</span></td></tr>
+            <tr><td>Confirm details and get explicit "yes" before database updates</td><td>Turn 13 listed reservation ID and reason and asked to confirm; turn 14 user said "Yes, please proceed".</td><td><span class="pill ok">Met</span></td></tr>
+            <tr><td>One tool call at a time; no user reply in the same turn</td><td>Five tool calls, each in its own assistant message with null content.</td><td><span class="pill ok">Met</span></td></tr>
+            <tr><td>No information beyond user input or tools; no subjective recommendations</td><td>Refund timing quoted from policy. Offer to "explore other options, such as booking a new flight" is an alternative within scope, not advice.</td><td><span class="pill ok">No violation observed</span></td></tr>
+            <tr><td>Compensation only if user complains and asks</td><td>User neither complained about the airline nor asked for compensation; none offered.</td><td><span class="pill ok">Met</span></td></tr>
+            <tr><td>Verification of the user's health claim</td><td>Policy gives no verification procedure; agent accepted the user's statement. Nothing in the policy required more.</td><td><span class="pill muted">Not applicable</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAILURES & RECOVERIES -->
+  <section id="failures">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Failures and recoveries</span>
+        <h2>What went wrong, and how it was handled</h2>
+      </div>
+      <div class="two">
+        <div class="callout reveal">
+          <h3>Failures recorded</h3>
+          <ul class="clean">
+            <li><strong>Original request unachievable.</strong> The flight change was denied because the reservation is basic economy. This is a policy outcome, not an agent error.</li>
+            <li><strong>Missing reservation ID.</strong> The user could not identify which of three reservations was relevant, even after being shown the list.</li>
+            <li><strong>No tool or API failures.</strong> All five calls returned normal payloads. No retries, malformed arguments, or error strings appear in the record.</li>
+          </ul>
+        </div>
+        <div class="callout reveal">
+          <h3>Recoveries recorded</h3>
+          <ul class="clean">
+            <li><strong>Exhaustive lookup.</strong> The agent fetched each reservation in turn and matched the one containing IAH and EWR segments, which is the only candidate consistent with "Texas to Newark".</li>
+            <li><strong>Pivot to cancellation.</strong> After the denial, the user proposed cancelling under insurance. The agent checked the insurance flag already in hand, restated the action, and executed only after a "yes".</li>
+            <li><strong>Refund confirmed by tool output.</strong> The cancel result shows a −169 entry against the original gift card, matching the amount originally paid.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout warn reveal" style="margin-top:20px">
+        <h3>Observations that could matter for grading</h3>
+        <ul class="clean">
+          <li>The cancel call carried only the reservation ID. The stated reason was not passed as an argument. Whether the tool accepts one is not in evidence.</li>
+          <li>The agent quoted a cancellation reason category of its own wording ("Health reasons (covered by travel insurance)"), whereas the policy enumerates "change of plan, airline cancelled flight, or other reasons". No mapping was stated to the user.</li>
+          <li>The agent did not ask the user to confirm that Z7GOZK was the intended reservation before announcing it could not be modified. This had no effect because no write happened at that point, and the cancellation confirmation named the ID explicitly.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTES -->
+  <section id="notes">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Faithfulness note</span>
+        <h2>Coverage and unavailable evidence</h2>
+      </div>
+      <div class="callout info reveal">
+        <ul class="clean">
+          <li><strong>All three supplied files were read in full.</strong> case_meta.json (17 lines), task/task_statement.md (1 line), and trajectory.json (153 lines). Byte sizes and SHA-256 values match the input manifest.</li>
+          <li><strong>Benchmark outcome is unavailable.</strong> The fields <code>info</code> and <code>reward</code> were stripped. Expected actions, ground truth, and pass or fail status cannot be reported.</li>
+          <li><strong>Hash discrepancy.</strong> case_meta.json records a trajectory SHA-256 beginning 89445ecf…, but the delivered trajectory.json hashes to 33e913a8…, which matches the manifest. The stripping of fields is a plausible cause, but this is inferred, not recorded.</li>
+          <li><strong>Provenance file not supplied.</strong> The upstream path named in case_meta.json was not included and was not accessed.</li>
+          <li><strong>No attachments or media.</strong> The case contains no images, logs, or media references. Nothing was embedded.</li>
+          <li><strong>Interpretive content is labelled.</strong> Mapping IAH to Texas and reading "feeling unwell" as a health reason follow the agent's own statements and the policy wording. The compliance table is the report author's assessment.</li>
+          <li><strong>Embedded prompts and payloads are evidence only.</strong> Nothing in the trajectory was executed or acted upon.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Case</strong> 03_gpt-4o-airline_51 · τ-bench airline · model gpt-4o · trajectory format tau-bench-json · report generated 2026-09-20.</p>
+    <p class="mono">trajectory.json sha256 33e913a8fae179d7e796037657f009e6d291eb9930a709047ba7b04bab142040 · case_meta.json sha256 a557871932f4878c68e1a1ac4b0b7d4adcb219d09a9caa71f5aabb6418fbf33c · task_statement.md sha256 2b8d4bfe5d72efd079e1c5b5a3eb287df0e4d05bf95fee9c0d9bf8a634b59b2b</p>
+    <p>Self-contained document. No external resources are loaded.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var nav=document.getElementById('nav');
+  function onScroll(){ if(window.scrollY>8){nav.classList.add('scrolled');} else {nav.classList.remove('scrolled');} }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  var btn=document.getElementById('menuBtn'), ml=document.getElementById('mobileLinks');
+  if(btn&&ml){
+    btn.addEventListener('click',function(){ var open=ml.classList.toggle('open'); btn.setAttribute('aria-expanded',open?'true':'false'); });
+    ml.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',function(){ ml.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }); });
+  }
+
+  var els=document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{rootMargin:'0px 0px -8% 0px',threshold:0.05});
+    els.forEach(function(el){ io.observe(el); });
+  } else {
+    els.forEach(function(el){ el.classList.add('in'); });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MusicBrainz · Revenue Query 2 — Data Agent Case</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --bg2:#0e1530;
+    --panel:rgba(255,255,255,.045);
+    --panel-brd:rgba(255,255,255,.10);
+    --ink:#eaf0ff;
+    --ink-dim:#9fb2d8;
+    --ink-faint:#6b7aa8;
+    --accent:#7c5cff;
+    --accent2:#34d6c8;
+    --accent3:#ff6b9d;
+    --gold:#ffd166;
+    --good:#5fe3a1;
+    --shadow:0 24px 60px -20px rgba(0,0,0,.65);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    background:radial-gradient(1200px 800px at 80% -10%, rgba(124,92,255,.22), transparent 60%),
+               radial-gradient(1000px 700px at -10% 10%, rgba(52,214,200,.16), transparent 55%),
+               linear-gradient(180deg,var(--bg),var(--bg2) 40%,#080c1a 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:rgba(124,92,255,.35)}
+
+  /* ---------- NAV ---------- */
+  nav.top{
+    position:fixed;inset:0 0 auto 0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px clamp(18px,5vw,64px);
+    transition:background .35s ease, backdrop-filter .35s ease, border-color .35s ease, padding .35s ease;
+    border-bottom:1px solid transparent;
+  }
+  nav.top.scrolled{
+    background:rgba(10,14,32,.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--panel-brd);
+    padding-top:11px;padding-bottom:11px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:.2px}
+  .brand .mark{
+    width:38px;height:38px;border-radius:11px;
+    background:conic-gradient(from 140deg,var(--accent),var(--accent2),var(--accent3),var(--accent));
+    display:grid;place-items:center;font-size:18px;color:#0b1020;
+    box-shadow:0 6px 18px -4px rgba(124,92,255,.6);
+  }
+  .brand small{display:block;font-weight:500;color:var(--ink-faint);font-size:11px;letter-spacing:1.4px;text-transform:uppercase}
+  .navlinks{display:flex;gap:30px;align-items:center}
+  .navlinks a{color:var(--ink-dim);font-size:14px;font-weight:500;position:relative;transition:color .25s}
+  .navlinks a:hover{color:var(--ink)}
+  .navlinks a::after{content:"";position:absolute;left:0;bottom:-6px;height:2px;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+  .navlinks a:hover::after{width:100%}
+  .cta{
+    border:1px solid var(--panel-brd);
+    background:linear-gradient(120deg,rgba(124,92,255,.25),rgba(52,214,200,.18));
+    padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;
+    transition:transform .2s, box-shadow .25s, background .25s;cursor:pointer;
+    color:var(--ink);
+  }
+  .cta:hover{transform:translateY(-2px);box-shadow:0 12px 26px -10px rgba(124,92,255,.6)}
+  .cta.solid{background:linear-gradient(120deg,var(--accent),var(--accent3));border-color:transparent}
+  .burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px}
+  .burger span{width:22px;height:2px;background:var(--ink);border-radius:2px;transition:.3s}
+
+  /* ---------- LAYOUT ---------- */
+  section{padding:clamp(70px,9vw,120px) clamp(18px,5vw,64px);position:relative}
+  .wrap{max-width:1180px;margin:0 auto}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;
+    color:var(--accent2);padding:7px 14px;border-radius:999px;
+    border:1px solid rgba(52,214,200,.3);background:rgba(52,214,200,.07);
+  }
+  h1{font-size:clamp(34px,6vw,68px);line-height:1.05;font-weight:800;letter-spacing:-1.5px}
+  h2{font-size:clamp(26px,4vw,44px);font-weight:700;letter-spacing:-.8px;line-height:1.12}
+  h3{font-size:clamp(18px,2.4vw,23px);font-weight:700;letter-spacing:-.3px}
+  .lead{font-size:clamp(16px,2vw,20px);color:var(--ink-dim);max-width:680px}
+  .muted{color:var(--ink-faint)}
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- HERO ---------- */
+  .hero{padding-top:160px}
+  .hero .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  .hero h1 em{font-style:normal;background:linear-gradient(120deg,var(--accent2),var(--accent),var(--accent3));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+  .hero .meta-row{display:flex;gap:26px;margin-top:36px;flex-wrap:wrap}
+  .hero .meta-row .m{border-left:2px solid var(--panel-brd);padding-left:14px}
+  .hero .meta-row .m b{display:block;font-size:22px;color:var(--ink)}
+  .hero .meta-row .m span{font-size:12px;color:var(--ink-faint);letter-spacing:1.2px;text-transform:uppercase}
+
+  /* Hero viz: answer card */
+  .answer-card{
+    position:relative;border-radius:24px;padding:30px;
+    background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+    border:1px solid var(--panel-brd);backdrop-filter:blur(12px);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .answer-card::before{
+    content:"";position:absolute;inset:-2px;border-radius:24px;padding:2px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:.55;
+  }
+  .answer-card .lab{font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+  .winner{
+    display:flex;align-items:baseline;gap:14px;margin-top:12px;flex-wrap:wrap;
+  }
+  .winner .who{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-1px;
+    background:linear-gradient(120deg,var(--gold),#ff9e57);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .winner .amt{font-size:clamp(26px,4vw,40px);font-weight:700;color:var(--good)}
+  .bars{margin-top:24px;display:flex;flex-direction:column;gap:14px}
+  .bar{position:relative}
+  .bar .top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:7px}
+  .bar .top .nm{font-weight:600}
+  .bar .top .v{color:var(--ink-dim);font-variant-numeric:tabular-nums}
+  .bar .track{height:14px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+  .bar .fill{height:100%;border-radius:999px;width:0;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+  .bar.win .fill{background:linear-gradient(90deg,var(--gold),#ff9e57)}
+  .bar.lose .fill{background:linear-gradient(90deg,var(--accent2),#3aa6ff)}
+  .winner-badge{position:absolute;top:18px;right:18px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0b1020;background:var(--gold);padding:5px 10px;border-radius:999px;box-shadow:0 6px 16px -4px rgba(255,209,102,.5)}
+
+  /* ---------- STATS STRIP ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .stat{background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius);padding:22px 20px;backdrop-filter:blur(8px);transition:transform .25s,border-color .25s}
+  .stat:hover{transform:translateY(-4px);border-color:rgba(124,92,255,.4)}
+  .stat .n{font-size:clamp(26px,3.4vw,36px);font-weight:800;letter-spacing:-1px;
+    background:linear-gradient(120deg,var(--accent2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .l{font-size:13px;color:var(--ink-dim);margin-top:4px}
+
+  /* ---------- DATASETS (feature cards) ---------- */
+  .head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:42px}
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .card{
+    position:relative;border-radius:var(--radius);padding:30px;
+    background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
+    border:1px solid var(--panel-brd);backdrop-filter:blur(10px);
+    transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s,border-color .3s;
+    overflow:hidden;
+  }
+  .card:hover{transform:translateY(-8px);box-shadow:var(--shadow);border-color:rgba(124,92,255,.4)}
+  .card .ico{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;font-size:24px;margin-bottom:18px}
+  .card .ico.duck{background:linear-gradient(135deg,rgba(124,92,255,.3),rgba(124,92,255,.08));color:#cabaff}
+  .card .ico.sqlite{background:linear-gradient(135deg,rgba(52,214,200,.28),rgba(52,214,200,.06));color:#aef2ec}
+  .card .tag{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  .card h3{margin:6px 0 12px}
+  .schema{list-style:none;margin-top:18px;border-top:1px dashed var(--panel-brd);padding-top:16px}
+  .schema li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:13px;border-bottom:1px dashed rgba(255,255,255,.05)}
+  .schema li:last-child{border-bottom:none}
+  .schema .col{color:var(--ink);font-weight:600;font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
+  .schema .ty{color:var(--ink-faint);font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px}
+  .chip{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--panel-brd);color:var(--ink-dim);margin-right:6px;margin-top:10px}
+
+  /* ---------- HOW IT WORKS ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative}
+  .steps::before{content:"";position:absolute;top:34px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));opacity:.35}
+  .step{position:relative;text-align:center}
+  .step .num{
+    width:68px;height:68px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;
+    font-size:24px;font-weight:800;color:#0b1020;position:relative;z-index:2;
+    background:linear-gradient(135deg,var(--accent2),var(--accent));box-shadow:0 10px 24px -8px rgba(124,92,255,.6);
+  }
+  .step .num.b2{background:linear-gradient(135deg,var(--accent),var(--accent3))}
+  .step .num.b3{background:linear-gradient(135deg,var(--accent3),var(--gold))}
+  .step h3{margin-bottom:8px}
+  .step p{color:var(--ink-dim);font-size:15px}
+
+  /* ---------- TRAJECTORY ---------- */
+  .traj{display:flex;flex-direction:column;gap:22px;margin-top:10px}
+  .turn{
+    background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius);overflow:hidden;
+    backdrop-filter:blur(8px);
+  }
+  .turn > summary{list-style:none;cursor:pointer;padding:18px 22px;display:flex;align-items:center;gap:14px;transition:background .2s}
+  .turn > summary::-webkit-details-marker{display:none}
+  .turn > summary:hover{background:rgba(255,255,255,.03)}
+  .turn .tick{width:34px;height:34px;border-radius:9px;flex:0 0 auto;display:grid;place-items:center;font-size:14px;font-weight:800;color:#0b1020;background:linear-gradient(135deg,var(--accent2),var(--accent))}
+  .turn .ttitle{font-weight:700;font-size:16px}
+  .turn .tsub{font-size:12px;color:var(--ink-faint);letter-spacing:.5px}
+  .turn .chev{margin-left:auto;color:var(--ink-faint);transition:transform .3s;font-size:18px}
+  .turn[open] .chev{transform:rotate(180deg)}
+  .turn .body{padding:0 22px 22px;border-top:1px solid var(--panel-brd)}
+  pre.code{
+    margin:18px 0;background:rgba(8,12,26,.85);border:1px solid var(--panel-brd);border-radius:12px;
+    padding:18px;overflow:auto;font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.65;color:#dce6ff;
+  }
+  pre.code .c1{color:#6b7aa8;font-style:italic}
+  .out{background:rgba(6,10,22,.9);border:1px solid rgba(95,227,161,.25);border-left:3px solid var(--good);border-radius:12px;padding:16px 18px;font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:var(--good);white-space:pre-wrap;line-height:1.65}
+  .out .hd{color:var(--ink-faint);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .out .hl{color:var(--gold);font-weight:700}
+
+  /* ---------- RESULT TABLE ---------- */
+  .result{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start}
+  .restab{width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums}
+  .restab th,.restab td{padding:16px 14px;text-align:left;border-bottom:1px solid var(--panel-brd)}
+  .restab th{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+  .restab td.amt{text-align:right;font-weight:700;font-size:18px}
+  .restab tr.win td{color:var(--gold)}
+  .restab tr.win .amt{color:var(--good)}
+  .restab tr.win .store{font-weight:800}
+  .medal{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;font-size:13px;margin-right:10px;background:var(--panel-brd);color:var(--ink)}
+  .restab tr.win .medal{background:linear-gradient(135deg,var(--gold),#ff9e57);color:#0b1020}
+  .insight{background:linear-gradient(160deg,rgba(124,92,255,.14),rgba(52,214,200,.06));border:1px solid var(--panel-brd);border-radius:var(--radius);padding:28px;backdrop-filter:blur(10px)}
+  .insight ul{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:14px}
+  .insight li{display:flex;gap:12px;font-size:15px;color:var(--ink-dim)}
+  .insight li .dot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:var(--accent2);margin-top:8px;box-shadow:0 0 12px var(--accent2)}
+
+  /* ---------- FAQ ---------- */
+  .faqs{display:flex;flex-direction:column;gap:14px;max-width:820px;margin:0 auto}
+  .faq{background:var(--panel);border:1px solid var(--panel-brd);border-radius:14px;overflow:hidden;backdrop-filter:blur(8px)}
+  .faq > summary{list-style:none;cursor:pointer;padding:18px 22px;font-weight:600;font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+  .faq > summary::-webkit-details-marker{display:none}
+  .faq > summary .q{display:flex;gap:12px;align-items:center}
+  .faq > summary .q .qi{color:var(--accent2)}
+  .faq .ar{color:var(--ink-faint);transition:transform .3s}
+  .faq[open] .ar{transform:rotate(45deg)}
+  .faq .ans{padding:0 22px 20px;color:var(--ink-dim);font-size:15px;border-top:1px solid var(--panel-brd);padding-top:16px}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:50px clamp(18px,5vw,64px) 40px;border-top:1px solid var(--panel-brd);text-align:center}
+  footer .fbrand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+  footer p{color:var(--ink-faint);font-size:13px}
+  footer .row{display:flex;justify-content:center;gap:22px;margin-top:14px;flex-wrap:wrap}
+  footer .row span{color:var(--ink-dim);font-size:12px}
+
+  @media(max-width:920px){
+    .navlinks{display:none}
+    .burger{display:flex}
+    .hero .grid{grid-template-columns:1fr;gap:36px}
+    .hero{padding-top:120px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .cards,.steps,.result{grid-template-columns:1fr}
+    .steps::before{display:none}
+  }
+  @media(max-width:520px){
+    .stats{grid-template-columns:1fr}
+    .hero .meta-row .m{flex:1 1 auto}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top" id="nav">
+  <a href="#top" class="brand">
+    <span class="mark">♫</span>
+    <span>MusicBrainz&nbsp;·&nbsp;Q2<small>Data Agent · Revenue Query</small></span>
+  </a>
+  <div class="navlinks">
+    <a href="#overview">Overview</a>
+    <a href="#datasets">Datasets</a>
+    <a href="#how">Approach</a>
+    <a href="#trajectory">Trajectory</a>
+    <a href="#result">Result</a>
+  </div>
+  <a href="#result" class="cta solid">View Answer</a>
+  <div class="burger" id="burger" aria-label="menu"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="top" style="padding-top:160px">
+  <div class="wrap">
+    <div class="grid">
+      <div>
+        <span class="eyebrow reveal">● DataAgentBench · Case 02</span>
+        <h1 class="reveal" style="margin-top:22px">Which store earned the most <em>revenue in USD</em> from Brucqe Maginnis&rsquo; song &lsquo;Street Hype&rsquo;?</h1>
+        <p class="lead reveal" style="margin-top:22px">A cross-engine query joins a SQLite track catalog with a DuckDB sales ledger to find the top-earning storefront across every country &mdash; answered in two Python steps.</p>
+        <div class="cta-row reveal">
+          <a href="#result" class="cta solid">See the answer</a>
+          <a href="#trajectory" class="cta">Replay the trajectory</a>
+        </div>
+        <div class="meta-row reveal">
+          <div class="m"><b>2</b><span>Databases</span></div>
+          <div class="m"><b>2</b><span>Code steps</span></div>
+          <div class="m"><b>20.1s</b><span>Runtime</span></div>
+          <div class="m"><b>Opus 4</b><span>Model</span></div>
+        </div>
+      </div>
+
+      <!-- answer viz -->
+      <div class="answer-card reveal" id="ansCard">
+        <span class="winner-badge">★ Winner</span>
+        <div class="lab">Top-earning store · all countries</div>
+        <div class="winner">
+          <span class="who">Amazon Music</span>
+          <span class="amt">$304.13</span>
+        </div>
+        <div class="bars" id="bars">
+          <div class="bar win">
+            <div class="top"><span class="nm">Amazon Music</span><span class="v">$304.13</span></div>
+            <div class="track"><div class="fill" data-w="100"></div></div>
+          </div>
+          <div class="bar lose">
+            <div class="top"><span class="nm">Apple Music</span><span class="v">$47.52</span></div>
+            <div class="track"><div class="fill" data-w="16"></div></div>
+          </div>
+        </div>
+        <p class="muted" style="margin-top:18px;font-size:13px">Single matching track <code style="color:var(--accent2)">track_id = 4122</code> &mdash; aggregated from the DuckDB <code style="color:var(--accent2)">sales</code> table.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- STATS -->
+<section id="overview" style="padding-top:30px">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><div class="n">$351.65</div><div class="l">Total revenue across stores</div></div>
+      <div class="stat reveal"><div class="n">86.5%</div><div class="l">Amazon Music share of revenue</div></div>
+      <div class="stat reveal"><div class="n">2</div><div class="l">Stores with sales for this track</div></div>
+      <div class="stat reveal"><div class="n">4122</div><div class="l">Matched track_id in catalog</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DATASETS -->
+<section id="datasets">
+  <div class="wrap">
+    <div class="head">
+      <div class="reveal">
+        <span class="eyebrow">Datasets</span>
+        <h2 style="margin-top:16px">Two engines, one query</h2>
+        <p class="lead" style="margin-top:14px">The catalog lives in SQLite; the transactional sales live in DuckDB. Python bridges them by passing matched track IDs across engines.</p>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card reveal">
+        <div class="ico duck"> ducks </div>
+        <div class="tag">DuckDB · sales.duckdb</div>
+        <h3>Sales Ledger</h3>
+        <p class="muted" style="font-size:14px">Per-sale transactions: which track, sold where, by which storefront, and the USD revenue banked.</p>
+        <ul class="schema">
+          <li><span class="col">sale_id</span><span class="ty">INTEGER</span></li>
+          <li><span class="col">track_id</span><span class="ty">INTEGER</span></li>
+          <li><span class="col">country</span><span class="ty">VARCHAR</span></li>
+          <li><span class="col">store</span><span class="ty">VARCHAR</span></li>
+          <li><span class="col">units_sold</span><span class="ty">INTEGER</span></li>
+          <li><span class="col">revenue_usd</span><span class="ty">DOUBLE</span></li>
+        </ul>
+        <div><span class="chip">joined on track_id</span><span class="chip">GROUP BY store</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="ico sqlite"> data </div>
+        <div class="tag">SQLite · tracks.db</div>
+        <h3>Track Catalog</h3>
+        <p class="muted" style="font-size:14px">MusicBrainz-style metadata for tracks: title, artist, album, and identifiers, used to resolve the song to an ID.</p>
+        <ul class="schema">
+          <li><span class="col">track_id</span><span class="ty">INTEGER</span></li>
+          <li><span class="col">source_id</span><span class="ty">INTEGER</span></li>
+          <li><span class="col">source_track_id</span><span class="ty">TEXT</span></li>
+          <li><span class="col">title</span><span class="ty">TEXT</span></li>
+          <li><span class="col">artist</span><span class="ty">TEXT</span></li>
+          <li><span class="col">album</span><span class="ty">TEXT</span></li>
+          <li><span class="col">year · length · language</span><span class="ty">TEXT</span></li>
+        </ul>
+        <div><span class="chip">title = 'Street Hype'</span><span class="chip">artist filter</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="head">
+      <div class="reveal">
+        <span class="eyebrow">Approach</span>
+        <h2 style="margin-top:16px">Three steps to the answer</h2>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="num">1</div>
+        <h3>Inspect the schema</h3>
+        <p>Enumerate tables and columns from both engines so the join key (track_id) and the metric (revenue_usd) are known.</p>
+      </div>
+      <div class="step reveal">
+        <div class="num b2">2</div>
+        <h3>Resolve the track</h3>
+        <p>Query SQLite for the song by title and artist, yielding a single matching <code>track_id = 4122</code>.</p>
+      </div>
+      <div class="step reveal">
+        <div class="num b3">3</div>
+        <h3>Aggregate revenue</h3>
+        <p>Load the IDs into DuckDB, sum revenue_usd per store across all countries, and rank descending.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAJECTORY -->
+<section id="trajectory">
+  <div class="wrap">
+    <div class="head">
+      <div class="reveal">
+        <span class="eyebrow">Trajectory</span>
+        <h2 style="margin-top:16px">Replay of the agent&rsquo;s work</h2>
+        <p class="lead" style="margin-top:14px">Every turn the model took &mdash; expand a step to read the exact code run and the tool output returned.</p>
+      </div>
+    </div>
+
+    <div class="traj">
+
+      <details class="turn reveal" open>
+        <summary>
+          <span class="tick">1</span>
+          <div>
+            <div class="ttitle">Explore both database schemas</div>
+            <div class="tsub">Bash · python3 · information_schema + PRAGMA</div>
+          </div>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="body">
+<pre class="code"><span class="c1"># Discover tables & columns in both engines</span>
+import duckdb, sqlite3
+d = duckdb.connect('data/sales.duckdb', read_only=True)
+print('=== DuckDB tables ===')
+for t in d.execute("SELECT table_name FROM information_schema.tables").fetchall():
+    print(t[0])
+    for c in d.execute(f"PRAGMA table_info('{t[0]}')").fetchall():
+        print('   ', c[1], c[2])
+print()
+s = sqlite3.connect('data/tracks.db')
+print('=== SQLite tables ===')
+for (name,) in s.execute("SELECT name FROM sqlite_master WHERE type='table'"):
+    print(name)
+    for col in s.execute(f'PRAGMA table_info({name})'):
+        print('   ', col[1], col[2])</pre>
+          <div class="out"><div class="hd">Tool output</div>=== DuckDB tables ===
+sales
+   sale_id INTEGER
+   track_id INTEGER
+   country VARCHAR
+   store VARCHAR
+   units_sold INTEGER
+   revenue_usd DOUBLE
+
+=== SQLite tables ===
+tracks
+   track_id INTEGER
+   source_id INTEGER
+   source_track_id TEXT
+   title TEXT
+   artist TEXT
+   album TEXT
+   year TEXT
+   length TEXT
+   language TEXT</div>
+        </div>
+      </details>
+
+      <details class="turn reveal">
+        <summary>
+          <span class="tick" style="background:linear-gradient(135deg,var(--accent),var(--accent3))">2</span>
+          <div>
+            <div class="ttitle">Resolve track &amp; aggregate revenue by store</div>
+            <div class="tsub">Bash · python3 · SQLite → DuckDB join</div>
+          </div>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="body">
+<pre class="code"><span class="c1"># Find the track in SQLite, then sum revenue per store in DuckDB</span>
+import duckdb, sqlite3
+s = sqlite3.connect('data/tracks.db')
+rows = s.execute("SELECT track_id, title, artist FROM tracks \
+WHERE title='Street Hype' AND artist='Brucqe Maginnis'").fetchall()
+print('matching tracks:', rows)
+ids = [r[0] for r in rows]
+
+d = duckdb.connect('data/sales.duckdb', read_only=True)
+d.execute('CREATE TEMP TABLE t(track_id INTEGER)')
+d.executemany('INSERT INTO t VALUES (?)', [(i,) for i in ids])
+res = d.execute('''
+  SELECT store, SUM(revenue_usd) AS total_rev
+  FROM sales WHERE track_id IN (SELECT track_id FROM t)
+  GROUP BY store ORDER BY total_rev DESC
+''').fetchall()
+print('Revenue by store (all countries):')
+for store, rev in res:
+    print(f'  {store}: ${rev:,.2f}')
+print()
+print('ANSWER:', res[0][0], f'(${res[0][1]:,.2f})')</pre>
+          <div class="out"><div class="hd">Tool output</div>matching tracks: [(4122, 'Street Hype', 'Brucqe Maginnis')]
+Revenue by store (all countries):
+  Amazon Music: <span class="hl">$304.13</span>
+  Apple Music: $47.52
+
+<span class="hl">ANSWER: Amazon Music ($304.13)</span></div>
+        </div>
+      </details>
+
+      <details class="turn reveal">
+        <summary>
+          <span class="tick" style="background:linear-gradient(135deg,var(--accent3),var(--gold));color:#0b1020">✓</span>
+          <div>
+            <div class="ttitle">Final answer reported</div>
+            <div class="tsub">Assistant · end_turn</div>
+          </div>
+          <span class="chev">⌄</span>
+        </summary>
+        <div class="body">
+          <div class="out" style="border-left-color:var(--gold)"><div class="hd">Final message</div><strong>Amazon Music</strong> earned the most revenue from Brucqe Maginnis&rsquo; song &lsquo;Street Hype&rsquo; across all countries.
+
+The song matched a single track (<code style="color:var(--accent2)">track_id = 4122</code>) in the SQLite tracks table, and revenue_usd was aggregated from the DuckDB sales table by store across all countries.</div>
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section id="result">
+  <div class="wrap">
+    <div class="head">
+      <div class="reveal">
+        <span class="eyebrow">Result</span>
+        <h2 style="margin-top:16px">The verdict</h2>
+      </div>
+    </div>
+    <div class="result">
+      <div class="insight reveal">
+        <h3>Revenue by storefront</h3>
+        <table class="restab">
+          <thead><tr><th>Store</th><th style="text-align:right">Total Revenue (USD)</th></tr></thead>
+          <tbody>
+            <tr class="win"><td class="store"><span class="medal">1</span>Amazon Music</td><td class="amt">$304.13</td></tr>
+            <tr><td class="store"><span class="medal">2</span>Apple Music</td><td class="amt">$47.52</td></tr>
+          </tbody>
+        </table>
+        <p class="muted" style="font-size:13px;margin-top:14px">Aggregated across all countries from the DuckDB <code style="color:var(--accent2)">sales</code> table for <code style="color:var(--accent2)">track_id = 4122</code>.</p>
+      </div>
+      <div class="insight reveal">
+        <h3>Why this is the answer</h3>
+        <ul>
+          <li><span class="dot"></span><span><strong>Song resolution:</strong> exactly one catalog row matched title = &lsquo;Street Hype&rsquo; and artist = &lsquo;Brucqe Maginnis&rsquo; — no ambiguity.</span></li>
+          <li><span class="dot"></span><span><strong>Cross-engine join:</strong> SQLite track IDs were staged into a DuckDB temp table, then joined to sales on track_id.</span></li>
+          <li><span class="dot"></span><span><strong>Global aggregation:</strong> revenue_usd was summed per store with no country filter, satisfying &ldquo;across all countries&rdquo;.</span></li>
+          <li><span class="dot"></span><span><strong>Margin:</strong> Amazon Music at <strong>$304.13</strong> out-earned Apple Music ($47.52) by roughly 6.4×.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="head" style="justify-content:center;text-align:center">
+      <div class="reveal">
+        <span class="eyebrow">FAQ</span>
+        <h2 style="margin-top:16px">Common questions about this case</h2>
+      </div>
+    </div>
+    <div class="faqs">
+      <details class="faq reveal" open>
+        <summary><span class="q"><span class="qi">Q</span>How were the two databases joined?</span><span class="ar">+</span></summary>
+        <div class="ans">Python acted as the bridge. The track_id list from the SQLite catalog was inserted into a temporary table inside the read-only DuckDB connection, and the sales rows were filtered with a sub-query against that temp table.</div>
+      </details>
+      <details class="faq reveal">
+        <summary><span class="q"><span class="qi">Q</span>Was more than one track returned for the song?</span><span class="ar">+</span></summary>
+        <div class="ans">No. The filter on title = &lsquo;Street Hype&rsquo; and artist = &lsquo;Brucqe Maginnis&rsquo; returned a single row: (4122, &lsquo;Street Hype&rsquo;, &lsquo;Brucqe Maginnis&rsquo;). All revenue aggregation therefore targeted one track_id.</div>
+      </details>
+      <details class="faq reveal">
+        <summary><span class="q"><span class="qi">Q</span>Does &ldquo;across all countries&rdquo; mean country filtering?</span><span class="ar">+</span></summary>
+        <div class="ans">Exactly the opposite — it means no country filter is applied. The query sums revenue_usd for every country in which the track was sold, grouped only by store.</div>
+      </details>
+      <details class="faq reveal">
+        <summary><span class="q"><span class="qi">Q</span>Why is the revenue shown as currency-formatted?</span><span class="ar">+</span></summary>
+        <div class="ans">The agent used Python f-strings with <code>${rev:,.2f}</code> to format the summed doubles with thousands separators and two decimals, matching the USD precision of the revenue_usd column.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fbrand">
+    <span class="mark" style="width:30px;height:30px;border-radius:9px;background:conic-gradient(from 140deg,var(--accent),var(--accent2),var(--accent3),var(--accent));display:grid;place-items:center;font-size:14px;color:#0b1020">♫</span>
+    <strong>MusicBrainz · Revenue Query 2</strong>
+  </div>
+  <p>DataAgentBench case 02_music_brainz_20k_query2 &middot; model claude-opus-4-8 &middot; exit code 0</p>
+  <div class="row">
+    <span>Domain: data_analysis</span>
+    <span>Backend: opus</span>
+    <span>Duration: 20.1s</span>
+    <span>Source: regen</span>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll state
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 24);
+  onScroll();
+  window.addEventListener('scroll', onScroll, {passive:true});
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+        // animate answer bars when the card appears
+        if(e.target.id === 'ansCard'){
+          e.target.querySelectorAll('.fill').forEach(f=>{ f.style.width = f.dataset.w + '%'; });
+        }
+      }
+    });
+  }, {threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // Burger -> simple scroll nav (mobile)
+  document.getElementById('burger').addEventListener('click', ()=>{
+    const links = document.querySelector('.navlinks');
+    if(!links) return;
+    if(getComputedStyle(links).display === 'none'){
+      links.style.display='flex';
+      links.style.position='fixed';
+      links.style.top='64px';links.style.right='18px';
+      links.style.flexDirection='column';links.style.gap='14px';
+      links.style.background='rgba(10,14,32,.95)';
+      links.style.padding='18px 22px';links.style.borderRadius='14px';
+      links.style.border='1px solid rgba(255,255,255,.12)';
+      links.style.backdropFilter='blur(12px)';
+    } else {
+      links.removeAttribute('style');
+      links.style.display='none';
+    }
+  });
+  window.addEventListener('resize', ()=>{
+    if(window.innerWidth > 920){
+      const links = document.querySelector('.navlinks');
+      links && links.removeAttribute('style');
+    }
+  });
+</script>
+</body>
+</html>

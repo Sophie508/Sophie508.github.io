@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case 04 - Sequential Neural Score Estimation</title>
+  <style>
+    :root {
+      --ink: #16130f;
+      --muted: #665f55;
+      --paper: #f6f1e7;
+      --panel: #fffaf0;
+      --line: #d7cbbb;
+      --rust: #b44d2f;
+      --teal: #0b6f6a;
+      --gold: #d39b32;
+      --blue: #283f73;
+      --shadow: 0 22px 70px rgba(42, 33, 20, .16);
+      --mono: "SFMono-Regular", "Cascadia Code", "Liberation Mono", Menlo, monospace;
+      --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      --sans: Avenir, "Gill Sans", "Trebuchet MS", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(22, 19, 15, .035) 1px, transparent 1px) 0 0 / 38px 38px,
+        linear-gradient(rgba(22, 19, 15, .026) 1px, transparent 1px) 0 0 / 38px 38px,
+        radial-gradient(circle at 12% 18%, rgba(211, 155, 50, .18), transparent 24rem),
+        radial-gradient(circle at 85% 8%, rgba(11, 111, 106, .14), transparent 25rem),
+        var(--paper);
+      font-family: var(--sans);
+      line-height: 1.5;
+    }
+
+    a { color: inherit; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: .85rem clamp(1rem, 3vw, 2.5rem);
+      border-bottom: 1px solid rgba(22, 19, 15, .11);
+      background: rgba(246, 241, 231, .78);
+      backdrop-filter: blur(18px);
+      transition: background .25s ease, box-shadow .25s ease;
+    }
+
+    .topbar.is-scrolled {
+      background: rgba(255, 250, 240, .94);
+      box-shadow: 0 12px 40px rgba(42, 33, 20, .1);
+    }
+
+    .mark {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      min-width: 13rem;
+      font-family: var(--mono);
+      font-size: .76rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .mark::before {
+      content: "";
+      width: 1.15rem;
+      height: 1.15rem;
+      border: 2px solid var(--ink);
+      background:
+        linear-gradient(135deg, transparent 45%, var(--rust) 46% 56%, transparent 57%),
+        linear-gradient(45deg, transparent 45%, var(--teal) 46% 56%, transparent 57%);
+      box-shadow: 4px 4px 0 var(--gold);
+      transform: rotate(6deg);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .25rem;
+      flex-wrap: wrap;
+    }
+
+    nav a, .chip-button {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      padding: .48rem .7rem;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    nav a:hover, .chip-button:hover {
+      color: var(--ink);
+      border-color: rgba(22, 19, 15, .18);
+      background: rgba(255, 250, 240, .72);
+    }
+
+    main { overflow: hidden; }
+
+    .hero {
+      min-height: calc(100vh - 66px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(340px, .96fr);
+      gap: clamp(2rem, 5vw, 5.5rem);
+      align-items: center;
+      padding: clamp(2rem, 5vw, 5rem) clamp(1rem, 5vw, 5rem) 3rem;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: clamp(1rem, 5vw, 5rem);
+      right: clamp(1rem, 5vw, 5rem);
+      bottom: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--line), transparent);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: .55rem;
+      align-items: center;
+      padding: .45rem .65rem;
+      border: 1px solid rgba(22, 19, 15, .18);
+      background: rgba(255, 250, 240, .62);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .75rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 1.15rem 0 1rem;
+      font-family: var(--serif);
+      font-size: clamp(3.4rem, 8vw, 8.6rem);
+      line-height: .87;
+      letter-spacing: 0;
+      max-width: 11ch;
+    }
+
+    .subtitle {
+      max-width: 44rem;
+      color: #403a33;
+      font-family: var(--serif);
+      font-size: clamp(1.1rem, 2vw, 1.45rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-top: 1.8rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .55rem;
+      min-height: 2.8rem;
+      padding: .75rem 1rem;
+      border: 1px solid var(--ink);
+      border-radius: 4px;
+      background: var(--ink);
+      color: var(--panel);
+      font-family: var(--mono);
+      font-size: .78rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      text-decoration: none;
+      box-shadow: 6px 6px 0 var(--gold);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: var(--ink);
+      box-shadow: none;
+    }
+
+    .button:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 9px 9px 0 var(--gold);
+    }
+
+    .button.secondary:hover { box-shadow: 5px 5px 0 rgba(11, 111, 106, .28); }
+
+    .instrument {
+      position: relative;
+      min-height: 560px;
+      border: 1px solid rgba(22, 19, 15, .22);
+      background:
+        linear-gradient(135deg, rgba(255, 250, 240, .74), rgba(255, 250, 240, .38)),
+        repeating-linear-gradient(0deg, rgba(22, 19, 15, .04) 0 1px, transparent 1px 18px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .instrument-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: .9rem 1rem;
+      border-bottom: 1px solid rgba(22, 19, 15, .16);
+      font-family: var(--mono);
+      font-size: .72rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: rgba(255, 250, 240, .7);
+    }
+
+    #diffusionCanvas {
+      width: 100%;
+      height: 345px;
+      display: block;
+    }
+
+    .equation-strip {
+      position: absolute;
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+    }
+
+    .equation {
+      padding: .9rem;
+      min-height: 7.25rem;
+      border: 1px solid rgba(22, 19, 15, .16);
+      background: rgba(255, 250, 240, .84);
+      font-family: var(--mono);
+      font-size: .78rem;
+      color: #342f29;
+    }
+
+    .equation strong {
+      display: block;
+      margin-bottom: .45rem;
+      color: var(--rust);
+      font-family: var(--sans);
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    section {
+      padding: clamp(3rem, 6vw, 6rem) clamp(1rem, 5vw, 5rem);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, .7fr) minmax(280px, .3fr);
+      gap: 2rem;
+      align-items: end;
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4.8vw, 4.4rem);
+      line-height: .95;
+      letter-spacing: 0;
+    }
+
+    .section-note {
+      color: var(--muted);
+      font-size: .98rem;
+      max-width: 32rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+    }
+
+    .card {
+      border: 1px solid rgba(22, 19, 15, .16);
+      border-radius: 6px;
+      background: rgba(255, 250, 240, .72);
+      box-shadow: 0 10px 35px rgba(42, 33, 20, .08);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(22, 19, 15, .32);
+      box-shadow: var(--shadow);
+    }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .metric {
+      padding: 1rem;
+      min-height: 11rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .metric .value {
+      margin-top: 1rem;
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: .9;
+    }
+
+    .metric .caption {
+      color: #5d564e;
+      font-size: .92rem;
+      margin-top: .8rem;
+    }
+
+    .panel {
+      padding: clamp(1rem, 2vw, 1.35rem);
+    }
+
+    .panel h3 {
+      margin: 0 0 .75rem;
+      font-family: var(--serif);
+      font-size: 1.55rem;
+      line-height: 1;
+    }
+
+    .panel p { margin: .55rem 0; color: #443d35; }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+      margin-top: 1rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.8rem;
+      border: 1px solid rgba(22, 19, 15, .16);
+      border-radius: 999px;
+      padding: .28rem .55rem;
+      background: rgba(246, 241, 231, .65);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .7rem;
+      text-transform: uppercase;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: .6rem;
+      align-items: stretch;
+    }
+
+    .step {
+      position: relative;
+      min-height: 10.5rem;
+      padding: 1rem;
+      border: 1px solid rgba(22, 19, 15, .16);
+      background: rgba(255, 250, 240, .78);
+      overflow: hidden;
+    }
+
+    .step::before {
+      content: attr(data-step);
+      display: inline-grid;
+      place-items: center;
+      width: 2rem;
+      height: 2rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: .75rem;
+      background: var(--gold);
+    }
+
+    .step h3 {
+      margin: 0 0 .45rem;
+      font-size: 1rem;
+      line-height: 1.1;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 1.2rem;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: .26rem;
+      top: .3rem;
+      bottom: .3rem;
+      width: 1px;
+      background: linear-gradient(var(--rust), var(--teal));
+    }
+
+    .event {
+      position: relative;
+      margin-bottom: .8rem;
+      padding: .85rem 1rem;
+      border: 1px solid rgba(22, 19, 15, .14);
+      background: rgba(255, 250, 240, .7);
+    }
+
+    .event::before {
+      content: "";
+      position: absolute;
+      left: -1.18rem;
+      top: 1.1rem;
+      width: .56rem;
+      height: .56rem;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      background: var(--panel);
+    }
+
+    .event .time {
+      font-family: var(--mono);
+      color: var(--rust);
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .event h3 {
+      margin: .25rem 0 .35rem;
+      font-size: 1.02rem;
+    }
+
+    .event p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .code {
+      margin: 0;
+      padding: 1rem;
+      overflow: auto;
+      border: 1px solid rgba(22, 19, 15, .16);
+      background: #201b16;
+      color: #f4ead8;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: .78rem;
+      line-height: 1.55;
+    }
+
+    .status-board {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 1rem;
+    }
+
+    .verdict {
+      padding: 1rem;
+      border-left: 6px solid var(--rust);
+      background: rgba(180, 77, 47, .09);
+    }
+
+    .verdict strong {
+      display: block;
+      margin-bottom: .35rem;
+      font-family: var(--mono);
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--rust);
+    }
+
+    details {
+      border: 1px solid rgba(22, 19, 15, .15);
+      border-radius: 6px;
+      background: rgba(255, 250, 240, .66);
+      margin-bottom: .65rem;
+      overflow: hidden;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: .9rem 1rem;
+      font-family: var(--mono);
+      font-size: .82rem;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    details p, details ul {
+      margin: 0;
+      padding: 0 1rem 1rem;
+      color: var(--muted);
+    }
+
+    ul.clean {
+      list-style: none;
+      padding: 0;
+      margin: .7rem 0 0;
+    }
+
+    ul.clean li {
+      position: relative;
+      padding-left: 1rem;
+      margin: .42rem 0;
+      color: var(--muted);
+    }
+
+    ul.clean li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .62em;
+      width: .42rem;
+      height: .42rem;
+      background: var(--teal);
+      transform: rotate(45deg);
+    }
+
+    .footer {
+      padding: 2.5rem clamp(1rem, 5vw, 5rem);
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .76rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      background: rgba(255, 250, 240, .5);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      animation: rise .65s ease forwards;
+    }
+
+    .reveal:nth-child(2) { animation-delay: .08s; }
+    .reveal:nth-child(3) { animation-delay: .16s; }
+    .reveal:nth-child(4) { animation-delay: .24s; }
+
+    @keyframes rise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1000px) {
+      .hero, .section-head, .status-board { grid-template-columns: 1fr; }
+      .instrument { min-height: 500px; }
+      .flow { grid-template-columns: 1fr 1fr; }
+      .span-3, .span-4, .span-5, .span-6, .span-7, .span-8 { grid-column: span 12; }
+    }
+
+    @media (max-width: 720px) {
+      .topbar { align-items: flex-start; flex-direction: column; }
+      nav { justify-content: flex-start; }
+      .hero { min-height: auto; padding-top: 2rem; }
+      .instrument { min-height: 610px; }
+      .equation-strip { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .metric { min-height: 9rem; }
+      h1 { font-size: clamp(3rem, 17vw, 5rem); }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" id="topbar">
+    <div class="mark">PaperBench Case 04</div>
+    <nav aria-label="Case sections">
+      <a href="#target">Target</a>
+      <a href="#method">Method</a>
+      <a href="#experiments">Experiments</a>
+      <a href="#trajectory">Trajectory</a>
+      <a href="#audit">Audit</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="top">
+      <div class="reveal">
+        <div class="eyebrow">paper_reproduction / claude-jsonl / 147 s</div>
+        <h1>Sequential Neural Score Estimation</h1>
+        <p class="subtitle">A case presentation for reproducing an ICML 2024 simulation-based inference paper using conditional score-based diffusion models, NPSE, and the truncated sequential variant TSNPSE.</p>
+        <div class="hero-actions">
+          <a class="button" href="#trajectory">Inspect run</a>
+          <a class="button secondary" href="#audit">Review outcome</a>
+        </div>
+      </div>
+
+      <aside class="instrument reveal" aria-label="Diffusion posterior visual">
+        <div class="instrument-header">
+          <span>posterior transport console</span>
+          <span id="phaseLabel">forward noising</span>
+        </div>
+        <canvas id="diffusionCanvas" width="720" height="420"></canvas>
+        <div class="equation-strip">
+          <div class="equation"><strong>Score target</strong>s<sub>psi</sub>(&theta;<sub>t</sub>, x, t) approximates &nabla;<sub>&theta;</sub> log p<sub>t</sub>(&theta;<sub>t</sub> | x)</div>
+          <div class="equation"><strong>Sampler</strong>Reverse probability-flow ODE moves Gaussian reference samples back to the posterior.</div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="target">
+      <div class="section-head">
+        <h2>Case Brief</h2>
+        <p class="section-note">The prompt asked for complete, runnable reproduction code under the original workspace output directory. The case metadata lists no external large-file references.</p>
+      </div>
+      <div class="grid">
+        <div class="card metric span-3 reveal">
+          <div class="label">Model</div>
+          <div class="value">opus</div>
+          <div class="caption">claude-opus-4-8 backend recorded in case_meta.json.</div>
+        </div>
+        <div class="card metric span-3 reveal">
+          <div class="label">Exit code</div>
+          <div class="value">0</div>
+          <div class="caption">The captured trajectory terminated cleanly, but without saved code artifacts.</div>
+        </div>
+        <div class="card metric span-3 reveal">
+          <div class="label">Duration</div>
+          <div class="value">147s</div>
+          <div class="caption">Short run dominated by paper reading, planning, and permission failures.</div>
+        </div>
+        <div class="card metric span-3 reveal">
+          <div class="label">References</div>
+          <div class="value">0</div>
+          <div class="caption">No oversized reference paths were listed in case_meta.json.</div>
+        </div>
+        <article class="card panel span-7 reveal">
+          <h3>Reproduction Task</h3>
+          <p>Implement the paper "Sequential Neural Score Estimation: Likelihood-Free Inference with Conditional Score Based Diffusion Models" by Sharrock, Simons, Liu, and Beaumont.</p>
+          <p>The requested implementation needed complete runnable code, documentation, benchmark support, and output under <span class="tag">workspace/output/</span>.</p>
+          <div class="tag-row">
+            <span class="tag">NPSE</span>
+            <span class="tag">SNPSE</span>
+            <span class="tag">TSNPSE</span>
+            <span class="tag">score matching</span>
+            <span class="tag">diffusion SDE</span>
+          </div>
+        </article>
+        <article class="card panel span-5 reveal">
+          <h3>Addendum Constraints</h3>
+          <ul class="clean">
+            <li>Use sbibm for NPE, SNPE, and C2ST with default C2ST hyperparameters.</li>
+            <li>Use mackelab/tsnpe_neurips for TSNPE and the neuroscience problem.</li>
+            <li>For sequential VESDE sigma_max, use only first-round training data.</li>
+            <li>Do not use the blacklisted jacksimons15327/snpse_icml repository.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="method">
+      <div class="section-head">
+        <h2>Algorithm Map</h2>
+        <p class="section-note">The paper replaces likelihood evaluation with a conditional score model trained on simulator pairs and then samples via reverse diffusion or a probability-flow ODE.</p>
+      </div>
+      <div class="flow">
+        <div class="step reveal" data-step="01">
+          <h3>Simulate pairs</h3>
+          <p>Draw parameters from the prior or proposal and run the simulator to form (&theta;, x) data.</p>
+        </div>
+        <div class="step reveal" data-step="02">
+          <h3>Noising process</h3>
+          <p>Diffuse &theta; with VE or VP SDE transition densities whose conditional scores are known.</p>
+        </div>
+        <div class="step reveal" data-step="03">
+          <h3>DSM training</h3>
+          <p>Train s<sub>psi</sub>(&theta;<sub>t</sub>, x, t) against denoising score matching targets.</p>
+        </div>
+        <div class="step reveal" data-step="04">
+          <h3>Posterior sampling</h3>
+          <p>Use the learned score inside the reverse SDE or probability-flow ODE at x_obs.</p>
+        </div>
+        <div class="step reveal" data-step="05">
+          <h3>Sequential focus</h3>
+          <p>TSNPSE defines truncated prior proposals using high-probability regions of the current posterior.</p>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:1rem">
+        <article class="card panel span-6 reveal">
+          <h3>Preferred Sequential Variant</h3>
+          <p>TSNPSE avoids explicit proposal-posterior corrections when the retained highest-probability region covers the true posterior support. Each round trains on accumulated simulations and updates a truncated proposal.</p>
+          <pre class="code">round r:
+  sample theta from truncated prior proposal
+  simulate x from p(x | theta)
+  train posterior score network by DSM
+  sample approximate posterior at x_obs
+  estimate HPR_epsilon and update truncation</pre>
+        </article>
+        <article class="card panel span-6 reveal">
+          <h3>Alternative Routes</h3>
+          <p>The paper also describes NLSE and SNPSE-A/B/C. The trajectory planned to include them, but implementation never reached file creation because write permissions were not granted.</p>
+          <div class="tag-row">
+            <span class="tag">NLSE likelihood score</span>
+            <span class="tag">SNPSE-A SIR</span>
+            <span class="tag">SNPSE-B weighted DSM</span>
+            <span class="tag">SNPSE-C score correction</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="experiments">
+      <div class="section-head">
+        <h2>Experimental Surface</h2>
+        <p class="section-note">A faithful reproduction would need the eight sbibm benchmarks, several simulation budgets, and the pyloric neuroscience problem with invalid-summary handling.</p>
+      </div>
+      <div class="grid">
+        <article class="card panel span-8 reveal">
+          <h3>Benchmarks and Metrics</h3>
+          <p>The paper evaluates eight SBI tasks: Gaussian Linear, Gaussian Mixture, Two Moons, Gaussian Linear Uniform, Bernoulli GLM, SLCP, SIR, and Lotka Volterra.</p>
+          <p>Budgets are 1,000, 10,000, and 100,000 simulations. Reported quality uses C2ST where 0.5 is best. NPSE is compared with NPE; TSNPSE is compared with SNPE-C and TSNPE.</p>
+          <div class="tag-row">
+            <span class="tag">C2ST</span>
+            <span class="tag">VE SDE</span>
+            <span class="tag">VP SDE</span>
+            <span class="tag">RK45 ODE</span>
+          </div>
+        </article>
+        <article class="card panel span-4 reveal">
+          <h3>Training Recipe</h3>
+          <ul class="clean">
+            <li>Separate 3-layer MLP embeddings for &theta;<sub>t</sub> and x.</li>
+            <li>64-dimensional sinusoidal t embedding.</li>
+            <li>3-layer 256-unit SiLU score MLP.</li>
+            <li>Adam at 1e-4 with 15 percent validation holdout.</li>
+            <li>Early stopping after 1000 non-improving validation steps.</li>
+          </ul>
+        </article>
+        <article class="card panel span-12 reveal">
+          <h3>Neuroscience Target</h3>
+          <p>The pyloric network experiment infers 31 conductance and synapse parameters from 18 summary statistics derived from 3 voltage traces. The paper reports that more than 99 percent of prior samples can produce ill-defined summaries, making sequential proposals central to efficiency.</p>
+          <p>The reported TSNPSE setup uses 9 rounds, with 30,000 initial simulations and 20,000 added simulations per round. The paper states the final round reached 81 percent valid summary statistics.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="trajectory">
+      <div class="section-head">
+        <h2>Trajectory Story</h2>
+        <p class="section-note">The run shows comprehension and planning, but no durable implementation. It stops at a write-permission impasse after repeated attempts to create the first package file.</p>
+      </div>
+      <div class="status-board">
+        <div class="card panel reveal">
+          <div class="timeline">
+            <div class="event">
+              <div class="time">start</div>
+              <h3>Prompt received</h3>
+              <p>The model was asked to reproduce paper.md, follow addendum.md, avoid blacklist.txt, and write implementation code under output/.</p>
+            </div>
+            <div class="event">
+              <div class="time">read phase</div>
+              <h3>Paper and constraints inspected</h3>
+              <p>The trajectory reads the paper, addendum, blacklist, selected appendix regions, and section headers.</p>
+            </div>
+            <div class="event">
+              <div class="time">environment check</div>
+              <h3>Tooling probed</h3>
+              <p>It checked Python availability and packages. Torch, NumPy, and SciPy were present; sbibm/sbi were not installed.</p>
+            </div>
+            <div class="event">
+              <div class="time">planning</div>
+              <h3>Six task cards created</h3>
+              <p>The plan covered SDEs, score networks, probability-flow ODEs, NPSE, TSNPSE, NLSE, SNPSE variants, baselines, scripts, docs, and smoke testing.</p>
+            </div>
+            <div class="event">
+              <div class="time">stop point</div>
+              <h3>Writes blocked</h3>
+              <p>Three attempts to write output/snpse/__init__.py required permission. A mkdir command succeeded, but no code file was captured in the case directory.</p>
+            </div>
+          </div>
+        </div>
+        <aside class="card panel reveal">
+          <h3>Planned Package Skeleton</h3>
+          <pre class="code">output/
+  snpse/
+    __init__.py
+    sde.py
+    networks.py
+    npse.py
+    tsnpse.py
+  scripts/
+  tests/
+  configs/
+  README.md</pre>
+          <p>The only concrete code content visible in the trajectory is an attempted <span class="tag">__init__.py</span> docstring and exports for VESDE, VPSDE, ScoreNetwork, NPSE, and TSNPSE.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="audit">
+      <div class="section-head">
+        <h2>Audit Notes</h2>
+        <p class="section-note">This section separates what the run established from what remained unimplemented or risky.</p>
+      </div>
+      <div class="grid">
+        <article class="card panel span-6 reveal">
+          <h3>Outcome</h3>
+          <div class="verdict">
+            <strong>Not reproduced</strong>
+            The case trajectory does not contain runnable reproduction code. It ends while asking for write access to the output directory.
+          </div>
+          <ul class="clean">
+            <li>No output files are present in this case directory.</li>
+            <li>No smoke test ran.</li>
+            <li>No benchmark or neuroscience results were regenerated.</li>
+          </ul>
+        </article>
+        <article class="card panel span-6 reveal">
+          <h3>Provenance Risks</h3>
+          <ul class="clean">
+            <li>The model attempted to read two memory files outside the paper workspace during the trajectory.</li>
+            <li>The addendum required a blacklisted repository to be avoided; the model read the blacklist and did not fetch that repository in the captured run.</li>
+            <li>The prompt cited external repository paths and URLs as task context, but this presentation treats them as plain text only.</li>
+          </ul>
+        </article>
+        <article class="card panel span-12 reveal">
+          <h3>Expandable Case Details</h3>
+          <details open>
+            <summary>Files used for this presentation</summary>
+            <p>case_meta.json, trajectory.jsonl, workspace/prompt.txt, workspace/paper.md, workspace/addendum.md, and workspace/blacklist.txt from this case directory.</p>
+          </details>
+          <details>
+            <summary>Blacklisted resource</summary>
+            <p>https://github.com/jacksimons15327/snpse_icml</p>
+          </details>
+          <details>
+            <summary>Media and references</summary>
+            <p>No media_refs and no oversized reference paths were listed in case_meta.json. Paper figures referenced asset paths inside paper.md, but no image files exist in the case directory.</p>
+          </details>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>04_sequential-neural-score-estimation</span>
+    <span>trajectory_sha256: 5299641714496bc51719a4f97692186a5179382b812a62b5ae0d75b992e4ad01</span>
+  </footer>
+
+  <script>
+    const topbar = document.getElementById('topbar');
+    window.addEventListener('scroll', () => {
+      topbar.classList.toggle('is-scrolled', window.scrollY > 18);
+    }, { passive: true });
+
+    const canvas = document.getElementById('diffusionCanvas');
+    const ctx = canvas.getContext('2d');
+    const phaseLabel = document.getElementById('phaseLabel');
+    const particles = [];
+    const colors = ['#b44d2f', '#0b6f6a', '#283f73', '#d39b32'];
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(rect.width * dpr);
+      canvas.height = Math.floor(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function seedParticles() {
+      particles.length = 0;
+      for (let i = 0; i < 110; i++) {
+        const band = i % 2 === 0 ? -1 : 1;
+        particles.push({
+          offset: Math.random(),
+          lane: band,
+          jitter: Math.random() * 44 + 10,
+          size: Math.random() * 2.8 + 1.5,
+          color: colors[i % colors.length],
+          speed: Math.random() * .35 + .18
+        });
+      }
+    }
+
+    function draw(t) {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(255,250,240,.28)';
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = 'rgba(22,19,15,.12)';
+      ctx.lineWidth = 1;
+      for (let x = 24; x < w; x += 42) {
+        ctx.beginPath();
+        ctx.moveTo(x, 18);
+        ctx.lineTo(x, h - 18);
+        ctx.stroke();
+      }
+
+      const cycle = (Math.sin(t * .00042) + 1) / 2;
+      phaseLabel.textContent = cycle > .5 ? 'reverse posterior flow' : 'forward noising';
+
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(11,111,106,.42)';
+      ctx.beginPath();
+      for (let x = 28; x < w - 28; x += 6) {
+        const y = h * .48 + Math.sin(x * .025 + t * .0012) * 34;
+        if (x === 28) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      particles.forEach((p) => {
+        const flow = (p.offset + t * .00004 * p.speed) % 1;
+        const compress = .22 + Math.abs(cycle - .5) * 1.2;
+        const x = 34 + flow * (w - 68);
+        const centerY = h * .48 + Math.sin(x * .025 + t * .0012) * 34;
+        const spread = (1 - cycle) * 92 + cycle * 25;
+        const y = centerY + p.lane * Math.sin(flow * Math.PI) * spread + Math.sin(t * .001 + p.jitter) * 7;
+        ctx.beginPath();
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = .56 + cycle * .28;
+        ctx.arc(x, y, p.size * compress, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      ctx.font = '12px SFMono-Regular, Menlo, monospace';
+      ctx.fillStyle = '#665f55';
+      ctx.fillText('reference Gaussian', 24, h - 24);
+      ctx.fillText('p(theta | x_obs)', Math.max(24, w - 154), 28);
+      requestAnimationFrame(draw);
+    }
+
+    resizeCanvas();
+    seedParticles();
+    window.addEventListener('resize', resizeCanvas);
+    requestAnimationFrame(draw);
+  </script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session Review · Retail Support · Yara Silva</title>
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --ink:#0f172a;
+    --muted:#64748b;
+    --line:#e5e8f0;
+    --card:#ffffff;
+    --brand:#4f46e5;
+    --brand2:#0ea5e9;
+    --ok:#059669;
+    --okbg:#ecfdf5;
+    --warn:#b45309;
+    --warnbg:#fffbeb;
+    --user:#7c3aed;
+    --tool:#0891b2;
+    --shadow:0 10px 30px -12px rgba(15,23,42,.18);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+  /* ---------- Nav ---------- */
+  header.nav{
+    position:sticky;top:0;z-index:50;
+    transition:background .3s ease, box-shadow .3s ease, border-color .3s ease;
+    border-bottom:1px solid transparent;
+  }
+  header.nav.scrolled{
+    background:rgba(255,255,255,.82);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 6px 24px -18px rgba(15,23,42,.4);
+  }
+  .nav-inner{display:flex;align-items:center;gap:20px;height:66px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.02em}
+  .logo .mark{
+    width:30px;height:30px;border-radius:9px;
+    background:linear-gradient(135deg,var(--brand),var(--brand2));
+    display:grid;place-items:center;color:#fff;font-size:15px;box-shadow:var(--shadow);
+  }
+  .nav-links{display:none;gap:26px;margin-left:12px;font-size:14px;color:var(--muted);font-weight:500}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .pill{
+    font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;
+    display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  }
+  .pill.ok{color:var(--ok);background:var(--okbg);border:1px solid #bbf7d0}
+  .dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+  @media(min-width:900px){.nav-links{display:flex}}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;overflow:hidden;padding:70px 0 54px}
+  .hero:before{
+    content:"";position:absolute;inset:0;z-index:-1;
+    background:
+      radial-gradient(60% 60% at 12% 0%,rgba(79,70,229,.14),transparent 60%),
+      radial-gradient(50% 55% at 92% 8%,rgba(14,165,233,.16),transparent 60%);
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;
+    text-transform:uppercase;letter-spacing:.12em;color:var(--brand);
+    background:#fff;border:1px solid var(--line);padding:7px 13px;border-radius:999px;box-shadow:var(--shadow)
+  }
+  h1{font-size:clamp(30px,4.6vw,50px);line-height:1.06;letter-spacing:-.03em;margin:20px 0 14px;font-weight:800}
+  h1 .grad{background:linear-gradient(120deg,var(--brand),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:60ch;margin:0}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:14.5px;
+    padding:12px 20px;border-radius:12px;cursor:pointer;border:1px solid transparent;transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;box-shadow:var(--shadow)}
+  .btn.ghost{background:#fff;border-color:var(--line);color:var(--ink)}
+  .btn:hover{transform:translateY(-2px)}
+
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:40px}
+  @media(min-width:760px){.stats{grid-template-columns:repeat(4,1fr)}}
+  .stat{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 18px;box-shadow:var(--shadow);
+  }
+  .stat .k{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .stat .k.money{color:var(--ok)}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+  /* ---------- Section frame ---------- */
+  section{padding:52px 0}
+  .sec-head{margin-bottom:26px}
+  .sec-head .tag{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--brand2)}
+  .sec-head h2{font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;margin:8px 0 6px;font-weight:800}
+  .sec-head p{color:var(--muted);margin:0;max-width:64ch}
+
+  /* reveal on scroll */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease, transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- Profile / feature cards ---------- */
+  .grid{display:grid;gap:16px}
+  .grid.c3{grid-template-columns:1fr}
+  @media(min-width:800px){.grid.c3{grid-template-columns:repeat(3,1fr)}}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px;box-shadow:var(--shadow);transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:0 22px 40px -22px rgba(15,23,42,.32)}
+  .card .ico{
+    width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:19px;margin-bottom:12px;
+    background:linear-gradient(135deg,rgba(79,70,229,.12),rgba(14,165,233,.14));color:var(--brand)
+  }
+  .card h3{margin:0 0 8px;font-size:16px;letter-spacing:-.01em}
+  .kv{display:flex;justify-content:space-between;gap:14px;font-size:13.5px;padding:5px 0;border-bottom:1px dashed var(--line)}
+  .kv:last-child{border-bottom:0}
+  .kv .kk{color:var(--muted)}
+  .kv .vv{font-weight:600;text-align:right}
+  code.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;background:#f1f3f9;border:1px solid var(--line);padding:1px 6px;border-radius:6px}
+
+  /* ---------- Changes / order cards ---------- */
+  .change{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .change + .change{margin-top:18px}
+  .change-top{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#fff,#fbfcff)}
+  .change-top .oid{font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:15px}
+  .change-top .what{color:var(--muted);font-size:14px}
+  .badge{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;letter-spacing:.02em}
+  .badge.mod{color:var(--warn);background:var(--warnbg);border:1px solid #fde68a}
+  .badge.refund{color:var(--ok);background:var(--okbg);border:1px solid #bbf7d0;margin-left:auto}
+  .diff{display:grid;gap:14px;padding:20px 22px}
+  @media(min-width:720px){.diff{grid-template-columns:1fr auto 1fr;align-items:stretch}}
+  .diff .side{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:#fbfcff}
+  .diff .side.before{opacity:.85}
+  .diff .side.after{border-color:#c7d2fe;background:linear-gradient(180deg,#fff,#f5f6ff)}
+  .diff .side .cap{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:8px}
+  .diff .side.after .cap{color:var(--brand)}
+  .diff .side .nm{font-weight:700;font-size:15px;margin-bottom:8px}
+  .opt{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:12px;padding:3px 9px;border-radius:8px;background:#eef1f8;border:1px solid var(--line);color:#334155}
+  .chip.hl{background:#ede9fe;border-color:#ddd6fe;color:#5b21b6;font-weight:600}
+  .arrow{display:grid;place-items:center;color:var(--brand);font-size:22px;font-weight:800}
+  @media(max-width:719px){.arrow{transform:rotate(90deg)}}
+  .price-row{display:flex;justify-content:space-between;font-size:13px;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)}
+  .price-row .old{color:var(--muted);text-decoration:line-through}
+  .price-row .new{font-weight:700}
+
+  /* ---------- Timeline ---------- */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+  .fbtn{
+    font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;border:1px solid var(--line);
+    background:#fff;color:var(--muted);cursor:pointer;transition:all .15s ease;
+  }
+  .fbtn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .fbtn:hover{color:var(--ink)}
+  .fbtn[aria-pressed="true"]:hover{color:#fff}
+
+  .timeline{position:relative;padding-left:34px}
+  .timeline:before{content:"";position:absolute;left:11px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--line),transparent)}
+  .turn{position:relative;margin-bottom:16px}
+  .turn:before{
+    content:"";position:absolute;left:-28px;top:6px;width:16px;height:16px;border-radius:50%;
+    border:3px solid #fff;box-shadow:0 0 0 1px var(--line);
+  }
+  .turn.user:before{background:var(--user)}
+  .turn.assistant:before{background:var(--brand)}
+  .turn.tool:before{background:var(--tool)}
+  .turn.system:before{background:#94a3b8}
+  .bubble{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);
+  }
+  .turn.user .bubble{background:#faf5ff;border-color:#e9d5ff}
+  .role{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+  .role .who{color:var(--muted)}
+  .turn.user .role .who{color:var(--user)}
+  .turn.assistant .role .who{color:var(--brand)}
+  .turn.tool .role .who{color:var(--tool)}
+  .msg{font-size:14.5px;white-space:pre-wrap}
+  .msg.quiet{color:var(--muted)}
+
+  .toolcall{
+    margin-top:10px;border:1px solid #cffafe;background:#f0fdff;border-radius:11px;overflow:hidden;
+  }
+  .toolcall summary{
+    list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;padding:10px 13px;font-size:13px;font-weight:600;color:var(--tool);
+  }
+  .toolcall summary::-webkit-details-marker{display:none}
+  .toolcall summary .fn{font-family:ui-monospace,Menlo,monospace}
+  .toolcall summary .chev{margin-left:auto;transition:transform .2s ease;font-size:11px;color:var(--muted)}
+  .toolcall[open] summary .chev{transform:rotate(90deg)}
+  .toolcall .body{padding:0 13px 13px}
+  pre.json{
+    margin:0;font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.5;
+    background:#0f172a;color:#c7d2fe;border-radius:9px;padding:12px 13px;overflow:auto;white-space:pre-wrap;word-break:break-word;
+  }
+  .taglet{font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:6px;text-transform:uppercase}
+  .taglet.call{background:#e0f2fe;color:#0369a1}
+  .taglet.result{background:#dcfce7;color:#166534}
+
+  .system-note details summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--muted)}
+  .system-note pre{white-space:pre-wrap;font-size:12.5px;color:#475569;background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:10px;line-height:1.6}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-size:13px;background:#fff}
+  .foot-inner{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+  .foot-meta{display:flex;flex-wrap:wrap;gap:8px}
+  .foot-meta span{background:#f1f3f9;border:1px solid var(--line);padding:4px 10px;border-radius:8px;font-size:12px}
+  .hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <div class="logo"><span class="mark">◇</span> Atlas Retail <span style="color:var(--muted);font-weight:500">· Support Console</span></div>
+    <nav class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#profile">Customer</a>
+      <a href="#changes">Changes</a>
+      <a href="#transcript">Transcript</a>
+    </nav>
+    <div class="nav-cta">
+      <span class="pill ok"><span class="dot"></span> Resolved</span>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="overview" style="padding-top:56px">
+  <div class="wrap">
+    <span class="eyebrow">◈ Session Review · tau-bench retail</span>
+    <h1>Two pending orders, <span class="grad">three clean edits</span>,<br>one happy customer.</h1>
+    <p class="lede">Yara Silva was authenticated by name &amp; ZIP, then the agent re-routed a laptop to New York, swapped it for an i7 build, and re-styled a wristwatch dial — all within policy, all refunded to her gift card.</p>
+    <div class="hero-cta">
+      <a class="btn primary" href="#changes">Review the changes →</a>
+      <a class="btn ghost" href="#transcript">Read full transcript</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">3</div><div class="l">Database actions taken</div></div>
+      <div class="stat"><div class="k money">$319.30</div><div class="l">Refunded to gift card</div></div>
+      <div class="stat"><div class="k">7</div><div class="l">Tool calls made</div></div>
+      <div class="stat"><div class="k">2</div><div class="l">Orders modified</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CUSTOMER -->
+<section id="profile">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="tag">Customer</div>
+      <h2>Who we helped</h2>
+      <p>Identity verified via first name, last name and ZIP code before any account data was shared — as required by policy.</p>
+    </div>
+    <div class="grid c3">
+      <div class="card reveal">
+        <div class="ico">👤</div>
+        <h3>Yara Silva</h3>
+        <div class="kv"><span class="kk">User ID</span><span class="vv"><code class="mono">yara_silva_7567</code></span></div>
+        <div class="kv"><span class="kk">Email</span><span class="vv">yara.silva2443@example.com</span></div>
+        <div class="kv"><span class="kk">Auth method</span><span class="vv">Name + ZIP</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="ico">📍</div>
+        <h3>Default address</h3>
+        <div class="kv"><span class="kk">Street</span><span class="vv">116 Laurel Lane, Ste 319</span></div>
+        <div class="kv"><span class="kk">City</span><span class="vv">Houston, TX</span></div>
+        <div class="kv"><span class="kk">ZIP</span><span class="vv">77159</span></div>
+      </div>
+      <div class="card reveal">
+        <div class="ico">💳</div>
+        <h3>Payment method</h3>
+        <div class="kv"><span class="kk">Type</span><span class="vv">Gift card</span></div>
+        <div class="kv"><span class="kk">ID</span><span class="vv"><code class="mono">gift_card_7252880</code></span></div>
+        <div class="kv"><span class="kk">Balance (start)</span><span class="vv">$56.00</span></div>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:13.5px;margin-top:18px" class="reveal">Four orders on file — <code class="mono">#W9810810</code>, <code class="mono">#W9034102</code>, <code class="mono">#W3964602</code>, <code class="mono">#W3730488</code>. The agent inspected all four to locate the laptop and watch before acting.</p>
+  </div>
+</section>
+
+<!-- CHANGES -->
+<section id="changes" style="background:linear-gradient(180deg,#fff,#f6f7fb)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="tag">What changed</div>
+      <h2>Three confirmed edits</h2>
+      <p>Each item modification stays within the same product type (an option swap, never a product swap) and was explicitly confirmed by the customer before execution.</p>
+    </div>
+
+    <!-- Change 1: address -->
+    <div class="change reveal">
+      <div class="change-top">
+        <span class="oid">#W3730488</span>
+        <span class="what">Shipping address · pending order</span>
+        <span class="badge mod">Address modified</span>
+      </div>
+      <div class="diff">
+        <div class="side before">
+          <div class="cap">Before</div>
+          <div class="nm">Houston, TX</div>
+          <div class="opt"><span class="chip">116 Laurel Lane</span><span class="chip">Suite 319</span><span class="chip">77159</span></div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="side after">
+          <div class="cap">After</div>
+          <div class="nm">New York, NY</div>
+          <div class="opt"><span class="chip hl">555 Highland Drive</span><span class="chip hl">Suite 872</span><span class="chip hl">10116</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change 2: laptop -->
+    <div class="change reveal">
+      <div class="change-top">
+        <span class="oid">#W3730488</span>
+        <span class="what">Laptop · item option swap</span>
+        <span class="badge mod">Item modified</span>
+        <span class="badge refund">Refund $242.15</span>
+      </div>
+      <div class="diff">
+        <div class="side before">
+          <div class="cap">Before · <code class="mono">2913673670</code></div>
+          <div class="nm">15″ Laptop</div>
+          <div class="opt"><span class="chip">i9</span><span class="chip">32GB RAM</span><span class="chip">512GB SSD</span><span class="chip">black</span></div>
+          <div class="price-row"><span>Price</span><span class="old">$2,701.89</span></div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="side after">
+          <div class="cap">After · <code class="mono">9844888101</code></div>
+          <div class="nm">15″ Laptop</div>
+          <div class="opt"><span class="chip hl">i7</span><span class="chip hl">8GB RAM</span><span class="chip hl">1TB SSD</span><span class="chip">black</span></div>
+          <div class="price-row"><span>Price</span><span class="new">$2,459.74</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change 3: watch -->
+    <div class="change reveal">
+      <div class="change-top">
+        <span class="oid">#W9810810</span>
+        <span class="what">Wristwatch · dial color</span>
+        <span class="badge mod">Item modified</span>
+        <span class="badge refund">Refund $77.15</span>
+      </div>
+      <div class="diff">
+        <div class="side before">
+          <div class="cap">Before · <code class="mono">1355937109</code></div>
+          <div class="nm">Wristwatch</div>
+          <div class="opt"><span class="chip">leather strap</span><span class="chip">white dial</span></div>
+          <div class="price-row"><span>Price</span><span class="old">$1,985.30</span></div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="side after">
+          <div class="cap">After · <code class="mono">9949163720</code></div>
+          <div class="nm">Wristwatch</div>
+          <div class="opt"><span class="chip">leather strap</span><span class="chip hl">black dial</span></div>
+          <div class="price-row"><span>Price</span><span class="new">$1,908.15</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card reveal" style="margin-top:18px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between">
+      <div><strong>Total refunded to gift card</strong><div style="color:var(--muted);font-size:13px">$242.15 (laptop) + $77.15 (watch)</div></div>
+      <div style="font-size:28px;font-weight:800;color:var(--ok)">$319.30</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRANSCRIPT -->
+<section id="transcript">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="tag">Transcript</div>
+      <h2>The conversation, step by step</h2>
+      <p>Filter the timeline to focus on what the customer said, what the agent replied, or the underlying tool calls and their raw responses.</p>
+    </div>
+
+    <div class="filters reveal" role="group" aria-label="Filter transcript">
+      <button class="fbtn" data-f="all" aria-pressed="true">All turns</button>
+      <button class="fbtn" data-f="user" aria-pressed="false">Customer</button>
+      <button class="fbtn" data-f="assistant" aria-pressed="false">Agent</button>
+      <button class="fbtn" data-f="tool" aria-pressed="false">Tool activity</button>
+    </div>
+
+    <div class="system-note reveal" style="margin-bottom:20px">
+      <details>
+        <summary>▸ System policy in effect (retail agent)</summary>
+        <pre>Authenticate the user before sharing any account data (email, or name + ZIP) — even if a user id is given.
+Handle one user per conversation. List action details and get explicit "yes" before any cancel / modify / return / exchange.
+Only pending orders can be modified. Item edits stay within the same product type — an option swap, never a product swap. modify_pending_order_items can be called only once per order, so all items must be collected first. Refunds go to the original payment method (gift card = immediate).</pre>
+      </details>
+    </div>
+
+    <div class="timeline" id="timeline"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div>
+      <div style="font-weight:700;color:var(--ink)">Session <code class="mono">04_sonnet-35-new-retail_458</code></div>
+      <div>tau-bench · retail domain · task 113 · trial 3</div>
+    </div>
+    <div class="foot-meta">
+      <span>model: sonnet-35-new</span>
+      <span>format: tau-bench-json</span>
+      <span>outcome: resolved</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ---------- Transcript data ----------
+const turns = [
+  {role:"user", text:"Hello... I need to make some changes to my recent orders... I'm Yara Silva."},
+  {role:"assistant", text:"Hello Yara! I'd be happy to help. First I'll need to authenticate your account — could you provide your email address? Alternatively I can look you up by ZIP code."},
+  {role:"user", text:"Um... my zip code is 77159..."},
+  {role:"assistant", text:"Thank you. Using your first name and ZIP code to locate the account.",
+   call:{fn:"find_user_id_by_name_zip", args:{first_name:"Yara", last_name:"Silva", zip:"77159"}}},
+  {role:"tool", fn:"find_user_id_by_name_zip", result:'"yara_silva_7567"'},
+  {role:"assistant", text:"Account found. Retrieving your details.",
+   call:{fn:"get_user_details", args:{user_id:"yara_silva_7567"}}},
+  {role:"tool", fn:"get_user_details", result:JSON.stringify({name:{first_name:"Yara",last_name:"Silva"},address:{address1:"116 Laurel Lane",address2:"Suite 319",city:"Houston",country:"USA",province:"TX",zip:"77159"},email:"yara.silva2443@example.com",payment_methods:{gift_card_7252880:{source:"gift_card",balance:56,id:"gift_card_7252880"}},orders:["#W9810810","#W9034102","#W3964602","#W3730488"]},null,2)},
+  {role:"assistant", text:"You have four orders on file: #W9810810, #W9034102, #W3964602, #W3730488. Which one would you like to change, and what should I update?"},
+  {role:"user", text:"*sigh* Well... I need to change two things... First, the laptop delivery address... I want it sent to my NYC address instead..."},
+  {role:"assistant", text:"Let me find the laptop order and check whether it can be modified.",
+   call:{fn:"get_order_details", args:{order_id:"#W9810810"}}},
+  {role:"tool", fn:"get_order_details", result:'{ "#W9810810": Electric Kettle, Wristwatch (leather/white dial), Bookshelf — status: "pending" }'},
+  {role:"assistant", text:"(checking the next order…)", call:{fn:"get_order_details", args:{order_id:"#W9034102"}}},
+  {role:"tool", fn:"get_order_details", result:'{ "#W9034102": Air Purifier, Backpack, Water Bottle, Tablet — status: "pending" }'},
+  {role:"assistant", text:"(checking the next order…)", call:{fn:"get_order_details", args:{order_id:"#W3964602"}}},
+  {role:"tool", fn:"get_order_details", result:'{ "#W3964602": Cycling Helmet ×2, Dumbbell Set, Vacuum, Bluetooth Speaker — ships to New York, NY 10116 — status: "delivered" }'},
+  {role:"assistant", text:"(checking the last order…)", call:{fn:"get_order_details", args:{order_id:"#W3730488"}}},
+  {role:"tool", fn:"get_order_details", result:'{ "#W3730488": Espresso Machine, Laptop (15\\" i9 / 32GB / 512GB / black, item 2913673670) — status: "pending" }'},
+  {role:"assistant", text:"Found it — the laptop is in order #W3730488, currently pending, so we can update the address. Your NYC address on file is 555 Highland Drive, Suite 872, New York, NY 10116. Shall I ship the laptop order there? Please confirm with \"yes.\""},
+  {role:"user", text:"Yes... that's right... and um, I also need to change the laptop model number to 9844888101..."},
+  {role:"assistant", text:"For pending orders I can only swap to a different option of the same product, not a different product. Let me verify that number is a variant of the same laptop.",
+   call:{fn:"get_product_details", args:{product_id:"4760268021"}}},
+  {role:"tool", fn:"get_product_details", result:'{ Laptop variants… 9844888101 → 15" / i7 / 8GB / 1TB SSD / black — available: true, price 2459.74 }'},
+  {role:"assistant", text:"Good news — 9844888101 is a valid variant of the same laptop (15″, i7, 8GB, 1TB SSD, black) at $2,459.74 vs. your current $2,701.89, a $242.15 refund to your gift card. First, applying the confirmed address change:",
+   call:{fn:"modify_pending_order_address", args:{order_id:"#W3730488", address1:"555 Highland Drive", address2:"Suite 872", city:"New York", state:"NY", country:"USA", zip:"10116"}}},
+  {role:"tool", fn:"modify_pending_order_address", result:'{ "#W3730488" address → 555 Highland Drive, New York, NY 10116 — status: "pending" }'},
+  {role:"assistant", text:"Address updated. For the laptop model change, please confirm with \"yes\" to modify to item 9844888101 (refund of $242.15 to your gift card)."},
+  {role:"user", text:"Yes, that's fine... *hesitates* There's one more thing... about my watch order... I'd like to change the dial color to black..."},
+  {role:"assistant", text:"Let me check the available options for that watch — it's in order #W9810810.",
+   call:{fn:"get_product_details", args:{product_id:"6066914160"}}},
+  {role:"tool", fn:"get_product_details", result:'{ Wristwatch variants… 9949163720 → leather strap / black dial — available: true, price 1908.15 }'},
+  {role:"assistant", text:"There's a leather-strap black-dial version (item 9949163720) at $1,908.15 vs. your $1,985.30 — a $77.15 refund. First let me process the laptop change you confirmed:",
+   call:{fn:"modify_pending_order_items", args:{order_id:"#W3730488", item_ids:["2913673670"], new_item_ids:["9844888101"], payment_method_id:"gift_card_7252880"}}},
+  {role:"tool", fn:"modify_pending_order_items", result:'{ "#W3730488" laptop → 9844888101 — status: "pending (item modified)"; refund 242.15 → gift_card_7252880 }'},
+  {role:"assistant", text:"Laptop change processed — $242.15 refunded. For the watch, confirm with \"yes\" to change to the black-dial version (item 9949163720)."},
+  {role:"user", text:"Yes... and I want to keep the leather strap on the watch... just changing the dial color..."},
+  {role:"assistant", text:"Don't worry — the option I selected (9949163720) keeps the leather strap and only changes the dial to black, exactly as you asked. Processing now:",
+   call:{fn:"modify_pending_order_items", args:{order_id:"#W9810810", item_ids:["1355937109"], new_item_ids:["9949163720"], payment_method_id:"gift_card_7252880"}}},
+  {role:"tool", fn:"modify_pending_order_items", result:'{ "#W9810810" watch → 9949163720 (leather / black dial) — status: "pending (item modified)"; refund 77.15 → gift_card_7252880 }'},
+  {role:"assistant", text:"All done! Summary:\n1. Laptop order shipping → NYC (555 Highland Drive)\n2. Laptop → i7 / 1TB model (refund $242.15)\n3. Watch → black dial, leather strap (refund $77.15)\nTotal refund to gift card: $319.30. Anything else?"},
+  {role:"user", text:"###STOP###", quiet:true}
+];
+
+const roleLabel = {user:"Customer · Yara", assistant:"Agent", tool:"Tool result", system:"System"};
+
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+function render(){
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = turns.map(t=>{
+    let inner = '';
+    inner += `<div class="role"><span class="who">${roleLabel[t.role]}</span></div>`;
+    if(t.text){ inner += `<div class="msg${t.quiet?' quiet':''}">${esc(t.text)}</div>`; }
+    if(t.call){
+      inner += `<details class="toolcall"><summary><span class="taglet call">call</span><span class="fn">${esc(t.call.fn)}()</span><span class="chev">▶</span></summary>`+
+               `<div class="body"><pre class="json">${esc(JSON.stringify(t.call.args,null,2))}</pre></div></details>`;
+    }
+    if(t.role==='tool'){
+      inner = `<div class="role"><span class="who">${roleLabel.tool}</span><span class="taglet result">${esc(t.fn)}</span></div>`+
+              `<details class="toolcall"><summary><span class="taglet result">result</span><span class="fn">${esc(t.fn)}</span><span class="chev">▶</span></summary>`+
+              `<div class="body"><pre class="json">${esc(t.result)}</pre></div></details>`;
+    }
+    return `<div class="turn ${t.role}" data-role="${t.role}"><div class="bubble">${inner}</div></div>`;
+  }).join('');
+}
+render();
+
+// ---------- Filters ----------
+document.querySelectorAll('.fbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.fbtn').forEach(b=>b.setAttribute('aria-pressed','false'));
+    btn.setAttribute('aria-pressed','true');
+    const f = btn.dataset.f;
+    document.querySelectorAll('.turn').forEach(el=>{
+      el.classList.toggle('hidden', f!=='all' && el.dataset.role!==f);
+    });
+  });
+});
+
+// ---------- Nav scroll state ----------
+const nav = document.getElementById('nav');
+const onScroll = ()=> nav.classList.toggle('scrolled', window.scrollY>12);
+onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+
+// ---------- Reveal on scroll ----------
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

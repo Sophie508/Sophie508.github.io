@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HelloFresh Veggie Plan Case Review</title>
+  <style>
+    :root {
+      --ink: #182118;
+      --muted: #687267;
+      --paper: #faf8ef;
+      --leaf: #0d5d3b;
+      --leaf-2: #15824f;
+      --mint: #d9f2cf;
+      --lime: #b5e753;
+      --tomato: #e95b3c;
+      --cream: #fffdf4;
+      --line: rgba(24, 33, 24, .14);
+      --shadow: 0 26px 70px rgba(24, 33, 24, .16);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      color-scheme: light;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(181, 231, 83, .42), transparent 28rem),
+        linear-gradient(135deg, rgba(13, 93, 59, .10) 0 1px, transparent 1px 24px),
+        var(--paper);
+      line-height: 1.5;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .22;
+      background-image:
+        linear-gradient(90deg, rgba(24, 33, 24, .08) 1px, transparent 1px),
+        linear-gradient(rgba(24, 33, 24, .05) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+      z-index: -1;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 14px clamp(18px, 4vw, 54px);
+      border-bottom: 1px solid transparent;
+      background: rgba(250, 248, 239, .72);
+      backdrop-filter: blur(18px);
+      transition: border-color .25s ease, background .25s ease, box-shadow .25s ease;
+    }
+
+    .nav.scrolled {
+      border-color: var(--line);
+      background: rgba(255, 253, 244, .9);
+      box-shadow: 0 12px 30px rgba(24, 33, 24, .08);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: var(--leaf);
+      color: var(--cream);
+      box-shadow: 4px 4px 0 var(--lime);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: clamp(10px, 2.2vw, 26px);
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .nav-links a {
+      padding: 8px 0;
+      border-bottom: 2px solid transparent;
+    }
+
+    .nav-links a:hover { color: var(--ink); border-color: var(--lime); }
+
+    .nav .cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 16px;
+      border: 1px solid var(--ink);
+      border-radius: 6px;
+      background: var(--ink);
+      color: var(--cream);
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 4px 4px 0 var(--lime);
+    }
+
+    main { overflow: hidden; }
+
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: grid;
+      grid-template-columns: minmax(0, 1.03fr) minmax(320px, .78fr);
+      gap: clamp(28px, 5vw, 74px);
+      align-items: center;
+      padding: clamp(44px, 7vw, 88px) clamp(18px, 5vw, 72px) 36px;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 18px;
+      color: var(--leaf);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 2px;
+      background: var(--tomato);
+    }
+
+    h1 {
+      max-width: 880px;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(54px, 9.6vw, 132px);
+      line-height: .86;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .hero-copy {
+      max-width: 680px;
+      margin: 26px 0 0;
+      font-size: clamp(17px, 1.5vw, 22px);
+      color: #3d493b;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 18px;
+      border-radius: 7px;
+      border: 1px solid var(--ink);
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .button.primary {
+      background: var(--leaf);
+      color: white;
+      box-shadow: 6px 6px 0 var(--lime);
+    }
+
+    .button.secondary {
+      background: rgba(255, 253, 244, .76);
+      color: var(--ink);
+    }
+
+    .button:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 8px 8px 0 rgba(181, 231, 83, .9);
+    }
+
+    .case-card {
+      position: relative;
+      padding: clamp(18px, 3vw, 30px);
+      border: 1px solid rgba(24, 33, 24, .18);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 244, .82);
+      box-shadow: var(--shadow);
+      isolation: isolate;
+    }
+
+    .case-card::before {
+      content: "";
+      position: absolute;
+      inset: 12px -12px -12px 12px;
+      border: 1px solid rgba(13, 93, 59, .3);
+      border-radius: var(--radius);
+      z-index: -1;
+    }
+
+    .ticket-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 18px;
+      border-bottom: 1px dashed rgba(24, 33, 24, .28);
+    }
+
+    .ticket-label {
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(233, 91, 60, .12);
+      color: #9b351f;
+      border: 1px solid rgba(233, 91, 60, .28);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--tomato);
+    }
+
+    .plan-stack {
+      display: grid;
+      gap: 12px;
+      margin: 22px 0;
+    }
+
+    .plan-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .plan-line strong { font-size: 22px; }
+    .plan-line span:first-child { color: var(--muted); }
+
+    .price {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: end;
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 7px;
+      background: var(--ink);
+      color: var(--cream);
+    }
+
+    .price b {
+      display: block;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 44px;
+      line-height: 1;
+    }
+
+    .price small { color: rgba(255, 253, 244, .72); }
+
+    .section {
+      padding: clamp(54px, 7vw, 90px) clamp(18px, 5vw, 72px);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, .8fr) minmax(280px, .45fr);
+      gap: 32px;
+      align-items: end;
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 5vw, 72px);
+      line-height: .96;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 244, .68);
+    }
+
+    .metric {
+      min-height: 150px;
+      padding: 22px;
+      border-right: 1px solid var(--line);
+      transition: background .2s ease, transform .2s ease;
+    }
+
+    .metric:last-child { border-right: 0; }
+    .metric:hover { background: white; transform: translateY(-4px); }
+
+    .metric b {
+      display: block;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(32px, 4vw, 52px);
+      line-height: 1;
+      color: var(--leaf);
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .journey {
+      display: grid;
+      grid-template-columns: .36fr 1fr;
+      gap: clamp(22px, 4vw, 54px);
+      align-items: start;
+    }
+
+    .rail {
+      position: sticky;
+      top: 86px;
+      padding: 22px;
+      border-left: 5px solid var(--leaf);
+      background: rgba(13, 93, 59, .08);
+    }
+
+    .rail p { margin: 10px 0 0; color: var(--muted); }
+
+    .steps {
+      display: grid;
+      gap: 14px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      gap: 18px;
+      align-items: center;
+      min-height: 98px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 244, .82);
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .step:hover {
+      transform: translateX(4px);
+      border-color: rgba(13, 93, 59, .32);
+      box-shadow: 0 16px 36px rgba(24, 33, 24, .09);
+    }
+
+    .step-time {
+      font-weight: 900;
+      color: var(--leaf);
+      font-size: 13px;
+    }
+
+    .step h3 {
+      margin: 0 0 4px;
+      font-size: 19px;
+    }
+
+    .step p { margin: 0; color: var(--muted); }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 88px;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(181, 231, 83, .34);
+      color: #3a5a12;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .tag.warn {
+      background: rgba(233, 91, 60, .13);
+      color: #9b351f;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, .85fr) minmax(320px, .65fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .panel {
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 244, .82);
+    }
+
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+
+    .panel p { color: var(--muted); }
+
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 18px 0 0;
+      display: grid;
+      gap: 11px;
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .checklist li::before {
+      content: "✓";
+      flex: 0 0 24px;
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--leaf);
+      color: white;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .blocker {
+      background:
+        linear-gradient(135deg, rgba(233, 91, 60, .14), transparent 52%),
+        rgba(255, 253, 244, .86);
+      border-color: rgba(233, 91, 60, .35);
+    }
+
+    .blocker .checklist li::before {
+      content: "!";
+      background: var(--tomato);
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 244, .8);
+      padding: 0;
+      overflow: hidden;
+    }
+
+    details + details { margin-top: 12px; }
+
+    summary {
+      cursor: pointer;
+      padding: 18px 20px;
+      font-weight: 900;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; font-size: 24px; line-height: 1; color: var(--leaf); }
+    details[open] summary::after { content: "−"; }
+
+    .detail-body {
+      padding: 0 20px 20px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+    }
+
+    .detail-body code {
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(24, 33, 24, .08);
+      color: var(--ink);
+      font-family: "Courier New", monospace;
+      font-size: .92em;
+    }
+
+    .footer {
+      padding: 34px clamp(18px, 5vw, 72px) 44px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px 24px;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+      background: rgba(255, 253, 244, .58);
+    }
+
+    .reveal {
+      animation: rise .7s ease both;
+    }
+
+    .delay-1 { animation-delay: .08s; }
+    .delay-2 { animation-delay: .16s; }
+    .delay-3 { animation-delay: .24s; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 920px) {
+      .nav { align-items: flex-start; }
+      .nav-links { display: none; }
+      .hero,
+      .section-head,
+      .journey,
+      .split {
+        grid-template-columns: 1fr;
+      }
+      .hero { min-height: auto; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric:nth-child(2) { border-right: 0; }
+      .metric:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .rail { position: static; }
+    }
+
+    @media (max-width: 640px) {
+      .nav .cta { display: none; }
+      .hero-actions { flex-direction: column; }
+      .button { width: 100%; }
+      .metrics { grid-template-columns: 1fr; }
+      .metric {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .metric:last-child { border-bottom: 0; }
+      .step {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .tag { width: fit-content; }
+      .ticket-top,
+      .plan-line,
+      .price {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" id="topNav" aria-label="Case navigation">
+    <a class="brand" href="#top" aria-label="Go to top">
+      <span class="brand-mark">HF</span>
+      <span>Case 03_008</span>
+    </a>
+    <div class="nav-links" aria-label="Sections">
+      <a href="#outcome">Outcome</a>
+      <a href="#journey">Journey</a>
+      <a href="#audit">Audit Notes</a>
+    </div>
+    <a class="cta" href="#audit">Review Evidence</a>
+  </nav>
+
+  <main id="top">
+    <section class="hero">
+      <div class="reveal">
+        <div class="eyebrow">Daily web task · Food subscription</div>
+        <h1>HelloFresh Veggie checkout, almost completed.</h1>
+        <p class="hero-copy">
+          The agent selected the Canada HelloFresh flow, configured a vegetarian meal kit for
+          2 people with 3 meals per week, created the checkout path, and entered delivery details.
+          The run stopped at payment because the embedded processor remained loading and the
+          final order button stayed disabled.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#outcome">See the result</a>
+          <a class="button secondary" href="#journey">Trace the steps</a>
+        </div>
+      </div>
+
+      <aside class="case-card reveal delay-1" aria-label="Case summary">
+        <div class="ticket-top">
+          <div>
+            <div class="ticket-label">Requested configuration</div>
+            <strong>Veggie plan · 3 meals · 2 people</strong>
+          </div>
+          <span class="status-pill">Payment blocked</span>
+        </div>
+        <div class="plan-stack">
+          <div class="plan-line"><span>Plan</span><strong>Veggie Box</strong></div>
+          <div class="plan-line"><span>Meals weekly</span><strong>3</strong></div>
+          <div class="plan-line"><span>Servings</span><strong>2 people</strong></div>
+          <div class="plan-line"><span>Preference</span><strong>Plant based</strong></div>
+        </div>
+        <div class="price">
+          <div>
+            <small>First box total shown at checkout</small>
+            <b>$38.97</b>
+          </div>
+          <small>Discounted from $88.93 with shipping shown as free.</small>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="outcome">
+      <div class="section-head">
+        <h2>Outcome Snapshot</h2>
+        <p>
+          The requested subscription parameters were reached. The only missing completion step was
+          payment submission through a third-party iframe that did not become interactive.
+        </p>
+      </div>
+
+      <div class="metrics reveal">
+        <div class="metric"><b>1263s</b><span>Case duration recorded in metadata</span></div>
+        <div class="metric"><b>89</b><span>Browser actions observed in trajectory parsing</span></div>
+        <div class="metric"><b>6</b><span>Total servings per weekly box</span></div>
+        <div class="metric"><b>2</b><span>Payment iframes detected while troubleshooting</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="journey">
+      <div class="journey">
+        <aside class="rail reveal">
+          <div class="eyebrow">Trajectory</div>
+          <h2>Checkout path</h2>
+          <p>
+            Condensed from the clawbench-dir trajectory file. Personal address, phone,
+            password, and full email details are intentionally redacted in this presentation.
+          </p>
+        </aside>
+
+        <div class="steps">
+          <article class="step reveal delay-1">
+            <div class="step-time">07:11</div>
+            <div>
+              <h3>Started on HelloFresh US, then switched to Canada</h3>
+              <p>The postal code failed in the US flow, so the agent navigated to the Canadian site.</p>
+            </div>
+            <span class="tag">Route</span>
+          </article>
+          <article class="step reveal delay-1">
+            <div class="step-time">07:13</div>
+            <div>
+              <h3>Verified delivery area</h3>
+              <p>The Canadian plans page accepted the Toronto postal code and enabled continuation.</p>
+            </div>
+            <span class="tag">Valid</span>
+          </article>
+          <article class="step reveal delay-2">
+            <div class="step-time">07:13</div>
+            <div>
+              <h3>Selected the vegetarian path</h3>
+              <p>The agent chose Vegetarian, then selected Plant based during dietary preferences.</p>
+            </div>
+            <span class="tag">Plan</span>
+          </article>
+          <article class="step reveal delay-2">
+            <div class="step-time">07:14</div>
+            <div>
+              <h3>Confirmed meal cadence</h3>
+              <p>The summary showed the requested 3 meals for 2 people, matching the task statement.</p>
+            </div>
+            <span class="tag">Match</span>
+          </article>
+          <article class="step reveal delay-3">
+            <div class="step-time">07:15</div>
+            <div>
+              <h3>Created account and entered delivery details</h3>
+              <p>Dummy profile information was entered and validated through the address step.</p>
+            </div>
+            <span class="tag">Checkout</span>
+          </article>
+          <article class="step reveal delay-3">
+            <div class="step-time">07:16</div>
+            <div>
+              <h3>Stopped at disabled payment action</h3>
+              <p>The page still displayed loading payment details, and “Place order &amp; select meals” remained disabled.</p>
+            </div>
+            <span class="tag warn">Blocker</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>What Was Done</h2>
+        <p>The strongest evidence is the final checkout snapshot: it contained an order summary for 3 meals for 2 people and a disabled final order button.</p>
+      </div>
+
+      <div class="split">
+        <article class="panel">
+          <h3>Completed setup</h3>
+          <p>
+            The agent reached the payment page with the plan already configured. The case should be read
+            as a near-complete checkout attempt rather than a confirmed subscription.
+          </p>
+          <ul class="checklist">
+            <li>Selected HelloFresh Canada after the initial country mismatch.</li>
+            <li>Verified delivery availability for the dummy user’s postal region.</li>
+            <li>Selected Vegetarian and Plant based preferences.</li>
+            <li>Reached the checkout summary for 3 meals, 2 people, 6 servings.</li>
+            <li>Entered account and delivery form data from provided dummy information.</li>
+          </ul>
+        </article>
+
+        <article class="panel blocker">
+          <h3>Completion gap</h3>
+          <p>
+            Payment could not be submitted inside the benchmark browser session. The trajectory records
+            repeated waits, refresh/navigation attempts, iframe inspection, and a forced click attempt,
+            but the payment control stayed disabled.
+          </p>
+          <ul class="checklist">
+            <li>The embedded payment form continued to show a loading state.</li>
+            <li>The button state check returned disabled: true.</li>
+            <li>No successful final order confirmation appears in the trajectory.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="audit">
+      <div class="section-head">
+        <h2>Audit Notes</h2>
+        <p>Source files read for this presentation were limited to the assigned case directory plus the supplied design guidance.</p>
+      </div>
+
+      <details open>
+        <summary>Case metadata</summary>
+        <div class="detail-body">
+          <p>
+            Case id: <code>03_008-daily-life-food-hellofresh-claude-haiku-4-5-20251001-20260325-071107</code>.
+            Domain: <code>daily_web_tasks</code>. Benchmark: <code>ClawBench</code>.
+            Model: <code>claude-haiku-4-5-20251001</code>. Trajectory format: <code>clawbench-dir</code>.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Original task statement</summary>
+        <div class="detail-body">
+          <p>Subscribe to a meal kit with 3 meals per week, select the “Veggie” plan, for 2 people.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Large reference file</summary>
+        <div class="detail-body">
+          <p>
+            Metadata lists <code>trajs/daily_web_tasks/03_008-daily-life-food-hellofresh-claude-haiku-4-5-20251001-20260325-071107/data/requests.jsonl</code>
+            as an oversized reference-only file at 7,611,617 bytes. Per instruction, that referenced path was not followed.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Privacy handling</summary>
+        <div class="detail-body">
+          <p>
+            The trajectory contains dummy personal data used by the agent to fill forms. This page does not reproduce the full address,
+            phone number, payment credentials, or generated password; it only summarizes the checkout state needed to understand the case.
+          </p>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Self-contained HTML case presentation</span>
+    <span>No external fonts, scripts, stylesheets, images, video, or audio loaded</span>
+  </footer>
+
+  <script>
+    const nav = document.getElementById("topNav");
+    const updateNav = () => nav.classList.toggle("scrolled", window.scrollY > 12);
+    updateNav();
+    window.addEventListener("scroll", updateNav, { passive: true });
+  </script>
+</body>
+</html>

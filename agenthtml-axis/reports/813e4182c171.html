@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Code Repair Case: Melevir cognitive_complexity-15</title>
+  <style>
+    :root {
+      --paper: #f7f4ec;
+      --ink: #202126;
+      --muted: #676b73;
+      --rule: #d9d2c4;
+      --panel: #fffaf0;
+      --panel-strong: #ede4d2;
+      --blueprint: #263c77;
+      --repair: #0d6f5f;
+      --warn: #aa4b27;
+      --pass: #237045;
+      --shadow: rgba(33, 32, 28, 0.12);
+      --mono: "SFMono-Regular", "Cascadia Code", "Liberation Mono", Menlo, Consolas, monospace;
+      --body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --display: Georgia, "Times New Roman", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(38, 60, 119, 0.055) 1px, transparent 1px) 0 0 / 32px 32px,
+        linear-gradient(0deg, rgba(38, 60, 119, 0.04) 1px, transparent 1px) 0 0 / 32px 32px,
+        var(--paper);
+      font-family: var(--body);
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .case-shell {
+      min-height: 100vh;
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 32px;
+      align-items: end;
+      width: min(1180px, calc(100% - 40px));
+      min-height: 88vh;
+      margin: 0 auto;
+      padding: 56px 0 38px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 28px auto auto -24px;
+      width: 122px;
+      height: 18px;
+      background: repeating-linear-gradient(90deg, var(--warn) 0 10px, transparent 10px 16px);
+      opacity: 0.85;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--blueprint);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 34px;
+      height: 2px;
+      background: var(--blueprint);
+    }
+
+    h1 {
+      max-width: 810px;
+      margin: 18px 0 18px;
+      font-family: var(--display);
+      font-size: clamp(44px, 7vw, 98px);
+      font-weight: 700;
+      line-height: 0.92;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 680px;
+      margin: 0;
+      color: #41444c;
+      font-size: clamp(18px, 2vw, 22px);
+    }
+
+    .case-facts {
+      display: grid;
+      gap: 10px;
+      align-self: stretch;
+      padding: 18px;
+      border: 1px solid var(--rule);
+      background: rgba(255, 250, 240, 0.72);
+      box-shadow: 0 18px 38px var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .fact-row {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .fact-row:last-child {
+      border-bottom: 0;
+    }
+
+    .fact-label {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .fact-value {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font-weight: 700;
+    }
+
+    .result-stamp {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 8px;
+      padding: 16px;
+      color: white;
+      background: var(--pass);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .result-stamp .dot {
+      width: 12px;
+      height: 12px;
+      border: 2px solid white;
+      border-radius: 50%;
+      background: transparent;
+      box-shadow: inset 0 0 0 3px var(--pass);
+    }
+
+    main {
+      padding-bottom: 72px;
+    }
+
+    .band {
+      border-top: 1px solid var(--rule);
+      background: rgba(255, 250, 240, 0.5);
+    }
+
+    .section {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .section-title h2 {
+      margin: 0 0 12px;
+      font-family: var(--display);
+      font-size: clamp(28px, 4vw, 52px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .section-title span {
+      margin-bottom: 15px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .issue-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.86fr) minmax(320px, 1.14fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .brief {
+      padding: 22px;
+      border-left: 8px solid var(--warn);
+      background: var(--panel);
+    }
+
+    .brief h3,
+    .code-panel h3,
+    .timeline h3,
+    .patch-card h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .brief p {
+      margin: 0 0 14px;
+    }
+
+    .brief p:last-child {
+      margin-bottom: 0;
+    }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin-top: 20px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+    }
+
+    .metric {
+      padding: 15px;
+      background: var(--paper);
+    }
+
+    .metric b {
+      display: block;
+      font-family: var(--display);
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .code-panel {
+      overflow: hidden;
+      border: 1px solid var(--rule);
+      background: #111827;
+      color: #e7eefc;
+      box-shadow: 0 18px 32px var(--shadow);
+    }
+
+    .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 16px;
+      color: #d9e2f7;
+      background: #17213a;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    pre {
+      margin: 0;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 2;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .code-panel pre {
+      max-height: 540px;
+      padding: 18px;
+    }
+
+    .code-line-warn {
+      display: inline-block;
+      min-width: 100%;
+      background: rgba(170, 75, 39, 0.28);
+    }
+
+    .code-line-pass {
+      display: inline-block;
+      min-width: 100%;
+      background: rgba(35, 112, 69, 0.32);
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .rail {
+      position: sticky;
+      top: 16px;
+      align-self: start;
+      border: 1px solid var(--rule);
+      background: var(--panel);
+    }
+
+    .rail button {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      width: 100%;
+      padding: 14px;
+      color: var(--ink);
+      text-align: left;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--rule);
+      cursor: pointer;
+    }
+
+    .rail button:last-child {
+      border-bottom: 0;
+    }
+
+    .rail button[aria-selected="true"] {
+      color: white;
+      background: var(--blueprint);
+    }
+
+    .rail button:focus-visible,
+    .copy-button:focus-visible {
+      outline: 3px solid var(--warn);
+      outline-offset: 2px;
+    }
+
+    .step-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .step-label {
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .event {
+      display: none;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 18px;
+      padding: 20px;
+      border: 1px solid var(--rule);
+      background: rgba(255, 250, 240, 0.78);
+    }
+
+    .event.is-active {
+      display: grid;
+    }
+
+    .event-tag {
+      color: var(--blueprint);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .event h3 {
+      margin-top: 0;
+      font-size: 21px;
+    }
+
+    .event p {
+      margin: 0 0 12px;
+    }
+
+    .event p:last-child {
+      margin-bottom: 0;
+    }
+
+    .callout {
+      padding: 14px 16px;
+      border-left: 5px solid var(--repair);
+      background: #eef8f4;
+      color: #173f39;
+      font-size: 14px;
+    }
+
+    .patch-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .patch-card {
+      border: 1px solid var(--rule);
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .patch-card h3 {
+      padding: 16px 16px 0;
+    }
+
+    .patch-card pre {
+      max-height: 390px;
+      padding: 16px;
+      background: #1b1f2a;
+      color: #e8edf5;
+      font-size: 12px;
+    }
+
+    .diff-del {
+      color: #ffb3a4;
+    }
+
+    .diff-add {
+      color: #9ee6b5;
+    }
+
+    .verification {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+    }
+
+    .verify-card {
+      min-height: 154px;
+      padding: 18px;
+      border: 1px solid var(--rule);
+      background: var(--panel);
+    }
+
+    .verify-card strong {
+      display: block;
+      margin-bottom: 12px;
+      font-family: var(--display);
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .verify-card span {
+      color: var(--muted);
+    }
+
+    .copy-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px dashed var(--blueprint);
+      background: rgba(38, 60, 119, 0.08);
+    }
+
+    .copy-row code {
+      font-family: var(--mono);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-button {
+      flex: 0 0 auto;
+      border: 1px solid var(--blueprint);
+      color: white;
+      background: var(--blueprint);
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .meta-note {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .issue-grid,
+      .workflow,
+      .patch-grid,
+      .verification {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 42px;
+      }
+
+      .rail {
+        position: static;
+      }
+
+      .event {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .hero,
+      .section {
+        width: min(100% - 28px, 1180px);
+      }
+
+      .fact-row,
+      .metric-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .section-title {
+        display: block;
+      }
+
+      .section-title span {
+        display: block;
+        margin-bottom: 12px;
+      }
+
+      .copy-row {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .copy-button {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="case-shell">
+    <header class="hero">
+      <div>
+        <div class="kicker">SWE-bench code repair case</div>
+        <h1>Boolean chains lose their nesting tax.</h1>
+        <p class="lead">
+          A trajectory view for <strong>Melevir__cognitive_complexity-15</strong>, where the agent repaired cognitive complexity scoring so binary logical operator sequences count as fundamental increments only.
+        </p>
+      </div>
+
+      <aside class="case-facts" aria-label="Case facts">
+        <div class="fact-row">
+          <div class="fact-label">Case id</div>
+          <div class="fact-value">03_Melevir__cognitive_complexity-15</div>
+        </div>
+        <div class="fact-row">
+          <div class="fact-label">Model</div>
+          <div class="fact-value">swe-agent-llama-70b</div>
+        </div>
+        <div class="fact-row">
+          <div class="fact-label">Format</div>
+          <div class="fact-value">swe-agent-traj</div>
+        </div>
+        <div class="fact-row">
+          <div class="fact-label">Trajectory</div>
+          <div class="fact-value">43 messages, submitted</div>
+        </div>
+        <div class="result-stamp">
+          <span>pytest: 20 passed in 0.18s</span>
+          <span class="dot" aria-hidden="true"></span>
+        </div>
+      </aside>
+    </header>
+
+    <main>
+      <section class="band">
+        <div class="section">
+          <div class="section-title">
+            <h2>The Issue</h2>
+            <span>task/task_statement.md</span>
+          </div>
+          <div class="issue-grid">
+            <article class="brief">
+              <h3>Problem statement</h3>
+              <p>
+                The library was overcounting sequences of binary logical operators. The Cognitive Complexity specification gives those sequences a fundamental increment, but not the extra nesting increment.
+              </p>
+              <p>
+                The reported example expected <code>process_raw_constant()</code> to score <strong>9</strong>, not <strong>11</strong>. The multiline <code>if</code> condition had been treated as <code>+4</code>; it should be <code>+2</code>.
+              </p>
+              <div class="metric-strip" aria-label="Case metrics">
+                <div class="metric">
+                  <b>2</b>
+                  <span>points removed</span>
+                </div>
+                <div class="metric">
+                  <b>1</b>
+                  <span>scoring line changed</span>
+                </div>
+                <div class="metric">
+                  <b>2</b>
+                  <span>test expectations updated</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="code-panel">
+              <div class="code-head">
+                <span>reported example</span>
+                <span>11 → 9</span>
+              </div>
+              <pre><code>def process_raw_constant(constant, min_word_length):
+    processed_words = []
+    raw_camelcase_words = []
+    for raw_word in re.findall(r'[a-z]+', constant):  # +1
+        word = raw_word.strip()
+        if (  # +2
+<span class="code-line-warn">            len(word) &gt;= min_word_length</span>
+<span class="code-line-warn">            and not (word.startswith('-') or word.endswith('-'))  # +2</span>
+        ):
+            if is_camel_case_word(word):  # +2
+                raw_camelcase_words.append(word)
+            else:  # +1
+                processed_words.append(word.lower())
+    return processed_words, raw_camelcase_words</code></pre>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Trajectory</h2>
+          <span>agent repair path</span>
+        </div>
+        <div class="workflow">
+          <nav class="rail" aria-label="Trajectory steps">
+            <button type="button" data-step="0" aria-selected="true">
+              <span class="step-num">01</span>
+              <span class="step-label">Find the failing expectation</span>
+            </button>
+            <button type="button" data-step="1" aria-selected="false">
+              <span class="step-num">02</span>
+              <span class="step-label">Trace scoring to AST utilities</span>
+            </button>
+            <button type="button" data-step="2" aria-selected="false">
+              <span class="step-num">03</span>
+              <span class="step-label">Remove BoolOp nesting</span>
+            </button>
+            <button type="button" data-step="3" aria-selected="false">
+              <span class="step-num">04</span>
+              <span class="step-label">Fix expectations and verify</span>
+            </button>
+          </nav>
+
+          <div class="timeline">
+            <article class="event is-active" data-panel="0">
+              <div class="event-tag">search</div>
+              <div>
+                <h3>The agent started from the named test.</h3>
+                <p>
+                  It searched for <code>test_real_function</code>, found it in <code>tests/test_cognitive_complexity.py</code>, and confirmed the old assertion still expected <code>11</code>.
+                </p>
+                <div class="callout">
+                  Useful signal: the inline comment explicitly described the wrong assumption, “2 bool operator sequences * 2 for nesting.”
+                </div>
+              </div>
+            </article>
+
+            <article class="event" data-panel="1">
+              <div class="event-tag">trace</div>
+              <div>
+                <h3>The scoring path led to <code>process_node_itself()</code>.</h3>
+                <p>
+                  The helper <code>get_code_snippet_compexity()</code> parsed snippets with <code>ast.parse</code>, then called <code>get_cognitive_complexity()</code>. That function delegated per-node behavior to <code>cognitive_complexity/utils/ast.py</code>.
+                </p>
+                <p>
+                  The relevant branch counted <code>ast.BoolOp</code> nodes with <code>ast.walk(node)</code> and multiplied by <code>max(increment_by, 1)</code>, which applied nesting.
+                </p>
+              </div>
+            </article>
+
+            <article class="event" data-panel="2">
+              <div class="event-tag">repair</div>
+              <div>
+                <h3>The functional change was one scoring expression.</h3>
+                <p>
+                  The patch changed <code>base_complexity</code> for <code>ast.BoolOp</code> from the nested multiplier to the raw number of boolean operator sequences.
+                </p>
+                <div class="callout">
+                  After the first test run, two failures appeared because expectations still encoded the old nested count.
+                </div>
+              </div>
+            </article>
+
+            <article class="event" data-panel="3">
+              <div class="event-tag">verify</div>
+              <div>
+                <h3>The agent corrected a wrong-file edit attempt, then passed the suite.</h3>
+                <p>
+                  One attempted edit targeted the currently open source file instead of the test file and was rejected with a syntax error preview. The agent reopened the correct test file, updated <code>test_real_function</code> to <code>9</code> and <code>test_nested_functions</code> to <code>3</code>.
+                </p>
+                <p>
+                  The final command was <code>pytest</code>, which collected 20 tests and passed all of them.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="section">
+          <div class="section-title">
+            <h2>Patch</h2>
+            <span>generated_patch</span>
+          </div>
+          <div class="patch-grid">
+            <article class="patch-card">
+              <h3>Scoring logic</h3>
+              <pre><code>diff --git a/cognitive_complexity/utils/ast.py b/cognitive_complexity/utils/ast.py
+@@ -85,7 +85,7 @@ def process_node_itself(
+     elif isinstance(node, ast.BoolOp):
+         inner_boolops_amount = len([n for n in ast.walk(node) if isinstance(n, ast.BoolOp)])
+<span class="diff-del">-        base_complexity = inner_boolops_amount * max(increment_by, 1)</span>
+<span class="diff-add">+        base_complexity = inner_boolops_amount  # Remove the nesting increment (B3)</span>
+         return increment_by, base_complexity, False</code></pre>
+            </article>
+
+            <article class="patch-card">
+              <h3>Expectation updates</h3>
+              <pre><code>diff --git a/tests/test_cognitive_complexity.py b/tests/test_cognitive_complexity.py
+@@ -122,7 +122,7 @@ def test_real_function():
+<span class="diff-del">-    """) == 11</span>
+<span class="diff-add">+    """) == 9  # Updated assertion</span>
+
+@@ -144,7 +144,7 @@ def test_nested_functions():
+         bar = lambda a: lambda b: b or 2  # +2
+         return bar(foo(a))(a)
+<span class="diff-del">-    """) == 4</span>
+<span class="diff-add">+    """) == 3  # Updated assertion</span></code></pre>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Outcome</h2>
+          <span>exit_status: submitted</span>
+        </div>
+        <div class="verification">
+          <div class="verify-card">
+            <strong>Behavior</strong>
+            <span>Boolean operator sequences now receive B1 without the B3 nesting multiplier.</span>
+          </div>
+          <div class="verify-card">
+            <strong>Tests</strong>
+            <span><code>pytest</code> reported <code>20 passed in 0.18s</code>.</span>
+          </div>
+          <div class="verify-card">
+            <strong>Scope</strong>
+            <span>One production line and two test assertions changed; no large external references were listed in case metadata.</span>
+          </div>
+        </div>
+        <div class="copy-row">
+          <code id="hash">trajectory_sha256: 548e47b79387456765e6237f6b1938dd6ce97191b83664974a7b4d453a9b5f27</code>
+          <button class="copy-button" type="button" data-copy="hash">Copy hash</button>
+        </div>
+        <p class="meta-note">
+          Source files used for this page: <code>case_meta.json</code>, <code>trajectory.json</code>, and <code>task/task_statement.md</code> from the assigned case directory.
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const tabButtons = Array.from(document.querySelectorAll("[data-step]"));
+    const panels = Array.from(document.querySelectorAll("[data-panel]"));
+
+    function selectStep(index) {
+      tabButtons.forEach((button, buttonIndex) => {
+        button.setAttribute("aria-selected", String(buttonIndex === index));
+      });
+      panels.forEach((panel, panelIndex) => {
+        panel.classList.toggle("is-active", panelIndex === index);
+      });
+    }
+
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectStep(Number(button.dataset.step));
+      });
+    });
+
+    document.querySelector("[data-copy='hash']").addEventListener("click", async (event) => {
+      const text = document.getElementById("hash").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        event.currentTarget.textContent = "Copied";
+        window.setTimeout(() => {
+          event.currentTarget.textContent = "Copy hash";
+        }, 1200);
+      } catch {
+        event.currentTarget.textContent = "Select hash";
+      }
+    });
+  </script>
+</body>
+</html>

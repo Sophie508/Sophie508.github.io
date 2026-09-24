@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case 458 · Retail Concierge Ledger · Yara Silva</title>
+<style>
+  :root{
+    --paper:#f3ece0;
+    --paper-2:#ece2d2;
+    --card:#faf6ee;
+    --ink:#211d18;
+    --ink-soft:#4a4238;
+    --faint:#8a7f6d;
+    --rule:#d8ccb6;
+    --ox:#7c2b2b;
+    --ox-soft:#a24a3f;
+    --gold:#9a7b31;
+    --green:#3f6b46;
+    --shadow:rgba(43,33,20,.14);
+    --mono:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --serif:"Hoefler Text","Baskerville","Palatino Linotype",Georgia,serif;
+    --sans:"Optima","Gill Sans","Avenir Next",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(255,255,255,.5), transparent 42%),
+      radial-gradient(circle at 88% 96%, rgba(122,43,43,.05), transparent 46%);
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.04;
+    background-image:repeating-linear-gradient(0deg,#000 0 1px,transparent 1px 3px);
+    mix-blend-mode:multiply;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px 90px;position:relative;z-index:2}
+
+  /* ---------- Masthead ---------- */
+  header.mast{
+    padding:58px 0 30px;border-bottom:2px solid var(--ink);
+    position:relative;
+  }
+  .kicker{
+    font-family:var(--sans);font-size:11px;letter-spacing:.42em;text-transform:uppercase;
+    color:var(--ox);font-weight:600;margin-bottom:18px;
+  }
+  .kicker .dot{display:inline-block;width:5px;height:5px;background:var(--ox);border-radius:50%;
+    vertical-align:middle;margin:0 12px 3px}
+  h1{
+    font-size:clamp(38px,6.4vw,74px);line-height:.96;font-weight:600;letter-spacing:-.015em;
+    font-style:italic;
+  }
+  h1 .reg{font-style:normal}
+  .sub{
+    margin-top:20px;max-width:640px;font-size:18px;color:var(--ink-soft);
+    font-style:italic;
+  }
+  .mast-meta{
+    display:flex;flex-wrap:wrap;gap:26px;margin-top:30px;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--faint);
+    text-transform:uppercase;
+  }
+  .mast-meta b{color:var(--ink);font-weight:600}
+  .foil{
+    position:absolute;top:52px;right:0;width:96px;height:96px;border-radius:50%;
+    border:1px solid var(--gold);display:grid;place-items:center;text-align:center;
+    font-family:var(--sans);font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--gold);line-height:1.6;
+    background:radial-gradient(circle at 40% 30%,rgba(154,123,49,.14),transparent 70%);
+    transform:rotate(-8deg);
+  }
+  .foil b{font-size:19px;font-family:var(--serif);letter-spacing:0;display:block;color:var(--ox)}
+  @media(max-width:620px){.foil{display:none}}
+
+  /* ---------- Section scaffolding ---------- */
+  section{margin-top:52px}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:24px}
+  .sec-num{font-family:var(--mono);font-size:12px;color:var(--ox);letter-spacing:.1em}
+  .sec-title{font-size:15px;font-family:var(--sans);text-transform:uppercase;letter-spacing:.28em;
+    font-weight:600;color:var(--ink)}
+  .sec-rule{flex:1;height:1px;background:var(--rule)}
+
+  /* ---------- Identity + summary grid ---------- */
+  .grid2{display:grid;grid-template-columns:1.05fr .95fr;gap:22px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .card{
+    background:var(--card);border:1px solid var(--rule);border-radius:3px;
+    box-shadow:0 2px 0 var(--shadow),0 14px 30px -22px var(--shadow);
+    padding:26px 28px;
+  }
+  .card h3{font-family:var(--sans);font-size:11px;letter-spacing:.26em;text-transform:uppercase;
+    color:var(--faint);font-weight:600;margin-bottom:18px}
+  .idrow{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px dotted var(--rule)}
+  .idrow:last-child{border-bottom:none}
+  .idrow .lbl{font-family:var(--sans);font-size:12px;color:var(--ink-soft);letter-spacing:.04em}
+  .idrow .val{font-family:var(--mono);font-size:12.5px;color:var(--ink);text-align:right}
+  .name-big{font-size:30px;font-style:italic;letter-spacing:-.01em;margin-bottom:2px}
+  .auth-tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--sans);font-size:10.5px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--green);margin-top:6px;font-weight:600}
+  .auth-tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 0 3px rgba(63,107,70,.16)}
+  .gift{margin-top:20px;padding:16px 18px;border:1px dashed var(--gold);border-radius:4px;
+    background:linear-gradient(135deg,rgba(154,123,49,.08),rgba(154,123,49,.02));
+    display:flex;justify-content:space-between;align-items:center}
+  .gift .g-lbl{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .gift .g-id{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:3px}
+  .gift .g-bal{font-size:26px;font-style:italic}
+
+  /* ---------- Ledger of changes ---------- */
+  .ledger{margin-top:2px}
+  .ledger-row{display:grid;grid-template-columns:26px 1fr auto;gap:14px;align-items:start;
+    padding:16px 0;border-bottom:1px solid var(--rule)}
+  .ledger-row:last-child{border-bottom:none}
+  .lnum{font-family:var(--mono);font-size:12px;color:var(--ox);padding-top:3px}
+  .ldesc{font-size:15.5px;color:var(--ink)}
+  .ldesc .d-sub{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:4px;letter-spacing:.01em}
+  .ltag{font-family:var(--sans);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:3px 8px;border-radius:20px;font-weight:600;white-space:nowrap;display:inline-block;margin-top:6px}
+  .t-addr{background:rgba(122,43,43,.1);color:var(--ox)}
+  .t-item{background:rgba(154,123,49,.14);color:var(--gold)}
+  .lamt{font-family:var(--mono);font-size:15px;text-align:right;white-space:nowrap;padding-top:2px}
+  .lamt.refund{color:var(--green)}
+  .lamt .a-sub{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-family:var(--sans);margin-top:3px}
+  .total-strip{margin-top:6px;padding:18px 22px;background:var(--ink);color:var(--paper);
+    border-radius:3px;display:flex;justify-content:space-between;align-items:center}
+  .total-strip .t-l{font-family:var(--sans);font-size:11px;letter-spacing:.24em;text-transform:uppercase}
+  .total-strip .t-r{font-size:30px;font-style:italic;color:#e8c98a}
+
+  /* ---------- Orders overview ---------- */
+  .orders{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  @media(max-width:760px){.orders{grid-template-columns:1fr}}
+  .ocard{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:20px 22px;
+    position:relative;box-shadow:0 2px 0 var(--shadow)}
+  .ocard.touched{border-color:var(--ox);box-shadow:0 2px 0 rgba(124,43,43,.2),inset 3px 0 0 var(--ox)}
+  .ocard .oid{font-family:var(--mono);font-size:15px;letter-spacing:.02em;font-weight:600}
+  .ocard .ostat{font-family:var(--sans);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:3px 9px;border-radius:20px;font-weight:600;position:absolute;top:18px;right:18px}
+  .s-pending{background:rgba(154,123,49,.16);color:var(--gold)}
+  .s-mod{background:rgba(122,43,43,.12);color:var(--ox)}
+  .s-delivered{background:rgba(63,107,70,.14);color:var(--green)}
+  .oaddr{font-size:12.5px;color:var(--faint);font-style:italic;margin:8px 0 14px}
+  .olist{list-style:none;font-size:13.5px}
+  .olist li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dotted var(--rule);color:var(--ink-soft)}
+  .olist li:last-child{border-bottom:none}
+  .olist li.chg{color:var(--ox);font-weight:600}
+  .olist li .p{font-family:var(--mono);font-size:12px;white-space:nowrap}
+  .chg-mark{font-family:var(--sans);font-size:9px;letter-spacing:.1em;color:var(--ox);
+    border:1px solid var(--ox);border-radius:3px;padding:1px 5px;margin-left:8px;text-transform:uppercase}
+
+  /* ---------- Transcript ---------- */
+  .thread{position:relative;padding-left:30px}
+  .thread::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:1px;
+    background:linear-gradient(var(--rule),var(--rule)) ;}
+  .turn{position:relative;margin-bottom:24px}
+  .turn::before{content:"";position:absolute;left:-27px;top:6px;width:11px;height:11px;border-radius:50%;
+    background:var(--paper);border:2px solid var(--faint)}
+  .turn.user::before{border-color:var(--ink);background:var(--ink)}
+  .turn.agent::before{border-color:var(--ox);background:var(--card)}
+  .turn.tool::before{border-color:var(--gold);width:8px;height:8px;left:-25.5px;top:8px}
+  .role{font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .role.user{color:var(--ink)}
+  .role.agent{color:var(--ox)}
+  .role .r-idx{color:var(--faint);font-family:var(--mono);letter-spacing:0}
+  .bubble{font-size:15.5px;color:var(--ink-soft);max-width:660px}
+  .turn.user .bubble{font-style:italic;color:var(--ink);font-size:16px}
+  .bubble p+p{margin-top:9px}
+
+  /* tool call block */
+  .tool-block{border:1px solid var(--rule);border-radius:3px;overflow:hidden;max-width:680px;
+    background:linear-gradient(var(--paper-2),var(--card));margin-top:2px}
+  .tool-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:rgba(154,123,49,.09);
+    border-bottom:1px solid var(--rule);cursor:pointer;user-select:none}
+  .tool-bar .fn{font-family:var(--mono);font-size:12.5px;color:var(--ox);font-weight:600}
+  .tool-bar .glyph{font-family:var(--sans);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold);border:1px solid var(--gold);border-radius:20px;padding:2px 8px}
+  .tool-bar .chev{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--faint);transition:transform .3s}
+  .tool-block.open .chev{transform:rotate(90deg)}
+  .tool-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .tool-block.open .tool-body{max-height:1400px}
+  .tool-inner{padding:14px 16px;font-family:var(--mono);font-size:11.5px;line-height:1.65;color:var(--ink-soft)}
+  .tool-inner .k{color:var(--faint)}
+  .tool-inner .args{margin-bottom:10px}
+  .tool-inner .arrow{color:var(--gold);margin:0 6px}
+  .tool-inner .ret{display:block;padding:10px 12px;background:var(--paper);border-left:2px solid var(--gold);
+    border-radius:0 3px 3px 0;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+  .tool-inner .hl{color:var(--ox);font-weight:600}
+
+  /* ---------- footer ---------- */
+  footer{margin-top:64px;padding-top:22px;border-top:2px solid var(--ink);
+    display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;
+    font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.02em}
+  footer .r{text-align:right}
+  .outcome{display:inline-flex;align-items:center;gap:8px;color:var(--green);font-family:var(--sans);
+    letter-spacing:.14em;text-transform:uppercase;font-size:10.5px;font-weight:600}
+  .outcome::before{content:"✓";font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="mast">
+    <div class="foil"><span>Case<b>458</b>τ-bench</span></div>
+    <div class="kicker">Retail Concierge <span class="dot"></span> Transaction Ledger <span class="dot"></span> Session Record</div>
+    <h1>The <span class="reg">Silva</span> Amendments</h1>
+    <p class="sub">A single authenticated session in which three pending-order amendments — one address, two item swaps — were collected, confirmed, and settled against a gift-card balance.</p>
+    <div class="mast-meta">
+      <span>Model · <b>sonnet-35-new</b></span>
+      <span>Domain · <b>tool_use_customer_service</b></span>
+      <span>Format · <b>tau-bench-json</b></span>
+      <span>Turns · <b>11 exchanges</b></span>
+      <span>Tool calls · <b>8</b></span>
+    </div>
+  </header>
+
+  <!-- ============ IDENTITY + GIFT ============ -->
+  <section id="identity">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <span class="sec-title">The Customer of Record</span>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Verified Profile</h3>
+        <div class="name-big">Yara Silva</div>
+        <div class="auth-tag">Authenticated via name + zip</div>
+        <div style="margin-top:18px">
+          <div class="idrow"><span class="lbl">User ID</span><span class="val">yara_silva_7567</span></div>
+          <div class="idrow"><span class="lbl">Email</span><span class="val">yara.silva2443@example.com</span></div>
+          <div class="idrow"><span class="lbl">Default address</span><span class="val">116 Laurel Lane, Ste 319<br>Houston, TX 77159</span></div>
+          <div class="idrow"><span class="lbl">Orders on file</span><span class="val">4</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Instrument of Settlement</h3>
+        <p style="font-size:14.5px;color:var(--ink-soft);font-style:italic">The customer carries a single payment method. Every amendment in this session was refunded against it — immediately, as gift-card credit.</p>
+        <div class="gift">
+          <div>
+            <div class="g-lbl">Gift Card · Balance</div>
+            <div class="g-id">gift_card_7252880</div>
+          </div>
+          <div class="g-bal">$56<span style="font-size:14px">.00</span></div>
+        </div>
+        <p style="font-size:11.5px;color:var(--faint);margin-top:14px;font-family:var(--mono)">All three amendments refunded here → net credit of <span style="color:var(--green)">+$319.30</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEDGER OF CHANGES ============ -->
+  <section id="ledger">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <span class="sec-title">Ledger of Amendments</span>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="card">
+      <div class="ledger">
+        <div class="ledger-row">
+          <div class="lnum">i</div>
+          <div class="ldesc">
+            Laptop order re-routed to New York
+            <div class="d-sub">Order #W3730488 · shipping address → 555 Highland Drive, Ste 872, New York, NY 10116</div>
+            <span class="ltag t-addr">Modify address</span>
+          </div>
+          <div class="lamt"><span class="a-sub">No charge</span>—</div>
+        </div>
+        <div class="ledger-row">
+          <div class="lnum">ii</div>
+          <div class="ldesc">
+            Laptop spec swapped — i9/32GB/512GB → i7/8GB/1TB
+            <div class="d-sub">Order #W3730488 · item 2913673670 → 9844888101 · $2,701.89 → $2,459.74</div>
+            <span class="ltag t-item">Modify item</span>
+          </div>
+          <div class="lamt refund">+$242.15<span class="a-sub">Refund</span></div>
+        </div>
+        <div class="ledger-row">
+          <div class="lnum">iii</div>
+          <div class="ldesc">
+            Wristwatch dial recoloured white → black, leather strap kept
+            <div class="d-sub">Order #W9810810 · item 1355937109 → 9949163720 · $1,985.30 → $1,908.15</div>
+            <span class="ltag t-item">Modify item</span>
+          </div>
+          <div class="lamt refund">+$77.15<span class="a-sub">Refund</span></div>
+        </div>
+      </div>
+      <div class="total-strip">
+        <span class="t-l">Total refunded to gift card</span>
+        <span class="t-r">$319.30</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ORDERS ============ -->
+  <section id="orders">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <span class="sec-title">Orders Surveyed</span>
+      <span class="sec-rule"></span>
+    </div>
+    <p style="font-size:14.5px;color:var(--ink-soft);font-style:italic;margin-bottom:22px;max-width:640px">
+      Before acting, the agent pulled every order to locate the laptop and the watch. Two were amended; two were read only. Cards marked in oxblood were touched.</p>
+    <div class="orders">
+
+      <div class="ocard touched">
+        <div class="oid">#W3730488</div>
+        <span class="ostat s-mod">Item modified</span>
+        <div class="oaddr">→ New York, NY 10116 (was Houston, TX)</div>
+        <ul class="olist">
+          <li><span>Espresso Machine · 19 bar, 1L</span><span class="p">$2,955.17</span></li>
+          <li class="chg"><span>Laptop · 15″ i7 · 8GB · 1TB SSD<span class="chg-mark">swap</span></span><span class="p">$2,459.74</span></li>
+        </ul>
+      </div>
+
+      <div class="ocard touched">
+        <div class="oid">#W9810810</div>
+        <span class="ostat s-mod">Item modified</span>
+        <div class="oaddr">Houston, TX 77159</div>
+        <ul class="olist">
+          <li><span>Electric Kettle · 1.5L white</span><span class="p">$149.45</span></li>
+          <li class="chg"><span>Wristwatch · leather · black dial<span class="chg-mark">swap</span></span><span class="p">$1,908.15</span></li>
+          <li><span>Bookshelf · metal · 6 ft</span><span class="p">$473.48</span></li>
+        </ul>
+      </div>
+
+      <div class="ocard">
+        <div class="oid">#W9034102</div>
+        <span class="ostat s-pending">Pending</span>
+        <div class="oaddr">Houston, TX 77159</div>
+        <ul class="olist">
+          <li><span>Air Purifier · large · HEPA</span><span class="p">$523.31</span></li>
+          <li><span>Backpack · grey · large</span><span class="p">$200.48</span></li>
+          <li><span>Water Bottle · 500ml steel</span><span class="p">$52.79</span></li>
+          <li><span>Tablet · 7″ · 32GB · gold</span><span class="p">$1,018.68</span></li>
+        </ul>
+      </div>
+
+      <div class="ocard">
+        <div class="oid">#W3964602</div>
+        <span class="ostat s-delivered">Delivered</span>
+        <div class="oaddr">New York, NY 10116</div>
+        <ul class="olist">
+          <li><span>Cycling Helmet · L · blue</span><span class="p">$209.69</span></li>
+          <li><span>Dumbbell Set · 30–50 lbs</span><span class="p">$483.47</span></li>
+          <li><span>Vacuum · robotic · bagless</span><span class="p">$620.07</span></li>
+          <li><span>Cycling Helmet · S · black</span><span class="p">$204.47</span></li>
+          <li><span>Bluetooth Speaker · green</span><span class="p">$326.59</span></li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ TRANSCRIPT ============ -->
+  <section id="transcript">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <span class="sec-title">The Session, In Full</span>
+      <span class="sec-rule"></span>
+    </div>
+    <p style="font-size:13px;color:var(--faint);font-family:var(--mono);margin-bottom:26px">Tap any tool card to unfold its arguments and returned data.</p>
+
+    <div class="thread">
+
+      <div class="turn user">
+        <div class="role user">Customer <span class="r-idx">msg 01</span></div>
+        <div class="bubble">Hello… I need to make some changes to my recent orders… I'm Yara Silva.</div>
+      </div>
+
+      <div class="turn agent">
+        <div class="role agent">Agent <span class="r-idx">reply</span></div>
+        <div class="bubble">Hello Yara — happy to help. First I'll need to authenticate your account. Could you provide your email, or a zip code to look you up?</div>
+      </div>
+
+      <div class="turn user">
+        <div class="role user">Customer <span class="r-idx">msg 02</span></div>
+        <div class="bubble">Um… my zip code is 77159…</div>
+      </div>
+
+      <div class="turn tool">
+        <div class="tool-block">
+          <div class="tool-bar"><span class="glyph">Auth</span><span class="fn">find_user_id_by_name_zip</span><span class="chev">▸</span></div>
+          <div class="tool-body"><div class="tool-inner">
+            <div class="args"><span class="k">first_name</span> "Yara" · <span class="k">last_name</span> "Silva" · <span class="k">zip</span> "77159"</div>
+            <span class="ret">→ <span class="hl">yara_silva_7567</span></span>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="turn tool">
+        <div class="tool-block">
+          <div class="tool-bar"><span class="glyph">Read</span><span class="fn">get_user_details</span><span class="chev">▸</span></div>
+          <div class="tool-body"><div class="tool-inner">
+            <div class="args"><span class="k">user_id</span> "yara_silva_7567"</div>
+            <span class="ret">→ Yara Silva · yara.silva2443@example.com
+   116 Laurel Lane, Ste 319, Houston TX 77159
+   payment: <span class="hl">gift_card_7252880</span> (balance $56)
+   orders: #W9810810, #W9034102, #W3964602, #W3730488</span>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="turn agent">
+        <div class="role agent">Agent <span class="r-idx">reply</span></div>
+        <div class="bubble">I've found your account. You have four orders on file — which would you like to change, and what change did you have in mind?</div>
+      </div>
+
+      <div class="turn user">
+        <div class="role user">Customer <span class="r-idx">msg 03</span></div>
+        <div class="bubble">*sigh* Well… I need to change two things… First, the laptop delivery address… I want it sent to my NYC address instead…</div>
+      </div>
+
+      <div class="turn tool">
+        <div class="tool-block">
+          <div class="tool-bar"><span class="glyph">Read ×4</span><span class="fn">get_order_details</span><span class="chev">▸</span></div>
+          <div class="tool-body"><div class="tool-inner">
+            <div class="args">The agent read all four orders to locate the laptop.</div>
+            <span class="ret">#W9810810 → <span class="hl">pending</span> · Kettle, Wristwatch, Bookshelf
+#W9034102 → <span class="hl">pending</span> · Air Purifier, Backpack, Bottle, Tablet
+#W3964602 → <span class="hl">delivered</span> · Helmets, Dumbbells, Vacuum, Speaker (NY)
+#W3730488 → <span class="hl">pending</span> · Espresso Machine, <span class="hl">Laptop</span> ✓ found</span>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="turn agent">
+        <div class="role agent">Agent <span class="r-idx">reply · confirm</span></div>
+        <div class="bubble"><p>Found it — the laptop is in order #W3730488, status <em>pending</em>, so the address can be changed. I see a New York address on file.</p><p>Shall I ship to <strong>555 Highland Drive, Ste 872, New York, NY 10116</strong>? Please confirm.</p></div>
+      </div>
+
+      <div class="turn user">
+        <div class="role user">Customer <span class="r-idx">msg 04</span></div>
+        <div class="bubble">Yes… that's right… and um, I also need to change the laptop model number to 9844888101…</div>
+      </div>
+
+      <div class="turn tool">
+        <div class="tool-block">
+          <div class="tool-bar"><span class="glyph">Read</span><span class="fn">get_product_details</span><span class="chev">▸</span></div>
+          <div class="tool-body"><div class="tool-inner">
+            <div class="args"><span class="k">product_id</span> "4760268021" (Laptop) — verifying the requested item is a same-product variant</div>
+            <span class="ret">→ item <span class="hl">9844888101</span> is a valid Laptop variant
+   15″ · i7 · 8GB · 1TB SSD · black · <span class="hl">available</span> · $2,459.74</span>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="turn agent">
+        <div class="role agent">Agent <span class="r-idx">reply · confirm</span></div>
+        <div class="bubble"><p>Good news — 9844888101 is a variant of the same laptop (i7 / 8GB / 1TB). This drops the price from $2,701.89 to $2,459.74, a <strong>$242.15 refund</strong> to your gift card.</p><p>Let me apply the confirmed address change first.</p></div>
+      </div>
+
+      <div class="turn tool">
+        <div class="tool-block">
+          <div class="tool-bar"><span class="glyph">Write</span><span class="fn">modify_pending_order_address</span><span class="chev">▸</span></div>
+          <div class="tool-body"><div class="tool-inner">
+            <div class="args"><span class="k">order</span> #W3730488 → 555 Highland Drive, Ste 872, New York, NY 10116</div>
+            <span class="ret">→ address updated · status remains <span class="hl">pending</span></span>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="turn agent">
+        <div class="role agent">Agent <span class="r-idx">reply · confirm</span></div>
+        <div class="bubble">Address updated. Now for the laptop swap — confirm with "yes" to move to item 9844888101 with the $242.15 refund.</div>
+      </div>
+
+      <div class="turn user">
+        <div class="role user">Customer <span class="r-idx">msg 05</span></div>
+        <div class="bubble">Yes, that's fine… *hesitates* There's one more thing… about my watch order… I'd like to change the dial color to black…</div>
+      </div>
+
+      <div class="turn tool">
+        <div class="tool-block">
+          <div class="tool-bar"><span class="glyph">Read</span><span class="fn">get_product_details</span><span class="chev">▸</span></div>
+          <div class="tool-body"><div class="tool-inner">
+            <div class="args"><span class="k">product_id</span> "6066914160" (Wristwatch) — finding a leather + black-dial variant</div>
+            <span class="ret">→ item <span class="hl">9949163720</span> · leather strap · black dial
+   available · $1,908.15  (keeps the strap, only dial changes)</span>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="turn agent">
+        <div class="role agent">Agent <span class="r-idx">reply</span></div>
+        <div class="bubble">There's a leather-strap / black-dial version (9949163720) at $1,908.15 — a $77.15 refund. First, let me commit the laptop change you just approved.</div>
+      </div>
+
+      <div class="turn tool">
+        <div class="tool-block">
+          <div class="tool-bar"><span class="glyph">Write</span><span class="fn">modify_pending_order_items · laptop</span><span class="chev">▸</span></div>
+          <div class="tool-body"><div class="tool-inner">
+            <div class="args"><span class="k">order</span> #W3730488 · <span class="k">item</span> 2913673670 → <span class="hl">9844888101</span> · <span class="k">pay</span> gift_card_7252880</div>
+            <span class="ret">→ status <span class="hl">pending (item modified)</span>
+   refund <span class="hl">$242.15</span> → gift_card_7252880</span>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="turn agent">
+        <div class="role agent">Agent <span class="r-idx">reply · confirm</span></div>
+        <div class="bubble">Laptop change processed — $242.15 refunded. For the watch, confirm "yes" to switch to the black-dial version (9949163720)?</div>
+      </div>
+
+      <div class="turn user">
+        <div class="role user">Customer <span class="r-idx">msg 06</span></div>
+        <div class="bubble">Yes… and I want to keep the leather strap on the watch… just changing the dial color…</div>
+      </div>
+
+      <div class="turn agent">
+        <div class="role agent">Agent <span class="r-idx">reply</span></div>
+        <div class="bubble">Don't worry — the option I selected keeps the leather strap and changes only the dial to black. Processing now.</div>
+      </div>
+
+      <div class="turn tool">
+        <div class="tool-block">
+          <div class="tool-bar"><span class="glyph">Write</span><span class="fn">modify_pending_order_items · watch</span><span class="chev">▸</span></div>
+          <div class="tool-body"><div class="tool-inner">
+            <div class="args"><span class="k">order</span> #W9810810 · <span class="k">item</span> 1355937109 → <span class="hl">9949163720</span> · <span class="k">pay</span> gift_card_7252880</div>
+            <span class="ret">→ status <span class="hl">pending (item modified)</span>
+   refund <span class="hl">$77.15</span> → gift_card_7252880</span>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="turn agent">
+        <div class="role agent">Agent <span class="r-idx">reply · summary</span></div>
+        <div class="bubble"><p>All done. To summarise: (1) laptop re-routed to New York, (2) laptop swapped to the i7 / 1TB model — $242.15 refund, (3) watch changed to the black-dial leather version — $77.15 refund.</p><p><strong>Total refunded to your gift card: $319.30.</strong> Anything else?</p></div>
+      </div>
+
+      <div class="turn user">
+        <div class="role user">Customer <span class="r-idx">msg 07</span></div>
+        <div class="bubble">###STOP###</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div>
+      <span class="outcome">Session resolved · 3 amendments settled</span><br>
+      <span style="color:var(--faint)">Case 04_sonnet-35-new-retail_458 · task_id 113 · trial 3</span>
+    </div>
+    <div class="r">
+      Stripped fields · info, reward<br>
+      Benchmark · tau-bench (retail policy)
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.tool-bar').forEach(function(bar){
+    bar.addEventListener('click',function(){
+      bar.parentElement.classList.toggle('open');
+    });
+  });
+</script>
+</body>
+</html>

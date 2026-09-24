@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Navigation Case 4.57 — Associate Resource Groups</title>
+  <style>
+    :root{
+      --ink:#16232b;--muted:#68777f;--paper:#f7f8f4;--card:#ffffff;
+      --blue:#1768e5;--blue-deep:#0d3d91;--sky:#dcecff;--lime:#d9ff7b;
+      --line:#dce3e0;--navy:#102b3a;--warm:#fff4dc;--shadow:0 22px 60px rgba(28,49,57,.13);
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+    button,a{font:inherit} button{cursor:pointer} .wrap{width:min(1180px,calc(100% - 48px));margin:auto}
+    .topbar{position:fixed;z-index:20;inset:0 0 auto;background:rgba(247,248,244,.78);backdrop-filter:blur(18px);border-bottom:1px solid transparent;transition:.25s}
+    .topbar.scrolled{background:rgba(255,255,255,.94);border-color:var(--line);box-shadow:0 8px 30px rgba(20,34,40,.06)}
+    .nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:28px}.brand{display:flex;align-items:center;gap:12px;font-weight:780;letter-spacing:-.02em}.brandmark{width:36px;height:36px;border-radius:11px;background:var(--blue);display:grid;place-items:center;box-shadow:0 8px 18px rgba(23,104,229,.24)}
+    .brandmark svg{width:19px;fill:white}.navlinks{display:flex;gap:30px;align-items:center}.navlinks a{text-decoration:none;color:#40515a;font-size:14px;font-weight:650}.navlinks a:hover{color:var(--blue)}
+    .pill{border:0;border-radius:999px;padding:11px 18px;background:var(--ink);color:white;font-weight:700;font-size:13px}.pill:hover{transform:translateY(-1px)}
+    .hero{padding:142px 0 76px;position:relative;overflow:hidden}.hero:before{content:"";position:absolute;width:530px;height:530px;border-radius:50%;background:radial-gradient(circle,#b7d8ff 0,#dbeaff 42%,transparent 70%);right:-110px;top:40px;filter:blur(6px)}
+    .hero-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:70px;align-items:center;position:relative}.eyebrow{display:inline-flex;align-items:center;gap:9px;background:white;border:1px solid var(--line);border-radius:999px;padding:7px 12px 7px 8px;font-size:12px;font-weight:760;color:#40515a;box-shadow:0 6px 16px rgba(30,48,54,.06)}
+    .eyebrow i{width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:var(--lime);font-style:normal}.hero h1{font-size:clamp(48px,5.7vw,78px);line-height:.98;letter-spacing:-.057em;margin:25px 0 24px;max-width:720px}.hero h1 span{color:var(--blue)}.lede{font-size:19px;line-height:1.65;color:#52636c;max-width:610px;margin:0}.hero-actions{display:flex;align-items:center;gap:14px;margin-top:31px}.primary,.secondary{border-radius:14px;padding:14px 20px;font-weight:760;border:1px solid var(--ink);transition:.2s}.primary{color:white;background:var(--ink);box-shadow:0 11px 24px rgba(22,35,43,.18)}.secondary{color:var(--ink);background:transparent}.primary:hover,.secondary:hover{transform:translateY(-2px)}
+    .case-facts{display:flex;gap:25px;margin-top:35px;color:var(--muted);font-size:12px}.case-facts b{display:block;color:var(--ink);font-size:14px;margin-bottom:2px}.browser{background:#fff;border:1px solid #cfdbdf;border-radius:22px;box-shadow:var(--shadow);overflow:hidden;transform:rotate(1.2deg)}
+    .browserbar{height:52px;display:flex;align-items:center;gap:8px;padding:0 17px;background:#edf3f5;border-bottom:1px solid #dbe3e6}.dot{width:9px;height:9px;border-radius:50%;background:#b8c6cb}.address{margin-left:8px;background:white;border:1px solid #dce5e7;border-radius:8px;flex:1;padding:7px 11px;font-size:10px;color:#718086;white-space:nowrap;overflow:hidden}.screen{min-height:418px;background:#f9fbff}.mocknav{height:55px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:white;border-bottom:1px solid #e6eaec}.spark{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800}.spark b{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#ffca24;background:#1768e5}.mininav{display:flex;gap:16px;font-size:8px;font-weight:700;color:#627078}.minihero{height:144px;background:linear-gradient(110deg,#0b3479,#2073dd);color:white;padding:28px 28px;position:relative;overflow:hidden}.minihero:after{content:"";position:absolute;width:170px;height:170px;border:22px solid rgba(255,255,255,.11);border-radius:50%;right:-20px;top:-55px}.minihero small{font-size:8px;text-transform:uppercase;letter-spacing:.18em}.minihero h3{font-size:24px;line-height:1;margin:10px 0 0;letter-spacing:-.04em}.mockbody{padding:22px 24px}.mocktitle{display:flex;justify-content:space-between;align-items:end}.mocktitle h4{font-size:16px;margin:0}.mocktitle span{font-size:7px;color:#6c7c84}.mockcards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}.mockcard{height:99px;border:1px solid #dfe7e9;border-radius:10px;padding:11px;background:white}.mocklogo{width:32px;height:32px;border-radius:8px;background:linear-gradient(140deg,#1768e5,#67a2ff);color:white;display:grid;place-items:center;font-weight:900;font-size:11px}.mockcard:first-child{outline:3px solid rgba(217,255,123,.8);box-shadow:0 0 0 5px rgba(23,104,229,.12)}.mockcard strong{display:block;font-size:7px;margin-top:7px}.mockcard i{display:block;width:70%;height:3px;background:#dbe3e6;border-radius:9px;margin-top:5px}.cursor{position:absolute;right:78px;bottom:45px;background:var(--ink);color:white;border-radius:8px;padding:6px 9px;font-size:8px;font-weight:700;box-shadow:0 5px 12px rgba(0,0,0,.25);transform:rotate(-1.2deg)}
+    .section{padding:90px 0}.section-head{display:flex;justify-content:space-between;gap:40px;align-items:end;margin-bottom:40px}.kicker{font-size:12px;color:var(--blue);font-weight:850;letter-spacing:.16em;text-transform:uppercase}.section h2{font-size:45px;line-height:1.05;letter-spacing:-.045em;margin:12px 0 0}.section-head p{max-width:430px;color:var(--muted);margin:0}
+    .route{display:grid;grid-template-columns:1fr 1.25fr;border:1px solid var(--line);border-radius:26px;background:white;overflow:hidden;box-shadow:0 20px 55px rgba(36,51,58,.08)}.steps{padding:22px;border-right:1px solid var(--line);background:#f1f5f2}.step{width:100%;text-align:left;border:0;background:transparent;border-radius:16px;padding:18px;display:grid;grid-template-columns:39px 1fr auto;gap:13px;align-items:center;color:var(--ink);margin-bottom:7px;transition:.22s}.step:hover{background:#fff;transform:translateX(3px)}.step.active{background:var(--ink);color:white;box-shadow:0 12px 28px rgba(22,35,43,.2)}.num{width:38px;height:38px;border-radius:12px;background:white;border:1px solid var(--line);display:grid;place-items:center;color:var(--blue);font-weight:850}.step.active .num{background:var(--lime);border-color:var(--lime);color:var(--ink)}.step strong{font-size:14px;display:block}.step small{font-size:11px;opacity:.63}.arrow{font-size:18px}.stage{padding:40px;min-height:390px;display:flex;flex-direction:column}.stage-top{display:flex;justify-content:space-between;align-items:center}.tag{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-radius:999px;background:var(--sky);color:var(--blue-deep);padding:7px 10px}.state{font-size:11px;color:#64737a;display:flex;align-items:center;gap:7px}.state i{width:7px;height:7px;background:#4bb772;border-radius:50%}.stage h3{font-size:34px;letter-spacing:-.035em;line-height:1.08;margin:35px 0 13px}.stage>p{font-size:16px;line-height:1.7;color:#5c6c74;max-width:590px;margin:0}.evidence{margin-top:auto;padding-top:34px;display:grid;grid-template-columns:1fr 1fr;gap:12px}.evidence div{border-top:1px solid var(--line);padding-top:12px;font-size:11px;color:var(--muted)}.evidence b{display:block;color:var(--ink);font-size:12px;margin-bottom:2px}.replay{align-self:flex-start;margin-top:23px;border:0;background:var(--blue);color:white;border-radius:12px;padding:11px 15px;font-weight:750;font-size:12px}.route.playing .step.active .num{animation:pulse .55s ease}@keyframes pulse{50%{transform:scale(1.2);box-shadow:0 0 0 10px rgba(217,255,123,.18)}}
+    .destination{background:var(--navy);color:white;position:relative;overflow:hidden}.destination:after{content:"";position:absolute;width:430px;height:430px;border-radius:50%;border:85px solid rgba(117,178,255,.08);right:-170px;top:-100px}.destination .section-head p{color:#adc0c8}.dest-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;position:relative;z-index:1}.mission{min-height:350px;border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:38px;background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.03));backdrop-filter:blur(8px);display:flex;flex-direction:column}.mission .seal{width:62px;height:62px;border-radius:18px;background:var(--lime);color:var(--navy);display:grid;place-items:center;font-size:24px;font-weight:900}.mission h3{font-size:29px;line-height:1.15;letter-spacing:-.03em;margin:25px 0 15px}.mission p{font-size:16px;color:#c6d4d9;line-height:1.7;max-width:680px}.source-note{margin-top:auto;font-size:10px;color:#8fa6b0;text-transform:uppercase;letter-spacing:.13em}.side-stack{display:grid;gap:20px}.statcard,.quotecard{border-radius:24px;padding:28px}.statcard{background:var(--lime);color:var(--navy)}.statcard span{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:800}.metrics{display:flex;gap:28px;margin-top:18px}.metric b{font-size:36px;letter-spacing:-.05em}.metric small{display:block;font-size:10px;max-width:100px}.quotecard{background:#1768e5}.quotecard blockquote{margin:0;font-size:18px;line-height:1.45;font-weight:650;letter-spacing:-.015em}.quotecard cite{font-style:normal;display:block;margin-top:17px;font-size:11px;color:#cce0ff}
+    .notes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.note{background:white;border:1px solid var(--line);border-radius:20px;padding:25px;transition:.25s;position:relative;overflow:hidden}.note:hover{transform:translateY(-5px);box-shadow:0 18px 36px rgba(33,49,56,.1)}.note:before{content:"";position:absolute;width:4px;height:44px;background:var(--blue);left:0;top:25px;border-radius:0 5px 5px 0}.note:nth-child(2):before{background:#78b839}.note:nth-child(3):before{background:#f5ae29}.note small{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:800}.note h3{font-size:18px;margin:15px 0 8px}.note p{color:#697980;font-size:13px;margin:0;line-height:1.65}
+    .faq{margin-top:55px;border-top:1px solid var(--line)}details{border-bottom:1px solid var(--line);padding:19px 0}summary{cursor:pointer;font-weight:750;list-style:none;display:flex;justify-content:space-between}summary::-webkit-details-marker{display:none}summary:after{content:"+";color:var(--blue);font-size:20px}details[open] summary:after{content:"−"}details p{color:var(--muted);font-size:13px;max-width:850px;margin:10px 0 0}
+    footer{padding:34px 0;border-top:1px solid var(--line);background:white}.footerline{display:flex;justify-content:space-between;gap:30px;align-items:center;color:#718087;font-size:11px}.footerline strong{color:var(--ink)}
+    .reveal{animation:rise .6s ease both}@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    @media(max-width:850px){.wrap{width:min(100% - 30px,680px)}.navlinks{display:none}.hero{padding-top:115px}.hero-grid,.route,.dest-grid{grid-template-columns:1fr}.browser{margin-top:15px;transform:none}.section{padding:70px 0}.section-head{display:block}.section-head p{margin-top:18px}.steps{border-right:0;border-bottom:1px solid var(--line)}.stage{padding:28px;min-height:430px}.notes-grid{grid-template-columns:1fr}.hero h1{font-size:52px}.case-facts{flex-wrap:wrap}.footerline{align-items:flex-start;flex-direction:column}}
+    @media(max-width:520px){.hero h1{font-size:42px}.hero-actions{align-items:stretch;flex-direction:column}.case-facts{gap:15px}.mockcards{grid-template-columns:repeat(2,1fr)}.mockcard:last-child{display:none}.section h2{font-size:36px}.step{grid-template-columns:39px 1fr}.arrow{display:none}.evidence{grid-template-columns:1fr}.metrics{gap:15px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <header class="topbar" id="topbar">
+    <div class="wrap nav">
+      <div class="brand"><span class="brandmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z"/></svg></span> Trailmark <span style="color:#89969c;font-weight:600">/ 4.57</span></div>
+      <nav class="navlinks" aria-label="Primary"><a href="#route">Route</a><a href="#destination">Destination</a><a href="#evidence">Evidence</a></nav>
+      <button class="pill" id="jumpBtn">Replay route ↗</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow"><i>✓</i> Human demonstration · Mind2Web</div>
+          <h1>Finding the path to <span>belonging.</span></h1>
+          <p class="lede">A compact navigation case tracing how a user reaches Walmart Careers information about Associate Resource Groups for Diversity &amp; Inclusion.</p>
+          <div class="hero-actions"><button class="primary" id="exploreBtn">Explore the route</button><button class="secondary" id="briefBtn">Read task brief</button></div>
+          <div class="case-facts"><div><b>3 actions</b>Human trajectory</div><div><b>careers.walmart</b>Source website</div><div><b>Info → Job</b>Domain path</div></div>
+        </div>
+        <div class="browser" aria-label="Stylized preview of the Diversity and Inclusion page">
+          <div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="address">careers.walmart / culture / diversity-inclusion</div></div>
+          <div class="screen">
+            <div class="mocknav"><div class="spark"><b>✦</b> Careers</div><div class="mininav"><span>CAREER AREAS</span><span>CULTURE</span><span>IMPACT</span></div></div>
+            <div class="minihero"><small>Diversity &amp; Inclusion</small><h3>All walks moving<br>as one.</h3></div>
+            <div class="mockbody"><div class="mocktitle"><h4>Associate Resource Groups</h4><span>Choose a group</span></div><div class="mockcards"><div class="mockcard"><div class="mocklogo">AAB</div><strong>African American</strong><i></i></div><div class="mockcard"><div class="mocklogo" style="background:#e04d4d">API</div><strong>Asian Pacific</strong><i></i></div><div class="mockcard"><div class="mocklogo" style="background:#7a53c6">PRD</div><strong>PRIDE</strong><i></i></div></div></div>
+          </div><div class="cursor">Target found ✓</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="route">
+      <div class="wrap">
+        <div class="section-head"><div><div class="kicker">Action route</div><h2>Three moves.<br>One clear destination.</h2></div><p>The captured demonstration moves through a navigation menu, into a culture page, and finally selects the relevant resource-group logo.</p></div>
+        <div class="route" id="routeCard">
+          <div class="steps" role="tablist" aria-label="Trajectory actions">
+            <button class="step active" data-step="0" role="tab" aria-selected="true"><span class="num">01</span><span><strong>Open Culture</strong><small>Header navigation · hover</small></span><span class="arrow">→</span></button>
+            <button class="step" data-step="1" role="tab" aria-selected="false"><span class="num">02</span><span><strong>Diversity &amp; Inclusion</strong><small>Culture submenu · click</small></span><span class="arrow">→</span></button>
+            <button class="step" data-step="2" role="tab" aria-selected="false"><span class="num">03</span><span><strong>African American BRG</strong><small>Resource-group logo · click</small></span><span class="arrow">✓</span></button>
+          </div>
+          <div class="stage" id="stage" role="tabpanel" aria-live="polite">
+            <div class="stage-top"><span class="tag" id="stageTag">Navigation</span><span class="state"><i></i> Captured interaction</span></div>
+            <h3 id="stageTitle">Reveal the Culture menu</h3>
+            <p id="stageText">The user begins at the site header and hovers over “Culture,” exposing options that include Values, History, Diversity &amp; Inclusion, and Working at Walmart.</p>
+            <button class="replay" id="replayBtn">▶ Replay all actions</button>
+            <div class="evidence"><div><b id="opLabel">Original operation</b><span id="opValue">HOVER</span></div><div><b id="targetLabel">Target element</b><span id="targetValue">Link · Culture</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section destination" id="destination">
+      <div class="wrap">
+        <div class="section-head"><div><div class="kicker" style="color:#9dd0ff">Destination evidence</div><h2>What the user came to find.</h2></div><p>The final captured page establishes the Associate Resource Groups section and the content linked from the selected logo.</p></div>
+        <div class="dest-grid">
+          <article class="mission"><div class="seal">AAB</div><h3>African American Business Resource Group</h3><p>Its mission is to be a strategic partner that promotes a culture of inclusion through associate development, business thought leadership, and community engagement.</p><div class="source-note">Mission text observed in action 03 page state</div></article>
+          <div class="side-stack">
+            <article class="statcard"><span>Truth in numbers</span><div class="metrics"><div class="metric"><b>50</b><small>Top 50 Ranking, DiversityInc.</small></div><div class="metric"><b>100</b><small>Disability Equality Index score</small></div></div></article>
+            <article class="quotecard"><blockquote>“Inclusion is the key to growing our business.”</blockquote><cite>Captured Diversity &amp; Inclusion page copy</cite></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="evidence">
+      <div class="wrap">
+        <div class="section-head"><div><div class="kicker">Case notes</div><h2>Grounded in the trace.</h2></div><p>No screenshots, external links, or remote assets are needed. Every claim shown here comes from the assigned case files.</p></div>
+        <div class="notes-grid">
+          <article class="note"><small>Task</small><h3>Information seeking</h3><p>Open a page with information about Associate Resource Groups for Diversity and Inclusion.</p></article>
+          <article class="note"><small>Demonstration</small><h3>Human annotated</h3><p>The case identifies a human demonstration trajectory, with no agent model recorded.</p></article>
+          <article class="note"><small>Terminal target</small><h3>Image element</h3><p>The last click targets the image whose alt text is “African American Business Resource Group Logo.”</p></article>
+        </div>
+        <div class="faq">
+          <details><summary>Why does the first step say hover while the normalized operation says click?</summary><p>The trajectory preserves the original operation as HOVER while also recording a normalized operation of CLICK. This presentation foregrounds the original human action and notes the normalization here.</p></details>
+          <details><summary>Does the trace capture a page after the final logo click?</summary><p>No. The third action contains the Diversity &amp; Inclusion page state immediately before the click. It includes the Associate Resource Groups section and mission text, while the post-click destination is not separately captured.</p></details>
+          <details><summary>Were any large external references omitted?</summary><p>No. The case metadata lists no reference-only files and no media references.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap footerline"><div class="brand"><span class="brandmark" style="width:30px;height:30px;border-radius:9px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z"/></svg></span> Trailmark</div><div><strong>Case 02_test_domain_test_domain_4_57</strong> · Mind2Web JSON · Walmart Careers</div></div></footer>
+
+  <script>
+    const data=[
+      {tag:'Navigation',title:'Reveal the Culture menu',text:'The user begins at the site header and hovers over “Culture,” exposing options that include Values, History, Diversity & Inclusion, and Working at Walmart.',op:'HOVER',target:'Link · Culture'},
+      {tag:'Selection',title:'Enter Diversity & Inclusion',text:'From the Culture submenu, the user selects “Diversity & Inclusion.” This moves the journey from global navigation into the relevant information page.',op:'CLICK',target:'Link · Diversity & Inclusion'},
+      {tag:'Destination',title:'Choose the African American BRG',text:'Within “Associate Resource Groups,” the user clicks the image labeled “African American Business Resource Group Logo,” completing the demonstrated route.',op:'CLICK',target:'Image · African American BRG Logo'}
+    ];
+    const steps=[...document.querySelectorAll('.step')], route=document.getElementById('routeCard');
+    function selectStep(i){
+      steps.forEach((s,n)=>{s.classList.toggle('active',n===i);s.setAttribute('aria-selected',n===i)});
+      const d=data[i], stage=document.getElementById('stage');
+      stage.classList.remove('reveal');void stage.offsetWidth;stage.classList.add('reveal');
+      document.getElementById('stageTag').textContent=d.tag;document.getElementById('stageTitle').textContent=d.title;document.getElementById('stageText').textContent=d.text;document.getElementById('opValue').textContent=d.op;document.getElementById('targetValue').textContent=d.target;
+    }
+    steps.forEach(s=>s.addEventListener('click',()=>selectStep(+s.dataset.step)));
+    let timer;
+    function replay(){clearInterval(timer);document.getElementById('route').scrollIntoView({behavior:'smooth'});route.classList.add('playing');let i=0;selectStep(0);timer=setInterval(()=>{i++;if(i>2){clearInterval(timer);setTimeout(()=>route.classList.remove('playing'),500);return}selectStep(i)},850)}
+    document.getElementById('replayBtn').addEventListener('click',replay);document.getElementById('jumpBtn').addEventListener('click',replay);
+    document.getElementById('exploreBtn').addEventListener('click',()=>document.getElementById('route').scrollIntoView({behavior:'smooth'}));
+    document.getElementById('briefBtn').addEventListener('click',()=>document.getElementById('evidence').scrollIntoView({behavior:'smooth'}));
+    window.addEventListener('scroll',()=>document.getElementById('topbar').classList.toggle('scrolled',scrollY>20),{passive:true});
+  </script>
+</body>
+</html>

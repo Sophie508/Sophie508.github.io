@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Report — Top NPM Packages by GitHub Stars</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d212b; --ink:#e7ebf0; --muted:#9aa4b2;
+    --line:#2a2f3a; --accent:#5b9dff; --good:#4cc38a; --warn:#e0b341; --bad:#e5675f;
+    --code:#0b0d11; --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55; font-size:16px;
+  }
+  .wrap{max-width:960px; margin:0 auto; padding:32px 22px 80px}
+  header.top{border-bottom:1px solid var(--line); padding-bottom:22px; margin-bottom:8px}
+  h1{font-size:24px; margin:0 0 6px; letter-spacing:.2px}
+  .sub{color:var(--muted); font-size:14px}
+  .pills{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px}
+  .pill{background:var(--panel2); border:1px solid var(--line); border-radius:999px;
+    padding:5px 12px; font-size:12.5px; color:var(--muted)}
+  .pill b{color:var(--ink); font-weight:600}
+  .pill.ok{border-color:#26533d; color:#bfe9d3}
+  .pill.ok b{color:var(--good)}
+  h2{font-size:18px; margin:38px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--line)}
+  h3{font-size:15px; margin:24px 0 8px; color:var(--ink)}
+  p{margin:10px 0}
+  .muted{color:var(--muted)}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:14px 0}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media(max-width:680px){.grid{grid-template-columns:1fr}}
+  table{width:100%; border-collapse:collapse; margin:12px 0; font-size:14px}
+  th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{color:var(--muted); font-weight:600; font-size:12.5px; text-transform:uppercase; letter-spacing:.4px}
+  td.num{font-variant-numeric:tabular-nums; white-space:nowrap}
+  code{font-family:var(--mono); background:var(--panel2); padding:1px 5px; border-radius:4px; font-size:13px}
+  pre{background:var(--code); border:1px solid var(--line); border-radius:10px; padding:14px 16px;
+    overflow:auto; font-family:var(--mono); font-size:12.5px; line-height:1.5; color:#cdd6e0}
+  pre .cmt{color:#6b7688}
+  pre .str{color:#9ecbff}
+  pre .kw{color:#e0b341}
+  .step{display:flex; gap:14px; margin:0 0 4px}
+  .rail{position:relative; width:26px; flex:0 0 26px; display:flex; justify-content:center}
+  .dot{width:14px; height:14px; border-radius:50%; margin-top:4px; z-index:1; border:2px solid var(--bg)}
+  .dot.ok{background:var(--good)} .dot.err{background:var(--bad)} .dot.info{background:var(--accent)}
+  .line{position:absolute; top:0; bottom:-18px; width:2px; background:var(--line)}
+  .step:last-child .line{display:none}
+  .body{padding-bottom:18px; flex:1; min-width:0}
+  .st-t{font-weight:600; font-size:14.5px}
+  .st-m{color:var(--muted); font-size:13.5px; margin-top:2px}
+  .tag{display:inline-block; font-size:11px; padding:2px 7px; border-radius:5px; margin-left:6px;
+    font-variant-numeric:tabular-nums; vertical-align:middle}
+  .tag.err{background:#3a1e1c; color:#f0a9a3; border:1px solid #5c2b27}
+  .tag.ok{background:#16382a; color:#8fe3bc; border:1px solid #26533d}
+  .callout{border-left:3px solid var(--accent); background:var(--panel2); border-radius:0 8px 8px 0;
+    padding:12px 16px; margin:14px 0}
+  .callout.warn{border-left-color:var(--warn)}
+  .callout.warn b{color:var(--warn)}
+  .callout b{color:var(--accent)}
+  .rank{display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px;
+    border-radius:6px; background:var(--panel2); border:1px solid var(--line); font-weight:700; font-size:13px}
+  .footer{margin-top:44px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); font-size:12.5px}
+  .kv{font-size:13.5px}
+  .kv div{display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line)}
+  .kv div:last-child{border-bottom:none}
+  .kv span:first-child{color:var(--muted)}
+  .kv span:last-child{font-variant-numeric:tabular-nums; text-align:right}
+  .scoped{color:var(--warn)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>Top 5 latest NPM package releases by GitHub stars</h1>
+    <div class="sub">Data-analysis case over two dependency databases — recorded agent run</div>
+    <div class="pills">
+      <span class="pill"><b>Case</b> 05_DEPS_DEV_V1_query1</span>
+      <span class="pill"><b>Benchmark</b> DataAgentBench</span>
+      <span class="pill"><b>Domain</b> data_analysis</span>
+      <span class="pill"><b>Model</b> gpt-5.6-sol</span>
+      <span class="pill ok"><b>Exit code</b> 0</span>
+      <span class="pill"><b>Duration</b> 4211 s (~70 min)</span>
+    </div>
+  </header>
+
+  <p class="muted" style="margin-top:18px">
+    This report describes a completed, recorded run. It presents what the agent did and produced.
+    It does not re-run the task. Where the recorded method has limitations, they are noted plainly.
+  </p>
+
+  <h2>The task</h2>
+  <div class="card">
+    <p style="margin-top:0"><b>Question posed to the agent:</b> Considering only the latest release
+    versions for each distinct NPM package, which packages are the top 5 most popular based on the
+    GitHub star number, along with their versions?</p>
+    <p class="muted">The agent was told to write and run Python that computes and prints the answer,
+    querying two data files by their noted engine.</p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3 style="margin-top:0">Data sources</h3>
+      <div class="kv">
+        <div><span>package_query.db (SQLite)</span><span>538 MB</span></div>
+        <div><span>project_query.db (DuckDB)</span><span>11 MB</span></div>
+      </div>
+      <p class="muted" style="font-size:13px; margin-bottom:0">
+        Both databases exceed the case size cap and are listed as references only. Their contents
+        here come solely from the schema dumps and sample rows the agent printed during the run.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Run shape</h3>
+      <div class="kv">
+        <div><span>Trajectory events</span><span>27</span></div>
+        <div><span>Code executions</span><span>5</span></div>
+        <div><span>Executions that errored</span><span>3</span></div>
+        <div><span>Assistant messages</span><span>4</span></div>
+      </div>
+      <p class="muted" style="font-size:13px; margin-bottom:0">
+        The sandbox was read-only with no network access and an approval policy of never.
+      </p>
+    </div>
+  </div>
+
+  <h2>How the run unfolded</h2>
+  <p class="muted">Five code executions, three of which failed on sandbox constraints before the
+    agent found a working query path. Reasoning traces were encrypted and empty of summaries,
+    so intent is inferred from the agent's own commentary and its code.</p>
+
+  <div class="card">
+
+    <div class="step">
+      <div class="rail"><div class="line"></div><div class="dot info"></div></div>
+      <div class="body">
+        <div class="st-t">Plan stated <span class="tag" style="background:var(--panel2);color:var(--muted);border:1px solid var(--line)">message</span></div>
+        <div class="st-m">The agent said it would inspect both schemas, find how releases map to GitHub
+          stars, keep only each package's latest version, and print the top five.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="rail"><div class="line"></div><div class="dot err"></div></div>
+      <div class="body">
+        <div class="st-t">Schema dump via shell heredoc <span class="tag err">failed</span></div>
+        <div class="st-m">A <code>python - &lt;&lt;'PY'</code> heredoc was rejected:
+          <code>can't create temp file for here document: operation not permitted</code>.
+          The read-only filesystem blocked the temporary file the shell needs for heredocs.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="rail"><div class="line"></div><div class="dot ok"></div></div>
+      <div class="body">
+        <div class="st-t">Schema dump via inline <code>python -c</code> <span class="tag ok">ok</span></div>
+        <div class="st-m">Switching to an inline command revealed the tables. SQLite holds one
+          table, <code>packageinfo</code>. DuckDB holds <code>project_info</code> and
+          <code>project_packageversion</code>. Details below.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="rail"><div class="line"></div><div class="dot err"></div></div>
+      <div class="body">
+        <div class="st-t">First count query <span class="tag err">disk I/O error</span></div>
+        <div class="st-m">Opening the SQLite file normally raised <code>sqlite3.OperationalError:
+          disk I/O error</code>, because even reads need a writable temp area the sandbox denied.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="rail"><div class="line"></div><div class="dot err"></div></div>
+      <div class="body">
+        <div class="st-t">Retry with immutable read-only URI <span class="tag err">disk I/O error</span></div>
+        <div class="st-m">Opening as
+          <code>file:...?mode=ro&amp;immutable=1</code> still failed the same way.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="rail"><div class="line"></div><div class="dot ok"></div></div>
+      <div class="body">
+        <div class="st-t">Add <code>pragma temp_store=memory</code> <span class="tag ok">ok</span></div>
+        <div class="st-m">Combining the immutable URI with an in-memory temp store cleared the
+          error. The agent read package counts, sample rows, relationship counts, and project
+          samples. This confirmed stars live inside prose, not a numeric column.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="rail"><div class="line"></div><div class="dot ok"></div></div>
+      <div class="body">
+        <div class="st-t">Final analysis query <span class="tag ok">ok</span></div>
+        <div class="st-m">One script computed the latest release per package, parsed star counts
+          from project descriptions, mapped versions to projects, and printed the ranked top five.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="callout warn">
+    <b>Timing note.</b> The five code executions all ran within about one minute
+    (23:26:47 to 23:27:41). Yet the recorded duration is roughly 70 minutes. Almost the entire
+    elapsed time falls in a single gap between the opening plan message and the first execution.
+    The compute itself was fast; the wall-clock cost was not in querying.
+  </div>
+
+  <h2>What the schemas held</h2>
+  <div class="grid">
+    <div class="card">
+      <h3 style="margin-top:0">package_query.db · SQLite</h3>
+      <p class="muted" style="margin-top:0; font-size:13.5px">Table <code>packageinfo</code></p>
+      <div class="kv">
+        <div><span>Rows, System = NPM</span><span>661,372</span></div>
+        <div><span>Distinct package names</span><span>16,614</span></div>
+      </div>
+      <p style="font-size:13.5px; margin-bottom:0">Version order comes from
+      <code>VersionInfo</code>, a JSON blob with <code>IsRelease</code> and a numeric
+      <code>Ordinal</code>. There is no plain published-date ranking column used here.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">project_query.db · DuckDB</h3>
+      <p class="muted" style="margin-top:0; font-size:13.5px">Tables <code>project_info</code>, <code>project_packageversion</code></p>
+      <div class="kv">
+        <div><span>Relationship rows, NPM</span><span>597,602</span></div>
+        <div><span>Distinct package names</span><span>16,614</span></div>
+        <div><span>Distinct projects</span><span>8,381</span></div>
+      </div>
+      <p style="font-size:13.5px; margin-bottom:0">Star counts are embedded in the free-text
+      <code>Project_Information</code> field, for example
+      <span class="muted">"leaflet/leaflet ... currently has 521 open issues, 38715 stars, and 5782 forks"</span>.</p>
+    </div>
+  </div>
+
+  <h2>The method the agent used</h2>
+  <p>The final script combined three ideas: pick each package's latest release by highest
+    <code>Ordinal</code>, extract star counts from prose with a regular expression, then join
+    latest versions to their GitHub project and rank.</p>
+
+  <pre><span class="cmt"># Latest release per distinct NPM package (registry ordinal is release order)</span>
+latest = {}
+for name, version, version_info in packageinfo where System = <span class="str">"NPM"</span>:
+    info = json.loads(version_info)
+    <span class="kw">if</span> info[<span class="str">"IsRelease"</span>]:
+        ordinal = info.get(<span class="str">"Ordinal"</span>, -1)
+        <span class="kw">if</span> name not in latest or ordinal &gt; latest[name][0]:
+            latest[name] = (ordinal, version)
+
+<span class="cmt"># Parse GitHub project name and star count from the description prose</span>
+pm = re.search(r<span class="str">"^The project (.+?) (?:is hosted on GitHub|on GitHub)"</span>, text)
+sm = re.search(r<span class="str">"([0-9][0-9,]*) stars?"</span>, text)
+
+<span class="cmt"># Keep rows whose version equals the package's latest, map to project stars,</span>
+<span class="cmt"># reduce duplicate mappings to the highest-star project per package, then rank.</span>
+answer = sorted(..., key=lambda x: (-stars, name))[:5]</pre>
+
+  <h2>The answer it printed</h2>
+  <table>
+    <thead>
+      <tr><th style="width:34px"></th><th>Package</th><th>Version</th><th class="num">GitHub stars</th><th>Mapped project</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="rank">1</span></td><td><span class="scoped">@dylanvann/svelte</span></td><td>3.25.4</td><td class="num">73,499</td><td class="muted">sveltejs/svelte</td></tr>
+      <tr><td><span class="rank">2</span></td><td><span class="scoped">@dumc11/tailwindcss</span></td><td>0.4.0</td><td class="num">73,464</td><td class="muted">tailwindcss/tailwindcss</td></tr>
+      <tr><td><span class="rank">3</span></td><td><span class="scoped">@dman777/shadow-dom-quill-temp</span></td><td>1.0.0</td><td class="num">42,407</td><td class="muted">quilljs/quill</td></tr>
+      <tr><td><span class="rank">4</span></td><td><span class="scoped">@dothq/styled-components</span></td><td>1.0.0</td><td class="num">39,660</td><td class="muted">styled-components/styled-components</td></tr>
+      <tr><td><span class="rank">5</span></td><td><span class="scoped">@dynasty/styled-components</span></td><td>3.2.1</td><td class="num">39,660</td><td class="muted">styled-components/styled-components</td></tr>
+    </tbody>
+  </table>
+  <p class="muted" style="font-size:13.5px">The agent presented this list as its final answer,
+    noting stars came from each version's mapped project and that duplicate mappings were reduced
+    to the highest-star project per package.</p>
+
+  <h2>Reading the result critically</h2>
+
+  <div class="callout warn">
+    <b>The winners are scoped forks, not the canonical packages.</b> Every entry is a
+    <span class="scoped">@scope/name</span> republish that inherits the star count of a famous
+    project it maps to. The mapping treats any package version linked to
+    <code>sveltejs/svelte</code> as if it carried Svelte's 73,499 stars, so an obscure fork
+    outranks the real thing. A reader expecting <code>svelte</code>, <code>tailwindcss</code>,
+    or <code>quill</code> themselves will not find them here.
+  </div>
+
+  <p><b>Why this happens.</b> Stars belong to GitHub projects, not to individual NPM packages.
+    Many distinct packages point at the same project. The agent's join therefore assigns one
+    project's popularity to every package that references it, and the alphabetical tiebreak plus
+    the data snapshot pushed a cluster of <code>@d</code>-prefixed packages to the top. The result
+    is internally consistent with the chosen method but is unlikely to be the intended reading of
+    "most popular packages."</p>
+
+  <p><b>Latest-version logic.</b> "Latest release" was defined by the highest
+    <code>Ordinal</code> among rows where <code>IsRelease</code> is true. That is a defensible
+    proxy for release order and avoids parsing semantic version strings, though it was not
+    cross-checked against the <code>UpstreamPublishedAt</code> timestamps that also exist in the table.</p>
+
+  <p><b>Fragility of prose parsing.</b> Star counts were scraped from English sentences with two
+    regular expressions. Any project whose description phrasing differs from the expected pattern
+    would be silently dropped from ranking. The agent did not report how many descriptions failed
+    to match, so the completeness of the candidate pool is unverified.</p>
+
+  <h2>Faithfulness summary</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Aspect</th><th>Assessment</th></tr></thead>
+      <tbody>
+        <tr><td>Ran and printed an answer</td><td>Yes. The final query executed cleanly and produced five ranked rows.</td></tr>
+        <tr><td>Handled sandbox errors</td><td>Yes. It diagnosed the heredoc block and the SQLite disk I/O error and worked around both.</td></tr>
+        <tr><td>Explained its method to the user</td><td>Partly. It stated the mapping and the duplicate reduction, but did not flag the scoped-fork distortion.</td></tr>
+        <tr><td>Answer likely matches intent</td><td>Doubtful. The method is coherent, yet it surfaces fork packages inheriting others' stars rather than the canonical popular packages.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p>Sources: the case trajectory in <code>trajectory.jsonl</code> (codex-jsonl, 27 events),
+    <code>case_meta.json</code>, and <code>workspace/prompt.txt</code>. Database contents are
+    reproduced only from the schema and sample output the agent printed; the underlying
+    <code>package_query.db</code> and <code>project_query.db</code> files are referenced by path
+    and were not opened for this report. Encrypted reasoning traces carried no readable summaries.</p>
+  </div>
+
+</div>
+</body>
+</html>

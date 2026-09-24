@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case 03 · Semantic Self-Consistency — Reproduction Dossier</title>
+<style>
+  :root{
+    --paper:#eef2f4;
+    --paper-2:#e4eaee;
+    --grid:rgba(22,38,63,0.055);
+    --grid-2:rgba(22,38,63,0.10);
+    --ink:#16263f;
+    --ink-2:#3a4a63;
+    --ink-3:#6c7a8d;
+    --rule:#aebccb;
+    --rule-soft:#cfd9e0;
+    --accent:#d9442e;      /* vermilion — the chosen/consensus answer */
+    --accent-deep:#b8351f;
+    --teal:#2f7e78;        /* diverse reasoning paths */
+    --gold:#b9872a;        /* blocked / warning */
+    --teal-soft:#e3efed;
+    --accent-soft:#f6ddd7;
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
+    --mono:"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.6;
+    background-image:
+      linear-gradient(var(--grid) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:26px 26px,26px 26px;
+    background-position:-1px -1px;
+  }
+  a{color:var(--accent-deep);}
+  ::selection{background:var(--accent);color:#fff;}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  /* ---- dossier header ---- */
+  .topstrip{
+    border-bottom:1px solid var(--rule);
+    background:linear-gradient(180deg,#e7edf0,var(--paper));
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.02em;
+    color:var(--ink-2);
+  }
+  .topstrip .wrap{
+    display:flex;flex-wrap:wrap;gap:10px 26px;align-items:center;
+    padding-top:10px;padding-bottom:10px;
+  }
+  .topstrip .mk{display:inline-flex;align-items:baseline;gap:6px;}
+  .topstrip .mk b{color:var(--ink);font-weight:600;}
+  .topstrip .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);display:inline-block;box-shadow:0 0 0 3px rgba(185,135,42,.18);}
+  .topstrip .tag{margin-left:auto;font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:var(--gold);border:1px solid rgba(185,135,42,.5);padding:3px 9px;border-radius:2px;}
+
+  /* ---- hero ---- */
+  header.hero{padding:64px 0 40px;border-bottom:1px solid var(--rule);position:relative;}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent-deep);display:flex;align-items:center;gap:12px;margin-bottom:26px;
+  }
+  .eyebrow::before{content:"";width:42px;height:1px;background:var(--accent);}
+  h1.title{
+    font-family:var(--serif);font-weight:400;
+    font-size:clamp(34px,5.4vw,62px);
+    line-height:1.04;letter-spacing:-.015em;
+    margin:0 0 18px;max-width:15ch;color:var(--ink);
+  }
+  h1.title em{font-style:italic;color:var(--accent-deep);}
+  .authors{font-family:var(--serif);font-style:italic;color:var(--ink-2);font-size:17px;margin-bottom:28px;}
+  .authors span.org{font-style:normal;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--ink-3);}
+  .abstract{
+    font-family:var(--serif);font-size:18.5px;line-height:1.62;color:var(--ink);
+    max-width:62ch;border-left:2px solid var(--accent);padding-left:20px;margin:0 0 28px;
+  }
+  .verdict{
+    display:flex;flex-wrap:wrap;gap:18px 36px;align-items:center;
+    border:1px solid var(--rule);background:rgba(255,255,255,.45);
+    padding:18px 22px;border-radius:3px;max-width:880px;
+  }
+  .verdict .pill{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:#fff;background:var(--gold);padding:4px 10px;border-radius:2px;
+  }
+  .verdict p{margin:0;font-size:15px;color:var(--ink-2);max-width:62ch;}
+  .verdict p b{color:var(--ink);}
+
+  /* ---- section scaffolding ---- */
+  section{padding:54px 0;border-bottom:1px solid var(--rule-soft);}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:30px;}
+  .sec-num{
+    font-family:var(--mono);font-size:13px;color:var(--accent-deep);
+    letter-spacing:.1em;border:1px solid var(--accent);border-radius:2px;
+    padding:4px 9px;flex-shrink:0;
+  }
+  .sec-head h2{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3vw,32px);margin:0;letter-spacing:-.01em;}
+  .sec-head .sub{font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.06em;margin-left:auto;}
+
+  p.lede{font-size:18px;line-height:1.6;max-width:64ch;color:var(--ink);margin:0 0 18px;}
+
+  /* ---- method cards ---- */
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+  .card{
+    background:rgba(255,255,255,.5);border:1px solid var(--rule);
+    border-radius:3px;padding:22px 22px 20px;position:relative;
+  }
+  .card h3{font-family:var(--serif);font-weight:400;font-size:20px;margin:0 0 4px;color:var(--ink);}
+  .card .abbr{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--accent-deep);text-transform:uppercase;}
+  .card p{font-size:14.5px;color:var(--ink-2);margin:12px 0 0;}
+  .formula{
+    font-family:var(--mono);font-size:12.5px;color:var(--ink);
+    background:#dfe7eb;border:1px solid var(--rule-soft);
+    border-radius:2px;padding:10px 12px;margin-top:14px;line-height:1.7;overflow-x:auto;
+  }
+  .formula .v{color:var(--accent-deep);}
+  .formula .c{color:var(--teal);}
+
+  /* ---- interactive consensus viz ---- */
+  .viz-shell{
+    display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:start;
+    border:1px solid var(--rule);background:rgba(255,255,255,.55);
+    border-radius:4px;padding:26px;
+  }
+  @media (max-width:880px){.viz-shell{grid-template-columns:1fr;}}
+  .viz-canvas{position:relative;background:var(--paper);border:1px solid var(--rule-soft);border-radius:3px;overflow:hidden;}
+  .viz-canvas svg{display:block;width:100%;height:auto;}
+  .viz-axislabel{font-family:var(--mono);font-size:10px;fill:var(--ink-3);letter-spacing:.08em;}
+  .viz-title{font-family:var(--serif);font-style:italic;font-size:13px;fill:var(--ink-2);}
+  .methods-toggle{display:flex;flex-direction:column;gap:10px;}
+  .methods-toggle .lab{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px;}
+  .mbtn{
+    appearance:none;cursor:pointer;text-align:left;
+    font-family:var(--sans);font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.6);border:1px solid var(--rule);
+    border-radius:3px;padding:13px 15px;display:flex;gap:12px;align-items:center;
+    transition:border-color .15s,background .15s,box-shadow .15s;
+  }
+  .mbtn .k{font-family:var(--mono);font-size:11px;color:var(--ink-3);width:34px;flex-shrink:0;}
+  .mbtn .t{flex:1;}
+  .mbtn .t b{display:block;font-weight:600;}
+  .mbtn .t span{font-size:12.5px;color:var(--ink-3);}
+  .mbtn:hover{border-color:var(--ink-2);}
+  .mbtn[aria-pressed="true"]{
+    border-color:var(--accent);background:#fff;
+    box-shadow:0 0 0 1px var(--accent) inset, 0 6px 16px -10px rgba(217,68,46,.6);
+  }
+  .mbtn[aria-pressed="true"] .k{color:var(--accent-deep);}
+  .mbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .readout{
+    margin-top:18px;border-top:1px dashed var(--rule);padding-top:16px;
+  }
+  .readout .rd-label{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);}
+  .readout .rd-answer{
+    font-family:var(--serif);font-size:30px;color:var(--accent-deep);margin:6px 0 4px;letter-spacing:-.01em;
+  }
+  .readout .rd-detail{font-size:13.5px;color:var(--ink-2);}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--ink-2);}
+  .legend i{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:-1px;}
+
+  /* ---- scope checklist ---- */
+  .scope{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:rgba(255,255,255,.45);}
+  .scope .cell{padding:18px 20px;border-right:1px solid var(--rule-soft);border-bottom:1px solid var(--rule-soft);}
+  .scope .cell .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px;}
+  .scope .cell .v{font-size:15px;color:var(--ink);font-weight:500;}
+  .scope .cell .v small{display:block;font-weight:400;color:var(--ink-2);font-size:12.5px;margin-top:3px;}
+  .parsebox{
+    font-family:var(--mono);font-size:12.5px;background:#dfe7eb;border:1px solid var(--rule-soft);
+    border-radius:2px;padding:14px 16px;margin-top:18px;line-height:1.7;overflow-x:auto;
+  }
+  .parsebox .a{color:var(--accent-deep);}
+  .parsebox .c{color:var(--teal);}
+
+  /* ---- results table ---- */
+  .table-scroll{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;background:rgba(255,255,255,.5);}
+  table.results{border-collapse:collapse;width:100%;font-size:13.5px;min-width:620px;}
+  table.results th,table.results td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--rule-soft);}
+  table.results th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600;border-bottom:1px solid var(--rule);background:#e7edf0;}
+  table.results th:first-child,table.results td:first-child{text-align:left;}
+  table.results td:first-child{font-family:var(--mono);font-size:12px;color:var(--ink-2);}
+  table.results tbody tr:nth-child(even){background:rgba(255,255,255,.3);}
+  table.results .ds{font-family:var(--serif);font-style:italic;color:var(--ink);background:#e7edf0;}
+  table.results .pos{color:var(--teal);font-weight:600;}
+  table.results .neg{color:var(--accent-deep);font-weight:600;}
+  table.results .base{color:var(--ink-3);}
+  table.results tr.reprow td{background:var(--accent-soft);}
+  table.results .note{font-size:12px;color:var(--ink-3);padding:10px 14px;text-align:left;font-style:italic;font-family:var(--serif);}
+
+  /* ---- file tree ---- */
+  .tree{
+    font-family:var(--mono);font-size:13px;line-height:1.85;color:var(--ink);
+    background:#dfe7eb;border:1px solid var(--rule-soft);border-radius:3px;
+    padding:20px 22px;overflow-x:auto;white-space:pre;
+  }
+  .tree .d{color:var(--accent-deep);font-weight:600;}
+  .tree .c{color:var(--ink-3);}
+  .tree .n{color:var(--teal);}
+  .reqfile{
+    font-family:var(--mono);font-size:12.5px;background:#dfe7eb;border:1px solid var(--rule-soft);
+    border-radius:2px;padding:16px 18px;margin-top:18px;line-height:1.75;white-space:pre;overflow-x:auto;
+    position:relative;
+  }
+  .reqfile .fn{position:absolute;top:-11px;left:14px;background:var(--paper);padding:0 8px;font-size:11px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase;}
+  .reqfile .c{color:var(--ink-3);}
+
+  /* ---- timeline ---- */
+  .tl{position:relative;margin-top:8px;}
+  .tl::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:var(--rule);}
+  .tl .ev{position:relative;padding:0 0 22px 30px;}
+  .tl .ev::before{content:"";position:absolute;left:3px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--paper);border:1.5px solid var(--ink-3);}
+  .tl .ev.warn::before{border-color:var(--gold);background:var(--gold);}
+  .tl .ev.block::before{border-color:var(--accent);background:var(--accent);}
+  .tl .ev .t{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-3);}
+  .tl .ev .t b{color:var(--ink);}
+  .tl .ev p{margin:4px 0 0;font-size:14.5px;color:var(--ink-2);}
+  .tl .ev p b{color:var(--ink);}
+  .tl .ev .q{font-family:var(--mono);font-size:12px;color:var(--ink-3);background:#dfe7eb;border-radius:2px;padding:6px 10px;margin-top:7px;display:inline-block;}
+
+  /* ---- stats row ---- */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:6px;}
+  .stat{border:1px solid var(--rule);background:rgba(255,255,255,.45);border-radius:3px;padding:18px 18px 16px;}
+  .stat .n{font-family:var(--serif);font-size:34px;line-height:1;color:var(--ink);letter-spacing:-.02em;}
+  .stat .n small{font-size:16px;color:var(--ink-3);}
+  .stat .l{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:8px;}
+  .stat.warn .n{color:var(--gold);}
+
+  /* ---- footer ---- */
+  footer{padding:40px 0 70px;font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.02em;}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:10px 30px;}
+  footer .conf{margin-left:auto;font-style:italic;font-family:var(--serif);color:var(--ink-2);}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topstrip">
+  <div class="wrap">
+    <span class="mk"><span class="dot"></span><b>case_03</b></span>
+    <span class="mk">benchmark · <b>PaperBench</b></span>
+    <span class="mk">domain · <b>paper_reproduction</b></span>
+    <span class="mk">model · <b>claude-opus-4-8</b></span>
+    <span class="mk">duration · <b>173.2s</b></span>
+    <span class="mk">exit · <b>0</b></span>
+    <span class="mk">turns · <b>33</b></span>
+    <span class="tag">blocked · no artifacts written</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">PaperBench · Reproduction Dossier</div>
+    <h1 class="title">Semantic<br>Self-Consistency<em>.</em></h1>
+    <div class="authors">Tim Knappe, Ryan Li, Ayush Chauhan, Kaylee Chhua, Kevin Zhu, Sean O'Brien<br>
+      <span class="org">ALGOVERSE AI RESEARCH — cs.timknappe@gmail.com · kevin@algoverse.us</span>
+    </div>
+    <p class="abstract">
+      Self-consistency samples many reasoning paths and takes a majority vote on the final
+      answer — but discards the semantics of <em>how</em> each path reasoned. This paper
+      reranks the vote by embedding each rationale and weighting answers by the geometry of
+      those embeddings: which answers cluster, which sit near the centroid, and which paths
+      agree with one another.
+    </p>
+    <div class="verdict">
+      <span class="pill">Reproduction status</span>
+      <p><b>Never got off the ground.</b> The agent read the paper, the addendum, and the
+      blacklist; scoped the reproduction correctly; and drafted a full <code>ssc/</code> package
+      plan. Then it tried to write the first file — <code>requirements.txt</code> — and was
+      denied write permission <b>four times in a row</b>. The run ended still asking for
+      approval. <b>Zero files persisted.</b></p>
+    </div>
+  </div>
+</header>
+
+<!-- ============ 01 THE THESIS / INTERACTIVE ============ -->
+<section id="viz">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2>How a semantic majority decides</h2>
+      <span class="sub">the paper's core idea, reconstructed</span>
+    </div>
+    <p class="lede">Ten reasoning paths are sampled for one question. Plain self-consistency
+      counts heads. The paper asks the embedding space to vote instead — so a tight,
+      semantically coherent minority can beat a scattered numerical majority.</p>
+
+    <div class="viz-shell">
+      <div class="viz-canvas">
+        <svg id="space" viewBox="0 0 480 340" role="img" aria-label="Reasoning-path embedding space">
+          <!-- graph frame -->
+          <rect x="0" y="0" width="480" height="340" fill="none"/>
+          <g stroke="#cfd9e0" stroke-width="1">
+            <line x1="40" y1="40" x2="40" y2="300"/>
+            <line x1="40" y1="300" x2="460" y2="300"/>
+          </g>
+          <g stroke="#e7edf0" stroke-width="1">
+            <line x1="40" y1="120" x2="460" y2="120"/>
+            <line x1="40" y1="200" x2="460" y2="200"/>
+            <line x1="150" y1="40" x2="150" y2="300"/>
+            <line x1="260" y1="40" x2="260" y2="300"/>
+            <line x1="370" y1="40" x2="370" y2="300"/>
+          </g>
+          <text class="viz-axislabel" x="40" y="32">embedding dim 1 →</text>
+          <text class="viz-axislabel" x="14" y="300" transform="rotate(-90 14 300)">↑ dim 2</text>
+          <text class="viz-title" x="250" y="328" text-anchor="middle">10 sampled rationales · 3 candidate answers</text>
+          <g id="centroid"></g>
+          <g id="links"></g>
+          <g id="dots"></g>
+          <g id="labels"></g>
+        </svg>
+      </div>
+
+      <div>
+        <div class="methods-toggle" role="group" aria-label="Aggregation method">
+          <span class="lab">Aggregation method</span>
+          <button class="mbtn" data-method="sc" aria-pressed="true">
+            <span class="k">SC</span><span class="t"><b>Self-consistency baseline</b><span>count final answers — majority wins</span></span>
+          </button>
+          <button class="mbtn" data-method="cpw" aria-pressed="false">
+            <span class="k">CPW</span><span class="t"><b>Centroid Proximity Weighting</b><span>weight ∝ inverse distance to centroid</span></span>
+          </button>
+          <button class="mbtn" data-method="scw" aria-pressed="false">
+            <span class="k">SCW</span><span class="t"><b>Semantic Consensus Weighting</b><span>weight ∝ summed pairwise cosine similarity</span></span>
+          </button>
+        </div>
+        <div class="readout" id="readout">
+          <div class="rd-label">Selected answer</div>
+          <div class="rd-answer" id="rdAnswer">8</div>
+          <div class="rd-detail" id="rdDetail">Majority of final answers (5 of 10).</div>
+          <div class="legend">
+            <span><i style="background:#d9442e"></i>Answer 8 (4 paths, tight)</span>
+            <span><i style="background:#2f7e78"></i>Answer 12 (5 paths, scattered)</span>
+            <span><i style="background:#6c7a8d"></i>Answer 3 (1 path)</span>
+            <span><i style="background:#b9872a;border:1px solid #8a661f"></i>centroid</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="font-family:var(--serif);font-style:italic;color:var(--ink-3);font-size:13px;margin-top:18px;max-width:80ch;">
+      Illustrative reconstruction. Answer&nbsp;12 has more votes, but its paths are scattered
+      across the space; answer&nbsp;8's paths agree with one another. CPW and SCW both flip the
+      decision toward the semantically coherent cluster — exactly the regime the paper
+      argues self-consistency mishandles.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 02 METHODS ============ -->
+<section id="methods">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2>The four mechanisms</h2>
+      <span class="sub">from the paper, §4–§5</span>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="abbr">Baseline</div>
+        <h3>Self-consistency</h3>
+        <p>Sample <b>k=10</b> chain-of-thought rationales at temperature&nbsp;0.8, extract each
+          final answer, take the modal answer. The thing every other method is measured against.</p>
+        <div class="formula">answer = argmax<sub>a</sub> Σ 𝟙[final_answer(path<sub>i</sub>) = a]</div>
+      </div>
+      <div class="card">
+        <div class="abbr">§4.1.1</div>
+        <h3>Centroid Proximity Weighting</h3>
+        <p>Embed each full reasoning path. Compute the centroid, distance each path from it,
+          and weight inversely to (normalised) distance. Tight clusters near the middle dominate.</p>
+        <div class="formula">centroid =  1⁄N Σ <span class="v">e<sub>i</sub></span><br>
+          dist<sub>i</sub> = ‖<span class="v">e<sub>i</sub></span> − centroid‖<br>
+          w<sub>i</sub> = 1 ⁄ (dist<sub>i</sub> ⁄ Σ dist<sub>j</sub>)<br>
+          answer = argmax<sub>a</sub> Σ<sub>i∈I(a)</sub> w<sub>i</sub></div>
+      </div>
+      <div class="card">
+        <div class="abbr">§4.1.2</div>
+        <h3>Semantic Consensus Weighting</h3>
+        <p>Score each path by its summed cosine similarity to every other path; aggregate those
+          scores by answer. Coherent clusters reward one another, scattered votes deflate.</p>
+        <div class="formula">sim(<span class="v">e<sub>a</sub></span>,<span class="v">e<sub>b</sub></span>) = <span class="v">e<sub>a</sub></span>·<span class="v">e<sub>b</sub></span> ⁄ (‖<span class="v">e<sub>a</sub></span>‖‖<span class="v">e<sub>b</sub></span>‖)<br>
+          S<sub>i</sub> = Σ<sub>j</sub> sim(<span class="v">e<sub>i</sub></span>,<span class="v">e<sub>j</sub></span>)<br>
+          answer = argmax<sub>a</sub> Σ<sub>i∈I(a)</sub> S<sub>i</sub></div>
+      </div>
+      <div class="card">
+        <div class="abbr">§4.2</div>
+        <h3>Outlier removal</h3>
+        <p>A filtering pass that discards degenerate or hallucinated rationales before voting,
+          rather than reranking. Three detectors, tuned per Appendix&nbsp;I.2.</p>
+        <div class="formula"><span class="c">k-NN</span>  ‖x−y‖₂<br>
+          <span class="c">Isolation forest</span>  s(x,n)=2^(−E[h(x)]⁄c(n))<br>
+          <span class="c">One-class SVM</span>  ½ωᵀω + C Σ ζ<sub>i</sub></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 REPRODUCTION SCOPE ============ -->
+<section id="scope">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2>Reproduction scope</h2>
+      <span class="sub">addendum.md · the trimmed target</span>
+    </div>
+    <p class="lede">The addendum narrows the paper's full sweep (five generators × three datasets)
+      to a portable target: two OpenAI models, three datasets, one featurizer per domain.</p>
+    <div class="scope">
+      <div class="cell"><div class="k">Generators</div><div class="v">gpt-3.5-turbo<small>gpt-4o-mini — "a new model you may not have heard about"</small></div></div>
+      <div class="cell"><div class="k">Excluded</div><div class="v">Llama 2 7B · Mistral 7B<small>Llama 3 8B — not required</small></div></div>
+      <div class="cell"><div class="k">Datasets</div><div class="v">AQuA-RAT · SVAMP · StrategyQA<small>254 · 1,000 · 687 examples</small></div></div>
+      <div class="cell"><div class="k">Featurizers</div><div class="v">SciBERT<small>AQuA-RAT + SVAMP (math)</small></div></div>
+      <div class="cell"><div class="k">Featurizer</div><div class="v">RoBERTa-base<small>StrategyQA · 125M params</small></div></div>
+      <div class="cell"><div class="k">Sampling</div><div class="v">k = 10 responses<small>temp 0.8 · chain-of-thought</small></div></div>
+      <div class="cell"><div class="k">System prompt</div><div class="v">"Follow the exact formatting<small>as demonstrated in the examples."</small></div></div>
+      <div class="cell"><div class="k">Few-shot</div><div class="v">all examples in one message<small>not a multi-turn chat</small></div></div>
+    </div>
+    <div class="parsebox">
+      <b>Parsing rule</b> (all datasets): the answer is the string immediately following <span class="c">"the answer is"</span>
+      (case-insensitive); strip whitespace, full stops, parentheses.<br>
+      &nbsp;&nbsp;<span class="c">"The answer is 2."</span>&nbsp;&nbsp;→&nbsp;&nbsp;<span class="a">2</span><br>
+      &nbsp;&nbsp;<span class="c">"The answer is (B)"</span>&nbsp;&nbsp;→&nbsp;&nbsp;<span class="a">B</span><br>
+      <b>Top-prob &amp; AQuA-RAT:</b> only generations where an answer could be extracted count toward the metric.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 RESULTS TABLE ============ -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2>The numbers being chased</h2>
+      <span class="sub">paper Table 1 · reproduced columns only</span>
+    </div>
+    <p class="lede">Only the two required models are shown; the full table spans five generators.
+      SCW (cosine) is the paper's headline — a <b>+7.89 pt</b> lift on StrategyQA for GPT-3.5.</p>
+    <div class="table-scroll">
+      <table class="results">
+        <thead>
+          <tr><th>Dataset</th><th>Method</th><th>GPT-3.5</th><th>GPT-4o mini</th></tr>
+        </thead>
+        <tbody>
+          <tr class="reprow ds"><td rowspan="4">AQuA-RAT</td><td>Top prob sample</td><td class="base">53.63</td><td class="base">79.22</td></tr>
+          <tr class="reprow"><td>SC baseline</td><td class="base">59.40</td><td class="base">83.07</td></tr>
+          <tr class="reprow"><td>CPW</td><td>68.00 <span class="pos">(+8.6)</span></td><td>82.68 <span class="neg">(−0.39)</span></td></tr>
+          <tr class="reprow"><td>SCW</td><td>65.40 <span class="pos">(+6.0)</span></td><td>86.18 <span class="pos">(+3.11)</span></td></tr>
+          <tr class="reprow ds"><td rowspan="4">SVAMP</td><td>Top prob sample</td><td class="base">77.42</td><td class="base">85.62</td></tr>
+          <tr class="reprow"><td>SC baseline</td><td class="base">79.80</td><td class="base">89.80</td></tr>
+          <tr class="reprow"><td>CPW</td><td>81.00 <span class="pos">(+1.2)</span></td><td>89.60 <span class="neg">(−0.2)</span></td></tr>
+          <tr class="reprow"><td>SCW</td><td>80.30 <span class="pos">(+0.5)</span></td><td>92.38 <span class="pos">(+2.98)</span></td></tr>
+          <tr class="reprow ds"><td rowspan="4">StrategyQA</td><td>Top prob sample</td><td class="base">63.21</td><td class="base">75.32</td></tr>
+          <tr class="reprow"><td>SC baseline</td><td class="base">66.81</td><td class="base">79.18</td></tr>
+          <tr class="reprow"><td>CPW</td><td>65.21 <span class="neg">(−1.6)</span></td><td>73.80 <span class="neg">(−5.38)</span></td></tr>
+          <tr class="reprow"><td>SCW</td><td>74.70 <span class="pos">(+7.89)</span></td><td>79.68 <span class="pos">(+0.5)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Accuracy (%). Deltas are vs. the SC baseline of the same row group. CPW underperforms
+      in six of fifteen model–dataset pairs across the full table; SCW wins almost everywhere.</p>
+  </div>
+</section>
+
+<!-- ============ 05 THE PLAN ============ -->
+<section id="plan">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2>The plan that was never written</h2>
+      <span class="sub">agent's intended package layout</span>
+    </div>
+    <p class="lede">Before touching a file the agent laid out a complete, sensibly-scoped Python
+      package. This is the architecture it described to the user while waiting for write approval —
+      none of it ever reached disk.</p>
+    <div class="tree">output/
+├─ <span class="n">requirements.txt</span>          <span class="c"># numpy, sklearn, openai, torch, transformers, datasets</span>
+├─ <span class="n">README.md</span>
+├─ <span class="n">config.py</span>                  <span class="c"># models, k, temp, dataset paths</span>
+├─ <span class="d">ssc/</span>                         <span class="c"># the reproduction package</span>
+│  ├─ <span class="n">datasets.py</span>             <span class="c"># HF loaders · AQuA / SVAMP / StrategyQA</span>
+│  ├─ <span class="n">prompts.py</span>              <span class="c"># 8-shot GSM, 4-shot AQuA, 6-shot StrategyQA CoT</span>
+│  ├─ <span class="n">parsing.py</span>              <span class="c"># "the answer is" extraction per addendum</span>
+│  ├─ <span class="n">generation.py</span>           <span class="c"># OpenAI · n=10 sampled + greedy top-prob · cached JSONL</span>
+│  ├─ <span class="n">embeddings.py</span>            <span class="c"># SciBERT / RoBERTa mean-pooling</span>
+│  ├─ <span class="n">methods.py</span>               <span class="c"># top-prob · SC · CPW · SCW</span>
+│  ├─ <span class="n">outlier.py</span>               <span class="c"># IsolationForest · KNN · One-class SVM (App. I.2)</span>
+│  └─ <span class="n">evaluate.py</span>              <span class="c"># metric computation</span>
+├─ <span class="n">run_generation.py</span>
+├─ <span class="n">run_evaluation.py</span>
+└─ <span class="n">run_all.sh</span>                  <span class="c"># + a no-network self-test for parsing/methods</span></div>
+
+    <p style="margin-top:22px;font-size:15px;color:var(--ink-2);max-width:70ch;">
+      The one artifact the agent actually composed — the contents of <code>requirements.txt</code> —
+      is below. It is the entirety of what surfaced before the permission wall.</p>
+    <div class="reqfile"><span class="fn">output / requirements.txt · composed, never persisted</span><span class="c"># Core numerical / ML stack
+</span>numpy&gt;=1.24
+scikit-learn&gt;=1.3
+tqdm&gt;=4.65
+
+<span class="c"># LLM generation (gpt-3.5-turbo, gpt-4o-mini)</span>
+openai&gt;=1.30
+tenacity&gt;=8.2
+
+<span class="c"># Featurizers (SciBERT, RoBERTa) + dataset loading</span>
+torch&gt;=2.1
+transformers&gt;=4.40
+datasets&gt;=2.18
+huggingface_hub&gt;=0.23</div>
+  </div>
+</section>
+
+<!-- ============ 06 TIMELINE ============ -->
+<section id="timeline">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <h2>What happened, second by second</h2>
+      <span class="sub">33 turns · 173 s</span>
+    </div>
+    <div class="tl">
+      <div class="ev"><div class="t"><b>23:32:01</b> · turn 0 — user prompt</div><p>Reproduce the paper in <code>paper.md</code>, respect <code>addendum.md</code>, avoid <code>blacklist.txt</code>, write everything under <code>output/</code>.</p></div>
+      <div class="ev"><div class="t"><b>23:32:05–06</b> · turns 3–8 — read the brief</div><p>Reads <b>paper.md</b>, <b>addendum.md</b>, <b>blacklist.txt</b> in a single parallel batch. Blacklist is just <code>none</code>.</p></div>
+      <div class="ev"><div class="t"><b>23:32:09</b> · turn 10 — re-read for depth</div><p>Returns to <code>paper.md</code> for the prompt appendix (few-shot templates, parsing examples).</p></div>
+      <div class="ev"><div class="t"><b>23:33:10–14</b> · turns 14–17 — scope check</div><p><code>ls -la</code> on the workspace, confirms the empty <code>output/</code> directory, re-reads <code>prompt.txt</code>.</p></div>
+      <div class="ev"><div class="t"><b>23:34:24</b> · turn 19 — commits to a plan</div><p>"Let me build the reproduction. I'll create a Python package under <code>output/</code> with separate generation and evaluation stages, then documentation."</p></div>
+      <div class="ev block"><div class="t"><b>23:34:26</b> · turn 20 — write #1 denied</div><p>Tries to write <code>requirements.txt</code>. <b>Permission denied</b> — not granted yet.</p><div class="q">Claude requested permissions to write … but you haven't granted it yet.</div></div>
+      <div class="ev block"><div class="t"><b>23:34:31</b> · turn 23 — write #2 denied</div><p>Retries the same file. Denied again.</p></div>
+      <div class="ev warn"><div class="t"><b>23:34:38</b> · turn 26 — reassures</div><p>"The write needs permission approval. Let me proceed — I'll continue creating the files and you can approve the writes."</p></div>
+      <div class="ev block"><div class="t"><b>23:34:40</b> · turn 27 — write #3 denied</div><p>Retries. Denied.</p></div>
+      <div class="ev warn"><div class="t"><b>23:34:49</b> · turn 29 — lays out the whole plan</div><p>Describes the full <code>ssc/</code> package and scope to the user, hoping approval has propagated.</p></div>
+      <div class="ev block"><div class="t"><b>23:34:51</b> · turn 30 — write #4 denied</div><p>Retries <code>requirements.txt</code> a fourth time. Denied.</p></div>
+      <div class="ev"><div class="t"><b>23:34:53</b> · turn 32 — final message</div><p>"I'm blocked on write permission to the <code>output/</code> directory… Nothing will be written until you grant access." Run ends, exit 0.</p></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat warn"><div class="n">0</div><div class="l">files written</div></div>
+      <div class="stat warn"><div class="n">4×</div><div class="l">write attempts denied</div></div>
+      <div class="stat"><div class="n">33</div><div class="l">trajectory turns</div></div>
+      <div class="stat"><div class="n">~34<small>k</small></div><div class="l">output tokens</div></div>
+      <div class="stat"><div class="n">~1.18<small>M</small></div><div class="l">cache tokens (read+create)</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>case · 03_semantic-self-consistency</span>
+    <span>source · trajs_regen / paper_reproduction</span>
+    <span>collected · 2026-07-11</span>
+    <span class="conf">A reproduction that stopped at the door.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 10 reasoning paths, in (x,y) embedding coords, grouped by answer.
+  // Answer 8 : 4 paths, tight cluster (semantically coherent minority)
+  // Answer 12: 5 paths, scattered (numerical majority)
+  // Answer 3 : 1 path
+  var paths = [
+    {x:235,y:158,a:8},{x:252,y:150,a:8},{x:240,y:172,a:8},{x:228,y:166,a:8},
+    {x:120,y:88,a:12},{x:96,y:262,a:12},{x:386,y:80,a:12},{x:356,y:262,a:12},{x:206,y:48,a:12},
+    {x:424,y:182,a:3}
+  ];
+  var col = {8:'#d9442e', 12:'#2f7e78', 3:'#6c7a8d'};
+  var W=480,H=340,L=40,B=300,R=460,T=40;
+  function cx(v){return L + (v/480)*(R-L);}
+  function cy(v){return T + ((340-v)/340)*(B-T);} // map data y to svg y
+
+  // precompute centroid (mean of data coords)
+  var mx=0,my=0; paths.forEach(function(p){mx+=p.x;my+=p.y;});
+  mx/=paths.length; my/=paths.length;
+  var cxs=cx(mx), cys=cy(my);
+
+  var dotsG=document.getElementById('dots');
+  var linksG=document.getElementById('links');
+  var centG=document.getElementById('centroid');
+  var labelsG=document.getElementById('labels');
+  var rdAnswer=document.getElementById('rdAnswer');
+  var rdDetail=document.getElementById('rdDetail');
+
+  // draw dots once
+  paths.forEach(function(p,i){
+    var sx=cx(p.x), sy=cy(p.y);
+    var c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',sx);c.setAttribute('cy',sy);c.setAttribute('r',6.5);
+    c.setAttribute('fill',col[p.a]);c.setAttribute('stroke','#fff');
+    c.setAttribute('stroke-width','1.5');c.setAttribute('opacity','0.92');
+    c.setAttribute('id','d'+i);
+    dotsG.appendChild(c);
+  });
+
+  function clear(g){while(g.firstChild)g.removeChild(g.firstChild);}
+
+  function drawCentroid(show){
+    clear(centG);
+    if(!show) return;
+    var cross=['M'+(cxs-8)+','+cys+'L'+(cxs+8)+','+cys,'M'+cxs+','+(cys-8)+'L'+cxs+','+(cys+8)];
+    var p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',cross.join(' '));p.setAttribute('stroke','#b9872a');
+    p.setAttribute('stroke-width','1.6');p.setAttribute('fill','none');
+    centG.appendChild(p);
+    var ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    ring.setAttribute('cx',cxs);ring.setAttribute('cy',cys);ring.setAttribute('r','3.2');
+    ring.setAttribute('fill','#b9872a');ring.setAttribute('stroke','#8a661f');
+    centG.appendChild(ring);
+  }
+
+  function highlightAnswer(a){
+    for(var i=0;i<paths.length;i++){
+      var d=document.getElementById('d'+i);
+      if(paths[i].a===a){
+        d.setAttribute('r',8.2);d.setAttribute('stroke-width',2.4);
+        d.setAttribute('opacity','1');
+      } else {
+        d.setAttribute('r',5.2);d.setAttribute('stroke-width',1);
+        d.setAttribute('opacity','0.3');
+      }
+    }
+  }
+  function resetDots(){
+    for(var i=0;i<paths.length;i++){
+      var d=document.getElementById('d'+i);
+      d.setAttribute('r',6.5);d.setAttribute('stroke-width','1.5');d.setAttribute('opacity','0.92');
+    }
+  }
+
+  // cosine-ish similarity in 2D: sim = e^{-dist/scale}
+  function sim(i,j){var dx=paths[i].x-paths[j].x,dy=paths[i].y-paths[j].y;var d=Math.sqrt(dx*dx+dy*dy);return Math.exp(-d/90);}
+
+  function weightCPW(i){
+    var dx=paths[i].x-mx,dy=paths[i].y-my;var d=Math.sqrt(dx*dx+dy*dy)+1e-6;
+    return 1/d; // inverse distance (proportional; constant scale cancels)
+  }
+  function scoreSCW(i){var s=0;for(var j=0;j<paths.length;j++) if(j!==i) s+=sim(i,j);return s;}
+
+  function agg(method){
+    var w={8:0,12:0,3:0};
+    if(method==='sc'){paths.forEach(function(p){w[p.a]+=1;});}
+    else if(method==='cpw'){paths.forEach(function(p,i){w[p.a]+=weightCPW(i);});}
+    else {paths.forEach(function(p,i){w[p.a]+=scoreSCW(i);});}
+    return w;
+  }
+  function argmax(w){var best=null,bv=-1;for(var k in w){if(w[k]>bv){bv=w[k];best=k;}}return {a:best,v:bv};}
+
+  function drawLinks(method){
+    clear(linksG);
+    if(method==='scw'){
+      // draw faint links weighted by similarity
+      for(var i=0;i<paths.length;i++)for(var j=i+1;j<paths.length;j++){
+        var s=sim(i,j); if(s<0.12) continue;
+        var l=document.createElementNS('http://www.w3.org/2000/svg','line');
+        l.setAttribute('x1',cx(paths[i].x));l.setAttribute('y1',cy(paths[i].y));
+        l.setAttribute('x2',cx(paths[j].x));l.setAttribute('y2',cy(paths[j].y));
+        l.setAttribute('stroke','#2f7e78');l.setAttribute('stroke-width',String(s*2.2));
+        l.setAttribute('opacity',String(Math.min(0.55,s*0.9)));
+        linksG.appendChild(l);
+      }
+    } else if(method==='cpw'){
+      for(var i=0;i<paths.length;i++){
+        var l=document.createElementNS('http://www.w3.org/2000/svg','line');
+        l.setAttribute('x1',cxs);l.setAttribute('y1',cys);
+        l.setAttribute('x2',cx(paths[i].x));l.setAttribute('y2',cy(paths[i].y));
+        var d=Math.sqrt((paths[i].x-mx)**2+(paths[i].y-my)**2);
+        l.setAttribute('stroke','#b9872a');l.setAttribute('stroke-width','0.9');
+        l.setAttribute('opacity',String(Math.max(0.12,1/(d+1))));
+        l.setAttribute('stroke-dasharray','2 3');
+        linksG.appendChild(l);
+      }
+    }
+  }
+
+  function fmt(n,d){return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toFixed(d);}
+
+  var copy = {
+    sc:function(w){
+      var o=argmax(w);
+      return {ans:o.a, txt:"Majority of final answers — "+w[o.a]+" of 10 paths reach "+o.a+". (Answer 8 has "+w[8]+"; answer 12 has "+w[12]+".)"};
+    },
+    cpw:function(w){
+      var o=argmax(w);
+      return {ans:o.a, txt:"Inverse-distance-to-centroid weights summed per answer. Answer 8's tight cluster sits near the centroid → "+fmt(w[8],2)+" vs answer 12's "+fmt(w[12],2)+". Coherence beats head-count."};
+    },
+    scw:function(w){
+      var o=argmax(w);
+      return {ans:o.a, txt:"Each path scored by summed pairwise similarity; aggregated by answer. Answer 8's paths agree with one another → "+fmt(w[8],2)+" vs answer 12's scattered "+fmt(w[12],2)+"."};
+    }
+  };
+
+  function setMethod(m){
+    document.querySelectorAll('.mbtn').forEach(function(b){
+      b.setAttribute('aria-pressed', b.getAttribute('data-method')===m ? 'true':'false');
+    });
+    var w=agg(m);
+    var r=copy[m](w);
+    drawLinks(m);
+    drawCentroid(m!=='sc');
+    highlightAnswer(r.ans);
+    rdAnswer.textContent=r.ans;
+    rdDetail.textContent=r.txt;
+  }
+
+  document.querySelectorAll('.mbtn').forEach(function(b){
+    b.addEventListener('click',function(){setMethod(b.getAttribute('data-method'));});
+  });
+
+  // initial
+  setMethod('sc');
+})();
+</script>
+</body>
+</html>

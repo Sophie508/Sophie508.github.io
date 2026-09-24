@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case 01 · Retail Customer Service · sonnet-35-new</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06070f;
+  --bg2:rgba(255,255,255,0.04);
+  --bg3:rgba(255,255,255,0.07);
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.14);
+  --teal:#06b6d4;
+  --purple:#a855f7;
+  --green:#10b981;
+  --red:#ef4444;
+  --amber:#f59e0b;
+  --text:#f1f5f9;
+  --muted:#64748b;
+  --sec:#94a3b8;
+  --r:12px;
+  --r2:20px;
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:100;padding:.875rem 2rem;display:flex;align-items:center;justify-content:space-between;transition:all .3s}
+nav.sc{background:rgba(6,7,15,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.logo{font-size:.95rem;font-weight:800;background:linear-gradient(90deg,var(--teal),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.02em}
+.nav-links{display:flex;gap:1.75rem;list-style:none}
+.nav-links a{color:var(--sec);text-decoration:none;font-size:.8rem;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nbadge{background:rgba(168,85,247,.14);border:1px solid rgba(168,85,247,.3);color:var(--purple);padding:.22rem .75rem;border-radius:999px;font-size:.7rem;font-weight:700}
+@media(max-width:640px){.nav-links{display:none}.nbadge{display:none}}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8rem 2rem 5rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-10%;left:50%;transform:translateX(-50%);width:900px;height:700px;background:radial-gradient(ellipse,rgba(6,182,212,.1) 0%,rgba(168,85,247,.07) 45%,transparent 70%);pointer-events:none}
+.eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:var(--bg2);border:1px solid var(--border);border-radius:999px;padding:.35rem 1rem;font-size:.7rem;font-weight:700;color:var(--sec);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1.75rem}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.dt{background:var(--teal)}.dg{background:var(--green)}.dr{background:var(--red)}
+.hero h1{font-size:clamp(2.5rem,5vw,4.5rem);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:1.25rem;max-width:860px}
+.gt{background:linear-gradient(135deg,var(--teal) 0%,var(--purple) 55%,#ec4899 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.05rem;color:var(--sec);max-width:580px;margin-bottom:2.5rem}
+.pills{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin-bottom:3rem}
+.pill{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;border-radius:999px;font-size:.78rem;font-weight:600;border:1px solid}
+.p-green{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.3);color:var(--green)}
+.p-red{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);color:var(--red)}
+.p-teal{background:rgba(6,182,212,.08);border-color:rgba(6,182,212,.3);color:var(--teal)}
+.p-amber{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);color:var(--amber)}
+.hcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;width:100%;max-width:860px}
+
+/* GLASS CARD */
+.gc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);backdrop-filter:blur(10px);padding:1.5rem;transition:all .3s}
+.gc:hover{background:var(--bg3);border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.cl{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:.4rem}
+.cv{font-size:1.4rem;font-weight:800;letter-spacing:-.02em}
+.cs{font-size:.75rem;color:var(--sec);margin-top:.2rem}
+
+/* DIVIDER */
+.div{height:1px;background:linear-gradient(to right,transparent,var(--border) 30%,var(--border) 70%,transparent);max-width:1200px;margin:0 auto}
+
+/* SECTION */
+.sec{padding:5rem 2rem;max-width:1100px;margin:0 auto}
+.sh{text-align:center;margin-bottom:3rem}
+.se{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--teal);margin-bottom:.6rem}
+.st{font-size:clamp(1.6rem,2.8vw,2.25rem);font-weight:800;letter-spacing:-.03em;margin-bottom:.6rem}
+.sd{color:var(--sec);max-width:480px;margin:0 auto}
+
+/* REVEAL */
+.rev{opacity:0;transform:translateY(22px);transition:opacity .6s,transform .6s}
+.rev.vis{opacity:1;transform:translateY(0)}
+
+/* ORDER ITEMS */
+.oi{display:flex;flex-direction:column;gap:.625rem}
+.oitem{display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.125rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);font-size:.875rem;gap:1rem;transition:all .25s}
+.oitem:hover{background:var(--bg3);border-color:var(--border2)}
+.oitem.ret{border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.04)}
+.oitem.exf{border-color:rgba(239,68,68,.2);background:rgba(239,68,68,.03)}
+.in{font-weight:600}.io{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+.ip{font-weight:700;font-size:.95rem;white-space:nowrap}
+.tg{display:inline-block;padding:.18rem .5rem;border-radius:4px;font-size:.65rem;font-weight:700;white-space:nowrap;margin-top:.3rem}
+.tg-g{background:rgba(16,185,129,.12);color:var(--green)}
+.tg-r{background:rgba(239,68,68,.12);color:var(--red)}
+.tg-t{background:rgba(6,182,212,.12);color:var(--teal)}
+
+/* COMPARE */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.75rem}
+@media(max-width:540px){.cgrid{grid-template-columns:1fr}}
+.cc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;transition:all .25s}
+.cc:hover{background:var(--bg3)}
+.cc.hl{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.04)}
+.ct{display:inline-block;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:.18rem .5rem;border-radius:4px;margin-bottom:.75rem}
+.ct-curr{background:rgba(100,116,139,.18);color:var(--sec)}
+.ct-cheap{background:rgba(16,185,129,.14);color:var(--green)}
+.cp{font-size:1.7rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.2rem}
+.cdesc{font-size:.78rem;color:var(--sec);line-height:1.5}
+.sb{display:inline-flex;align-items:center;gap:.35rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.28);color:var(--green);padding:.4rem .875rem;border-radius:999px;font-size:.78rem;font-weight:700;margin-top:.625rem}
+
+/* TIMELINE */
+.tl{display:flex;flex-direction:column;gap:.875rem;max-width:800px;margin:0 auto}
+.msg{display:flex;gap:.75rem;align-items:flex-start;opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s}
+.msg.vis{opacity:1;transform:translateY(0)}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;margin-top:.1rem}
+.av-u{background:linear-gradient(135deg,var(--amber),#f97316);color:#000}
+.av-a{background:linear-gradient(135deg,var(--teal),var(--purple));color:#fff}
+.av-t{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--amber);font-size:.7rem}
+.av-r{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.28);color:var(--green);font-size:.7rem}
+.av-e{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.28);color:var(--red);font-size:.7rem}
+.bub{padding:.875rem 1.125rem;border-radius:var(--r);font-size:.875rem;line-height:1.65;max-width:65%}
+.bub-u{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:16px 16px 4px 16px}
+.bub-a{background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.14);border-radius:16px 16px 16px 4px}
+.msg-u{flex-direction:row-reverse}
+.msg-u .bub{max-width:65%}
+.rl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:.2rem}
+.rl-u{color:var(--amber)}.rl-a{color:var(--teal)}.rl-t{color:var(--amber)}.rl-r{color:var(--green)}.rl-e{color:var(--red)}
+
+/* Tool event rows - full width centered */
+.tevent{display:flex;justify-content:center;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s}
+.tevent.vis{opacity:1;transform:translateY(0)}
+.tbub{width:100%;max-width:680px;padding:.75rem 1.125rem;border-radius:var(--r);font-size:.78rem;line-height:1.6;font-family:'SF Mono','Fira Code','Cascadia Code',monospace}
+.tbub-call{background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.18);border-left:3px solid rgba(245,158,11,.5)}
+.tbub-ok{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.18);border-left:3px solid rgba(16,185,129,.5)}
+.tbub-err{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.18);border-left:3px solid rgba(239,68,68,.5)}
+.fn{color:var(--amber);font-weight:700}
+.fa{color:var(--sec)}
+.fv{color:#86efac}
+.fe{color:#fca5a5}
+
+/* STEPS */
+.steps{display:flex;justify-content:center;gap:0;margin-bottom:3rem;overflow-x:auto;padding-bottom:.5rem}
+.step{display:flex;flex-direction:column;align-items:center;flex:1;min-width:72px;max-width:100px;position:relative}
+.step::after{content:'';position:absolute;top:15px;left:50%;right:-50%;height:1px;background:var(--border);z-index:0}
+.step:last-child::after{display:none}
+.sdot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;position:relative;z-index:1;margin-bottom:.4rem}
+.sd-done{background:linear-gradient(135deg,var(--teal),var(--purple));color:#fff}
+.sd-ok{background:linear-gradient(135deg,var(--green),var(--teal));color:#fff}
+.sd-fail{background:linear-gradient(135deg,var(--red),#f97316);color:#fff}
+.sl{font-size:.58rem;color:var(--muted);text-align:center;line-height:1.35}
+
+/* OUTCOME */
+.ogrid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+@media(max-width:580px){.ogrid{grid-template-columns:1fr}}
+.oc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:1.875rem;position:relative;overflow:hidden;transition:all .3s}
+.oc:hover{background:var(--bg3);transform:translateY(-2px)}
+.oc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.oc-ok::before{background:linear-gradient(90deg,var(--green),var(--teal))}
+.oc-fail::before{background:linear-gradient(90deg,var(--red),var(--amber))}
+.oi2{font-size:1.75rem;margin-bottom:.875rem}
+.ot{font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.od{color:var(--sec);font-size:.85rem;line-height:1.65}
+.oa{font-size:1.875rem;font-weight:800;letter-spacing:-.03em;margin-top:.875rem}
+.oa-g{color:var(--green)}.oa-r{color:var(--red)}
+.osub{font-size:.72rem;color:var(--muted);margin-top:.25rem}
+
+/* ERROR BOX */
+.ebox{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.18);border-radius:var(--r);padding:1.25rem 1.5rem;margin-top:1.5rem}
+.ebox-t{font-weight:700;color:var(--red);font-size:.82rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
+.ebox-d{font-size:.83rem;color:var(--sec);line-height:1.7}
+
+/* ACCORDION */
+details{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:.625rem;transition:border-color .2s}
+details:hover{border-color:var(--border2)}
+details[open]{border-color:rgba(6,182,212,.2)}
+summary{padding:.9rem 1.125rem;cursor:pointer;font-weight:600;font-size:.85rem;display:flex;align-items:center;justify-content:space-between;list-style:none;user-select:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'↓';font-size:.7rem;color:var(--muted);transition:transform .2s}
+details[open] summary::after{transform:rotate(180deg)}
+.db{padding:0 1.125rem 1.125rem;font-size:.82rem;color:var(--sec);line-height:1.75}
+.db code{background:rgba(255,255,255,.07);padding:.1rem .35rem;border-radius:4px;font-family:monospace;font-size:.78rem;color:var(--teal)}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:2.5rem 2rem;text-align:center;color:var(--muted);font-size:.75rem}
+.fg{display:flex;justify-content:space-between;align-items:center;max-width:1100px;margin:0 auto;gap:1rem;flex-wrap:wrap}
+
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="logo">AgentHTML</div>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#context">Context</a></li>
+    <li><a href="#trajectory">Trajectory</a></li>
+    <li><a href="#outcome">Outcome</a></li>
+  </ul>
+  <span class="nbadge">sonnet-35-new</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="overview">
+  <div class="eyebrow">
+    <span class="dot dt"></span>
+    tau-bench · tool_use_customer_service · case 249
+    <span class="dot dt"></span>
+  </div>
+  <h1>Retail Customer<br><span class="gt">Service Trajectory</span></h1>
+  <p class="hero-sub">
+    Mei Davis requests a water bottle return and cheaper exchanges for her pet bed and office chair.
+    Partial success — return processed, exchange blocked by order state transition.
+  </p>
+  <div class="pills">
+    <span class="pill p-green">✓ Return Processed</span>
+    <span class="pill p-red">✗ Exchange Failed</span>
+    <span class="pill p-teal">8 Tool Calls</span>
+    <span class="pill p-amber">$54.04 Refunded</span>
+  </div>
+  <div class="hcards">
+    <div class="gc">
+      <div class="cl">Customer</div>
+      <div class="cv" style="font-size:1.05rem">Mei Davis</div>
+      <div class="cs">Denver, CO 80217 · mei_davis_8935</div>
+    </div>
+    <div class="gc">
+      <div class="cl">Delivered Order</div>
+      <div class="cv" style="font-size:1.05rem">#W2890441</div>
+      <div class="cs">$930.46 · 4 items · Mastercard ···1037</div>
+    </div>
+    <div class="gc">
+      <div class="cl">Refund Issued</div>
+      <div class="cv" style="color:var(--green)">$54.04</div>
+      <div class="cs">Water Bottle → Mastercard ···1037</div>
+    </div>
+    <div class="gc">
+      <div class="cl">Missed Savings</div>
+      <div class="cv" style="color:var(--red)">$41.64</div>
+      <div class="cs">Exchange blocked post-return</div>
+    </div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ORDER CONTEXT -->
+<section class="sec" id="context">
+  <div class="sh rev">
+    <div class="se">Order Context</div>
+    <h2 class="st">Delivered Order #W2890441</h2>
+    <p class="sd">Items in the delivered order, with return and exchange requests highlighted</p>
+  </div>
+
+  <div class="oi rev">
+    <div class="oitem ret">
+      <div>
+        <div class="in">Water Bottle</div>
+        <div class="io">1000ml · Stainless Steel · Blue · item 2366567022</div>
+      </div>
+      <div style="text-align:right">
+        <div class="ip">$54.04</div>
+        <span class="tg tg-g">↩ Return Requested</span>
+      </div>
+    </div>
+    <div class="oitem exf">
+      <div>
+        <div class="in">Pet Bed</div>
+        <div class="io">Large · Memory Foam · Grey · item 2751999929</div>
+      </div>
+      <div style="text-align:right">
+        <div class="ip">$195.11</div>
+        <span class="tg tg-r">✗ Exchange Blocked</span>
+      </div>
+    </div>
+    <div class="oitem exf">
+      <div>
+        <div class="in">Office Chair</div>
+        <div class="io">Leather · Blue · No Armrests · High-Back · item 8069050545</div>
+      </div>
+      <div style="text-align:right">
+        <div class="ip">$499.28</div>
+        <span class="tg tg-r">✗ Exchange Blocked</span>
+      </div>
+    </div>
+    <div class="oitem">
+      <div>
+        <div class="in">Skateboard</div>
+        <div class="io">Plastic Deck · 31 inch · Plain · item 3877188862</div>
+      </div>
+      <div style="text-align:right">
+        <div class="ip">$182.03</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Comparison -->
+  <div style="margin-top:3.5rem" class="rev">
+    <div class="se" style="margin-bottom:1.5rem">Product Comparison</div>
+
+    <div style="margin-bottom:2rem">
+      <p style="font-size:.85rem;font-weight:700;color:var(--sec);margin-bottom:1rem">Pet Bed — Cheapest Available</p>
+      <div class="cgrid">
+        <div class="cc">
+          <span class="ct ct-curr">Current</span>
+          <div class="cp">$195.11</div>
+          <div class="cdesc">Large · Memory Foam · Grey</div>
+        </div>
+        <div class="cc hl">
+          <span class="ct ct-cheap">Cheapest Available</span>
+          <div class="cp" style="color:var(--green)">$180.93</div>
+          <div class="cdesc">Large · Memory Foam · Beige · item 6942241102</div>
+          <div class="sb">Save $14.18</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p style="font-size:.85rem;font-weight:700;color:var(--sec);margin-bottom:1rem">Office Chair — Cheapest Available</p>
+      <div class="cgrid">
+        <div class="cc">
+          <span class="ct ct-curr">Current</span>
+          <div class="cp">$499.28</div>
+          <div class="cdesc">Leather · Blue · No Armrests · High-Back</div>
+        </div>
+        <div class="cc hl">
+          <span class="ct ct-cheap">Cheapest Available</span>
+          <div class="cp" style="color:var(--green)">$471.82</div>
+          <div class="cdesc">Leather · Blue · No Armrests · Standard · item 4168944673</div>
+          <div class="sb">Save $27.46</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:1.5rem;padding:1rem 1.25rem;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:var(--r);font-size:.85rem;color:var(--sec)">
+      <strong style="color:var(--green)">Combined exchange savings: $41.64</strong> — not realized due to exchange failure.
+      Return separately yielded <strong style="color:var(--green)">$54.04</strong> refund.
+      Total potential value: <strong style="color:var(--text)">$95.68</strong>.
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- TRAJECTORY -->
+<section class="sec" id="trajectory" style="padding-top:4rem">
+  <div class="sh rev">
+    <div class="se">Full Trajectory</div>
+    <h2 class="st">Conversation Timeline</h2>
+    <p class="sd">Complete agent–user exchange including all 8 tool calls</p>
+  </div>
+
+  <!-- Step overview -->
+  <div class="steps rev">
+    <div class="step"><div class="sdot sd-done">1</div><div class="sl">User<br>Request</div></div>
+    <div class="step"><div class="sdot sd-done">2</div><div class="sl">Auth<br>Lookup</div></div>
+    <div class="step"><div class="sdot sd-done">3</div><div class="sl">Fetch<br>Orders</div></div>
+    <div class="step"><div class="sdot sd-done">4</div><div class="sl">Price<br>Check</div></div>
+    <div class="step"><div class="sdot sd-ok">5</div><div class="sl">Return<br>✓ OK</div></div>
+    <div class="step"><div class="sdot sd-fail">6</div><div class="sl">Exchange<br>✗ Fail</div></div>
+  </div>
+
+  <div class="tl" id="tl">
+
+    <!-- 1: User opens -->
+    <div class="msg msg-u">
+      <div class="av av-u">MD</div>
+      <div class="bub bub-u">
+        <div class="rl rl-u">Customer · Mei Davis</div>
+        Hi... I need to return this water bottle and was hoping to get cheaper versions of some other items I bought.
+      </div>
+    </div>
+
+    <!-- 2: Agent asks auth -->
+    <div class="msg">
+      <div class="av av-a">AI</div>
+      <div class="bub bub-a">
+        <div class="rl rl-a">Assistant</div>
+        I'll help you with your return request. First, I need to authenticate your identity. Could you please provide your email address, or your first name, last name, and zip code?
+      </div>
+    </div>
+
+    <!-- 3: User gives name/zip -->
+    <div class="msg msg-u">
+      <div class="av av-u">MD</div>
+      <div class="bub bub-u">
+        <div class="rl rl-u">Customer</div>
+        I'm Mei Davis, zip code 80217. Don't remember my order number... just having a rough day.
+      </div>
+    </div>
+
+    <!-- Tool: find_user_id_by_name_zip -->
+    <div class="tevent">
+      <div class="tbub tbub-call">
+        <div class="rl rl-t" style="margin-bottom:.3rem">Tool Call 1</div>
+        <span class="fn">find_user_id_by_name_zip</span>(<span class="fa">first_name=</span><span class="fv">"Mei"</span>, <span class="fa">last_name=</span><span class="fv">"Davis"</span>, <span class="fa">zip=</span><span class="fv">"80217"</span>)
+      </div>
+    </div>
+    <div class="tevent">
+      <div class="tbub tbub-ok">
+        <div class="rl rl-r" style="margin-bottom:.3rem">Result ✓</div>
+        <span class="fv">"mei_davis_8935"</span>
+      </div>
+    </div>
+
+    <!-- Tool: get_user_details -->
+    <div class="tevent">
+      <div class="tbub tbub-call">
+        <div class="rl rl-t" style="margin-bottom:.3rem">Tool Call 2</div>
+        <span class="fn">get_user_details</span>(<span class="fa">user_id=</span><span class="fv">"mei_davis_8935"</span>)
+      </div>
+    </div>
+    <div class="tevent">
+      <div class="tbub tbub-ok">
+        <div class="rl rl-r" style="margin-bottom:.3rem">Result ✓</div>
+        Name: <span class="fv">Mei Davis</span> · Email: mei.davis6811@example.com · Orders: <span class="fv">#W2890441, #W1267569</span> · Payment: Mastercard ···1037
+      </div>
+    </div>
+
+    <!-- Tool: get_order_details W2890441 -->
+    <div class="tevent">
+      <div class="tbub tbub-call">
+        <div class="rl rl-t" style="margin-bottom:.3rem">Tool Call 3</div>
+        <span class="fn">get_order_details</span>(<span class="fa">order_id=</span><span class="fv">"#W2890441"</span>)
+      </div>
+    </div>
+    <div class="tevent">
+      <div class="tbub tbub-ok">
+        <div class="rl rl-r" style="margin-bottom:.3rem">Result ✓ · Status: <span style="color:var(--green)">delivered</span></div>
+        4 items · $930.46: Water Bottle ($54.04), Pet Bed ($195.11), Office Chair ($499.28), Skateboard ($182.03)
+      </div>
+    </div>
+
+    <!-- Tool: get_order_details W1267569 -->
+    <div class="tevent">
+      <div class="tbub tbub-call">
+        <div class="rl rl-t" style="margin-bottom:.3rem">Tool Call 4</div>
+        <span class="fn">get_order_details</span>(<span class="fa">order_id=</span><span class="fv">"#W1267569"</span>)
+      </div>
+    </div>
+    <div class="tevent">
+      <div class="tbub tbub-ok">
+        <div class="rl rl-r" style="margin-bottom:.3rem">Result ✓ · Status: <span style="color:var(--amber)">pending</span></div>
+        5 electronics items · $1,492.99: Gaming Mouse, Headphones, Air Purifier, Smart Thermostat, Wireless Earbuds
+      </div>
+    </div>
+
+    <!-- Agent summary -->
+    <div class="msg">
+      <div class="av av-a">AI</div>
+      <div class="bub bub-a">
+        <div class="rl rl-a">Assistant</div>
+        I can see your orders. Order #W2890441 (delivered) contains a Water Bottle, Pet Bed, Office Chair, and Skateboard. I can help with a return and possible exchange for cheaper variants.
+      </div>
+    </div>
+
+    <!-- User asks for price compare + confirms return -->
+    <div class="msg msg-u">
+      <div class="av av-u">MD</div>
+      <div class="bub bub-u">
+        <div class="rl rl-u">Customer</div>
+        How much money could I save by getting the cheapest pet bed and office chair? And yes, I want to return that water bottle.
+      </div>
+    </div>
+
+    <!-- Tool: get_product_details pet bed -->
+    <div class="tevent">
+      <div class="tbub tbub-call">
+        <div class="rl rl-t" style="margin-bottom:.3rem">Tool Call 5</div>
+        <span class="fn">get_product_details</span>(<span class="fa">product_id=</span><span class="fv">"2747247837"</span>) <span style="color:var(--muted)">// Pet Bed</span>
+      </div>
+    </div>
+    <div class="tevent">
+      <div class="tbub tbub-ok">
+        <div class="rl rl-r" style="margin-bottom:.3rem">Result ✓ · 15 variants, 10 available</div>
+        Cheapest available: <span class="fv">$180.93</span> — Large, Memory Foam, Beige (item 6942241102) · saves $14.18
+      </div>
+    </div>
+
+    <!-- Tool: get_product_details office chair -->
+    <div class="tevent">
+      <div class="tbub tbub-call">
+        <div class="rl rl-t" style="margin-bottom:.3rem">Tool Call 6</div>
+        <span class="fn">get_product_details</span>(<span class="fa">product_id=</span><span class="fv">"4794339885"</span>) <span style="color:var(--muted)">// Office Chair</span>
+      </div>
+    </div>
+    <div class="tevent">
+      <div class="tbub tbub-ok">
+        <div class="rl rl-r" style="margin-bottom:.3rem">Result ✓ · 13 variants, 12 available</div>
+        Cheapest available: <span class="fv">$471.82</span> — Leather, Blue, No Armrests, Standard (item 4168944673) · saves $27.46
+      </div>
+    </div>
+
+    <!-- Agent presents savings -->
+    <div class="msg">
+      <div class="av av-a">AI</div>
+      <div class="bub bub-a">
+        <div class="rl rl-a">Assistant</div>
+        Pet Bed: save $14.18 → $180.93 (large beige memory foam)<br>
+        Office Chair: save $27.46 → $471.82 (blue leather standard)<br>
+        <strong>Total potential savings: $41.64</strong>
+      </div>
+    </div>
+
+    <!-- User wants both -->
+    <div class="msg msg-u">
+      <div class="av av-u">MD</div>
+      <div class="bub bub-u">
+        <div class="rl rl-u">Customer</div>
+        I'll do both — return the bottle and exchange both items for the cheaper versions. I really need the savings right now.
+      </div>
+    </div>
+
+    <!-- Agent confirms -->
+    <div class="msg">
+      <div class="av av-a">AI</div>
+      <div class="bub bub-a">
+        <div class="rl rl-a">Assistant · Confirmation Request</div>
+        1. Return Water Bottle (item 2366567022) → $54.04 refund to Mastercard ···1037<br>
+        2. Exchange Pet Bed → Large Beige Memory Foam ($180.93, saves $14.18)<br>
+        3. Exchange Office Chair → Blue Leather Standard ($471.82, saves $27.46)<br><br>
+        Please confirm with "yes" to proceed.
+      </div>
+    </div>
+
+    <!-- User yes -->
+    <div class="msg msg-u">
+      <div class="av av-u">MD</div>
+      <div class="bub bub-u">
+        <div class="rl rl-u">Customer</div>
+        Yes, please process everything. Thank you for helping me save money.
+      </div>
+    </div>
+
+    <!-- Tool: return SUCCESS -->
+    <div class="tevent">
+      <div class="tbub tbub-call">
+        <div class="rl rl-t" style="margin-bottom:.3rem">Tool Call 7 · RETURN</div>
+        <span class="fn">return_delivered_order_items</span>(<span class="fa">order_id=</span><span class="fv">"#W2890441"</span>, <span class="fa">item_ids=</span><span class="fv">["2366567022"]</span>, <span class="fa">payment_method_id=</span><span class="fv">"credit_card_1061405"</span>)
+      </div>
+    </div>
+    <div class="tevent">
+      <div class="tbub tbub-ok">
+        <div class="rl rl-r" style="margin-bottom:.3rem">SUCCESS ✓ · Order status → <span style="color:var(--teal)">"return requested"</span></div>
+        Water bottle return initiated. Refund of $54.04 to Mastercard ···1037 in 5–7 business days.
+      </div>
+    </div>
+
+    <!-- Tool: exchange FAIL -->
+    <div class="tevent">
+      <div class="tbub tbub-call">
+        <div class="rl rl-t" style="margin-bottom:.3rem">Tool Call 8 · EXCHANGE</div>
+        <span class="fn">exchange_delivered_order_items</span>(<span class="fa">order_id=</span><span class="fv">"#W2890441"</span>, <span class="fa">item_ids=</span><span class="fv">["2751999929","8069050545"]</span>, <span class="fa">new_item_ids=</span><span class="fv">["6942241102","4168944673"]</span>, <span class="fa">payment_method_id=</span><span class="fv">"credit_card_1061405"</span>)
+      </div>
+    </div>
+    <div class="tevent">
+      <div class="tbub tbub-err">
+        <div class="rl rl-e" style="margin-bottom:.3rem">ERROR ✗</div>
+        <span class="fe">non-delivered order cannot be exchanged</span>
+        <div style="margin-top:.4rem;font-size:.75rem;color:var(--muted)">Order status is now "return requested" — no longer eligible for exchange</div>
+      </div>
+    </div>
+
+    <!-- Agent apologizes -->
+    <div class="msg">
+      <div class="av av-a">AI</div>
+      <div class="bub bub-a">
+        <div class="rl rl-a">Assistant · Apology</div>
+        I apologize — since the return was processed first, the order is no longer in "delivered" status and cannot be exchanged. You'll need to contact us again after completing the water bottle return process.
+      </div>
+    </div>
+
+    <!-- User frustrated -->
+    <div class="msg msg-u">
+      <div class="av av-u">MD</div>
+      <div class="bub bub-u">
+        <div class="rl rl-u">Customer</div>
+        That's frustrating... but I understand. I'll contact you again about the exchanges after returning the bottle.
+      </div>
+    </div>
+
+    <!-- Agent final summary -->
+    <div class="msg">
+      <div class="av av-a">AI</div>
+      <div class="bub bub-a">
+        <div class="rl rl-a">Assistant · Summary</div>
+        ✓ Water bottle return initiated → $54.04 to Mastercard ···1037<br>
+        ✗ Exchanges deferred — contact again after return to save additional $41.64<br>
+        Keep order #W2890441 handy for your follow-up.
+      </div>
+    </div>
+
+    <!-- User goodbye -->
+    <div class="msg msg-u">
+      <div class="av av-u">MD</div>
+      <div class="bub bub-u">
+        <div class="rl rl-u">Customer</div>
+        No, that's all. Thanks for explaining everything.
+      </div>
+    </div>
+
+    <!-- Agent goodbye -->
+    <div class="msg">
+      <div class="av av-a">AI</div>
+      <div class="bub bub-a">
+        <div class="rl rl-a">Assistant</div>
+        You're welcome! Good luck with the return process, and I hope we can help you with those exchanges soon. Have a good rest of your day!
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- OUTCOME -->
+<section class="sec" id="outcome">
+  <div class="sh rev">
+    <div class="se">Results</div>
+    <h2 class="st">Trajectory Outcome</h2>
+    <p class="sd">What was accomplished and what remains deferred</p>
+  </div>
+
+  <div class="ogrid rev">
+    <div class="oc oc-ok">
+      <div class="oi2">✅</div>
+      <div class="ot">Return Processed</div>
+      <div class="od">Water Bottle (1000ml, stainless steel, blue) successfully submitted for return. Customer will receive email instructions for shipping.</div>
+      <div class="oa oa-g">$54.04</div>
+      <div class="osub">Refund → Mastercard ···1037 · 5–7 business days</div>
+    </div>
+    <div class="oc oc-fail">
+      <div class="oi2">❌</div>
+      <div class="ot">Exchange Blocked</div>
+      <div class="od">Pet Bed and Office Chair exchange could not be processed. Return changed order status from "delivered" to "return requested," making the order ineligible for exchange.</div>
+      <div class="oa oa-r">$41.64</div>
+      <div class="osub">Potential savings lost · Exchange requires "delivered" status</div>
+    </div>
+  </div>
+
+  <div class="ebox rev">
+    <div class="ebox-t">⚠ Agent Behavior Note</div>
+    <div class="ebox-d">
+      The agent failed to anticipate that processing a return on an order changes its status from "delivered" to "return requested,"
+      which would block any subsequent exchange call on the same order.
+      The agent should have warned the user that both operations on order #W2890441 would conflict,
+      or processed the exchange first. Instead, the return was executed first, permanently preventing the exchange in this session —
+      leaving the customer needing a second contact to realize her intended $41.64 in savings.
+    </div>
+  </div>
+
+  <!-- FAQ accordion -->
+  <div style="margin-top:3rem" class="rev">
+    <div class="se" style="margin-bottom:1.25rem">Case Details</div>
+
+    <details>
+      <summary>Authentication Flow</summary>
+      <div class="db">
+        User provided name + zip (Mei Davis, 80217) instead of email.
+        Agent called <code>find_user_id_by_name_zip</code> → returned <code>mei_davis_8935</code>.
+        Then retrieved full profile via <code>get_user_details</code>: confirmed 2 orders (#W2890441 delivered, #W1267569 pending) and one payment method (Mastercard ···1037, id credit_card_1061405).
+      </div>
+    </details>
+
+    <details>
+      <summary>Product Variant Lookup — Pet Bed</summary>
+      <div class="db">
+        Product 2747247837 has 15 variants. Of 10 available variants, the cheapest is item <code>6942241102</code> at $180.93 (large, memory foam, beige).
+        The customer's current bed (item 2751999929: large, memory foam, grey) costs $195.11, so the saving is $14.18.
+        Note: the cheapest overall at $180.93 beats the second-cheapest available at $182.48.
+      </div>
+    </details>
+
+    <details>
+      <summary>Product Variant Lookup — Office Chair</summary>
+      <div class="db">
+        Product 4794339885 has 13 variants; 12 available (one unavailable: red leather no-armrest high-back at $466.44, which would have been cheapest).
+        Cheapest available: item <code>4168944673</code> at $471.82 (leather, blue, no armrests, standard backrest).
+        Customer's current chair (item 8069050545: leather, blue, no armrests, high-back) costs $499.28, saving $27.46.
+      </div>
+    </details>
+
+    <details>
+      <summary>Return Tool Call (Success)</summary>
+      <div class="db">
+        <code>return_delivered_order_items(order_id="#W2890441", item_ids=["2366567022"], payment_method_id="credit_card_1061405")</code>
+        succeeded. The API response shows order status updated to <strong>"return requested"</strong>, with return_items = ["2366567022"] and return_payment_method_id = "credit_card_1061405" recorded.
+      </div>
+    </details>
+
+    <details>
+      <summary>Exchange Tool Call (Failure &amp; Root Cause)</summary>
+      <div class="db">
+        <code>exchange_delivered_order_items</code> returned error: <em>"non-delivered order cannot be exchanged"</em>.
+        Root cause: the prior return call changed the order's status from <strong>"delivered"</strong> to <strong>"return requested"</strong>.
+        The exchange endpoint requires delivered status. Optimal fix: process exchange before return, or warn the user that both cannot be executed sequentially on the same order within one session.
+      </div>
+    </details>
+
+    <details>
+      <summary>Pending Order #W1267569 (Not Actioned)</summary>
+      <div class="db">
+        Customer has a second pending order totaling $1,492.99 with 5 electronics:
+        Gaming Mouse — white, laser, wireless ($138.47);
+        Headphones — over-ear, wireless, black ($346.97);
+        Air Purifier — medium, HEPA, night mode ($492.65);
+        Smart Thermostat — Amazon Alexa, stainless steel ($247.00);
+        Wireless Earbuds — black, 6hr, IPX7 ($267.90).
+        No action was requested or taken on this order.
+      </div>
+    </details>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fg">
+    <div><strong style="color:var(--sec)">AgentHTML</strong> · tau-bench · tool_use_customer_service</div>
+    <div>Case: <span style="color:var(--sec)">01_sonnet-35-new-retail_249</span></div>
+    <div>Model: <span style="color:var(--purple)">sonnet-35-new</span> · Trial 2</div>
+  </div>
+</footer>
+
+<script>
+// Nav scroll
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('sc', window.scrollY > 50);
+}, {passive: true});
+
+// Reveal on scroll
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); }
+  });
+}, {threshold: 0.1, rootMargin: '0px 0px -30px 0px'});
+
+document.querySelectorAll('.rev').forEach(el => io.observe(el));
+
+// Timeline staggered reveal
+const msgs = document.querySelectorAll('.msg, .tevent');
+const mio = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('vis'); mio.unobserve(e.target); }
+  });
+}, {threshold: 0.05, rootMargin: '0px 0px -20px 0px'});
+
+msgs.forEach((el, i) => {
+  el.style.transitionDelay = (i * 0.04) + 's';
+  mio.observe(el);
+});
+</script>
+</body>
+</html>

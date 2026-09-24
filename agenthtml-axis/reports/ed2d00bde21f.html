@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case 04: Sequential Neural Score Estimation</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --ink: #1b1c1e;
+      --muted: #60656f;
+      --line: #d8d2c7;
+      --panel: #ffffff;
+      --panel2: #ece8df;
+      --accent: #0f766e;
+      --accent2: #9a3412;
+      --blue: #1d4ed8;
+      --red: #b91c1c;
+      --green: #166534;
+      --shadow: 0 18px 48px rgba(28, 25, 20, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+    header {
+      padding: 36px 28px 26px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffaf1 0%, #f6f4ef 100%);
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; }
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,.72);
+    }
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(32px, 5vw, 58px);
+      line-height: 1.02;
+      max-width: 980px;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      margin: 0;
+      max-width: 880px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 8px 22px rgba(28,25,20,.06);
+    }
+    .metric strong { display: block; font-size: 20px; line-height: 1.2; }
+    .metric span { color: var(--muted); font-size: 13px; }
+    main { padding: 28px; }
+    section {
+      max-width: 1180px;
+      margin: 0 auto 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    section > h2 {
+      margin: 0;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      font-size: 20px;
+      background: #fbfaf7;
+    }
+    .content { padding: 20px; }
+    .two {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
+      gap: 18px;
+    }
+    .three {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .callout {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel2);
+    }
+    .callout h3, .card h3 { margin: 0 0 8px; font-size: 16px; }
+    .callout p, .card p { margin: 0; color: var(--muted); }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      background: #fff;
+    }
+    .tag {
+      display: inline-block;
+      margin: 0 6px 6px 0;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #e8f3f1;
+      color: #115e59;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .tag.warn { background: #fff1e8; color: var(--accent2); }
+    .tag.fail { background: #fee2e2; color: var(--red); }
+    .tag.info { background: #dbeafe; color: var(--blue); }
+    .timeline {
+      position: relative;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .event {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .event:last-child { border-bottom: 0; }
+    .time { color: var(--muted); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .event h3 { margin: 0 0 4px; font-size: 15px; }
+    .event p { margin: 0; color: var(--muted); }
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+    }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #1f2933;
+      color: #f5f7fa;
+      padding: 14px;
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #fee2e2;
+      color: var(--red);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 999px; background: currentColor; }
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 7px 11px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+    }
+    button.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .footer-note {
+      max-width: 1180px;
+      margin: 4px auto 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 820px) {
+      .meta-grid, .two, .three { grid-template-columns: 1fr; }
+      .event { grid-template-columns: 1fr; gap: 4px; }
+      header, main { padding-left: 16px; padding-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="eyebrow">PaperBench Case · paper_reproduction</div>
+      <h1>Sequential Neural Score Estimation</h1>
+      <p class="subtitle">A self-contained presentation of the captured trajectory for reproducing “Sequential Neural Score Estimation: Likelihood-Free Inference with Conditional Score Based Diffusion Models.”</p>
+      <div class="meta-grid">
+        <div class="metric"><strong>04</strong><span>Case index</span></div>
+        <div class="metric"><strong>147s</strong><span>Recorded duration</span></div>
+        <div class="metric"><strong>69</strong><span>JSONL trajectory entries</span></div>
+        <div class="metric"><strong>Blocked</strong><span>Implementation did not land</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>Case Snapshot</h2>
+      <div class="content two">
+        <div>
+          <p><strong>Objective.</strong> Build complete runnable code and documentation under <code>workspace/output/</code> to reproduce the paper’s results, following an addendum and avoiding a blacklisted repository.</p>
+          <p><strong>Captured outcome.</strong> The agent read the paper and addendum, planned a full implementation, checked local Python dependencies, created task items, then failed to write the first package file because the output directory required permission. The run ended asking for write access.</p>
+        </div>
+        <div class="callout">
+          <h3>Final State</h3>
+          <p><span class="status"><span class="dot"></span>No implementation files captured</span></p>
+          <p style="margin-top:10px">The local case workspace contains only <code>prompt.txt</code>, <code>paper.md</code>, <code>addendum.md</code>, and <code>blacklist.txt</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Requirements Read by the Agent</h2>
+      <div class="content three">
+        <div class="card">
+          <h3>Core paper target</h3>
+          <p>Implement NPSE and sequential SNPSE/TSNPSE for likelihood-free posterior inference using conditional score-based diffusion models.</p>
+        </div>
+        <div class="card">
+          <h3>Baselines and metrics</h3>
+          <p>Use <code>sbibm</code> for NPE, SNPE, and C2ST. Compare against TSNPE and include benchmark task runners.</p>
+        </div>
+        <div class="card">
+          <h3>Neuroscience task</h3>
+          <p>Use the Mackelab TSNPE repository for the pyloric-network problem; TSNPE and SNVI values for Section 5.3 were to be taken from their papers.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Paper Implementation Details</h2>
+      <div class="content">
+        <table>
+          <thead>
+            <tr><th>Area</th><th>Captured details</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SDE choices</td>
+              <td>VE SDE and VP SDE for benchmarks. VE uses <code>sigma_min = 0.01</code> for 2D/SIR/Two Moons and <code>0.05</code> otherwise; VP uses <code>beta_min = 0.1</code>, <code>beta_max = 11.0</code>.</td>
+            </tr>
+            <tr>
+              <td>Network</td>
+              <td>Three MLP embeddings for <code>theta_t</code> and <code>x</code>, sinusoidal <code>t</code> embedding of dimension 64, concatenated into a 3-layer score MLP with 256 hidden units and SiLU activations.</td>
+            </tr>
+            <tr>
+              <td>Training</td>
+              <td>Adam at <code>1e-4</code>, 15% validation split, early stop after 1000 non-improving steps, maximum 3000 training iterations. Batch sizes vary by simulation budget and sequential/non-sequential mode.</td>
+            </tr>
+            <tr>
+              <td>Sampling</td>
+              <td>Probability-flow ODE with RK45. TSNPSE estimates high-posterior regions using 20,000 approximate posterior samples and a <code>5e-4</code> quantile threshold.</td>
+            </tr>
+            <tr>
+              <td>Benchmarks</td>
+              <td>Gaussian Linear, Gaussian Mixture, Two Moons, Gaussian Linear Uniform, Bernoulli GLM, SLCP, SIR, and Lotka Volterra.</td>
+            </tr>
+            <tr>
+              <td>Addendum constraints</td>
+              <td>For sequential VESDE, compute <code>sigma_max</code> using only first-round training points. Avoid the blacklisted SNPSE ICML repository.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Trajectory Timeline</h2>
+      <div class="content">
+        <div class="filters" aria-label="Timeline filters">
+          <button class="active" data-filter="all">All</button>
+          <button data-filter="read">Reading</button>
+          <button data-filter="plan">Planning</button>
+          <button data-filter="env">Environment</button>
+          <button data-filter="blocker">Blocker</button>
+        </div>
+        <ol class="timeline">
+          <li class="event" data-kind="read">
+            <div class="time">23:34:41</div>
+            <div><h3>Task received</h3><p>The user requested a complete reproduction implementation saved under <code>workspace/output/</code>.</p></div>
+          </li>
+          <li class="event" data-kind="read">
+            <div class="time">23:34:44</div>
+            <div><h3>Paper opened</h3><p>The assistant read the beginning of the paper, including the abstract and core method framing for NPSE/SNPSE.</p></div>
+          </li>
+          <li class="event" data-kind="read">
+            <div class="time">23:34:45</div>
+            <div><h3>Addendum and blacklist read</h3><p>The addendum specified sbibm usage, TSNPE repository usage, Section 5.3 exceptions, and the VESDE sigma rule. The blacklist contained the original SNPSE ICML repository URL.</p></div>
+          </li>
+          <li class="event" data-kind="read">
+            <div class="time">23:34:49</div>
+            <div><h3>Appendix scan</h3><p>The agent focused on implementation appendices: additional experimental details, neural likelihood score estimation, TSNPSE, and an energy-based alternative.</p></div>
+          </li>
+          <li class="event" data-kind="env">
+            <div class="time">23:35:09</div>
+            <div><h3>Out-of-workspace reads occurred in the original run</h3><p>The trajectory records reads from memory files outside the paper workspace. They are part of the captured case history, not inputs used to build this HTML.</p></div>
+          </li>
+          <li class="event" data-kind="env">
+            <div class="time">23:35:20</div>
+            <div><h3>Environment checked</h3><p>The agent inspected the workspace and Python environment. Torch was available on CPU; <code>sbibm</code> and <code>sbi</code> were not available.</p></div>
+          </li>
+          <li class="event" data-kind="plan">
+            <div class="time">23:36:12</div>
+            <div><h3>Implementation plan announced</h3><p>The planned package covered SDE modules, score networks, DSM training, probability-flow ODE sampling, TSNPSE, NLSE variants, baselines, task wrappers, figures, and smoke tests.</p></div>
+          </li>
+          <li class="event" data-kind="plan">
+            <div class="time">23:36:18</div>
+            <div><h3>Six tasks created</h3><p>Tasks were created for core modules, sampling/log-likelihood, NPSE/TSNPSE, NLSE/SNPSE variants, baselines/docs, and smoke testing.</p></div>
+          </li>
+          <li class="event" data-kind="blocker">
+            <div class="time">23:36:35</div>
+            <div><h3>First write failed</h3><p>The agent tried to write <code>workspace/output/snpse/__init__.py</code>, but the Write tool reported missing permission.</p></div>
+          </li>
+          <li class="event" data-kind="blocker">
+            <div class="time">23:36:50</div>
+            <div><h3>Directory creation attempted</h3><p>A shell command created output directories, but subsequent Write attempts still failed.</p></div>
+          </li>
+          <li class="event" data-kind="blocker">
+            <div class="time">23:37:07</div>
+            <div><h3>Run ended blocked</h3><p>The final assistant message asked the user to grant write access to <code>workspace/output/</code>. No reproduction code was captured in this case directory.</p></div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>Attempted Work Plan</h2>
+      <div class="content">
+        <table>
+          <thead><tr><th>Planned task</th><th>Status in trajectory</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Core SDE, score network, training modules</td><td><span class="tag warn">Started</span></td><td>The first write target was the package initializer for this implementation.</td></tr>
+            <tr><td>Sampling and likelihood</td><td><span class="tag info">Planned</span></td><td>Would implement probability-flow ODE and instantaneous change-of-variables density evaluation.</td></tr>
+            <tr><td>NPSE and TSNPSE</td><td><span class="tag info">Planned</span></td><td>Would include HPR truncation and rejection sampling for sequential proposals.</td></tr>
+            <tr><td>NLSE and SNPSE-A/B/C</td><td><span class="tag info">Planned</span></td><td>Appendix B and C variants were identified as required implementation scope.</td></tr>
+            <tr><td>Tasks, metrics, baselines, docs</td><td><span class="tag info">Planned</span></td><td>Would wrap sbibm tasks/C2ST, NPE/SNPE-C baselines, TSNPE, pyloric script, figures, and documentation.</td></tr>
+            <tr><td>Smoke test</td><td><span class="tag fail">Not reached</span></td><td>Could not proceed because file writes failed before code existed.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Key Evidence</h2>
+      <div class="content two">
+        <div>
+          <h3>Prompt excerpt</h3>
+          <pre>Reproduce the paper described in .../workspace/paper.md.
+
+Follow the clarifications in .../workspace/addendum.md.
+Do not use any resource listed in .../workspace/blacklist.txt.
+
+Write the complete, runnable implementation code needed to reproduce the
+paper's results. Save all code and documentation under .../workspace/output/.</pre>
+        </div>
+        <div>
+          <h3>Terminal blocker</h3>
+          <pre>I don't have write permission for the output directory yet. Please grant write access to .../workspace/output/ (or approve the Write tool) so I can...</pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Case Files</h2>
+      <div class="content">
+        <table>
+          <thead><tr><th>File</th><th>Role</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>case_meta.json</code></td><td>Metadata</td><td>Identifies model, duration, trajectory format, and no external reference paths.</td></tr>
+            <tr><td><code>trajectory.jsonl</code></td><td>Captured run</td><td>69 Claude JSONL events, ending at the write-permission blocker.</td></tr>
+            <tr><td><code>workspace/prompt.txt</code></td><td>Task statement</td><td>Requests full runnable reproduction code under <code>workspace/output/</code>.</td></tr>
+            <tr><td><code>workspace/paper.md</code></td><td>Paper source</td><td>Contains the paper text and implementation appendices; image assets referenced in Markdown are not present in this captured case directory.</td></tr>
+            <tr><td><code>workspace/addendum.md</code></td><td>Clarifications</td><td>Specifies sbibm, TSNPE repository, neuroscience expectations, C2ST, and VESDE rule.</td></tr>
+            <tr><td><code>workspace/blacklist.txt</code></td><td>Forbidden resource</td><td>Lists the original SNPSE ICML repository URL as a resource not to use.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="footer-note">This HTML is self-contained and uses no remote resources, images, fonts, stylesheets, or scripts.</p>
+  </main>
+
+  <script>
+    const buttons = document.querySelectorAll('button[data-filter]');
+    const events = document.querySelectorAll('.event');
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        buttons.forEach(b => b.classList.toggle('active', b === button));
+        events.forEach(event => {
+          event.style.display = filter === 'all' || event.dataset.kind === filter ? 'grid' : 'none';
+        });
+      });
+    });
+  </script>
+</body>
+</html>

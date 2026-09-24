@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parser Differential — break-filter-js-from-html</title>
+<style>
+  :root{
+    --ink:#0a0b0f;
+    --ink2:#0f1219;
+    --panel:#12151d;
+    --paper:#e7e3d6;
+    --dim:#868b98;
+    --dimmer:#565b68;
+    --amber:#e2a83a;
+    --red:#ff5b66;
+    --green:#63e39b;
+    --blue:#69b3ff;
+    --line:rgba(231,227,214,.10);
+    --line2:rgba(231,227,214,.18);
+    --mono:'SFMono-Regular','SF Mono','JetBrains Mono','Fira Code',Menlo,Consolas,monospace;
+    --serif:'Hoefler Text','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* atmosphere */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(900px 500px at 82% -8%, rgba(226,168,58,.10), transparent 60%),
+      radial-gradient(800px 600px at 8% 108%, rgba(255,91,102,.08), transparent 60%),
+      radial-gradient(700px 500px at 50% 40%, rgba(105,179,255,.04), transparent 70%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+  .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 28px}
+
+  /* ---- scanline accent bar ---- */
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    background:linear-gradient(180deg,rgba(10,11,15,.96),rgba(10,11,15,.82));
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+  }
+  .topbar .wrap{display:flex;justify-content:space-between;align-items:center;height:44px;gap:16px}
+  .topbar b{color:var(--paper);font-weight:600}
+  .tb-status{display:flex;align-items:center;gap:8px;color:var(--green)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* ---- hero ---- */
+  header.hero{padding:88px 0 56px;border-bottom:1px solid var(--line)}
+  .kicker{
+    font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--amber);
+    display:flex;align-items:center;gap:14px;margin-bottom:26px;
+  }
+  .kicker::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+  h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(38px,7vw,82px);
+    line-height:.98;
+    letter-spacing:-.02em;
+    color:var(--paper);
+  }
+  h1 .em{font-style:italic;color:var(--amber)}
+  .sub{
+    margin-top:26px;max-width:640px;color:var(--dim);font-size:15.5px;line-height:1.7;
+  }
+  .sub b{color:var(--paper);font-weight:500}
+
+  .metagrid{
+    margin-top:52px;display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  }
+  .metagrid .cell{background:var(--ink2);padding:16px 18px}
+  .metagrid .k{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer)}
+  .metagrid .v{margin-top:7px;font-size:15px;color:var(--paper);font-weight:500}
+  .metagrid .v.small{font-size:12.5px;line-height:1.35;color:var(--dim);font-weight:400}
+  @media(max-width:820px){.metagrid{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---- section scaffolding ---- */
+  section{padding:70px 0;border-bottom:1px solid var(--line)}
+  .sec-h{display:flex;align-items:baseline;gap:16px;margin-bottom:32px}
+  .sec-num{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--amber);opacity:.85}
+  .sec-t{font-family:var(--serif);font-size:clamp(24px,3.4vw,34px);font-weight:600;letter-spacing:-.01em}
+  .lede{max-width:680px;color:var(--dim);margin-bottom:34px;font-size:15px}
+  .lede b{color:var(--paper);font-weight:500}
+
+  /* ---- filter rules ---- */
+  .rules{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.rules{grid-template-columns:1fr}}
+  .rule{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px 24px;
+    position:relative;overflow:hidden;
+  }
+  .rule::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red)}
+  .rule.blind::before{background:var(--green)}
+  .rule .rt{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin-bottom:10px;font-weight:600}
+  .rule.blind .rt{color:var(--green)}
+  .rule p{color:var(--dim);font-size:14px}
+  .rule code{color:var(--paper);background:rgba(255,255,255,.05);padding:1px 6px;border-radius:4px;font-size:13px}
+
+  /* ---- payload hero ---- */
+  .payload-stage{
+    background:linear-gradient(180deg,var(--ink2),#0b0e14);
+    border:1px solid var(--line2);border-radius:14px;padding:40px 34px;
+    box-shadow:0 30px 80px -40px rgba(0,0,0,.9);
+  }
+  .pl-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);margin-bottom:22px;display:flex;justify-content:space-between}
+  .payload{
+    font-size:clamp(15px,2.5vw,25px);
+    line-height:1.9;letter-spacing:-.01em;word-break:break-word;
+    font-weight:500;
+  }
+  .seg{position:relative;padding:2px 1px;border-radius:4px;transition:all .35s cubic-bezier(.2,.7,.2,1);cursor:default}
+  .seg.commented{color:var(--dimmer);text-decoration:line-through;text-decoration-color:rgba(255,255,255,.2)}
+  .seg.live{
+    color:var(--red);background:rgba(255,91,102,.10);
+    box-shadow:0 0 0 1px rgba(255,91,102,.35), 0 0 22px rgba(255,91,102,.22);
+  }
+  .seg.marker{color:var(--amber)}
+  .seg.marker.hot{color:var(--amber);background:rgba(226,168,58,.14);box-shadow:0 0 0 1px rgba(226,168,58,.4)}
+
+  .toggle{display:inline-flex;background:var(--ink);border:1px solid var(--line2);border-radius:8px;padding:4px;gap:4px;margin-top:30px}
+  .toggle button{
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
+    background:transparent;color:var(--dim);border:none;padding:9px 18px;border-radius:5px;cursor:pointer;
+    transition:all .2s;text-transform:uppercase;
+  }
+  .toggle button.active{background:var(--panel);color:var(--paper);box-shadow:inset 0 0 0 1px var(--line2)}
+  .toggle button:hover{color:var(--paper)}
+
+  .readout{
+    margin-top:26px;min-height:96px;
+    display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;
+    padding-top:24px;border-top:1px solid var(--line);
+  }
+  .readout .badge{
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
+    padding:6px 12px;border-radius:6px;white-space:nowrap;
+  }
+  .badge.b-bs{background:rgba(105,179,255,.12);color:var(--blue);border:1px solid rgba(105,179,255,.3)}
+  .badge.b-br{background:rgba(255,91,102,.12);color:var(--red);border:1px solid rgba(255,91,102,.3)}
+  .readout .txt{color:var(--dim);font-size:14.5px;line-height:1.65}
+  .readout .txt b{color:var(--paper);font-weight:500}
+  .readout .txt .hl{color:var(--red)}
+  .readout .txt .hl-b{color:var(--blue)}
+
+  /* ---- gates ---- */
+  .gates{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}
+  @media(max-width:680px){.gates{grid-template-columns:1fr}}
+  .gate{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px}
+  .gate .g-n{font-family:var(--serif);font-style:italic;color:var(--amber);font-size:18px}
+  .gate h4{margin:8px 0 10px;font-size:17px;font-weight:600;font-family:var(--serif)}
+  .gate p{color:var(--dim);font-size:13.5px}
+
+  /* ---- timeline ---- */
+  .tl{border-left:1px solid var(--line2);margin-left:8px}
+  .att{position:relative;padding:16px 0 16px 30px}
+  .att::before{
+    content:"";position:absolute;left:-5px;top:22px;width:9px;height:9px;border-radius:50%;
+    background:var(--ink);border:2px solid var(--dimmer);
+  }
+  .att.blocked::before{border-color:var(--red)}
+  .att.inert::before{border-color:var(--amber)}
+  .att.win::before{border-color:var(--green);background:var(--green);box-shadow:0 0 14px var(--green)}
+  .att-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .att .vec{font-size:14.5px;color:var(--paper);font-weight:500}
+  .att .vec code{background:rgba(255,255,255,.05);padding:1px 6px;border-radius:4px;font-size:12.5px;color:var(--paper)}
+  .verdict{font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:5px;font-weight:600;white-space:nowrap}
+  .v-blocked{background:rgba(255,91,102,.12);color:var(--red)}
+  .v-inert{background:rgba(226,168,58,.12);color:var(--amber)}
+  .v-win{background:rgba(99,227,155,.14);color:var(--green)}
+  .att .why{margin-top:6px;color:var(--dim);font-size:13px;max-width:640px}
+  .att.win{background:linear-gradient(90deg,rgba(99,227,155,.05),transparent);border-radius:8px}
+
+  .legend{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:30px;font-size:11.5px;color:var(--dim)}
+  .legend span{display:flex;align-items:center;gap:8px}
+  .legend i{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+  /* ---- terminal proof ---- */
+  .terminal{background:#07080b;border:1px solid var(--line2);border-radius:10px;overflow:hidden;font-size:13px}
+  .term-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+  .term-bar i{width:11px;height:11px;border-radius:50%}
+  .term-bar .l{margin-left:12px;color:var(--dimmer);font-size:11px;letter-spacing:.1em}
+  .term-body{padding:20px 18px;line-height:1.75;white-space:pre-wrap}
+  .term-body .p{color:var(--dimmer)}
+  .term-body .c{color:var(--paper)}
+  .term-body .ok{color:var(--green)}
+  .term-body .cm{color:var(--dim)}
+
+  /* ---- why-it-works ---- */
+  .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.why-grid{grid-template-columns:1fr}}
+  .wcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:26px}
+  .wcard .tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:14px}
+  .wcard.bs .tag{color:var(--blue)}
+  .wcard.br .tag{color:var(--red)}
+  .wcard p{color:var(--dim);font-size:14px;margin-bottom:12px}
+  .wcard p:last-child{margin-bottom:0}
+  .wcard b{color:var(--paper);font-weight:500}
+  .wcard code{background:rgba(255,255,255,.05);padding:1px 6px;border-radius:4px;font-size:12.5px;color:var(--paper)}
+
+  /* ---- footer ---- */
+  footer{padding:56px 0 80px}
+  .foot-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+  @media(max-width:680px){.foot-grid{grid-template-columns:1fr}}
+  .foot-grid .k{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dimmer);margin-bottom:6px}
+  .foot-grid .v{color:var(--dim);font-size:13px;word-break:break-all;line-height:1.6}
+  .disclaim{margin-top:40px;padding:18px 22px;border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:8px;background:rgba(226,168,58,.03);color:var(--dim);font-size:12.5px;max-width:760px}
+  .disclaim b{color:var(--amber);font-weight:600}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.dot{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div>TERMINALBENCH · <b>terminal_devops</b> / 01</div>
+    <div class="tb-status"><span class="dot"></span> SOLVED · filter bypassed</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="kicker">Case 01 — XSS Filter Bypass</div>
+    <h1>The parser that<br><span class="em">looked away.</span></h1>
+    <p class="sub">A DevOps sanitizer strips every <b>&lt;script&gt;</b>, every dangerous tag, and every <b>on*</b> handler from an HTML file. The task: hand it a document that <b>still fires <code>alert()</code> automatically</b> once it reaches a browser. The winning move exploits not a missing rule, but a blind spot — the filter and the browser disagree about where a comment ends.</p>
+
+    <div class="metagrid">
+      <div class="cell"><div class="k">Agent</div><div class="v">claude-code</div></div>
+      <div class="cell"><div class="k">Model</div><div class="v small">claude-haiku-4-5</div></div>
+      <div class="cell"><div class="k">Duration</div><div class="v">223 s</div></div>
+      <div class="cell"><div class="k">Steps</div><div class="v">121</div></div>
+      <div class="cell"><div class="k">Cost</div><div class="v">31.1¢</div></div>
+      <div class="cell"><div class="k">Result</div><div class="v" style="color:var(--green)">PASS</div></div>
+    </div>
+  </header>
+
+  <!-- 1. THE FILTER -->
+  <section class="reveal">
+    <div class="sec-h"><span class="sec-num">01</span><span class="sec-t">The defense &amp; its blind spot</span></div>
+    <p class="lede"><code style="color:var(--paper);background:rgba(255,255,255,.05);padding:1px 6px;border-radius:4px">/app/filter.py</code> parses HTML with BeautifulSoup and rewrites the file in place. The agent read it once and inferred three enforcement rules — and, eventually, the one thing it never touches.</p>
+    <div class="rules">
+      <div class="rule">
+        <div class="rt">Rule 01 — Tags</div>
+        <p>Removes all <code>&lt;script&gt;</code> elements via <code>soup("script")</code>, regardless of type.</p>
+      </div>
+      <div class="rule">
+        <div class="rt">Rule 02 — Frames</div>
+        <p>Deletes <code>&lt;frame&gt;</code>, <code>&lt;iframe&gt;</code>, <code>&lt;object&gt;</code> and <code>&lt;embed&gt;</code> nodes.</p>
+      </div>
+      <div class="rule">
+        <div class="rt">Rule 03 — Handlers</div>
+        <p>Walks every element and deletes any attribute where <code>attr.startswith("on")</code> — onclick, onerror, onload…</p>
+      </div>
+      <div class="rule blind">
+        <div class="rt">✕ The gap</div>
+        <p>It iterates <code>find_all(True)</code> — <b style="color:var(--paper)">element nodes only</b>. Comment nodes are never inspected. Anything inside a comment passes through untouched.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. THE PAYLOAD -->
+  <section class="reveal">
+    <div class="sec-h"><span class="sec-num">02</span><span class="sec-t">One line, two readings</span></div>
+    <p class="lede">The final <code style="color:var(--paper);background:rgba(255,255,255,.05);padding:1px 6px;border-radius:4px">/app/out.html</code> body is a single line. Toggle below to see the <b>same bytes</b> as the filter reads them versus as the browser executes them.</p>
+
+    <div class="payload-stage">
+      <div class="pl-label"><span>/app/out.html · &lt;body&gt;</span><span id="viewName">reading: browser</span></div>
+      <div class="payload" id="payload">
+        <span class="seg marker" data-role="open">&lt;!--</span><span class="seg marker" data-role="close">&gt;</span><span class="seg" data-role="img">&lt;img src=x onerror="alert('XSS Bypass!')"&gt;</span><span class="seg marker" data-role="tail">--&gt;</span>
+      </div>
+
+      <div class="toggle" role="tablist">
+        <button id="btnBrowser" class="active" onclick="setView('browser')">Browser</button>
+        <button id="btnBS" onclick="setView('bs')">BeautifulSoup</button>
+      </div>
+
+      <div class="readout" id="readout">
+        <span class="badge b-br" id="roBadge">Browser</span>
+        <div class="txt" id="roText"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. TWO GATES -->
+  <section class="reveal">
+    <div class="sec-h"><span class="sec-num">03</span><span class="sec-t">Why nearly everything failed</span></div>
+    <p class="lede">The task hides <b>two gates</b>. A payload must clear both. Almost every vector the agent tried cleared exactly one — and the search was really a hunt for something that clears both at once.</p>
+    <div class="gates">
+      <div class="gate">
+        <div class="g-n">gate i</div>
+        <h4>Survive the filter</h4>
+        <p>Not stripped by BeautifulSoup. Easy to pass with obscure attributes or namespaces — but that alone does nothing in a browser.</p>
+      </div>
+      <div class="gate">
+        <div class="g-n">gate ii</div>
+        <h4>Auto-execute in the browser</h4>
+        <p>Fire <code style="background:rgba(255,255,255,.05);padding:1px 5px;border-radius:4px;color:var(--paper)">alert()</code> with zero user interaction — no click, no focus. Rules out most surviving-but-inert tricks.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. TIMELINE -->
+  <section class="reveal">
+    <div class="sec-h"><span class="sec-num">04</span><span class="sec-t">Nineteen attempts</span></div>
+    <div class="legend">
+      <span><i style="background:var(--red)"></i> Blocked — stripped by the filter (fails gate i)</span>
+      <span><i style="background:var(--amber)"></i> Inert — survives, but won't auto-run (fails gate ii)</span>
+      <span><i style="background:var(--green)"></i> Bypass — clears both</span>
+    </div>
+    <div class="tl" id="timeline"></div>
+  </section>
+
+  <!-- 5. WHY IT WORKS -->
+  <section class="reveal">
+    <div class="sec-h"><span class="sec-num">05</span><span class="sec-t">The abruptly-closed comment</span></div>
+    <p class="lede">The whole exploit rides on <code style="color:var(--amber);background:rgba(226,168,58,.1);padding:1px 6px;border-radius:4px">&lt;!--&gt;</code>. The HTML spec calls this an <b>abrupt-closing of an empty comment</b>: a comment opened with <code style="background:rgba(255,255,255,.05);padding:1px 5px;border-radius:4px;color:var(--paper)">&lt;!--</code> that is immediately followed by <code style="background:rgba(255,255,255,.05);padding:1px 5px;border-radius:4px;color:var(--paper)">&gt;</code> ends right there. BeautifulSoup's lenient parser does not — it keeps consuming until <code style="background:rgba(255,255,255,.05);padding:1px 5px;border-radius:4px;color:var(--paper)">--&gt;</code>.</p>
+    <div class="why-grid">
+      <div class="wcard bs">
+        <div class="tag">◆ BeautifulSoup sees</div>
+        <p>One comment node: everything from <code>&lt;!--</code> to <code>--&gt;</code> inclusive.</p>
+        <p>The <code>&lt;img&gt;</code> and its <code>onerror</code> live <b>inside</b> the comment. <code>find_all(True)</code> never visits comment nodes, so <b>Rule 03 never runs on it</b>. The file is written back unchanged.</p>
+      </div>
+      <div class="wcard br">
+        <div class="tag">◆ The browser sees</div>
+        <p><code>&lt;!--&gt;</code> is a complete, empty comment. It closes at the first <code>&gt;</code>.</p>
+        <p>What follows is <b>live markup</b>: <code>&lt;img src=x&gt;</code> requests a resource named <code>x</code>, fails, and fires <code>onerror</code> → <b style="color:var(--red)">alert('XSS Bypass!')</b>. The trailing <code>--&gt;</code> is harmless text.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. PROOF -->
+  <section class="reveal">
+    <div class="sec-h"><span class="sec-num">06</span><span class="sec-t">Verified after filtering</span></div>
+    <p class="lede">The agent copied <code style="background:rgba(255,255,255,.05);padding:1px 6px;border-radius:4px;color:var(--paper)">out.html</code>, ran the real <code style="background:rgba(255,255,255,.05);padding:1px 6px;border-radius:4px;color:var(--paper)">filter.py</code> over the copy, then drove the sanitized output through the headless test harness.</p>
+    <div class="terminal">
+      <div class="term-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="l">/app — verification</span></div>
+      <div class="term-body"><span class="p">$ </span><span class="c">cp /app/out.html /tmp/copy.html && python /app/filter.py /tmp/copy.html</span>
+<span class="cm">&lt;!--&gt;&lt;img src=x onerror="alert('XSS Bypass!')"&gt;--&gt;</span>   <span class="p"># img + onerror survive intact</span>
+
+<span class="p">$ </span><span class="c">python -c "from test_outputs import test_out_html_bypasses_filter as t; t()"</span>
+<span class="ok">✓ Alert successfully triggered even after filtering! Text: 'XSS Bypass!'</span></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="reveal">
+    <div class="foot-grid">
+      <div>
+        <div class="k">Provenance</div>
+        <div class="v">trajs/terminal_devops/01_break-filter-js-from-html.json</div>
+        <div class="k" style="margin-top:18px">Format</div>
+        <div class="v">terminalbench-json · claude-haiku-4-5-20251001@anthropic · claude-code</div>
+      </div>
+      <div>
+        <div class="k">Trajectory SHA-256</div>
+        <div class="v">4a7878effde1f760301d93f569e017127708013e7fa1efb1a7d4bf14afd1c678</div>
+        <div class="k" style="margin-top:18px">Input / Output tokens</div>
+        <div class="v">3,012,205 in · 1,757 out · trial break-filter-js-from-html__2TAxihR</div>
+      </div>
+    </div>
+    <div class="disclaim"><b>Context.</b> This page documents a TerminalBench security benchmark trajectory for defensive and educational review. The vector shown is a well-known HTML parser-differential class; it is presented to explain <i>why</i> tag-only sanitizers fail, not as a deployment recipe. The lesson for defenders: sanitize by re-serializing a strict parse and treat comment content as untrusted.</div>
+  </footer>
+
+</div>
+
+<script>
+  // ---- payload parser toggle ----
+  const segs = {
+    open:  document.querySelector('[data-role=open]'),
+    close: document.querySelector('[data-role=close]'),
+    img:   document.querySelector('[data-role=img]'),
+    tail:  document.querySelector('[data-role=tail]'),
+  };
+  const roBadge = document.getElementById('roBadge');
+  const roText  = document.getElementById('roText');
+  const viewName= document.getElementById('viewName');
+  const btnBr = document.getElementById('btnBrowser');
+  const btnBS = document.getElementById('btnBS');
+
+  function clearCls(){
+    Object.values(segs).forEach(s=>s.className='seg');
+  }
+
+  function setView(v){
+    clearCls();
+    if(v==='browser'){
+      segs.open.classList.add('marker','hot');
+      segs.close.classList.add('marker','hot');
+      segs.img.classList.add('live');
+      segs.tail.classList.add('commented');
+      roBadge.className='badge b-br'; roBadge.textContent='Browser';
+      roText.innerHTML = "<b>&lt;!--&gt;</b> is an <span class='hl'>abruptly-closed empty comment</span> — it ends at the first <b>&gt;</b>. The <span class='hl'>&lt;img&gt; becomes live markup</span>, its broken <code style='background:rgba(255,255,255,.05);padding:1px 5px;border-radius:4px;color:var(--paper)'>src</code> triggers <span class='hl'>onerror → alert()</span>. The trailing <b>--&gt;</b> is inert text.";
+      viewName.textContent='reading: browser';
+      btnBr.classList.add('active'); btnBS.classList.remove('active');
+    } else {
+      segs.open.classList.add('marker');
+      segs.close.classList.add('commented');
+      segs.img.classList.add('commented');
+      segs.tail.classList.add('marker');
+      roBadge.className='badge b-bs'; roBadge.textContent='BeautifulSoup';
+      roText.innerHTML = "The lenient parser keeps the comment open until <b>--&gt;</b>, so the <span class='hl-b'>&lt;img&gt; and its onerror sit inside a comment node</span>. <code style='background:rgba(255,255,255,.05);padding:1px 5px;border-radius:4px;color:var(--paper)'>find_all(True)</code> visits <span class='hl-b'>elements only</span> — the handler-stripping rule never runs here. Written back <b>unchanged</b>.";
+      viewName.textContent='reading: filter';
+      btnBS.classList.add('active'); btnBr.classList.remove('active');
+    }
+  }
+  setView('browser');
+
+  // ---- timeline data ----
+  const attempts = [
+    ['blocked','<code>&lt;svg onload=…&gt;</code>','The very first try. <code>onload</code> starts with "on" → stripped by Rule 03.'],
+    ['inert','<code>&lt;meta http-equiv=refresh&gt;</code> to a <code>javascript:</code> URL','Survives the filter, but browsers do not execute <code>javascript:</code> in a meta-refresh navigation.'],
+    ['blocked','<code>&lt;svg&gt;&lt;script&gt;…</code>','Inline SVG script — still a script element, removed by Rule 01.'],
+    ['inert','<code>&lt;style&gt;</code> / CSS expression','CSS cannot execute JavaScript in modern browsers.'],
+    ['inert','<code>title</code> attribute payload','A tooltip attribute — never executes code.'],
+    ['inert','<code>&lt;form formaction=javascript:&gt;</code>','Would need a submit click; not automatic.'],
+    ['inert','<code>&lt;base href=javascript:&gt;</code>','Rewrites link resolution but auto-runs nothing.'],
+    ['inert','<code>&lt;a autofocus href=javascript:&gt;</code>','<code>autofocus</code> survives, yet a link still needs a click; <code>onfocus</code> would be stripped.'],
+    ['inert','<code>&lt;area&gt;</code> / <code>&lt;details&gt;</code> tricks','Interactive elements — no interaction-free trigger.'],
+    ['inert','<code>&lt;link rel&gt;</code> / CSS <code>@import</code>','Stylesheet loading cannot run script.'],
+    ['blocked','<code>&lt;marquee onstart=&gt;</code>','<code>onstart</code> matches the "on" prefix → stripped.'],
+    ['blocked','<code>&lt;img src=data:…&gt;</code> / <code>&lt;object&gt;</code> / <code>&lt;embed&gt;</code>','Embedding tags are removed by Rule 02.'],
+    ['blocked','<code>&lt;source onerror=&gt;</code>','Another "on" handler → stripped; the whole vector collapses.'],
+    ['inert','<code>&lt;svg&gt;&lt;animate&gt;</code> / <code>&lt;set href=javascript:&gt;</code>','SMIL animation of an href does not auto-navigate to execute JS.'],
+    ['blocked','Upper-case <code>ONLOAD</code> / mixed case','BeautifulSoup normalizes attribute names to lowercase — still caught.'],
+    ['inert','<code>ev:onload</code> namespaced attribute','<b style="color:var(--amber)">Cleared gate i.</b> "ev:onload" does not start with "on", so it survives — but the browser doesn\'t recognize it as a handler.'],
+    ['blocked','Newline inside the attribute value','Only the key is checked, and the key is still <code>onerror</code>.'],
+    ['inert','<code>x‮onload</code> with an RTL-override char','<b style="color:var(--amber)">Cleared gate i again.</b> The Unicode prefix defeats <code>startswith("on")</code>, yet the browser ignores the malformed handler.'],
+    ['win','<code>&lt;!--&gt;&lt;img src=x onerror=…&gt;--&gt;</code>','The comment parser differential. Hidden from the filter as comment content; parsed as live HTML by the browser. <b style="color:var(--green)">Both gates cleared.</b>'],
+  ];
+
+  const tl = document.getElementById('timeline');
+  const cls = {blocked:'blocked',inert:'inert',win:'win'};
+  const vb  = {blocked:['v-blocked','Blocked'],inert:['v-inert','Inert'],win:['v-win','Bypass']};
+  attempts.forEach((a,i)=>{
+    const [type,vec,why]=a;
+    const el=document.createElement('div');
+    el.className='att '+cls[type];
+    el.innerHTML =
+      '<div class="att-top"><span class="verdict '+vb[type][0]+'">'+vb[type][1]+'</span>'+
+      '<span class="vec">'+vec+'</span></div>'+
+      '<div class="why">'+why+'</div>';
+    tl.appendChild(el);
+  });
+
+  // ---- reveal on scroll ----
+  const io = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(s=>io.observe(s));
+</script>
+</body>
+</html>

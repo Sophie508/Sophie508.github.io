@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>biomedsheets #23 — Hyphen in patientName · SWE-agent trajectory</title>
+<style>
+  :root{
+    --bg:#0f1420; --panel:#161d2e; --panel2:#1c2540; --ink:#e7ecf5;
+    --muted:#93a1c0; --line:#2a3450; --accent:#5aa9ff; --accent2:#7ee0b8;
+    --warn:#ffb454; --err:#ff7a85; --ok:#7ee0b8; --code:#0b0f18;
+    --add:#153b2b; --addln:#2f9d6a; --del:#3a1a20; --delln:#d15b66;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;font-size:15px}
+  code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+  header{padding:44px 0 26px;border-bottom:1px solid var(--line);margin-bottom:30px}
+  .kicker{color:var(--accent);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:12px}
+  h1{font-size:30px;margin:10px 0 6px;line-height:1.2}
+  h1 .repo{color:var(--muted);font-weight:500;font-size:20px}
+  .sub{color:var(--muted);font-size:15px;max-width:760px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .tag{background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+    padding:4px 11px;border-radius:999px;font-size:12.5px}
+  .tag b{color:var(--accent2);font-weight:600}
+  h2{font-size:20px;margin:44px 0 14px;padding-top:8px;display:flex;align-items:center;gap:10px}
+  h2 .n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+    border-radius:7px;background:var(--accent);color:#08101f;font-size:14px;font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h3{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600;
+    text-transform:uppercase;letter-spacing:.05em}
+  .card .big{font-size:15px}
+  .card .big.mono{font-size:13.5px;word-break:break-all}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+  .issue{background:linear-gradient(180deg,#1a2033,#151b2b);border:1px solid var(--line);
+    border-radius:12px;padding:20px 22px}
+  .issue .lead{color:var(--err);font-weight:600}
+  blockquote{margin:14px 0 0;padding:12px 16px;border-left:3px solid var(--accent);
+    background:var(--panel2);border-radius:0 8px 8px 0;color:var(--muted);font-style:italic}
+  pre.trace{background:var(--code);border:1px solid var(--line);border-radius:8px;
+    padding:14px 16px;overflow-x:auto;font-size:12.5px;color:#9fb2d6;margin:14px 0 0;white-space:pre}
+  pre.trace .hl{color:var(--err);font-weight:700}
+
+  /* timeline */
+  .tl{position:relative;margin-top:8px;padding-left:8px}
+  .step{position:relative;padding:0 0 4px 42px;margin-bottom:14px}
+  .step::before{content:"";position:absolute;left:14px;top:30px;bottom:-14px;width:2px;background:var(--line)}
+  .step:last-child::before{display:none}
+  .dot{position:absolute;left:2px;top:4px;width:28px;height:28px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+    background:var(--panel2);border:2px solid var(--line);color:var(--muted);z-index:1}
+  .dot.think{border-color:var(--accent);color:var(--accent)}
+  .dot.act{border-color:var(--accent2);color:var(--accent2)}
+  .dot.obs{border-color:var(--muted)}
+  .dot.ok{border-color:var(--ok);color:var(--ok);background:var(--add)}
+  .dot.err{border-color:var(--err);color:var(--err);background:var(--del)}
+  .step .head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;cursor:pointer;user-select:none}
+  .step .ph{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+    background:var(--panel2);border:1px solid var(--line);padding:1px 8px;border-radius:6px}
+  .step .ph.think{color:var(--accent);border-color:#2c4a72}
+  .step .ph.act{color:var(--accent2);border-color:#2c5a48}
+  .step .title{font-weight:600;font-size:14.5px}
+  .step .think-txt{color:var(--muted);font-size:13.5px;margin:8px 0 0}
+  .cmd{margin-top:8px;background:var(--code);border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;font-size:13px;color:var(--accent2);overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+  .cmd .pt{color:#5a6a8a}
+  .obs{margin-top:8px;background:#0c1119;border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;font-size:12.5px;color:#9fb2d6;overflow-x:auto;white-space:pre-wrap;word-break:break-word;
+    max-height:230px;overflow-y:auto}
+  .obs.res-err{border-left:3px solid var(--err)}
+  .obs.res-ok{border-left:3px solid var(--ok)}
+  .obs .rerr{color:var(--err)}
+  .obs .rok{color:var(--ok);font-weight:600}
+  .collapsed .body{display:none}
+  .chev{margin-left:auto;color:var(--muted);font-size:12px;transition:transform .15s}
+  .collapsed .chev{transform:rotate(-90deg)}
+
+  /* diff */
+  .diff{background:var(--code);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:6px}
+  .diff .fname{padding:9px 14px;background:var(--panel2);border-bottom:1px solid var(--line);
+    font-size:12.5px;color:var(--muted)}
+  .diff pre{margin:0;padding:12px 0;overflow-x:auto;font-size:12.5px}
+  .diff .ln{display:block;padding:0 14px;white-space:pre}
+  .diff .add{background:var(--add);color:#b6f0d0}
+  .diff .del{background:var(--del);color:#f4b8bf}
+  .diff .add::before{content:"+ ";color:var(--addln)}
+  .diff .del::before{content:"- ";color:var(--delln)}
+  .diff .ctx{color:#7f8fb0}
+  .diff .ctx::before{content:"  "}
+  .diff .hunk{color:var(--accent);background:#131b2d}
+
+  .verdict{display:flex;gap:16px;align-items:center;background:linear-gradient(90deg,#132a20,#14202f);
+    border:1px solid #2c5a48;border-radius:12px;padding:18px 22px;margin-top:6px}
+  .verdict .icon{font-size:26px}
+  .verdict .t{font-weight:700;font-size:16px;color:var(--ok)}
+  .verdict .d{color:var(--muted);font-size:13.5px}
+
+  .note{color:var(--muted);font-size:12.5px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:13.5px}
+  .kv dt{color:var(--muted)}
+  .kv dd{margin:0}
+  footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:6px 0 16px;font-size:12.5px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Code Repair · SWE-bench trajectory</div>
+  <h1>Hyphen not allowed in <code>patientName</code> column<br><span class="repo">bihealth / biomedsheets · issue #23</span></h1>
+  <p class="sub">An autonomous SWE-agent run: locate the validation that rejects hyphenated patient
+  names in germline TSV sample sheets, relax it, and verify with a reproduction script.</p>
+  <div class="tags">
+    <span class="tag">agent: <b>swe-agent-llama-70b</b></span>
+    <span class="tag">format: <b>swe-agent-traj</b></span>
+    <span class="tag">domain: <b>code_repair</b></span>
+    <span class="tag">exit: <b>submitted</b></span>
+    <span class="tag">turns: <b>10 actions</b></span>
+  </div>
+</header>
+
+<!-- OVERVIEW -->
+<section>
+  <div class="grid">
+    <div class="card">
+      <h3>Instance</h3>
+      <div class="big mono">bihealth__biomedsheets-23</div>
+    </div>
+    <div class="card">
+      <h3>Target file</h3>
+      <div class="big mono">biomedsheets/io_tsv/germline.py</div>
+    </div>
+    <div class="card">
+      <h3>Root cause</h3>
+      <div class="big">Legacy validation in <span class="mono">check_tsv_line()</span> forbids <code>-</code> in name columns</div>
+    </div>
+    <div class="card">
+      <h3>Outcome</h3>
+      <div class="big" style="color:var(--ok)">Checks disabled · repro passes</div>
+    </div>
+  </div>
+</section>
+
+<!-- ISSUE -->
+<h2><span class="n">1</span> The issue</h2>
+<div class="issue">
+  <p class="lead">Hyphens are valid in SODAR sample sheets (patient column) but rejected by biomedsheets when running the genomic pipeline.</p>
+  <p style="margin:10px 0 0;color:var(--muted)">
+    Loading a germline TSV sheet whose <code>patientName</code> contains a hyphen aborts the
+    Snakemake run with a <span class="mono">GermlineTSVSheetException</span>. The relevant frame at
+    the bottom of the stack is <span class="mono">io_tsv/germline.py:110 → check_tsv_line</span>.</p>
+  <pre class="trace">GermlineTSVSheetException in line 23 of .../ngs_mapping/Snakefile:
+<span class="hl">Hyphen not allowed in patientName column</span>
+  ...
+  File ".../abstract/__init__.py", line 266, in _cached_read_germline_tsv_sheet
+  File ".../biomedsheets/io_tsv/germline.py", line 186, in read_germline_tsv_sheet
+  File ".../biomedsheets/io_tsv/base.py", line 359, in read_sheet
+  File ".../biomedsheets/io_tsv/base.py", line 395, in _create_sheet_json
+  File ".../biomedsheets/io_tsv/germline.py", line 110, in <span class="hl">check_tsv_line</span></pre>
+  <blockquote>"[This] restriction is in SNAPPY/biomedsheets only … Its origin is that I originally
+  wanted to be able to resolve SAMPLE-NORMALTUMORNUMBER-EXTRACTIONNUMBER-LIBRARYNUMBER
+  unambiguously to SAMPLE etc. This functionality is [not] actually used, it can be removed."</blockquote>
+  <p class="note" style="margin-top:12px">Affected version: <span class="mono">biomedsheets 0.11.1</span></p>
+</div>
+
+<!-- TIMELINE -->
+<h2><span class="n">2</span> Agent trajectory</h2>
+<div class="legend">
+  <span><span class="swatch" style="background:var(--accent)"></span>reasoning</span>
+  <span><span class="swatch" style="background:var(--accent2)"></span>command</span>
+  <span><span class="swatch" style="background:var(--err)"></span>failing observation</span>
+  <span><span class="swatch" style="background:var(--ok)"></span>success</span>
+  <span class="note">— click a step to expand / collapse</span>
+</div>
+
+<div class="tl" id="tl">
+
+  <div class="step">
+    <div class="dot think">1</div>
+    <div class="head"><span class="ph think">explore</span><span class="title">Read the stack trace, list the repo</span><span class="chev">▼</span></div>
+    <div class="body">
+      <p class="think-txt">The exception is raised in <span class="mono">check_tsv_line</span> of <span class="mono">germline.py</span>. First orient in the repo root.</p>
+      <div class="cmd"><span class="pt">$ </span>ls -F</div>
+      <div class="obs">HISTORY.rst  README.rst  <b>biomedsheets/</b>  docs/  examples/  requirements/  setup.py  tests/  versioneer.py …</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot act">2</div>
+    <div class="head"><span class="ph act">locate</span><span class="title">Find <code>germline.py</code></span><span class="chev">▼</span></div>
+    <div class="body">
+      <div class="cmd"><span class="pt">$ </span>find_file "germline.py" biomedsheets</div>
+      <div class="obs">Found 2 matches:
+biomedsheets/shortcuts/germline.py
+<b>biomedsheets/io_tsv/germline.py</b>   ← the one from the traceback</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot act">3</div>
+    <div class="head"><span class="ph act">locate</span><span class="title">Pinpoint the method, open it</span><span class="chev">▼</span></div>
+    <div class="body">
+      <div class="cmd"><span class="pt">$ </span>search_file "def check_tsv_line" biomedsheets/io_tsv/germline.py
+<span class="pt">$ </span>open biomedsheets/io_tsv/germline.py 106</div>
+      <div class="obs">Line 106: def check_tsv_line(self, mapping, lineno):
+...
+109:  if '-' in mapping['patientName']:
+110:      raise GermlineTSVSheetException(<span class="rerr">'Hyphen not allowed in patientName column'</span>)
+112:  if mapping['fatherName'] and '-' in mapping['fatherName']: ...
+115:  if mapping['motherName'] and '-' in mapping['motherName']: ...</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot think">4</div>
+    <div class="head"><span class="ph think">fix</span><span class="title">Comment out the three hyphen checks</span><span class="chev">▼</span></div>
+    <div class="body">
+      <p class="think-txt">Disable the <code>patientName</code>, <code>fatherName</code> and <code>motherName</code> hyphen guards so hyphenated names load cleanly.</p>
+      <div class="cmd"><span class="pt">$ </span>edit 109:117  <span class="pt"># comment out the three raise-blocks</span></div>
+      <div class="obs res-ok">File updated (196 lines). Hyphen validation now commented out.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot act">5</div>
+    <div class="head"><span class="ph act">verify</span><span class="title">Write a reproduction script</span><span class="chev">▼</span></div>
+    <div class="body">
+      <p class="think-txt">Build a minimal germline TSV in-memory with a hyphenated patient name and read it through <span class="mono">GermlineTSVReader</span>.</p>
+      <div class="cmd"><span class="pt">$ </span>create test_hyphen.py
+<span class="pt">  </span>tsv = "patientName\tbioSample\n<b>test-patient-1</b>\tN1"
+<span class="pt">  </span>reader = GermlineTSVReader(tsv.splitlines()); reader.read_sheet()</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot err">6</div>
+    <div class="head"><span class="ph act">run</span><span class="title">Attempt 1 — missing required columns</span><span class="chev">▼</span></div>
+    <div class="body">
+      <div class="cmd"><span class="pt">$ </span>python test_hyphen.py</div>
+      <div class="obs res-err"><span class="rerr">Test failed:</span> Empty or invalid data column names — must be a superset of {patientName, fatherName, motherName, sex, isAffected, folderName, hpoTerms, libraryType}</div>
+      <p class="think-txt">Not the hyphen check — the fixture is missing mandatory columns. Add them.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot err">7</div>
+    <div class="head"><span class="ph act">run</span><span class="title">Attempt 2 — invalid libraryType</span><span class="chev">▼</span></div>
+    <div class="body">
+      <div class="cmd"><span class="pt">$ </span>edit 5:5  <span class="pt"># add all columns, libraryType=single</span>
+<span class="pt">$ </span>python test_hyphen.py</div>
+      <div class="obs res-err"><span class="rerr">Test failed:</span> Invalid library type <b>single</b>, must be in {WES, WGS, Panel_seq, mRNA_seq, total_RNA_seq}</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot err">8</div>
+    <div class="head"><span class="ph act">run</span><span class="title">Attempt 3 — invalid sex value</span><span class="chev">▼</span></div>
+    <div class="body">
+      <div class="cmd"><span class="pt">$ </span>edit 5:5  <span class="pt"># libraryType → WGS</span>
+<span class="pt">$ </span>python test_hyphen.py</div>
+      <div class="obs res-err"><span class="rerr">Test failed:</span> Invalid "sex" value <b>male</b> in line 2 of data section</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot err">9</div>
+    <div class="head"><span class="ph act">run</span><span class="title">Attempt 4 — invalid isAffected value</span><span class="chev">▼</span></div>
+    <div class="body">
+      <div class="cmd"><span class="pt">$ </span>edit 5:5  <span class="pt"># sex male → 1</span>
+<span class="pt">$ </span>python test_hyphen.py</div>
+      <div class="obs res-err"><span class="rerr">Test failed:</span> Invalid "isAffected" value <b>unaffected</b> in line 2 of data section</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot ok">10</div>
+    <div class="head"><span class="ph act">run</span><span class="title">Attempt 5 — fixture valid, hyphen accepted</span><span class="chev">▼</span></div>
+    <div class="body">
+      <div class="cmd"><span class="pt">$ </span>edit 5:5  <span class="pt"># isAffected → 1</span>
+<span class="pt">$ </span>python test_hyphen.py</div>
+      <div class="obs res-ok"><span class="rok">Test completed successfully, no errors.</span>  ← hyphenated patientName loads</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="dot ok">✓</div>
+    <div class="head"><span class="ph act">finish</span><span class="title">Remove the scratch script and submit</span><span class="chev">▼</span></div>
+    <div class="body">
+      <div class="cmd"><span class="pt">$ </span>rm test_hyphen.py
+<span class="pt">$ </span>submit</div>
+      <div class="obs res-ok"><span class="rok">exit_status: submitted</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PATCH -->
+<h2><span class="n">3</span> Submitted patch</h2>
+<div class="diff">
+  <div class="fname mono">biomedsheets/io_tsv/germline.py · check_tsv_line()</div>
+  <pre><span class="ln hunk">@@ -106,15 +106,16 @@ class GermlineTSVReader(BaseTSVReader):</span><span class="ln ctx">    def check_tsv_line(self, mapping, lineno):</span><span class="ln ctx">        """Cancer sample sheet--specific valiation"""</span><span class="ln ctx">        # Check for hyphen in patient or sample name</span><span class="ln del">        if '-' in mapping['patientName']:</span><span class="ln del">            raise GermlineTSVSheetException(</span><span class="ln del">                'Hyphen not allowed in patientName column')  # pragma: no cover</span><span class="ln del">        if mapping['fatherName'] and '-' in mapping['fatherName']:</span><span class="ln del">            raise GermlineTSVSheetException(</span><span class="ln del">                'Hyphen not allowed in fatherName column')  # pragma: no cover</span><span class="ln del">        if mapping['motherName'] and '-' in mapping['motherName']:</span><span class="ln del">            raise GermlineTSVSheetException(</span><span class="ln del">                'Hyphen not allowed in motherName column')  # pragma: no cover</span><span class="ln add">        # Check for hyphen in patient or sample name</span><span class="ln add">        # if '-' in mapping['patientName']:</span><span class="ln add">        #    raise GermlineTSVSheetException(</span><span class="ln add">        #        'Hyphen not allowed in patientName column')  # pragma: no cover</span><span class="ln add">        # if mapping['fatherName'] and '-' in mapping['fatherName']:</span><span class="ln add">        #    raise GermlineTSVSheetException(</span><span class="ln add">        #        'Hyphen not allowed in fatherName column')  # pragma: no cover</span><span class="ln add">        # if mapping['motherName'] and '-' in mapping['motherName']:</span><span class="ln add">        #    raise GermlineTSVSheetException(</span><span class="ln add">        #        'Hyphen not allowed in motherName column')  # pragma: no cover</span><span class="ln ctx">        # Check "libraryType" field</span><span class="ln ctx">        if mapping['libraryType'] and (</span></pre>
+</div>
+
+<div class="verdict">
+  <div class="icon">✓</div>
+  <div>
+    <div class="t">Session submitted successfully</div>
+    <div class="d">The three hyphen guards are commented out, so hyphenated <code>patientName</code>,
+    <code>fatherName</code> and <code>motherName</code> values now pass validation. Verified against
+    an in-memory germline TSV reproduction.</div>
+  </div>
+</div>
+
+<!-- OBSERVATIONS -->
+<h2><span class="n">4</span> Reviewer notes</h2>
+<div class="panel">
+  <dl class="kv">
+    <dt>Approach</dt><dd>Straight trace-to-source: stack frame → <span class="mono">find_file</span> → <span class="mono">search_file</span> → edit. Efficient localization, no wasted exploration.</dd>
+    <dt>Fix style</dt><dd>Guards are <em>commented out</em> rather than deleted. Functionally equivalent for the reported bug, but leaves dead code behind — a cleaner patch would remove the blocks (and any now-obsolete test).</dd>
+    <dt>Verification</dt><dd>Iteratively hardened the reproduction fixture through four schema-validation errors (columns → libraryType → sex → isAffected) before reaching a genuine pass — a good sign the hyphen path was actually exercised.</dd>
+    <dt>Gap</dt><dd>No regression test was added to the repo (<span class="mono">tests/</span> untouched); the scratch script was deleted before submit, so the relaxed behavior is unguarded going forward.</dd>
+  </dl>
+</div>
+
+<footer>
+  <p>Generated from <span class="mono">trajectory.json</span> (swe-agent-traj) · instance
+  <span class="mono">bihealth__biomedsheets-23</span> · model <span class="mono">swe-agent-llama-70b</span>.
+  Self-contained presentation; no external resources. Stripped fields in source: <span class="mono">eval_logs</span>, <span class="mono">target</span>.</p>
+</footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('#tl .head').forEach(function(h){
+    h.addEventListener('click', function(){
+      h.parentElement.classList.toggle('collapsed');
+    });
+  });
+</script>
+</body>
+</html>

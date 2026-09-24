@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case 04 — Stock Index Query 2 | DataAgentBench</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    background: #0f1117;
+    color: #c9d1d9;
+    padding: 24px;
+  }
+  a { color: #58a6ff; }
+
+  /* layout */
+  .page { max-width: 960px; margin: 0 auto; }
+
+  /* header */
+  .header {
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+  }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #e6edf3;
+    margin-bottom: 8px;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 6px 24px;
+    font-size: 12px;
+    color: #8b949e;
+  }
+  .meta-grid span { color: #c9d1d9; }
+
+  /* section titles */
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 24px 0 10px;
+    border-left: 3px solid #30363d;
+    padding-left: 8px;
+  }
+
+  /* task box */
+  .task-box {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 14px 16px;
+    white-space: pre-wrap;
+    color: #e6edf3;
+    font-size: 13.5px;
+  }
+  .task-box .question-highlight {
+    color: #79c0ff;
+    font-weight: 600;
+  }
+
+  /* data source tags */
+  .datasource-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .ds-tag {
+    background: #1c2128;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: #a5d6ff;
+  }
+  .ds-tag .engine { color: #56d364; margin-left: 6px; font-size: 11px; }
+
+  /* trajectory steps */
+  .step {
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #161b22;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #8b949e;
+    cursor: pointer;
+    user-select: none;
+  }
+  .step-header:hover { background: #1c2128; }
+  .step-num {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 11px;
+    color: #c9d1d9;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .step-label { flex: 1; color: #c9d1d9; font-size: 13px; }
+  .badge {
+    border-radius: 3px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-tool { background: #1f3d2a; color: #56d364; border: 1px solid #2ea043; }
+  .badge-output { background: #1c2d3a; color: #79c0ff; border: 1px solid #388bfd; }
+  .badge-error { background: #3d1f1f; color: #f85149; border: 1px solid #f85149; }
+  .badge-note { background: #2a2418; color: #e3b341; border: 1px solid #9e6a03; }
+  .chevron { transition: transform 0.2s; color: #8b949e; font-size: 11px; flex-shrink: 0; }
+  .chevron.open { transform: rotate(90deg); }
+
+  .step-body { display: none; padding: 12px; background: #0f1117; }
+  .step-body.open { display: block; }
+
+  pre {
+    background: #1c2128;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #c9d1d9;
+    margin-bottom: 8px;
+  }
+  pre:last-child { margin-bottom: 0; }
+  .out-pre { color: #aff5b4; }
+  .err-pre { color: #ff7b72; }
+  .note-pre { color: #e3b341; font-style: italic; }
+
+  .sub-label {
+    font-size: 11px;
+    color: #8b949e;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* schema table */
+  table.schema {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  table.schema th {
+    background: #21262d;
+    color: #8b949e;
+    font-weight: 600;
+    padding: 5px 10px;
+    text-align: left;
+    border: 1px solid #30363d;
+  }
+  table.schema td {
+    padding: 4px 10px;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+  }
+  table.schema tr:hover td { background: #161b22; }
+
+  /* result table */
+  table.result {
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 10px 0;
+    width: 100%;
+    max-width: 640px;
+  }
+  table.result th {
+    background: #21262d;
+    color: #e6edf3;
+    font-weight: 600;
+    padding: 7px 14px;
+    text-align: left;
+    border: 1px solid #30363d;
+  }
+  table.result td {
+    padding: 6px 14px;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+  }
+  table.result tr.winner td { background: #1a2d1a; }
+  table.result tr.loser td { background: #1c1c2c; }
+  .pill-yes { background: #1a2d1a; color: #56d364; padding: 1px 8px; border-radius: 10px; font-size: 12px; border: 1px solid #2ea043; }
+  .pill-no  { background: #2a1e1e; color: #f85149; padding: 1px 8px; border-radius: 10px; font-size: 12px; border: 1px solid #6e3030; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* final answer */
+  .answer-box {
+    background: #1a2d1a;
+    border: 1px solid #2ea043;
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-top: 16px;
+  }
+  .answer-box .answer-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #56d364;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .answer-box p { color: #e6edf3; font-size: 14px; line-height: 1.7; }
+  .answer-box .index-name { color: #79c0ff; font-weight: 700; font-size: 16px; }
+
+  /* bar chart */
+  .bar-chart { margin: 16px 0; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-index { width: 60px; text-align: right; font-size: 12px; font-weight: 600; color: #e6edf3; flex-shrink: 0; }
+  .bar-group { flex: 1; }
+  .bar-line { display: flex; align-items: center; margin-bottom: 3px; }
+  .bar-key { width: 36px; font-size: 11px; color: #8b949e; flex-shrink: 0; }
+  .bar-fill { height: 14px; border-radius: 2px; transition: width 0.3s; }
+  .bar-val { margin-left: 6px; font-size: 11px; color: #8b949e; }
+  .bar-up   { background: #56d364; }
+  .bar-down { background: #f85149; }
+  .bar-flat { background: #8b949e; }
+
+  /* timeline */
+  .timeline { border-left: 2px solid #30363d; padding-left: 16px; margin-left: 4px; }
+  .tl-item { position: relative; margin-bottom: 14px; }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -21px;
+    top: 7px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid #56d364;
+    background: #0f1117;
+  }
+  .tl-time { font-size: 11px; color: #8b949e; }
+  .tl-desc { font-size: 13px; color: #c9d1d9; margin-top: 2px; }
+
+  /* footer */
+  .footer {
+    margin-top: 32px;
+    padding-top: 12px;
+    border-top: 1px solid #30363d;
+    font-size: 11px;
+    color: #484f58;
+  }
+
+  /* collapse button */
+  .collapse-all-btn {
+    float: right;
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    color: #8b949e;
+    font-size: 11px;
+    padding: 2px 10px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .collapse-all-btn:hover { background: #30363d; color: #e6edf3; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Case 04 &mdash; North American Stock Index Up/Down Analysis (2018)</h1>
+    <div class="meta-grid">
+      <div>ID: <span>04_stockindex_query2</span></div>
+      <div>Domain: <span>data_analysis</span></div>
+      <div>Benchmark: <span>DataAgentBench</span></div>
+      <div>Model: <span>gpt-5.6-sol</span></div>
+      <div>Duration: <span>4188 s (~70 min)</span></div>
+      <div>Exit code: <span>0 (success)</span></div>
+      <div>Collected: <span>2026-07-11</span></div>
+      <div>Source: <span>regen</span></div>
+    </div>
+  </div>
+
+  <!-- Task -->
+  <div class="section-title">Task</div>
+  <div class="task-box"><span class="question-highlight">Question:</span> Among North American stock indices, which indices had more up days than down days in 2018?
+
+Answer this data analysis question. Write and run Python code that computes and prints the answer.</div>
+  <div class="datasource-list">
+    <div class="ds-tag">indexInfo_query.db<span class="engine">SQLite</span></div>
+    <div class="ds-tag">indextrade_query.db<span class="engine">DuckDB</span></div>
+  </div>
+
+  <!-- Execution timeline summary -->
+  <div class="section-title">Execution Timeline</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-time">22:17:12 UTC</div>
+      <div class="tl-desc">Task received; agent plans to inspect schemas and compute 2018 up/down counts.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">22:17:18 — attempt 1</div>
+      <div class="tl-desc">Shell heredoc blocked by sandbox: <em>"can't create temp file for here document: operation not permitted"</em></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">22:17:33 — attempt 2</div>
+      <div class="tl-desc">Schema inspection via inline Python: discovered <code>index_info</code> (SQLite, 14 rows) and <code>index_trade</code> (DuckDB, 104 224 rows, 13 indices).</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">23:26:43 — attempt 3</div>
+      <div class="tl-desc">Listed all 14 exchanges and 13 index tickers with row counts and date ranges.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">23:26:55 — attempt 4 (final)</div>
+      <div class="tl-desc">Full analysis: joined tables, filtered 2018, classified each day as up/down/flat using Close vs Open, produced per-index counts.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">23:26:58</div>
+      <div class="tl-desc">Final answer delivered: only <strong>IXIC (NASDAQ)</strong> had more up days than down days.</div>
+    </div>
+  </div>
+
+  <!-- Trajectory steps -->
+  <div class="section-title">
+    Trajectory Steps
+    <button class="collapse-all-btn" onclick="toggleAll()">Expand all</button>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step">
+    <div class="step-header" onclick="toggleStep(this)">
+      <span class="step-num">1</span>
+      <span class="step-label">Schema inspection attempt via shell heredoc</span>
+      <span class="badge badge-error">Error</span>
+      <span class="chevron">&#9654;</span>
+    </div>
+    <div class="step-body">
+      <div class="sub-label">Agent comment</div>
+      <pre class="note-pre">I'll inspect both database schemas, identify the North American indices, and compute 2018 up/down trading-day counts directly from the daily data.</pre>
+      <div class="sub-label">Command</div>
+      <pre>python - &lt;&lt;'PY'
+import sqlite3, duckdb
+# ... schema inspection ...
+PY</pre>
+      <div class="sub-label">Output (error)</div>
+      <pre class="err-pre">zsh:1: can't create temp file for here document: operation not permitted</pre>
+      <div class="sub-label">Note</div>
+      <pre class="note-pre">Sandbox blocks temp-file creation for heredocs. Agent pivots to inline python -c invocations.</pre>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step">
+    <div class="step-header" onclick="toggleStep(this)">
+      <span class="step-num">2</span>
+      <span class="step-label">Schema inspection via inline Python (workaround)</span>
+      <span class="badge badge-tool">exec</span>
+      <span class="chevron">&#9654;</span>
+    </div>
+    <div class="step-body">
+      <div class="sub-label">Command</div>
+      <pre>python -c '
+import sqlite3, duckdb
+# SQLite schema
+c = sqlite3.connect("data/indexInfo_query.db")
+tables = c.execute("select name from sqlite_master where type=\"table\"").fetchall()
+print("SQLite", tables)
+for (t,) in tables:
+    print(t, c.execute(f"pragma table_info(\"{t}\")").fetchall())
+c.close()
+# DuckDB schema
+d = duckdb.connect("data/indextrade_query.db", read_only=True)
+dt = d.execute("show tables").fetchall()
+print("DuckDB", dt)
+for (t,) in dt:
+    print(t, d.execute(f"describe \"{t}\"").fetchall())
+d.close()
+'</pre>
+      <div class="sub-label">Output (wall time: 0.2 s)</div>
+      <pre class="out-pre">SQLite [('index_info',)]
+index_info [(0, 'Exchange', 'TEXT', 0, None, 0), (1, 'Currency', 'TEXT', 0, None, 0)]
+duckdb 1.5.3
+DuckDB [('index_trade',)]
+index_trade [
+  ('Index',     'VARCHAR', 'YES', None, None, None),
+  ('Date',      'VARCHAR', 'YES', None, None, None),
+  ('Open',      'DOUBLE',  'YES', None, None, None),
+  ('High',      'DOUBLE',  'YES', None, None, None),
+  ('Low',       'DOUBLE',  'YES', None, None, None),
+  ('Close',     'DOUBLE',  'YES', None, None, None),
+  ('Adj Close', 'DOUBLE',  'YES', None, None, None),
+  ('CloseUSD',  'DOUBLE',  'YES', None, None, None)
+]</pre>
+      <div class="sub-label">Discovered schemas</div>
+      <table class="schema">
+        <tr><th colspan="3">SQLite: index_info</th></tr>
+        <tr><th>#</th><th>Column</th><th>Type</th></tr>
+        <tr><td>0</td><td>Exchange</td><td>TEXT</td></tr>
+        <tr><td>1</td><td>Currency</td><td>TEXT</td></tr>
+      </table>
+      <table class="schema">
+        <tr><th colspan="3">DuckDB: index_trade</th></tr>
+        <tr><th>#</th><th>Column</th><th>Type</th></tr>
+        <tr><td>0</td><td>Index</td><td>VARCHAR</td></tr>
+        <tr><td>1</td><td>Date</td><td>VARCHAR</td></tr>
+        <tr><td>2</td><td>Open</td><td>DOUBLE</td></tr>
+        <tr><td>3</td><td>High</td><td>DOUBLE</td></tr>
+        <tr><td>4</td><td>Low</td><td>DOUBLE</td></tr>
+        <tr><td>5</td><td>Close</td><td>DOUBLE</td></tr>
+        <tr><td>6</td><td>Adj Close</td><td>DOUBLE</td></tr>
+        <tr><td>7</td><td>CloseUSD</td><td>DOUBLE</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step">
+    <div class="step-header" onclick="toggleStep(this)">
+      <span class="step-num">3</span>
+      <span class="step-label">Enumerate exchanges and index tickers</span>
+      <span class="badge badge-tool">exec</span>
+      <span class="chevron">&#9654;</span>
+    </div>
+    <div class="step-body">
+      <div class="sub-label">Command</div>
+      <pre>python -c '
+import sqlite3, duckdb
+s = sqlite3.connect("data/indexInfo_query.db")
+print("INFO COUNT", s.execute("select count(*) from index_info").fetchone())
+print("INFO ROWS")
+[print(x) for x in s.execute("select rowid,* from index_info")]
+s.close()
+d = duckdb.connect("data/indextrade_query.db", read_only=True)
+print("TRADE COUNT", d.execute("select count(*) from index_trade").fetchone())
+[print(x) for x in d.execute(
+    "select \"Index\",count(*),min(\"Date\"),max(\"Date\") from index_trade group by 1 order by 1"
+).fetchall()]
+d.close()
+'</pre>
+      <div class="sub-label">Output (wall time: 0.2 s)</div>
+      <pre class="out-pre">INFO COUNT (14,)
+INFO ROWS
+(1,  'New York Stock Exchange',        'USD')
+(2,  'NASDAQ',                         'USD')
+(3,  'Hong Kong Stock Exchange',       'HKD')
+(4,  'Shanghai Stock Exchange',        'CNY')
+(5,  'Tokyo Stock Exchange',           'JPY')
+(6,  'Euronext',                       'EUR')
+(7,  'Shenzhen Stock Exchange',        'CNY')
+(8,  'Toronto Stock Exchange',         'CAD')
+(9,  'National Stock Exchange of India','INR')
+(10, 'Frankfurt Stock Exchange',       'EUR')
+(11, 'Korea Exchange',                 'KRW')
+(12, 'SIX Swiss Exchange',             'CHF')
+(13, 'Taiwan Stock Exchange',          'TWD')
+(14, 'Johannesburg Stock Exchange',    'ZAR')
+
+TRADE COUNT (104224,)
+INDICES (ticker, rows, date_min, date_max):
+('000001.SS', 5791,  '01 Apr 2003, 00:00', 'September 30, 2015 at 12:00 AM')
+('399001.SZ', 5760,  '01 Apr 2004, 00:00', 'September 30, 2015 at 12:00 AM')
+('GDAXI',     8438,  '01 Apr 1992, 00:00', 'September 30, 2016 at 12:00 AM')
+('GSPTSE',   10526,  '01 Apr 1981, 00:00', 'September 30, 2016 at 12:00 AM')
+('HSI',       8492,  '01 Apr 1992, 00:00', 'September 30, 2019 at 12:00 AM')
+('IXIC',     12690,  '01 Apr 1974, 00:00', 'September 30, 2015 at 12:00 AM')
+('J203.JO',   2346,  '01 Apr 2016, 00:00', 'September 30, 2019 at 12:00 AM')
+('N100',      5474,  '01 Apr 2003, 00:00', 'September 30, 2019 at 12:00 AM')
+('N225',     13874,  '01 Apr 1971, 00:00', 'September 30, 2020 at 12:00 AM')
+('NSEI',      3346,  '01 Apr 2014, 00:00', 'September 30, 2014 at 12:00 AM')
+('NYA',      13947,  '01 Apr 1969, 00:00', 'September 30, 2020 at 12:00 AM')
+('SSMI',      7671,  '01 Apr 1996, 00:00', 'September 30, 2020 at 12:00 AM')
+('TWII',      5869,  '01 Apr 2004, 00:00', 'September 30, 2020 at 12:00 AM')</pre>
+      <div class="sub-label">North American exchanges identified</div>
+      <pre class="note-pre">NYSE (row 1) → NYA | NASDAQ (row 2) → IXIC | Toronto Stock Exchange (row 8) → GSPTSE
+Mapping applied: index_order list aligns SQLite rowid to ticker in the same order.</pre>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step">
+    <div class="step-header" onclick="toggleStep(this)">
+      <span class="step-num">4</span>
+      <span class="step-label">Full analysis — join, filter 2018, classify days, aggregate</span>
+      <span class="badge badge-tool">exec</span>
+      <span class="chevron">&#9654;</span>
+    </div>
+    <div class="step-body">
+      <div class="sub-label">Python code</div>
+      <pre>import sqlite3, duckdb, pandas as pd
+
+# Load exchange info
+info = pd.read_sql_query(
+    "SELECT rowid AS id, Exchange, Currency FROM index_info",
+    sqlite3.connect("data/indexInfo_query.db")
+)
+
+# Load all trade data
+trades = duckdb.connect("data/indextrade_query.db", read_only=True) \
+               .execute("SELECT * FROM index_trade").df()
+
+# Map rowid → ticker (same positional order used in the database)
+index_order = ["NYA","IXIC","HSI","000001.SS","N225","N100",
+               "399001.SZ","GSPTSE","NSEI","GDAXI","KS11","SSMI","TWII","J203.JO"]
+info["Index"] = index_order
+
+# Keep only North American exchanges
+north = info[info.Exchange.str.contains("New York|NASDAQ|Toronto")][["Index","Exchange"]]
+
+# Join, filter to 2018
+x = trades.merge(north, on="Index")
+x["parsed_date"] = pd.to_datetime(x["Date"], format="mixed")
+x = x[x.parsed_date.dt.year.eq(2018)]
+
+# Classify each day: up = Close > Open
+x["day"] = x["Close"].sub(x["Open"]).map(
+    lambda v: "up" if v > 0 else ("down" if v &lt; 0 else "flat")
+)
+
+# Aggregate
+ans = (x.groupby(["Index","Exchange","day"]).size()
+         .unstack(fill_value=0).reset_index())
+ans["more_up_than_down"] = ans["up"] &gt; ans["down"]
+print(ans.to_string(index=False))
+print("\nANSWER:", ", ".join(ans.loc[ans.more_up_than_down, "Index"]))</pre>
+      <div class="sub-label">Output (wall time: 1.6 s)</div>
+      <pre class="out-pre"> Index                Exchange  down  flat  up  more_up_than_down
+GSPTSE  Toronto Stock Exchange   135     1 115              False
+  IXIC                  NASDAQ   120     0 131               True
+   NYA New York Stock Exchange   126     0 125              False
+
+ANSWER: IXIC</pre>
+    </div>
+  </div>
+
+  <!-- Results table -->
+  <div class="section-title">Results &mdash; 2018 Trading Day Counts (North American Indices)</div>
+
+  <table class="result">
+    <thead>
+      <tr>
+        <th>Ticker</th>
+        <th>Index Name</th>
+        <th>Exchange</th>
+        <th class="num">Up Days</th>
+        <th class="num">Down Days</th>
+        <th class="num">Flat</th>
+        <th>More Up?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="winner">
+        <td><strong>IXIC</strong></td>
+        <td>NASDAQ Composite</td>
+        <td>NASDAQ</td>
+        <td class="num"><strong>131</strong></td>
+        <td class="num">120</td>
+        <td class="num">0</td>
+        <td><span class="pill-yes">Yes</span></td>
+      </tr>
+      <tr class="loser">
+        <td>NYA</td>
+        <td>NYSE Composite</td>
+        <td>New York Stock Exchange</td>
+        <td class="num">125</td>
+        <td class="num"><strong>126</strong></td>
+        <td class="num">0</td>
+        <td><span class="pill-no">No</span></td>
+      </tr>
+      <tr class="loser">
+        <td>GSPTSE</td>
+        <td>S&amp;P/TSX Composite</td>
+        <td>Toronto Stock Exchange</td>
+        <td class="num">115</td>
+        <td class="num"><strong>135</strong></td>
+        <td class="num">1</td>
+        <td><span class="pill-no">No</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Bar chart -->
+  <div class="section-title">Visual Comparison — Up vs Down Days (2018)</div>
+  <div class="bar-chart" id="chart"></div>
+
+  <!-- Final answer -->
+  <div class="answer-box">
+    <div class="answer-label">Final Answer</div>
+    <p>
+      Using <em>Close &gt; Open</em> to define an up day and <em>Close &lt; Open</em> to define a down day,
+      only <span class="index-name">IXIC (NASDAQ Composite)</span> had more up days than down days in 2018,
+      with <strong>131 up days</strong> vs <strong>120 down days</strong>.
+      NYA (NYSE) and GSPTSE (TSX) both had more down days than up days.
+    </p>
+  </div>
+
+  <!-- Methodology note -->
+  <div class="section-title">Methodology</div>
+  <div class="task-box" style="font-size:13px;">
+<strong>Up day:</strong>   Close &gt; Open  (positive intraday return)
+<strong>Down day:</strong>  Close &lt; Open  (negative intraday return)
+<strong>Flat day:</strong>  Close = Open  (GSPTSE had 1 flat day)
+
+North American exchanges matched by substring search on the Exchange column:
+  "New York" → NYA (NYSE Composite)
+  "NASDAQ"   → IXIC (NASDAQ Composite)
+  "Toronto"  → GSPTSE (S&amp;P/TSX Composite)
+
+Dates parsed with pandas mixed-format parser.
+Year filter: parsed_date.year == 2018.
+Total 2018 records: 251 (IXIC) + 251 (NYA) + 251 (GSPTSE).
+  </div>
+
+  <div class="footer">
+    Case ID: 04_stockindex_query2 &bull; Benchmark: DataAgentBench &bull; Model: gpt-5.6-sol &bull; Duration: 4188 s &bull; Exit: 0 &bull; No Bash fallback was used to generate this HTML.
+  </div>
+</div>
+
+<script>
+  // Build bar chart from data
+  var data = [
+    { ticker: "IXIC", up: 131, down: 120, flat: 0, winner: true },
+    { ticker: "NYA",  up: 125, down: 126, flat: 0, winner: false },
+    { ticker: "GSPTSE", up: 115, down: 135, flat: 1, winner: false },
+  ];
+  var maxVal = 140;
+  var chart = document.getElementById("chart");
+  data.forEach(function(d) {
+    var upPct   = (d.up   / maxVal * 100).toFixed(1);
+    var downPct = (d.down / maxVal * 100).toFixed(1);
+    var flatPct = (d.flat / maxVal * 100).toFixed(1);
+    chart.innerHTML += '<div class="bar-row">' +
+      '<div class="bar-index" style="color:' + (d.winner ? "#56d364" : "#8b949e") + '">' + d.ticker + '</div>' +
+      '<div class="bar-group">' +
+        '<div class="bar-line"><span class="bar-key">Up</span><div class="bar-fill bar-up" style="width:' + upPct + '%"></div><span class="bar-val">' + d.up + '</span></div>' +
+        '<div class="bar-line"><span class="bar-key">Down</span><div class="bar-fill bar-down" style="width:' + downPct + '%"></div><span class="bar-val">' + d.down + '</span></div>' +
+        (d.flat > 0 ? '<div class="bar-line"><span class="bar-key">Flat</span><div class="bar-fill bar-flat" style="width:' + flatPct + '%"></div><span class="bar-val">' + d.flat + '</span></div>' : '') +
+      '</div>' +
+    '</div>';
+  });
+
+  // Step toggles
+  function toggleStep(header) {
+    var body = header.nextElementSibling;
+    var chev = header.querySelector(".chevron");
+    var open = body.classList.toggle("open");
+    if (open) chev.classList.add("open"); else chev.classList.remove("open");
+  }
+
+  var expanded = false;
+  function toggleAll() {
+    expanded = !expanded;
+    document.querySelectorAll(".step-body").forEach(function(b) {
+      if (expanded) { b.classList.add("open"); b.previousElementSibling.querySelector(".chevron").classList.add("open"); }
+      else           { b.classList.remove("open"); b.previousElementSibling.querySelector(".chevron").classList.remove("open"); }
+    });
+    document.querySelector(".collapse-all-btn").textContent = expanded ? "Collapse all" : "Expand all";
+  }
+</script>
+</body>
+</html>

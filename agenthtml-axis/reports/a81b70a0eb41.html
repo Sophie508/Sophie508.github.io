@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>distribution-search · trajectory review</title>
+<style>
+  :root{
+    --bg:#0a0806;
+    --bg2:#120d08;
+    --panel:#16100a;
+    --panel2:#1d150d;
+    --line:#332616;
+    --amber:#ffb347;
+    --amber-dim:#c98a3c;
+    --amber-deep:#8a5a22;
+    --phos:#ffcf7a;
+    --ink:#e9d9c0;
+    --ink-dim:#a08a6c;
+    --ink-faint:#6b5a44;
+    --red:#ff6b52;
+    --green:#8ec96b;
+    --blue:#7fb0d6;
+    --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 120% 70% at 50% -10%, #241708 0%, transparent 55%),
+      radial-gradient(ellipse 90% 60% at 90% 110%, #1a1006 0%, transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:15px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* scanline + grain overlays */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,0.16) 0px,rgba(0,0,0,0.16) 1px,transparent 2px,transparent 3px);
+    mix-blend-mode:multiply;opacity:.5;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:8;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 26px 120px}
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:64px 0 40px;position:relative}
+  .kicker{
+    font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:var(--amber-dim);
+    display:flex;align-items:center;gap:14px;margin-bottom:26px;
+  }
+  .kicker::before{content:"";width:34px;height:1px;background:var(--amber-deep)}
+  .kicker .blink{width:9px;height:15px;background:var(--amber);display:inline-block;animation:blink 1.1s steps(1) infinite;box-shadow:0 0 10px var(--amber)}
+  @keyframes blink{50%{opacity:0}}
+  h1.title{
+    font-family:var(--serif);font-weight:600;font-style:italic;
+    font-size:clamp(38px,7vw,76px);line-height:.98;margin:0 0 6px;
+    color:var(--phos);letter-spacing:-.01em;
+    text-shadow:0 0 26px rgba(255,180,71,.28);
+  }
+  h1.title .sub{display:block;font-style:normal;font-size:clamp(15px,2vw,20px);
+    font-family:var(--mono);letter-spacing:.06em;color:var(--ink-dim);margin-top:18px;font-weight:400}
+  .prompt-line{color:var(--amber);opacity:.55;margin-right:8px}
+
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+  .chip{
+    border:1px solid var(--line);background:var(--panel);
+    padding:7px 13px;font-size:12px;letter-spacing:.05em;color:var(--ink-dim);
+    display:flex;align-items:center;gap:8px;
+  }
+  .chip b{color:var(--ink);font-weight:600}
+  .chip.warn{border-color:#5a2c1c;background:#1c0f0a;color:var(--red)}
+  .chip.warn b{color:var(--red)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber)}
+  .dot.r{background:var(--red);box-shadow:0 0 8px var(--red)}
+
+  /* ---------- VERDICT BANNER ---------- */
+  .verdict{
+    margin-top:44px;border:1px solid #5a2c1c;
+    background:linear-gradient(100deg,#1c0f0a,#160c08);
+    padding:26px 28px;position:relative;overflow:hidden;
+  }
+  .verdict::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red);box-shadow:0 0 16px var(--red)}
+  .verdict .vh{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--red);margin-bottom:12px}
+  .verdict p{margin:0;font-size:15.5px;line-height:1.7;color:var(--ink);max-width:74ch}
+  .verdict p b{color:var(--phos)}
+
+  /* ---------- SECTION ---------- */
+  section{margin-top:78px;position:relative}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:30px;border-bottom:1px solid var(--line);padding-bottom:14px}
+  .sec-num{font-family:var(--serif);font-style:italic;font-size:30px;color:var(--amber-deep)}
+  .sec-title{font-size:14px;letter-spacing:.32em;text-transform:uppercase;color:var(--amber);font-weight:600}
+  .sec-note{margin-left:auto;font-size:11.5px;color:var(--ink-faint);letter-spacing:.05em}
+
+  /* ---------- PROBLEM / MATH ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);background:var(--panel);padding:24px 26px}
+  .card h3{margin:0 0 16px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim)}
+  .kl{font-family:var(--serif);font-size:20px;font-style:italic;color:var(--phos);letter-spacing:.01em;margin:4px 0 12px;line-height:1.5}
+  .kl small{font-style:normal;font-family:var(--mono);font-size:12px}
+  .req-list{list-style:none;margin:0;padding:0}
+  .req-list li{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+  .req-list li:last-child{border-bottom:0}
+  .req-list .lab{color:var(--ink-dim)}
+  .req-list .val{color:var(--phos);font-weight:600}
+
+  .derive{border:1px solid var(--line);background:var(--panel2);padding:22px 26px;margin-top:22px}
+  .derive .tag{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber-dim);margin-bottom:14px}
+  .derive .eq{font-family:var(--serif);font-style:italic;font-size:17.5px;color:var(--ink);padding:7px 0;line-height:1.6}
+  .derive .eq .hl{color:var(--phos);font-style:normal;font-family:var(--mono);font-size:14px;background:rgba(255,180,71,.08);padding:1px 6px}
+  .derive .aside{margin-top:14px;font-size:12.5px;color:var(--ink-faint);font-family:var(--mono);border-top:1px dashed var(--line);padding-top:12px}
+
+  /* ---------- TIMELINE ---------- */
+  .tl{position:relative;padding-left:38px}
+  .tl::before{content:"";position:absolute;left:11px;top:6px;bottom:6px;width:2px;
+    background:linear-gradient(var(--amber-deep),var(--line))}
+  .ev{position:relative;margin-bottom:20px;padding-bottom:2px}
+  .ev::before{content:"";position:absolute;left:-32px;top:4px;width:12px;height:12px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--amber-deep)}
+  .ev.act::before{border-color:var(--amber);background:var(--amber);box-shadow:0 0 10px var(--amber)}
+  .ev.kill::before{border-color:var(--red);background:var(--red);box-shadow:0 0 12px var(--red)}
+  .ev .ev-t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:5px}
+  .ev .ev-h{font-size:14.5px;color:var(--ink);margin-bottom:6px}
+  .ev .ev-h b{color:var(--phos)}
+  .ev .ev-b{font-size:13px;color:var(--ink-dim);line-height:1.6}
+  .toolcall{display:inline-block;font-size:11.5px;color:var(--amber);border:1px solid var(--amber-deep);
+    padding:2px 8px;margin:3px 5px 0 0;background:rgba(255,180,71,.05)}
+  .toolcall.k{color:var(--red);border-color:#5a2c1c}
+
+  .todos{list-style:none;margin:10px 0 0;padding:0;font-size:12.5px}
+  .todos li{display:flex;align-items:center;gap:10px;padding:4px 0;color:var(--ink-dim)}
+  .todos .box{width:14px;height:14px;border:1px solid var(--ink-faint);display:inline-block;flex-shrink:0}
+  .todos .box.ip{border-color:var(--amber);background:repeating-linear-gradient(45deg,transparent,transparent 2px,var(--amber-deep) 2px,var(--amber-deep) 3px)}
+  .todos .s{margin-left:auto;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+  .todos .s.ip{color:var(--amber)}
+
+  /* ---------- POLL STORM ---------- */
+  .storm-wrap{border:1px solid var(--line);background:#0d0906;padding:0;overflow:hidden}
+  .storm-bar{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--panel);font-size:12px;color:var(--ink-dim)}
+  .storm-bar .rd{width:10px;height:10px;border-radius:50%}
+  .storm-bar .rd.a{background:#ff6b52}.storm-bar .rd.b{background:#ffb347}.storm-bar .rd.c{background:#8ec96b}
+  .storm-bar .sh{margin-left:14px;color:var(--ink-faint)}
+  .storm-bar .live{margin-left:auto;color:var(--red);letter-spacing:.14em;font-size:11px}
+  .storm-body{padding:16px 18px;max-height:340px;overflow-y:auto;font-size:12.5px;line-height:1.5}
+  .storm-body::-webkit-scrollbar{width:8px}
+  .storm-body::-webkit-scrollbar-thumb{background:var(--amber-deep)}
+  .pline{display:flex;gap:12px;padding:2px 0;white-space:nowrap}
+  .pline .pt{color:var(--ink-faint);flex-shrink:0}
+  .pline .pc{color:var(--ink-dim)}
+  .pline .pr{color:var(--amber-dim)}
+  .pline .stat{color:var(--amber)}
+  .pline.ls .pc{color:var(--blue)}
+  .pline.ls .pr{color:var(--red)}
+  .pline.killrow{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .pline.killrow .pc{color:var(--red);font-weight:600}
+
+  .storm-foot{display:flex;flex-wrap:wrap;gap:26px;padding:16px 18px;border-top:1px solid var(--line);background:var(--panel)}
+  .sf{display:flex;flex-direction:column}
+  .sf .n{font-family:var(--serif);font-size:26px;color:var(--phos);line-height:1}
+  .sf .l{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:6px}
+
+  /* ---------- STATS ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat-c{border:1px solid var(--line);background:var(--panel);padding:20px;position:relative;overflow:hidden}
+  .stat-c .v{font-family:var(--serif);font-size:34px;color:var(--phos);line-height:1;font-style:italic}
+  .stat-c .u{font-size:12px;color:var(--ink-dim);font-style:normal;margin-left:3px}
+  .stat-c .k{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin-top:12px}
+  .stat-c::after{content:"";position:absolute;right:-20px;bottom:-20px;width:64px;height:64px;border:1px solid var(--line);border-radius:50%;opacity:.4}
+
+  /* ---------- FILES / OUTPUTS ---------- */
+  .filerow{display:flex;align-items:center;gap:14px;border:1px solid var(--line);background:var(--panel);padding:14px 18px;margin-bottom:10px;font-size:13.5px}
+  .filerow .ic{font-size:15px}
+  .filerow .fp{color:var(--phos);font-weight:600}
+  .filerow .fd{color:var(--ink-dim);margin-left:auto;font-size:12px;letter-spacing:.05em}
+  .filerow.miss{border-color:#5a2c1c;background:#160c08}
+  .filerow.miss .fp{color:var(--red);text-decoration:line-through;text-decoration-color:#5a2c1c}
+  .filerow.miss .fd{color:var(--red)}
+
+  footer{margin-top:90px;padding-top:26px;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:12px 26px;font-size:11.5px;color:var(--ink-faint);letter-spacing:.06em}
+  footer .h{color:var(--ink-faint)}
+  footer b{color:var(--ink-dim);font-weight:400}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="kicker">terminalbench · terminal_devops · case 05<span class="blink"></span></div>
+    <h1 class="title">distribution&nbsp;search
+      <span class="sub"><span class="prompt-line">$</span>solve KL(P‖U)=10 and KL(U‖P)=10 over a 150,000-token vocabulary</span>
+    </h1>
+
+    <div class="meta-row">
+      <span class="chip"><span class="dot"></span>agent&nbsp;<b>claude-code</b></span>
+      <span class="chip">model&nbsp;<b>claude-haiku-4-5</b></span>
+      <span class="chip">duration&nbsp;<b>230.2 s</b></span>
+      <span class="chip">trial&nbsp;<b>distribution-search__7jYjH73</b></span>
+      <span class="chip warn"><span class="dot r"></span>outcome&nbsp;<b>incomplete</b></span>
+    </div>
+
+    <div class="verdict reveal">
+      <div class="vh">trajectory verdict</div>
+      <p>The agent read the math correctly and drafted a solver, but launched it as a background job that never returned. It then spent the bulk of the run <b>polling the same job ~22 times</b> — every poll answered <b>“running”</b> — before checking for the output file, finding nothing, and <b>killing the shell</b>. The target <b>/app/dist.npy was never written</b>. The recording ends mid-task with all four planned todos still open.</p>
+    </div>
+  </header>
+
+  <!-- 01 THE PROBLEM -->
+  <section class="reveal">
+    <div class="sec-head">
+      <span class="sec-num">01</span><span class="sec-title">The Problem</span>
+      <span class="sec-note">restored from task registry · original instruction lost in recording</span>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Two confidence metrics</h3>
+        <div class="kl">KL(P‖U) = Σ P(i)·log( P(i) / U(i) )<br><small>forward — model vs. uniform</small></div>
+        <div class="kl">KL(U‖P) = Σ U(i)·log( U(i) / P(i) )<br><small>backward — uniform vs. model</small></div>
+        <p style="font-size:13px;color:var(--ink-dim);margin:14px 0 0;border-top:1px dashed var(--line);padding-top:14px">
+          Higher KL from uniform ⇒ higher predicted confidence. The task asks for a distribution that pins <em>both</em> divergences to the same value at once.</p>
+      </div>
+      <div class="card">
+        <h3>Exact targets</h3>
+        <ul class="req-list">
+          <li><span class="lab">forward&nbsp;&nbsp;KL(P‖U)</span><span class="val">= 10.0</span></li>
+          <li><span class="lab">backward&nbsp;KL(U‖P)</span><span class="val">= 10.0</span></li>
+          <li><span class="lab">tolerance (both)</span><span class="val">|KL − 10| ≤ 0.001</span></li>
+          <li><span class="lab">vocabulary size&nbsp;n</span><span class="val">150,000</span></li>
+          <li><span class="lab">constraint</span><span class="val">valid P, Σ = 1</span></li>
+          <li><span class="lab">deliverable</span><span class="val">/app/dist.npy</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="derive">
+      <div class="tag">the agent's key insight</div>
+      <div class="eq">KL(U‖P) = log(n) − Σ <span class="hl">(1/n)·log P(i)</span> = log(n) + H(P)/n</div>
+      <div class="eq">forward KL couples to entropy: KL(P‖U) = log(n) − H(P), with log(150000) ≈ 11.918</div>
+      <div class="aside">// a coupled non-linear system — the two divergences pull the distribution in opposite directions, which is exactly what made the numerical search expensive.</div>
+    </div>
+  </section>
+
+  <!-- 02 WHAT HAPPENED -->
+  <section class="reveal">
+    <div class="sec-head">
+      <span class="sec-num">02</span><span class="sec-title">What The Agent Did</span>
+      <span class="sec-note">warmup → plan → write → run → poll → kill</span>
+    </div>
+    <div class="tl">
+
+      <div class="ev">
+        <div class="ev-t">step · warmup</div>
+        <div class="ev-h">Two “Warmup” pings, then a mis-framed self-introduction</div>
+        <div class="ev-b">Before the task arrived, the agent introduced itself as a “file search specialist” for glob / grep / read work — a role that has nothing to do with the numerical problem it was about to receive.</div>
+      </div>
+
+      <div class="ev act">
+        <div class="ev-t">step · task received</div>
+        <div class="ev-h">Reframes correctly: <b>“find a probability distribution that satisfies these KL constraints.”</b></div>
+        <div class="ev-b">Recovers quickly once the real instruction lands, and lays out a four-item plan.</div>
+        <span class="toolcall">TodoWrite</span>
+        <ul class="todos">
+          <li><span class="box ip"></span>Understand KL divergence properties &amp; constraints<span class="s ip">in progress</span></li>
+          <li><span class="box"></span>Implement KL divergence calculations<span class="s">pending</span></li>
+          <li><span class="box"></span>Find distribution with both KL = 10<span class="s">pending</span></li>
+          <li><span class="box"></span>Save distribution to /app/dist.npy<span class="s">pending</span></li>
+        </ul>
+      </div>
+
+      <div class="ev act">
+        <div class="ev-t">step · implement</div>
+        <div class="ev-h">Writes the solver, then launches it in the background</div>
+        <div class="ev-b">Derives the entropy relationship above, writes <b>/app/find_distribution.py</b>, and runs it as a background shell (id <b>66e6c5</b>) rather than a blocking foreground call.</div>
+        <span class="toolcall">Write&nbsp;find_distribution.py</span>
+        <span class="toolcall">Bash&nbsp;python find_distribution.py&nbsp;→&nbsp;bg</span>
+      </div>
+
+      <div class="ev">
+        <div class="ev-t">step · 20:31:13 → 20:31:59 · the stall</div>
+        <div class="ev-h">The polling storm — <b>every check returns “running”</b></div>
+        <div class="ev-b">For ~46 seconds the agent does nothing but re-poll the same background job, narrating “let me wait a bit longer” between calls. One <span style="color:var(--blue)">ls</span> confirms the output file still doesn't exist. See the log below.</div>
+      </div>
+
+      <div class="ev kill">
+        <div class="ev-t">step · final</div>
+        <div class="ev-h">Recognises the solver is stuck and <b>kills the shell</b></div>
+        <div class="ev-b">“The analytical search loop is taking too long… let me rewrite with a better approach.” The kill succeeds — but the recording ends here. No rewrite, no result, no <b>dist.npy</b>.</div>
+        <span class="toolcall k">KillShell&nbsp;66e6c5</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 03 POLL STORM -->
+  <section class="reveal">
+    <div class="sec-head">
+      <span class="sec-num">03</span><span class="sec-title">The Polling Storm</span>
+      <span class="sec-note">shell 66e6c5 · never produced stdout</span>
+    </div>
+    <div class="storm-wrap">
+      <div class="storm-bar">
+        <span class="rd a"></span><span class="rd b"></span><span class="rd c"></span>
+        <span class="sh">python find_distribution.py</span>
+        <span class="live">● RUNNING — 0 lines out</span>
+      </div>
+      <div class="storm-body" id="stormBody"></div>
+      <div class="storm-foot">
+        <div class="sf"><span class="n">22</span><span class="l">status polls</span></div>
+        <div class="sf"><span class="n">46<span style="font-size:15px">s</span></span><span class="l">spent waiting</span></div>
+        <div class="sf"><span class="n">0</span><span class="l">stdout lines</span></div>
+        <div class="sf"><span class="n">1</span><span class="l">file check → absent</span></div>
+        <div class="sf"><span class="n">100<span style="font-size:15px">%</span></span><span class="l">polls "running"</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 RUN COST -->
+  <section class="reveal">
+    <div class="sec-head">
+      <span class="sec-num">04</span><span class="sec-title">Run Economics</span>
+      <span class="sec-note">most tokens read, almost none written</span>
+    </div>
+    <div class="stats">
+      <div class="stat-c"><div class="v">771,992</div><div class="k">input tokens</div></div>
+      <div class="stat-c"><div class="v">1,366</div><div class="k">output tokens</div></div>
+      <div class="stat-c"><div class="v">8.49<span class="u">¢</span></div><div class="k">total cost</div></div>
+      <div class="stat-c"><div class="v">230<span class="u">s</span></div><div class="k">wall clock</div></div>
+    </div>
+    <p style="font-size:13px;color:var(--ink-faint);margin:18px 0 0;letter-spacing:.03em">
+      // 565 input tokens for every 1 output token — a run dominated by re-reading polling output rather than producing a solution.</p>
+  </section>
+
+  <!-- 05 DELIVERABLES -->
+  <section class="reveal">
+    <div class="sec-head">
+      <span class="sec-num">05</span><span class="sec-title">Deliverables</span>
+      <span class="sec-note">what the grader would look for</span>
+    </div>
+    <div class="filerow">
+      <span class="ic">📝</span><span class="fp">/app/find_distribution.py</span>
+      <span class="fd">written — contents not captured in recording</span>
+    </div>
+    <div class="filerow miss">
+      <span class="ic">⛔</span><span class="fp">/app/dist.npy</span>
+      <span class="fd">never created — ls confirmed absent, solver killed</span>
+    </div>
+    <p style="font-size:13px;color:var(--ink-dim);margin:18px 0 0">
+      The single required artifact was never produced, so the task is functionally unsolved regardless of the (stripped) reward field.</p>
+  </section>
+
+  <footer>
+    <span class="h">case</span> <b>05_distribution-search</b>
+    <span class="h">benchmark</span> <b>TerminalBench · upstream</b>
+    <span class="h">format</span> <b>terminalbench-json</b>
+    <span class="h">sha256</span> <b>430ca092…b0569d77</b>
+    <span class="h">stripped</span> <b>reward</b>
+    <span class="h">references</span> <b>none</b>
+  </footer>
+
+</div>
+
+<script>
+  // ---- build the poll storm log from the real trajectory timestamps ----
+  const polls = [
+    ["20:31:13.110","BashOutput"],["20:31:15.004","BashOutput"],["20:31:16.728","BashOutput"],
+    ["20:31:18.716","BashOutput"],["20:31:20.524","BashOutput"],["20:31:24.047","BashOutput"],
+    ["20:31:25.708","BashOutput"],["20:31:27.127","BashOutput"],["20:31:29.406","BashOutput"],
+    ["20:31:31.038","BashOutput"],["20:31:34.508","BashOutput"],["20:31:36.556","BashOutput"],
+    ["20:31:38.309","BashOutput"],["20:31:39.661","BashOutput"],
+    ["__LS__","ls /app/dist.npy"],
+    ["20:31:45.115","BashOutput"],["20:31:46.662","BashOutput"],["20:31:49.105","BashOutput"],
+    ["20:31:50.754","BashOutput"],["20:31:52.518","BashOutput"],["20:31:54.478","BashOutput"],
+    ["20:31:56.328","BashOutput"],["20:31:59.369","BashOutput"]
+  ];
+  const body = document.getElementById('stormBody');
+  polls.forEach(([t,c])=>{
+    const row = document.createElement('div');
+    if(c === "ls /app/dist.npy"){
+      row.className = "pline ls";
+      row.innerHTML = `<span class="pt">~20:31:43</span><span class="pc">$ ls -la /app/dist.npy</span>`+
+        `<span class="pr">→ No such file or directory</span>`;
+    } else {
+      row.className = "pline";
+      row.innerHTML = `<span class="pt">${t}</span><span class="pc">▸ poll ${c}</span>`+
+        `<span class="pr">status</span><span class="stat">running · 0 stdout</span>`;
+    }
+    body.appendChild(row);
+  });
+  const kill = document.createElement('div');
+  kill.className = "pline killrow";
+  kill.innerHTML = `<span class="pt">20:32:01</span><span class="pc">✖ KillShell 66e6c5 — "Successfully killed shell"</span>`;
+  body.appendChild(kill);
+
+  // ---- staggered reveal on scroll ----
+  const io = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

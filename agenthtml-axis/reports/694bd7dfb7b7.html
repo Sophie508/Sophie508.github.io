@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>distribution-search · TerminalBench trajectory</title>
+<style>
+  :root{
+    --bg:#0a0d18;
+    --bg-2:#0d1122;
+    --panel:rgba(22,28,48,0.62);
+    --panel-solid:#141a30;
+    --stroke:rgba(130,150,220,0.16);
+    --stroke-strong:rgba(140,160,235,0.32);
+    --ink:#eef1fb;
+    --muted:#9aa3c4;
+    --faint:#6b7398;
+    --violet:#8b7bff;
+    --indigo:#6366f1;
+    --cyan:#39d3ee;
+    --pink:#ff6ba9;
+    --amber:#ffb347;
+    --green:#4ce0a8;
+    --red:#ff6b6b;
+    --mono:"SF Mono",ui-monospace,"JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans);
+    color:var(--ink);
+    background:var(--bg);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(1100px 620px at 78% -8%, rgba(99,102,241,0.22), transparent 60%),
+      radial-gradient(900px 560px at 8% 12%, rgba(57,211,238,0.13), transparent 55%),
+      radial-gradient(1000px 700px at 50% 108%, rgba(255,107,169,0.10), transparent 60%),
+      linear-gradient(180deg,var(--bg),var(--bg-2));
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:-1;opacity:0.35;pointer-events:none;
+    background-image:linear-gradient(rgba(130,150,220,0.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(130,150,220,0.05) 1px,transparent 1px);
+    background-size:56px 56px;
+    -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 30%,#000,transparent 85%);
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 30%,#000,transparent 85%);
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 26px}
+
+  /* NAV */
+  nav{
+    position:sticky;top:0;z-index:50;
+    transition:background .3s ease,border-color .3s ease,backdrop-filter .3s;
+    border-bottom:1px solid transparent;
+  }
+  nav.scrolled{
+    background:rgba(10,13,24,0.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--stroke);
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:650;letter-spacing:.2px}
+  .logo{
+    width:30px;height:30px;border-radius:9px;flex:none;position:relative;
+    background:linear-gradient(135deg,var(--violet),var(--cyan));
+    box-shadow:0 6px 20px rgba(99,102,241,0.4);
+  }
+  .logo::after{content:"∑";position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-weight:700;color:#0a0d18;font-size:16px}
+  .brand small{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:500}
+  .nav-links{display:flex;gap:6px;align-items:center}
+  .nav-links a{
+    font-size:14px;color:var(--muted);padding:8px 13px;border-radius:8px;transition:.2s;font-weight:500;
+  }
+  .nav-links a:hover{color:var(--ink);background:rgba(130,150,220,0.09)}
+  .nav-pill{
+    font-family:var(--mono);font-size:11.5px;color:var(--cyan);
+    border:1px solid var(--stroke-strong);border-radius:999px;padding:6px 12px;
+    background:rgba(57,211,238,0.06);
+  }
+  @media(max-width:760px){.nav-links a:not(.nav-pill){display:none}}
+
+  /* HERO */
+  header.hero{padding:78px 0 34px;position:relative}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);
+    font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;
+    border:1px solid var(--stroke);border-radius:999px;padding:6px 14px;margin-bottom:24px;
+    background:var(--panel);backdrop-filter:blur(8px);
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber)}
+  h1.title{
+    font-size:clamp(2.5rem,6vw,4.3rem);line-height:1.02;font-weight:760;letter-spacing:-1.6px;
+    margin-bottom:22px;
+  }
+  h1.title .grad{
+    background:linear-gradient(115deg,var(--violet) 5%,var(--cyan) 55%,var(--pink) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{font-size:clamp(1.05rem,2vw,1.28rem);color:var(--muted);max-width:680px;margin-bottom:34px}
+  .lede b{color:var(--ink);font-weight:600}
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:52px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:12px;
+    font-weight:600;font-size:14.5px;cursor:pointer;transition:.22s;border:1px solid transparent;
+  }
+  .btn-primary{
+    background:linear-gradient(120deg,var(--indigo),var(--violet));color:#fff;
+    box-shadow:0 10px 30px rgba(99,102,241,0.4);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(99,102,241,0.5)}
+  .btn-ghost{border-color:var(--stroke-strong);color:var(--ink);background:var(--panel)}
+  .btn-ghost:hover{border-color:var(--violet);background:rgba(139,123,255,0.1)}
+
+  .stat-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+  }
+  @media(max-width:760px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+  .stat{
+    background:var(--panel);border:1px solid var(--stroke);border-radius:15px;padding:18px 18px;
+    backdrop-filter:blur(10px);transition:.25s;
+  }
+  .stat:hover{transform:translateY(-4px);border-color:var(--stroke-strong)}
+  .stat .k{font-family:var(--mono);font-size:12px;color:var(--faint);text-transform:uppercase;letter-spacing:.6px}
+  .stat .v{font-size:1.75rem;font-weight:700;margin-top:6px;letter-spacing:-.5px}
+  .stat .v small{font-size:.9rem;color:var(--muted);font-weight:500}
+
+  /* SECTION SHELL */
+  section{padding:56px 0;position:relative}
+  .sec-head{margin-bottom:34px;max-width:720px}
+  .sec-tag{font-family:var(--mono);font-size:12.5px;color:var(--cyan);letter-spacing:1px;text-transform:uppercase}
+  h2{font-size:clamp(1.7rem,3.5vw,2.5rem);font-weight:720;letter-spacing:-.8px;margin:10px 0 12px}
+  .sec-head p{color:var(--muted);font-size:1.05rem}
+
+  /* CARDS */
+  .card{
+    background:var(--panel);border:1px solid var(--stroke);border-radius:18px;
+    backdrop-filter:blur(12px);transition:.28s;
+  }
+  .card:hover{border-color:var(--stroke-strong)}
+  .grid-2{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
+  @media(max-width:840px){.grid-2{grid-template-columns:1fr}}
+
+  /* SPEC / MATH */
+  .spec{padding:26px 28px}
+  .spec h3{font-size:1.1rem;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+  .spec h3 .b{width:8px;height:8px;border-radius:2px;background:linear-gradient(135deg,var(--violet),var(--cyan))}
+  .kl{
+    font-family:var(--mono);background:rgba(10,13,24,0.6);border:1px solid var(--stroke);
+    border-radius:12px;padding:16px 18px;margin-bottom:14px;font-size:14.5px;overflow-x:auto;
+  }
+  .kl .lbl{display:block;font-size:11.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+  .kl .eq{color:var(--ink);white-space:nowrap}
+  .kl .eq .op{color:var(--violet)}
+  .kl .eq .term{color:var(--cyan)}
+  sub,sup{font-family:var(--mono);font-size:.72em}
+
+  .constraints{list-style:none;display:flex;flex-direction:column;gap:2px}
+  .constraints li{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:14px 4px;border-bottom:1px dashed var(--stroke);
+  }
+  .constraints li:last-child{border-bottom:none}
+  .constraints .cn{color:var(--muted);font-size:14.5px}
+  .constraints .cv{font-family:var(--mono);font-weight:600;font-size:14.5px}
+  .cv.hi{color:var(--cyan)}
+  .cv.amber{color:var(--amber)}
+
+  .filechip{
+    display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:13px;
+    background:rgba(10,13,24,0.6);border:1px solid var(--stroke);border-radius:9px;padding:9px 13px;
+    color:var(--ink);
+  }
+  .filechip .ic{color:var(--green)}
+
+  .callout{
+    border-left:3px solid var(--violet);padding:14px 18px;margin-top:18px;
+    background:rgba(139,123,255,0.07);border-radius:0 12px 12px 0;color:var(--muted);font-size:14.5px;
+  }
+  .callout b{color:var(--ink)}
+
+  /* CODE FILE artifact */
+  .codehead{
+    display:flex;align-items:center;gap:9px;padding:12px 16px;border-bottom:1px solid var(--stroke);
+    font-family:var(--mono);font-size:13px;color:var(--muted);
+  }
+  .tl-dot{width:11px;height:11px;border-radius:50%}
+  .codebody{padding:20px 22px;font-family:var(--mono);font-size:13.5px;color:var(--muted)}
+  .codebody .note{color:var(--faint);font-style:italic}
+  .derive{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .derive li{display:flex;gap:12px;font-size:14px;color:var(--muted)}
+  .derive li .n{
+    font-family:var(--mono);font-size:12px;color:var(--cyan);flex:none;width:22px;height:22px;
+    border:1px solid var(--stroke-strong);border-radius:6px;display:grid;place-items:center;
+  }
+  .derive li code{font-family:var(--mono);color:var(--ink);background:rgba(10,13,24,0.5);padding:1px 6px;border-radius:5px}
+
+  /* TIMELINE */
+  .timeline{position:relative;margin-left:8px;padding-left:30px}
+  .timeline::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;
+    background:linear-gradient(180deg,var(--violet),var(--cyan) 40%,var(--amber) 72%,var(--red))}
+  .tevent{position:relative;margin-bottom:22px}
+  .tevent::before{
+    content:"";position:absolute;left:-30px;top:5px;width:13px;height:13px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--violet);box-shadow:0 0 0 4px rgba(139,123,255,0.12);
+  }
+  .tevent.cyan::before{border-color:var(--cyan);box-shadow:0 0 0 4px rgba(57,211,238,0.12)}
+  .tevent.amber::before{border-color:var(--amber);box-shadow:0 0 0 4px rgba(255,179,71,0.14)}
+  .tevent.red::before{border-color:var(--red);box-shadow:0 0 0 4px rgba(255,107,107,0.14)}
+  .tevent .tstep{
+    font-family:var(--mono);font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.6px;
+  }
+  .tevent h4{font-size:1.02rem;font-weight:640;margin:3px 0 5px}
+  .tevent p{color:var(--muted);font-size:14px;margin:0}
+  .tevent .tool{
+    display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--cyan);
+    background:rgba(57,211,238,0.08);border:1px solid var(--stroke);border-radius:6px;
+    padding:2px 8px;margin-top:8px;margin-right:6px;
+  }
+  .tool.write{color:var(--green);background:rgba(76,224,168,0.08)}
+  .tool.kill{color:var(--red);background:rgba(255,107,107,0.08)}
+
+  /* POLL MONITOR */
+  .monitor{margin-top:12px}
+  .monitor-head{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px;
+  }
+  .monitor-head .mtitle{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .live{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12px;color:var(--amber)}
+  .live .pulse{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 1.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,179,71,0.5)}50%{opacity:.4;box-shadow:0 0 0 6px rgba(255,179,71,0)}}
+  .polls{
+    font-family:var(--mono);font-size:12.5px;background:rgba(6,8,16,0.7);border:1px solid var(--stroke);
+    border-radius:12px;padding:8px 4px;max-height:230px;overflow-y:auto;
+  }
+  .poll{
+    display:flex;align-items:center;gap:12px;padding:5px 14px;border-radius:6px;
+    opacity:0;transform:translateX(-8px);
+  }
+  .poll.shown{opacity:1;transform:none;transition:.3s}
+  .poll:hover{background:rgba(130,150,220,0.05)}
+  .poll .ts{color:var(--faint);flex:none}
+  .poll .st{color:var(--amber)}
+  .poll .st.warn{color:var(--red)}
+  .poll .st.info{color:var(--cyan)}
+  .poll .cmd{color:var(--muted);margin-left:auto;font-size:11.5px}
+  .polls::-webkit-scrollbar{width:8px}
+  .polls::-webkit-scrollbar-thumb{background:var(--stroke-strong);border-radius:8px}
+  .mstats{display:flex;gap:22px;flex-wrap:wrap;margin-top:16px}
+  .mstat .mv{font-size:1.5rem;font-weight:700;font-family:var(--mono)}
+  .mstat .ml{font-size:12px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px}
+
+  /* OUTCOME */
+  .verdict{
+    padding:30px 32px;border-radius:20px;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,rgba(255,107,107,0.09),rgba(255,179,71,0.05));
+    border:1px solid rgba(255,107,107,0.24);
+  }
+  .verdict .badge{
+    display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;
+    color:var(--red);border:1px solid rgba(255,107,107,0.4);border-radius:999px;padding:6px 14px;
+    text-transform:uppercase;letter-spacing:1px;margin-bottom:18px;
+  }
+  .verdict h3{font-size:1.5rem;font-weight:700;margin-bottom:12px;letter-spacing:-.4px}
+  .verdict p{color:var(--muted);max-width:640px;margin-bottom:10px}
+  .verdict p b{color:var(--ink)}
+  .checks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+  @media(max-width:680px){.checks{grid-template-columns:1fr}}
+  .check{
+    display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:12px;
+    background:rgba(10,13,24,0.5);border:1px solid var(--stroke);
+  }
+  .check .mk{font-family:var(--mono);font-weight:700;flex:none;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:13px}
+  .mk.no{color:var(--red);background:rgba(255,107,107,0.14)}
+  .mk.mid{color:var(--amber);background:rgba(255,179,71,0.14)}
+  .check .ct{font-size:13.5px}
+  .check .ct b{display:block;color:var(--ink);font-size:14px;margin-bottom:2px}
+  .check .ct span{color:var(--muted)}
+
+  /* DETAILS accordion */
+  details{
+    background:var(--panel);border:1px solid var(--stroke);border-radius:14px;margin-top:14px;
+    overflow:hidden;transition:.2s;
+  }
+  details[open]{border-color:var(--stroke-strong)}
+  summary{
+    cursor:pointer;padding:16px 20px;font-weight:600;font-size:15px;list-style:none;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary .chev{font-family:var(--mono);color:var(--violet);transition:.25s;font-size:18px}
+  details[open] summary .chev{transform:rotate(90deg)}
+  .details-body{padding:0 20px 20px;color:var(--muted);font-size:14.5px}
+  .details-body code{font-family:var(--mono);color:var(--cyan);background:rgba(10,13,24,0.5);padding:1px 6px;border-radius:5px;font-size:13px}
+  .steplog{font-family:var(--mono);font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .steplog .row{display:flex;gap:12px;padding:4px 0;border-bottom:1px dashed var(--stroke)}
+  .steplog .row .si{color:var(--faint);flex:none;width:30px}
+  .steplog .row .sa{flex:none;width:64px}
+  .sa.a{color:var(--violet)}.sa.u{color:var(--amber)}
+  .steplog .row .sm{color:var(--muted)}
+
+  /* FOOTER */
+  footer{padding:48px 0 60px;border-top:1px solid var(--stroke);margin-top:40px}
+  .foot-grid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:26px}
+  .foot-meta{font-family:var(--mono);font-size:12.5px;color:var(--faint);line-height:2}
+  .foot-meta b{color:var(--muted);font-weight:500}
+  .prov{max-width:420px;font-size:13px;color:var(--faint)}
+  .prov .warn-tag{color:var(--amber)}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-inner">
+    <div class="brand">
+      <span class="logo"></span>
+      <span>distribution-search<br><small>terminal_devops · 05</small></span>
+    </div>
+    <div class="nav-links">
+      <a href="#task">Task</a>
+      <a href="#approach">Approach</a>
+      <a href="#run">Run</a>
+      <a href="#outcome">Outcome</a>
+      <a class="nav-pill" href="#outcome">● TerminalBench</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span> Agent trajectory · claude-haiku-4-5 · claude-code</div>
+    <h1 class="title">Two KL divergences,<br><span class="grad">one distribution to find.</span></h1>
+    <p class="lede">A terminal agent is asked to construct a probability vector over a <b>150,000-token</b> vocabulary whose forward <i>and</i> backward KL divergence from uniform both equal exactly <b>10.0</b>. It wrote a solver, launched it, and then watched it hang &mdash; polling for output <b>22 times</b> before killing the shell.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#run">▶ Replay the run</a>
+      <a class="btn btn-ghost" href="#task">Read the spec</a>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="k">Duration</div><div class="v">230<small>s</small></div></div>
+      <div class="stat"><div class="k">Cost</div><div class="v">8.49<small>¢</small></div></div>
+      <div class="stat"><div class="k">Input tokens</div><div class="v">772<small>K</small></div></div>
+      <div class="stat"><div class="k">Output tokens</div><div class="v">1,366</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="task">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">// The specification</div>
+      <h2>Confidence, measured as distance from uniform</h2>
+      <p>The task frames token-prediction confidence as KL divergence from the uniform distribution <b>U</b>. The goal: a valid distribution <b>P</b> that sits at divergence 10.0 in <i>both</i> directions at once.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card spec reveal">
+        <h3><span class="b"></span> The two metrics</h3>
+        <div class="kl">
+          <span class="lbl">Forward KL — confidence of P</span>
+          <span class="eq">KL(P&#8741;U) <span class="op">=</span> <span class="term">&Sigma;<sub>i</sub></span> P(i) · log( P(i) / U(i) ) <span class="op">=</span> 10.0</span>
+        </div>
+        <div class="kl">
+          <span class="lbl">Backward KL — surprise of U under P</span>
+          <span class="eq">KL(U&#8741;P) <span class="op">=</span> <span class="term">&Sigma;<sub>i</sub></span> U(i) · log( U(i) / P(i) ) <span class="op">=</span> 10.0</span>
+        </div>
+        <div class="callout">Both divergences must land within <b>±0.001</b> of 10.0. Higher KL means the model is <b>more confident</b> — its mass has pulled away from the flat uniform baseline.</div>
+      </div>
+
+      <div class="card spec reveal">
+        <h3><span class="b"></span> Constraints</h3>
+        <ul class="constraints">
+          <li><span class="cn">Vocabulary size · n</span><span class="cv hi">150,000</span></li>
+          <li><span class="cn">Uniform baseline · U(i)</span><span class="cv">1 / n</span></li>
+          <li><span class="cn">Target KL(P&#8741;U)</span><span class="cv hi">10.0</span></li>
+          <li><span class="cn">Target KL(U&#8741;P)</span><span class="cv hi">10.0</span></li>
+          <li><span class="cn">Tolerance</span><span class="cv amber">± 0.001</span></li>
+          <li><span class="cn">P must be valid</span><span class="cv">&Sigma; P = 1, P ≥ 0</span></li>
+        </ul>
+        <div style="margin-top:18px">
+          <div class="filechip"><span class="ic">◆</span> /app/dist.npy <span style="color:var(--faint)">— NumPy array output</span></div>
+        </div>
+        <div class="callout" style="border-color:var(--cyan);background:rgba(57,211,238,0.06)">Toolkit provided: <b>numpy</b> + <b>scipy</b>. For n = 150,000, log(n) ≈ <b>11.918</b> — leaving little headroom above the target of 10.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="approach">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">// The plan</div>
+      <h2>The agent's reasoning, then a script</h2>
+      <p>Before writing code the agent restated the algebra, then committed a single solver file and launched it as a background process.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card reveal">
+        <div class="codehead">
+          <span class="tl-dot" style="background:#ff5f57"></span>
+          <span class="tl-dot" style="background:#febc2e"></span>
+          <span class="tl-dot" style="background:#28c840"></span>
+          <span style="margin-left:8px">find_distribution.py</span>
+          <span style="margin-left:auto;color:var(--green)">Write ✓</span>
+        </div>
+        <div class="codebody">
+          <p class="note">// The solver source was not captured in the recording.<br>// What the trajectory preserves is the reasoning behind it:</p>
+          <ul class="derive" style="margin-top:16px">
+            <li><span class="n">1</span><div>Forward KL expands over <code>U(i) = 1/n</code> as a weighted log-ratio sum.</div></li>
+            <li><span class="n">2</span><div>Backward KL rewrites to <code>KL(U&#8741;P) = log(n) − (1/n)·Σ log P(i)</code>.</div></li>
+            <li><span class="n">3</span><div>Concentrated mass raises forward KL; spreading it up-weights the log term — the two targets pull against each other.</div></li>
+            <li><span class="n">4</span><div>Search numerically for a P that balances both at 10.0, then <code>np.save</code> to <code>/app/dist.npy</code>.</div></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card spec reveal">
+        <h3><span class="b"></span> Todo plan (all opened, none closed)</h3>
+        <ul class="constraints">
+          <li><span class="cn">① Understand KL properties &amp; constraints</span><span class="cv amber">in&nbsp;progress</span></li>
+          <li><span class="cn">② Implement KL calculations</span><span class="cv" style="color:var(--faint)">pending</span></li>
+          <li><span class="cn">③ Find distribution satisfying both KLs</span><span class="cv" style="color:var(--faint)">pending</span></li>
+          <li><span class="cn">④ Save distribution to /app/dist.npy</span><span class="cv" style="color:var(--faint)">pending</span></li>
+        </ul>
+        <div class="callout">The plan was logged via <b>TodoWrite</b> at the start of the run and never revisited — every item remained open when the trajectory ended.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="run">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">// The execution</div>
+      <h2>Launch, then a polling loop that never resolved</h2>
+      <p>The solver was started in the background as shell <span style="font-family:var(--mono);color:var(--cyan)">66e6c5</span>. Over the next ~46 seconds the agent repeatedly checked its output — it stayed <span style="color:var(--amber)">running</span> every time.</p>
+    </div>
+
+    <div class="grid-2" style="grid-template-columns:.92fr 1.08fr">
+      <div>
+        <div class="timeline reveal">
+          <div class="tevent"><div class="tstep">step · warmup</div><h4>Persona boot</h4><p>Agent introduces itself as a "file search specialist" before the real task arrives.</p></div>
+          <div class="tevent cyan"><div class="tstep">step · task in</div><h4>KL task received</h4><p>Reads the two-sided KL constraint over a 150K vocabulary.</p><span class="tool">TodoWrite</span></div>
+          <div class="tevent"><div class="tstep">step · reasoning</div><h4>Restates the algebra</h4><p>Derives the backward-KL / entropy form before coding.</p></div>
+          <div class="tevent cyan"><div class="tstep">step · artifact</div><h4>Writes the solver</h4><p>Commits <span style="font-family:var(--mono)">find_distribution.py</span> to /app.</p><span class="tool write">Write</span></div>
+          <div class="tevent amber"><div class="tstep">step · launch</div><h4>Runs in background</h4><p><span style="font-family:var(--mono)">python find_distribution.py</span> → shell 66e6c5.</p><span class="tool">Bash</span></div>
+          <div class="tevent amber"><div class="tstep">steps · the wait</div><h4>22× poll loop</h4><p>BashOutput returns <b>running</b> each time; a mid-loop <span style="font-family:var(--mono)">ls</span> confirms dist.npy is absent.</p><span class="tool">BashOutput ×22</span><span class="tool">Bash ls</span></div>
+          <div class="tevent red"><div class="tstep">step · give up</div><h4>Diagnoses &amp; kills</h4><p>"The analytical search loop is taking too long." Plans a rewrite, then terminates the shell.</p><span class="tool kill">KillShell</span></div>
+        </div>
+      </div>
+
+      <div class="card spec reveal">
+        <div class="monitor">
+          <div class="monitor-head">
+            <span class="mtitle">shell 66e6c5 · output monitor</span>
+            <span class="live"><span class="pulse"></span> polling…</span>
+          </div>
+          <div class="polls" id="polls"></div>
+          <div class="mstats">
+            <div class="mstat"><div class="mv" style="color:var(--amber)">22</div><div class="ml">poll calls</div></div>
+            <div class="mstat"><div class="mv" style="color:var(--cyan)">~46s</div><div class="ml">spent waiting</div></div>
+            <div class="mstat"><div class="mv" style="color:var(--red)">0</div><div class="ml">bytes of stdout</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="outcome">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">// The result</div>
+      <h2>Unresolved</h2>
+      <p>The recording ends immediately after the shell is killed — before any replacement solver is written or run.</p>
+    </div>
+
+    <div class="verdict reveal">
+      <span class="badge">● Task not completed</span>
+      <h3>The required artifact was never produced.</h3>
+      <p>The agent correctly reasoned about the math and wrote a solver, but its numerical search hung. After ~46 seconds of polling an empty output stream, it recognized the loop was <b>"taking too long"</b>, announced a plan to rewrite with a better approach, and killed the process.</p>
+      <p>The trajectory terminates at the <b>KillShell</b> call — the promised rewrite never appears in the recording. No <b>/app/dist.npy</b> exists at any observed point.</p>
+      <div class="checks">
+        <div class="check"><span class="mk no">✕</span><div class="ct"><b>dist.npy created</b><span>Explicitly checked mid-run: "No such file or directory."</span></div></div>
+        <div class="check"><span class="mk no">✕</span><div class="ct"><b>KL constraints met</b><span>No distribution was ever produced or verified.</span></div></div>
+        <div class="check"><span class="mk mid">◐</span><div class="ct"><b>Approach reasonable</b><span>Algebra and file layout were sound; execution stalled.</span></div></div>
+        <div class="check"><span class="mk mid">◐</span><div class="ct"><b>Recovery attempted</b><span>Diagnosed the hang, but ran out of trajectory before retrying.</span></div></div>
+      </div>
+    </div>
+
+    <details class="reveal">
+      <summary>Why did it hang? <span class="chev">›</span></summary>
+      <div class="details-body">
+        The agent's own diagnosis: <em>"the analytical search loop is taking too long."</em> The solver iterated a search over a <code>150,000</code>-element distribution while trying to hit two tight <code>±0.001</code> targets simultaneously. With the process launched in the background and no incremental stdout, every <code>BashOutput</code> call returned only a bare <code>running</code> status — giving the agent no signal to act on except elapsed time. It waited, re-checked, waited again, and finally cut it off.
+      </div>
+    </details>
+
+    <details class="reveal">
+      <summary>Full step log <span class="chev">›</span></summary>
+      <div class="details-body">
+        <div class="steplog">
+          <div class="row"><span class="si">01</span><span class="sa u">user</span><span class="sm">Warmup</span></div>
+          <div class="row"><span class="si">02</span><span class="sa u">user</span><span class="sm">Warmup</span></div>
+          <div class="row"><span class="si">03</span><span class="sa a">agent</span><span class="sm">"I'm Claude Code… file search specialist" — persona intro</span></div>
+          <div class="row"><span class="si">04</span><span class="sa a">agent</span><span class="sm">Second self-intro, notes /app on Linux</span></div>
+          <div class="row"><span class="si">05</span><span class="sa u">user</span><span class="sm">Task statement (KL distribution search)</span></div>
+          <div class="row"><span class="si">06</span><span class="sa a">agent</span><span class="sm">Acknowledges, will find distribution</span></div>
+          <div class="row"><span class="si">07</span><span class="sa a">agent</span><span class="sm">TodoWrite — 4 tasks opened</span></div>
+          <div class="row"><span class="si">08</span><span class="sa a">agent</span><span class="sm">Restates forward/backward KL algebra</span></div>
+          <div class="row"><span class="si">09</span><span class="sa a">agent</span><span class="sm">Write → /app/find_distribution.py</span></div>
+          <div class="row"><span class="si">10</span><span class="sa a">agent</span><span class="sm">Bash → python find_distribution.py (bg 66e6c5)</span></div>
+          <div class="row"><span class="si">11–33</span><span class="sa a">agent</span><span class="sm">BashOutput ×22 → status: running; ls → dist.npy absent</span></div>
+          <div class="row"><span class="si">34</span><span class="sa a">agent</span><span class="sm">"Script might be stuck… let me rewrite"</span></div>
+          <div class="row"><span class="si">35</span><span class="sa a">agent</span><span class="sm">KillShell 66e6c5 — <b style="color:var(--red)">trajectory ends</b></span></div>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div class="foot-meta">
+      <div><b>benchmark</b> &nbsp; TerminalBench · terminal_devops</div>
+      <div><b>case</b> &nbsp; 05_distribution-search</div>
+      <div><b>model</b> &nbsp; claude-haiku-4-5-20251001@anthropic</div>
+      <div><b>agent</b> &nbsp; claude-code · trial 7jYjH73</div>
+      <div><b>format</b> &nbsp; terminalbench-json</div>
+    </div>
+    <div class="prov">
+      <p><span class="warn-tag">note</span> — The <code style="font-family:var(--mono);color:var(--cyan)">reward</code> field was stripped from this case, and the task statement was restored from the official terminal-bench registry (the source recording lost the instruction). Outcome above is inferred from observed tool results, not a graded score.</p>
+      <p style="margin-top:12px;color:var(--faint)">Presentation generated from trajectory.json · no external resources loaded.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // nav scroll state
+  const nav=document.getElementById('nav');
+  const onScroll=()=>nav.classList.toggle('scrolled',window.scrollY>24);
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+  // reveal on scroll
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // poll monitor data (all timestamps 20:31:xx UTC)
+  const polls=[
+    ['20:31:13','running','BashOutput'],['20:31:15','running','BashOutput'],
+    ['20:31:16','running','BashOutput'],['20:31:18','running','BashOutput'],
+    ['20:31:20','running','BashOutput'],['20:31:24','running','BashOutput'],
+    ['20:31:25','running','BashOutput'],['20:31:27','running','BashOutput'],
+    ['20:31:29','running','BashOutput'],['20:31:31','running','BashOutput'],
+    ['20:31:34','running','BashOutput'],['20:31:36','running','BashOutput'],
+    ['20:31:38','running','BashOutput'],['20:31:39','running','BashOutput'],
+    ['20:31:41','dist.npy → not found','ls','info'],
+    ['20:31:45','running','BashOutput'],['20:31:46','running','BashOutput'],
+    ['20:31:49','running','BashOutput'],['20:31:50','running','BashOutput'],
+    ['20:31:52','running','BashOutput'],['20:31:54','running','BashOutput'],
+    ['20:31:56','running','BashOutput'],['20:31:59','running','BashOutput'],
+    ['20:32:01','shell killed — giving up','KillShell','warn'],
+  ];
+  const box=document.getElementById('polls');
+  const rows=polls.map(([ts,st,cmd,cls])=>{
+    const kind=cls||'';
+    return `<div class="poll"><span class="ts">${ts}</span><span class="st ${kind}">${kind==='warn'?'✕':kind==='info'?'○':'●'} ${st}</span><span class="cmd">${cmd}</span></div>`;
+  }).join('');
+  box.innerHTML=rows;
+
+  // animate poll rows in when monitor is on screen
+  const nodes=[...box.querySelectorAll('.poll')];
+  let started=false;
+  const mio=new IntersectionObserver((es)=>{
+    es.forEach(e=>{
+      if(e.isIntersecting&&!started){
+        started=true;
+        nodes.forEach((n,i)=>setTimeout(()=>{
+          n.classList.add('shown');
+          box.scrollTop=box.scrollHeight;
+        },i*120));
+      }
+    });
+  },{threshold:0.3});
+  mio.observe(box);
+</script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Report · crack-7z-hash</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --bg2:#121a35;
+    --card:rgba(255,255,255,0.06);
+    --card-brd:rgba(255,255,255,0.12);
+    --ink:#eef2ff;
+    --muted:#a9b4d6;
+    --accent:#7c9cff;
+    --accent2:#59e6c3;
+    --warn:#ffb454;
+    --bad:#ff6b7d;
+    --good:#5ee0a0;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;font-family:var(--sans);color:var(--ink);
+    background:
+      radial-gradient(1200px 700px at 12% -10%,rgba(124,156,255,0.22),transparent 60%),
+      radial-gradient(900px 600px at 100% 0%,rgba(89,230,195,0.16),transparent 55%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    background-attachment:fixed;line-height:1.6;
+  }
+  a{color:var(--accent)}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+
+  /* Nav */
+  nav{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;transition:background .3s ease,box-shadow .3s ease,backdrop-filter .3s ease;
+    border-bottom:1px solid transparent;
+  }
+  nav.scrolled{
+    background:rgba(11,16,32,0.72);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--card-brd);box-shadow:0 10px 30px rgba(0,0,0,0.35);
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
+  .logo{width:30px;height:30px;border-radius:9px;
+    background:conic-gradient(from 200deg,var(--accent),var(--accent2),var(--accent));
+    box-shadow:0 6px 18px rgba(124,156,255,0.5)}
+  .navlinks{display:none;gap:22px}
+  .navlinks a{color:var(--muted);text-decoration:none;font-size:14px}
+  .navlinks a:hover{color:var(--ink)}
+  .pill{font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--card-brd);
+    background:var(--card);color:var(--muted)}
+  @media(min-width:820px){.navlinks{display:flex}}
+
+  /* Hero */
+  header.hero{padding:64px 0 30px}
+  .kicker{display:inline-block;font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent2);border:1px solid var(--card-brd);
+    padding:6px 12px;border-radius:999px;background:var(--card)}
+  h1{font-size:clamp(30px,6vw,52px);line-height:1.08;margin:18px 0 10px;letter-spacing:-.02em}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:70ch}
+  .meta-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:26px}
+  @media(min-width:720px){.meta-grid{grid-template-columns:repeat(4,1fr)}}
+  .stat{padding:16px;border-radius:14px;background:var(--card);border:1px solid var(--card-brd)}
+  .stat .n{font-size:20px;font-weight:700}
+  .stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+  section{padding:40px 0;border-top:1px solid rgba(255,255,255,0.06)}
+  h2{font-size:clamp(22px,3.6vw,30px);margin:0 0 6px;letter-spacing:-.01em}
+  h2 .num{font-family:var(--mono);color:var(--accent);font-size:15px;margin-right:10px}
+  .sub{color:var(--muted);margin:0 0 22px;max-width:72ch}
+
+  .cards{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:760px){.cards.two{grid-template-columns:1fr 1fr}
+    .cards.three{grid-template-columns:repeat(3,1fr)}}
+  .card{padding:18px;border-radius:16px;background:var(--card);border:1px solid var(--card-brd);
+    backdrop-filter:blur(8px);transition:transform .25s ease,box-shadow .25s ease,border-color .25s}
+  .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,0.4);
+    border-color:rgba(124,156,255,0.5)}
+  .card h3{margin:0 0 6px;font-size:16px}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+  .tag{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:6px;
+    margin-bottom:8px}
+  .t-good{background:rgba(94,224,160,0.14);color:var(--good)}
+  .t-bad{background:rgba(255,107,125,0.14);color:var(--bad)}
+  .t-warn{background:rgba(255,180,84,0.14);color:var(--warn)}
+  .t-info{background:rgba(124,156,255,0.14);color:var(--accent)}
+
+  code,pre{font-family:var(--mono)}
+  pre{background:rgba(5,8,18,0.7);border:1px solid var(--card-brd);border-radius:12px;
+    padding:14px 16px;overflow-x:auto;font-size:12.5px;color:#dfe6ff;margin:0}
+  code.inline{background:rgba(5,8,18,0.6);border:1px solid var(--card-brd);border-radius:6px;
+    padding:1px 6px;font-size:12.5px}
+  .kv{word-break:break-all}
+
+  /* Timeline */
+  .timeline{position:relative;margin-top:8px;padding-left:26px}
+  .timeline::before{content:"";position:absolute;left:8px;top:4px;bottom:4px;width:2px;
+    background:linear-gradient(180deg,var(--accent),var(--accent2))}
+  .step{position:relative;padding:12px 0 12px 8px}
+  .step::before{content:"";position:absolute;left:-22px;top:18px;width:12px;height:12px;
+    border-radius:50%;background:var(--bg);border:2px solid var(--accent);box-shadow:0 0 0 3px rgba(124,156,255,0.18)}
+  .step.ok::before{border-color:var(--good)}
+  .step.err::before{border-color:var(--bad)}
+  .step.warn::before{border-color:var(--warn)}
+  .step .cmd{font-family:var(--mono);font-size:13px;color:var(--ink)}
+  .step .desc{color:var(--muted);font-size:13.5px;margin-top:2px}
+
+  details{background:var(--card);border:1px solid var(--card-brd);border-radius:14px;
+    padding:0 16px;margin-bottom:12px;overflow:hidden}
+  details[open]{box-shadow:0 12px 30px rgba(0,0,0,0.3)}
+  summary{cursor:pointer;list-style:none;padding:16px 0;font-weight:600;display:flex;
+    align-items:center;gap:10px}
+  summary::-webkit-details-marker{display:none}
+  summary .chev{margin-left:auto;transition:transform .25s;color:var(--muted)}
+  details[open] summary .chev{transform:rotate(90deg)}
+  details .body{padding:0 0 16px;color:var(--muted);font-size:14px}
+  details .body pre{margin-top:10px}
+
+  .note{border-left:3px solid var(--warn);background:rgba(255,180,84,0.08);
+    padding:14px 18px;border-radius:0 12px 12px 0}
+  .note ul{margin:8px 0 0;padding-left:18px}
+  .note li{margin:4px 0;color:var(--muted);font-size:14px}
+
+  .result{display:flex;flex-wrap:wrap;gap:16px;align-items:stretch}
+  .result .big{flex:1 1 260px;padding:22px;border-radius:18px;
+    background:linear-gradient(135deg,rgba(94,224,160,0.14),rgba(124,156,255,0.10));
+    border:1px solid rgba(94,224,160,0.35)}
+  .result .big .l{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .result .big .v{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--good);margin-top:6px;word-break:break-all}
+
+  footer{padding:34px 0 60px;color:var(--muted);font-size:13px;text-align:center;
+    border-top:1px solid rgba(255,255,255,0.06)}
+
+  /* scroll-in animation */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="brand"><span class="logo" aria-hidden="true"></span> Case Report</div>
+  <div class="navlinks">
+    <a href="#objective">Objective</a>
+    <a href="#timeline">Timeline</a>
+    <a href="#evidence">Evidence</a>
+    <a href="#failures">Failures</a>
+    <a href="#result">Result</a>
+    <a href="#faith">Notes</a>
+  </div>
+  <span class="pill">TerminalBench · 04</span>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="kicker">crack-7z-hash · terminal devops</span>
+    <h1>Recovering a word from a<br><span class="grad">password-protected 7z archive</span></h1>
+    <p class="lede">A recorded agent run was tasked with extracting a secret from an encrypted archive
+    and writing it to a solution file. It stumbled through missing tools and false positives before
+    cracking the password with John the Ripper. This report documents that single recorded case as evidence.</p>
+    <div class="meta-grid">
+      <div class="stat"><div class="n">claude-haiku-4-5</div><div class="l">Model</div></div>
+      <div class="stat"><div class="n">~564 s</div><div class="l">Duration</div></div>
+      <div class="stat"><div class="n">~18.9¢</div><div class="l">Cost</div></div>
+      <div class="stat"><div class="n">reward stripped</div><div class="l">Grade unknown</div></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="objective" class="reveal">
+    <h2><span class="num">01</span>Objective</h2>
+    <p class="sub">The task statement given to the agent, verbatim in intent.</p>
+    <div class="card">
+      <span class="tag t-info">TASK STATEMENT</span>
+      <p style="color:var(--ink);font-size:15px">Create a file called <code class="inline">/app/solution.txt</code>
+      containing the word found in <code class="inline">secret_file.txt</code>, which lives inside the
+      <code class="inline">secrets.7z</code> archive.</p>
+    </div>
+    <div class="cards three" style="margin-top:16px">
+      <div class="card"><span class="tag t-info">SETTING</span><h3>Starting files</h3>
+        <p>The <code class="inline">/app</code> directory held a 215-byte <code class="inline">secrets.7z</code>
+        and a <code class="inline">john</code> directory (a John the Ripper source tree).</p></div>
+      <div class="card"><span class="tag t-info">ARCHIVE</span><h3>Encryption</h3>
+        <p>The archive used <code class="inline">LZMA2:12 7zAES</code> with encrypted headers. Extraction
+        required the correct password.</p></div>
+      <div class="card"><span class="tag t-info">RUN</span><h3>Warmup</h3>
+        <p>Two warmup turns preceded the task. The agent introduced itself as a file-search specialist
+        before receiving the real instruction.</p></div>
+    </div>
+  </section>
+
+  <section id="timeline" class="reveal">
+    <h2><span class="num">02</span>What the agent did</h2>
+    <p class="sub">Recorded sequence of actions. Colored markers indicate success, error, or a misleading result.</p>
+    <div class="timeline">
+      <div class="step"><div class="cmd">ls -la /app</div>
+        <div class="desc">Found <code class="inline">secrets.7z</code> (215 bytes) and the <code class="inline">john</code> directory.</div></div>
+      <div class="step err"><div class="cmd">file /app/secrets.7z  ·  7z x  ·  which 7zr 7za p7zip</div>
+        <div class="desc">All failed. <code class="inline">file</code> and <code class="inline">7z</code> were not installed (exit 127); lookup returned nothing (exit 1).</div></div>
+      <div class="step ok"><div class="cmd">apt-get install -y p7zip-full</div>
+        <div class="desc">Installed the 7-Zip toolchain. Recorded output is an opaque placeholder, so exact install log is not in evidence.</div></div>
+      <div class="step warn"><div class="cmd">7z x /app/secrets.7z -o/app</div>
+        <div class="desc">Archive is password-protected. 7-Zip prompted for a password and exited with an error.</div></div>
+      <div class="step"><div class="cmd">ls /app/john · git log · grep password/secret/7z</div>
+        <div class="desc">Explored the John the Ripper directory and its git history for hints. Saw the word "openwall".</div></div>
+      <div class="step err"><div class="cmd">echo "openwall" | 7z x ... -si</div>
+        <div class="desc">Wrong password, and the stdin (<code class="inline">-si</code>) method is not implemented for encrypted archives (E_NOTIMPL).</div></div>
+      <div class="step"><div class="cmd">git log grep for "secrets" candidates</div>
+        <div class="desc">Extracted a list of guessed passwords from git history: nomoresecrets, secrets4u, chamberofsecrets, toomanysecrets, and more.</div></div>
+      <div class="step warn"><div class="cmd">/tmp/try_passwords.sh (loop with -si)</div>
+        <div class="desc">Script reported <b>SUCCESS with password: nomoresecrets</b>. This was a false positive: the exit check read the pipe, not 7-Zip.</div></div>
+      <div class="step err"><div class="cmd">7z x -pnomoresecrets /app/secrets.7z</div>
+        <div class="desc">"Data Error in encrypted file. Wrong password?" confirmed the false positive. This attempt left an empty <code class="inline">/app/secrets</code> folder.</div></div>
+      <div class="step err"><div class="cmd">inline for-loops over candidate passwords</div>
+        <div class="desc">Two attempts hit shell syntax errors (parenthesis in eval). The agent moved to script files instead.</div></div>
+      <div class="step"><div class="cmd">/tmp/crack.sh · /tmp/test_pw.sh</div>
+        <div class="desc">Tested many "secrets"-themed guesses with <code class="inline">-p</code>. None produced "Everything is Ok".</div></div>
+      <div class="step ok"><div class="cmd">perl 7z2john.pl /app/secrets.7z</div>
+        <div class="desc">After installing <code class="inline">libcompress-raw-lzma-perl</code>, generated a John-format hash of the archive.</div></div>
+      <div class="step err"><div class="cmd">./john --wordlist=... /tmp/7z.hash</div>
+        <div class="desc">"No password hashes loaded" — the hash file was not parsed. Fixed by re-writing it with escaped <code class="inline">$</code> and <code class="inline">--format=7z</code>.</div></div>
+      <div class="step ok"><div class="cmd">./john --format=7z --wordlist=run/password.lst --fork=8</div>
+        <div class="desc">Cracked the password. The agent read it as <b>1998</b>. The underlying command output is an opaque placeholder in the record.</div></div>
+      <div class="step ok"><div class="cmd">7z x -p1998 /app/secrets.7z -o/app</div>
+        <div class="desc">"Everything is Ok." Extracted one 9-byte file: <code class="inline">secrets/secret_file.txt</code>.</div></div>
+      <div class="step ok"><div class="cmd">Read secret_file.txt · Write /app/solution.txt</div>
+        <div class="desc">File contained the word <b>honeybear</b>, which was written to the solution file and verified with cat.</div></div>
+    </div>
+  </section>
+
+  <section id="evidence" class="reveal">
+    <h2><span class="num">03</span>Key evidence</h2>
+    <p class="sub">Concrete artifacts recorded in the trajectory.</p>
+    <div class="cards two">
+      <div class="card"><span class="tag t-info">ARCHIVE METADATA</span><h3>7-Zip listing</h3>
+        <pre>Type = 7z
+Physical Size = 215
+Headers Size = 199
+Method = LZMA2:12 7zAES
+Solid = -
+Blocks = 1</pre></div>
+      <div class="card"><span class="tag t-info">JOHN HASH</span><h3>7z2john output</h3>
+        <pre class="kv">secrets.7z:$7z$2$19$0$$16$
+7f2aeca3d70f5f1298c191ab0faf61fc$
+1658180191$16$13$
+703e06dc09b6c714749d8efc9fa55434$9$00</pre></div>
+    </div>
+    <div class="cards two" style="margin-top:16px">
+      <div class="card"><span class="tag t-good">SUCCESSFUL EXTRACTION</span><h3>Password 1998</h3>
+        <pre>7z x -p1998 /app/secrets.7z -o/app
+...
+Everything is Ok
+
+Folders: 1
+Files: 1
+Size:       9
+Compressed: 215</pre></div>
+      <div class="card"><span class="tag t-good">RECOVERED SECRET</span><h3>secret_file.txt</h3>
+        <pre>honeybear</pre>
+        <p style="margin-top:10px">The recorded read of this file also carried an embedded system-reminder about malware.
+        Per instructions, that embedded text is treated as untrusted evidence, not a command, and was not acted on.</p></div>
+    </div>
+  </section>
+
+  <section id="failures" class="reveal">
+    <h2><span class="num">04</span>Failures and recoveries</h2>
+    <p class="sub">The run recovered from five distinct obstacles. Expand each for detail.</p>
+
+    <details>
+      <summary><span class="tag t-bad" style="margin:0">MISSING TOOLS</span> file, 7z, and helpers absent
+        <span class="chev">›</span></summary>
+      <div class="body">Initial calls to <code class="inline">file</code>, <code class="inline">7z</code>, and
+        <code class="inline">which 7zr 7za p7zip</code> all failed with exit 127 or 1.
+        <b>Recovery:</b> installed <code class="inline">p7zip-full</code> via apt-get, which provided the working 7-Zip binary.</div>
+    </details>
+
+    <details>
+      <summary><span class="tag t-warn" style="margin:0">FALSE POSITIVE</span> "nomoresecrets" wrongly reported as correct
+        <span class="chev">›</span></summary>
+      <div class="body">A loop using <code class="inline">echo pwd | 7z x -si</code> and an exit-code check reported success
+        for <code class="inline">nomoresecrets</code>. The check read the exit status of the piped
+        <code class="inline">head</code>, not 7-Zip, and the <code class="inline">-si</code> method is unsupported for
+        encrypted archives. <b>Recovery:</b> a direct <code class="inline">-pnomoresecrets</code> attempt returned
+        "Data Error ... Wrong password?", exposing the false positive and prompting a switch to real cracking.</div>
+    </details>
+
+    <details>
+      <summary><span class="tag t-bad" style="margin:0">SHELL SYNTAX</span> inline password loops failed to parse
+        <span class="chev">›</span></summary>
+      <div class="body">Two inline <code class="inline">for</code> loops with array syntax triggered
+        "syntax error near unexpected token '('". <b>Recovery:</b> the agent wrote the loops into
+        <code class="inline">/tmp</code> script files and ran them with bash.</div>
+    </details>
+
+    <details>
+      <summary><span class="tag t-bad" style="margin:0">MISSING PERL MODULE</span> 7z2john could not load Compress::Raw::Lzma
+        <span class="chev">›</span></summary>
+      <div class="body"><code class="inline">7z2john.pl</code> aborted because <code class="inline">Compress/Raw/Lzma.pm</code>
+        was missing. <b>Recovery:</b> installed <code class="inline">liblzma-dev</code> and
+        <code class="inline">libcompress-raw-lzma-perl</code>, after which the hash generated cleanly.</div>
+    </details>
+
+    <details>
+      <summary><span class="tag t-warn" style="margin:0">HASH NOT LOADED</span> John rejected the hash file
+        <span class="chev">›</span></summary>
+      <div class="body">The first John run said "No password hashes loaded". <b>Recovery:</b> the agent re-created the hash
+        file with escaped <code class="inline">$</code> characters and passed <code class="inline">--format=7z</code>,
+        then cracked the password using the bundled <code class="inline">password.lst</code> wordlist with
+        <code class="inline">--fork=8</code>.</div>
+    </details>
+  </section>
+
+  <section id="result" class="reveal">
+    <h2><span class="num">05</span>Final result</h2>
+    <p class="sub">The agent reported the task complete and verified its output file.</p>
+    <div class="result">
+      <div class="big"><div class="l">Archive password</div><div class="v">1998</div></div>
+      <div class="big"><div class="l">Recovered word</div><div class="v">honeybear</div></div>
+      <div class="big"><div class="l">Output file</div><div class="v">/app/solution.txt</div></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <span class="tag t-good">VERIFICATION</span>
+      <p style="color:var(--ink)">A final <code class="inline">cat /app/solution.txt</code> showed
+      <code class="inline">honeybear</code> and confirmed a 9-byte file. The agent's closing summary stated
+      the task was complete. Grading cannot be confirmed here because the reward field was stripped from the case.</p>
+    </div>
+  </section>
+
+  <section id="faith" class="reveal">
+    <h2><span class="num">06</span>Faithfulness note</h2>
+    <p class="sub">Limits of the evidence available in this case. These do not change the recorded outcome, but they bound what can be confirmed.</p>
+    <div class="note">
+      <ul>
+        <li><b>Opaque observations.</b> Several recorded command outputs are placeholders rather than literal text (the apt-get installs, the John directory listing, the git-log searches, and the final John crack output). The password <code class="inline">1998</code> comes from the agent's narration; the underlying crack output is a placeholder.</li>
+        <li><b>Grade unknown.</b> The <code class="inline">reward</code> field was stripped, so whether the run passed its automated grading cannot be verified from the case.</li>
+        <li><b>Hash mismatch.</b> The <code class="inline">trajectory_sha256</code> recorded inside the case metadata does not match the manifest hash for the trajectory file; the manifest was treated as authoritative.</li>
+        <li><b>Embedded prompt.</b> The recorded read of <code class="inline">secret_file.txt</code> contained a system-reminder about malware. It was treated as untrusted case content, not an instruction.</li>
+        <li><b>No media.</b> No images or other attachments were supplied with this case, so none are embedded.</li>
+        <li><b>Referenced-but-absent paths.</b> The metadata names a provenance path that is not part of the included inputs; it was not followed.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  Case 04 · crack-7z-hash · TerminalBench (terminal_devops). Documented from recorded trajectory evidence only.
+</footer>
+
+<script>
+  // Nav background on scroll
+  var nav=document.getElementById('nav');
+  function onScroll(){ if(window.scrollY>20){nav.classList.add('scrolled');}else{nav.classList.remove('scrolled');} }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  // Scroll-in reveal
+  var els=document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    },{threshold:0.12});
+    els.forEach(function(el){io.observe(el);});
+  } else { els.forEach(function(el){el.classList.add('in');}); }
+</script>
+</body>
+</html>

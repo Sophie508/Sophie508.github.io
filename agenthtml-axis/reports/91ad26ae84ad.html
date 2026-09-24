@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>North American Stock Indices 2018 | AgentHTML Case 04</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06091a;
+  --bg2:#0b1025;
+  --bg3:#111828;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.12);
+  --text:#eef2ff;
+  --text2:#94a3b8;
+  --text3:#64748b;
+  --blue:#3b82f6;
+  --purple:#8b5cf6;
+  --cyan:#06b6d4;
+  --up:#10b981;
+  --down:#ef4444;
+  --flat:#f59e0b;
+  --card:rgba(255,255,255,0.03);
+  --card2:rgba(255,255,255,0.06);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',Roboto,'Helvetica Neue',Arial,sans-serif;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,0.025) 1px,transparent 1px);
+  background-size:64px 64px;
+  pointer-events:none;z-index:0;
+}
+
+/* ─── NAV ─── */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  transition:background .3s,backdrop-filter .3s,border-color .3s,box-shadow .3s;
+  border-bottom:1px solid transparent;
+}
+#nav.scrolled{
+  background:rgba(6,9,26,.88);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-color:var(--border);
+  box-shadow:0 4px 30px rgba(0,0,0,.35);
+}
+.nav-inner{
+  max-width:1200px;margin:0 auto;padding:.9rem 1.5rem;
+  display:flex;align-items:center;gap:2rem;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:.6rem;
+  text-decoration:none;flex-shrink:0;
+}
+.nav-logo-box{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;
+}
+.nav-logo-text{
+  font-size:1rem;font-weight:800;letter-spacing:-.02em;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.nav-links{display:flex;gap:1.5rem;flex:1}
+.nav-links a{
+  color:var(--text2);text-decoration:none;font-size:.875rem;font-weight:500;
+  transition:color .2s;
+}
+.nav-links a:hover{color:var(--text)}
+.nav-pill{
+  font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:.28rem .75rem;border-radius:100px;
+  background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);
+  color:var(--blue);white-space:nowrap;
+}
+@media(max-width:700px){.nav-links{display:none}}
+
+/* ─── HERO ─── */
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  padding:6rem 0 4rem;position:relative;overflow:hidden;
+}
+.hero-glow1{
+  position:absolute;top:-180px;left:50%;transform:translateX(-60%);
+  width:900px;height:700px;
+  background:radial-gradient(ellipse,rgba(59,130,246,.07) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-glow2{
+  position:absolute;bottom:-100px;right:-150px;
+  width:600px;height:600px;
+  background:radial-gradient(ellipse,rgba(139,92,246,.05) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-inner{
+  max-width:1200px;margin:0 auto;padding:0 1.5rem;
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;
+  position:relative;z-index:1;
+}
+@media(max-width:860px){.hero-inner{grid-template-columns:1fr;gap:3rem}}
+
+.hero-tag{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--blue);background:rgba(59,130,246,.1);
+  border:1px solid rgba(59,130,246,.22);border-radius:100px;
+  padding:.32rem .9rem;margin-bottom:1.5rem;
+}
+.hero-tag::before{
+  content:'';width:6px;height:6px;background:var(--blue);border-radius:50%;
+  animation:blink 2s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.hero h1{
+  font-size:clamp(2rem,4vw,3.4rem);font-weight:800;
+  line-height:1.12;letter-spacing:-.03em;margin-bottom:1.25rem;
+}
+.grad{
+  background:linear-gradient(130deg,var(--blue) 0%,var(--cyan) 45%,var(--purple) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:1rem;color:var(--text2);line-height:1.75;margin-bottom:2rem;max-width:460px;
+}
+.answer-box{
+  display:inline-flex;align-items:center;gap:1rem;
+  background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.28);
+  border-radius:14px;padding:1rem 1.25rem;margin-bottom:2.25rem;
+}
+.answer-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--up)}
+.answer-value{font-size:1.6rem;font-weight:900;color:var(--up);letter-spacing:-.02em}
+.answer-sub{font-size:.78rem;color:rgba(16,185,129,.65);margin-top:.1rem}
+
+.hero-meta{display:flex;gap:2rem;flex-wrap:wrap}
+.meta-item{display:flex;flex-direction:column;gap:.15rem}
+.meta-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3)}
+.meta-val{font-size:.88rem;font-weight:600;color:var(--text2)}
+
+/* hero chart card */
+.hero-chart-card{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:20px;padding:1.75rem;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 0 60px rgba(59,130,246,.12);
+}
+.chart-caption{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);margin-bottom:1.25rem}
+
+/* ─── SECTION COMMON ─── */
+section{position:relative;z-index:1}
+.wrap{max-width:1200px;margin:0 auto;padding:0 1.5rem}
+.sec-lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:.6rem}
+.sec-h{font-size:clamp(1.7rem,2.8vw,2.6rem);font-weight:800;letter-spacing:-.025em;line-height:1.2;margin-bottom:.85rem}
+.sec-sub{font-size:.97rem;color:var(--text2);max-width:580px;margin-bottom:3rem}
+
+/* ─── RESULTS ─── */
+#results{padding:6rem 0}
+.idx-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:2.5rem}
+@media(max-width:860px){.idx-grid{grid-template-columns:1fr}}
+
+.idx-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:1.75rem;position:relative;overflow:hidden;
+  transition:transform .3s ease,box-shadow .3s ease,border-color .3s;
+}
+.idx-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.idx-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:20px 20px 0 0;background:var(--border2)}
+.idx-card.winner{
+  border-color:rgba(16,185,129,.28);
+  background:linear-gradient(180deg,rgba(16,185,129,.06) 0%,rgba(255,255,255,.02) 100%);
+}
+.idx-card.winner::after{background:linear-gradient(90deg,var(--up),var(--cyan))}
+.idx-card.winner:hover{box-shadow:0 20px 60px rgba(16,185,129,.18)}
+
+.idx-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem}
+.idx-sym{font-size:1.5rem;font-weight:900;letter-spacing:-.03em}
+.badge{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:.28rem .65rem;border-radius:100px}
+.badge-win{background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.28);color:var(--up)}
+.badge-lose{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--down)}
+.idx-exch{font-size:.78rem;color:var(--text3);margin-bottom:1.4rem}
+
+.bars{display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.25rem}
+.bar-row{display:flex;align-items:center;gap:.7rem}
+.bar-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;width:38px;flex-shrink:0}
+.lbl-up{color:var(--up)}.lbl-down{color:var(--down)}.lbl-flat{color:var(--flat)}
+.bar-track{flex:1;height:7px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;width:0;transition:width 1.1s cubic-bezier(.4,0,.2,1)}
+.fill-up{background:var(--up)}.fill-down{background:var(--down)}.fill-flat{background:var(--flat)}
+.bar-n{font-size:.78rem;font-weight:800;width:30px;text-align:right;flex-shrink:0}
+.n-up{color:var(--up)}.n-down{color:var(--down)}.n-flat{color:var(--flat)}
+
+.idx-foot{font-size:.72rem;color:var(--text3);padding-top:1rem;border-top:1px solid var(--border)}
+
+/* stat strip */
+.stat-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  overflow:hidden;
+}
+@media(max-width:680px){.stat-strip{grid-template-columns:1fr 1fr}}
+.stat-cell{
+  padding:1.5rem;text-align:center;border-right:1px solid var(--border);
+}
+.stat-cell:last-child{border-right:none}
+.stat-n{font-size:2rem;font-weight:900;letter-spacing:-.03em;line-height:1.1}
+.stat-lbl{font-size:.75rem;color:var(--text3);margin-top:.3rem}
+
+/* ─── METHODOLOGY ─── */
+#methodology{
+  padding:6rem 0;
+  background:linear-gradient(180deg,transparent 0%,rgba(59,130,246,.025) 50%,transparent 100%);
+}
+.method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+@media(max-width:860px){.method-grid{grid-template-columns:1fr}}
+.method-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:1.75rem;
+  transition:transform .3s ease,box-shadow .3s;
+}
+.method-card:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.method-num{
+  width:38px;height:38px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.85rem;font-weight:900;margin-bottom:1rem;
+}
+.method-title{font-size:1rem;font-weight:700;margin-bottom:.45rem}
+.method-desc{font-size:.85rem;color:var(--text2);line-height:1.65;margin-bottom:.9rem}
+.code-snip{
+  font-size:.72rem;font-family:'SF Mono','Fira Code','Consolas',monospace;
+  color:var(--cyan);background:rgba(6,182,212,.05);
+  border:1px solid rgba(6,182,212,.12);border-radius:8px;
+  padding:.65rem .8rem;white-space:pre;overflow-x:auto;line-height:1.55;
+}
+
+/* ─── TRAJECTORY ─── */
+#trajectory{padding:6rem 0}
+.traj-wrap{position:relative;padding-left:2.25rem}
+.traj-wrap::before{
+  content:'';position:absolute;left:8px;top:10px;bottom:10px;width:2px;
+  background:linear-gradient(180deg,var(--blue),var(--purple),transparent);
+}
+.traj-step{position:relative;padding-left:2rem;margin-bottom:2.25rem}
+.traj-step:last-child{margin-bottom:0}
+.traj-dot{
+  position:absolute;left:-2.25rem;top:5px;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--bg3);border:2px solid;z-index:1;
+}
+.dot-ok{border-color:var(--up)}.dot-err{border-color:var(--down)}.dot-done{border-color:var(--flat);background:var(--flat)}
+.traj-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:1.2rem 1.4rem;
+}
+.traj-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:.65rem;flex-wrap:wrap;gap:.5rem}
+.traj-title{font-size:.92rem;font-weight:700}
+.traj-pill{
+  font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  padding:.2rem .55rem;border-radius:100px;
+}
+.pill-ok{background:rgba(16,185,129,.14);color:var(--up)}
+.pill-err{background:rgba(239,68,68,.14);color:var(--down)}
+.pill-done{background:rgba(245,158,11,.14);color:var(--flat)}
+.traj-desc{font-size:.83rem;color:var(--text2);margin-bottom:.75rem}
+.traj-out{
+  font-size:.71rem;font-family:'SF Mono','Fira Code','Consolas',monospace;
+  background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.05);
+  border-radius:8px;padding:.7rem .85rem;
+  white-space:pre;overflow-x:auto;max-height:190px;overflow-y:auto;
+  line-height:1.55;
+}
+.out-ok{color:#86efac}.out-err{color:#fca5a5}
+
+/* ─── DATASETS ─── */
+#datasets{
+  padding:6rem 0;
+  background:linear-gradient(180deg,transparent,rgba(139,92,246,.025) 50%,transparent);
+}
+.ds-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:680px){.ds-grid{grid-template-columns:1fr}}
+.ds-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:2rem;
+  transition:transform .3s,box-shadow .3s;
+}
+.ds-card:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.ds-icon{
+  width:46px;height:46px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  margin-bottom:1.2rem;
+}
+.icon-sql{background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.2)}
+.icon-duck{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2)}
+.ds-name{font-size:.97rem;font-weight:700;margin-bottom:.25rem}
+.ds-engine{
+  font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--cyan);margin-bottom:.65rem;
+}
+.ds-desc{font-size:.83rem;color:var(--text2);margin-bottom:1.1rem;line-height:1.6}
+.schema{
+  font-size:.7rem;font-family:'SF Mono','Fira Code','Consolas',monospace;
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.05);
+  border-radius:8px;padding:.7rem .85rem;
+}
+.sf{display:flex;gap:1rem;margin-bottom:.22rem}
+.sf:last-child{margin-bottom:0}
+.sf-name{color:var(--cyan);min-width:130px}
+.sf-type{color:var(--text3)}
+
+/* ─── FAQ ─── */
+#faq{padding:5rem 0}
+.faq-list{display:flex;flex-direction:column;gap:.75rem;max-width:720px}
+details{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;
+}
+details[open]{border-color:var(--border2)}
+summary{
+  padding:1.1rem 1.4rem;cursor:pointer;
+  font-size:.9rem;font-weight:600;
+  list-style:none;display:flex;justify-content:space-between;align-items:center;
+  user-select:none;
+}
+summary::-webkit-details-marker{display:none}
+summary::after{
+  content:'+';font-size:1.2rem;font-weight:300;color:var(--text3);
+  transition:transform .3s;flex-shrink:0;margin-left:1rem;
+}
+details[open] summary::after{transform:rotate(45deg)}
+.faq-body{
+  padding:0 1.4rem 1.1rem;
+  font-size:.85rem;color:var(--text2);line-height:1.7;
+}
+
+/* ─── FOOTER ─── */
+footer{border-top:1px solid var(--border);padding:2.25rem 0;margin-top:2rem}
+.foot-inner{
+  max-width:1200px;margin:0 auto;padding:0 1.5rem;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:1rem;
+}
+.foot-l{font-size:.75rem;color:var(--text3)}
+.foot-l strong{color:var(--text2)}
+.foot-r{display:flex;gap:1.5rem;flex-wrap:wrap}
+.foot-item{font-size:.72rem;color:var(--text3)}
+.foot-item strong{color:var(--text2)}
+
+/* ─── ANIMATIONS ─── */
+.fade-up{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease}
+.fade-up.vis{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-box">📊</div>
+      <span class="nav-logo-text">AgentHTML</span>
+    </a>
+    <div class="nav-links">
+      <a href="#results">Results</a>
+      <a href="#methodology">Method</a>
+      <a href="#trajectory">Trajectory</a>
+      <a href="#datasets">Datasets</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <span class="nav-pill">Case #04 · Data Analysis</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow1"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-inner">
+
+    <div>
+      <div class="hero-tag">Stock Markets · North America · 2018</div>
+      <h1>Which indices had more <span class="grad">up days</span> than down days?</h1>
+      <p class="hero-sub">The agent queried two heterogeneous databases — SQLite for exchange metadata, DuckDB for 104,224 daily price records — to classify every 2018 trading day for NYSE, NASDAQ, and the Toronto Stock Exchange.</p>
+      <div class="answer-box">
+        <div>
+          <div class="answer-label">Answer</div>
+          <div class="answer-value">IXIC</div>
+          <div class="answer-sub">NASDAQ Composite — 131 up, 120 down</div>
+        </div>
+      </div>
+      <div class="hero-meta">
+        <div class="meta-item"><span class="meta-lbl">Model</span><span class="meta-val">gpt-5.6-sol</span></div>
+        <div class="meta-item"><span class="meta-lbl">Duration</span><span class="meta-val">69.8 min</span></div>
+        <div class="meta-item"><span class="meta-lbl">Exit</span><span class="meta-val" style="color:var(--up)">Success (0)</span></div>
+        <div class="meta-item"><span class="meta-lbl">Benchmark</span><span class="meta-val">DataAgentBench</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="hero-chart-card">
+        <div class="chart-caption">2018 Trading Days — North American Indices</div>
+        <svg id="hchart" viewBox="0 0 360 200" style="width:100%;height:auto;display:block">
+          <!-- axes -->
+          <line x1="44" y1="155" x2="344" y2="155" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+          <line x1="44" y1="100" x2="344" y2="100" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4 3"/>
+          <line x1="44" y1="50"  x2="344" y2="50"  stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4 3"/>
+          <!-- y labels -->
+          <text x="38" y="158" text-anchor="end" fill="rgba(148,163,184,.5)" font-size="9">0</text>
+          <text x="38" y="103" text-anchor="end" fill="rgba(148,163,184,.5)" font-size="9">75</text>
+          <text x="38" y="53"  text-anchor="end" fill="rgba(148,163,184,.5)" font-size="9">150</text>
+          <!-- IXIC winner highlight -->
+          <rect x="148" y="18" width="64" height="145" rx="5" fill="rgba(16,185,129,.05)" stroke="rgba(16,185,129,.18)" stroke-width="1"/>
+          <!-- GSPTSE group center=90 -->
+          <!-- down 135 → h=135 → y=155-135=20 -->
+          <rect id="b-g-d" x="74"  y="155" width="19" height="0" rx="3" fill="var(--down)"/>
+          <!-- up 115 → h=115 → y=155-115=40 -->
+          <rect id="b-g-u" x="96"  y="155" width="19" height="0" rx="3" fill="var(--up)"/>
+          <!-- flat 1 → h=1 -->
+          <rect id="b-g-f" x="118" y="155" width="19" height="0" rx="3" fill="var(--flat)"/>
+          <!-- IXIC group center=180 -->
+          <!-- down 120 → h=120 -->
+          <rect id="b-i-d" x="158" y="155" width="19" height="0" rx="3" fill="var(--down)"/>
+          <!-- up 131 → h=131 -->
+          <rect id="b-i-u" x="180" y="155" width="19" height="0" rx="3" fill="var(--up)"/>
+          <!-- NYA group center=270 -->
+          <!-- down 126 → h=126 -->
+          <rect id="b-n-d" x="254" y="155" width="19" height="0" rx="3" fill="var(--down)"/>
+          <!-- up 125 → h=125 -->
+          <rect id="b-n-u" x="276" y="155" width="19" height="0" rx="3" fill="var(--up)"/>
+          <!-- group labels -->
+          <text x="96"  y="172" text-anchor="middle" fill="rgba(148,163,184,.55)" font-size="9">GSPTSE</text>
+          <text x="180" y="172" text-anchor="middle" fill="rgba(16,185,129,.85)" font-size="9.5" font-weight="700">IXIC ★</text>
+          <text x="270" y="172" text-anchor="middle" fill="rgba(148,163,184,.55)" font-size="9">NYA</text>
+          <!-- legend -->
+          <rect x="50" y="186" width="9" height="9" rx="2" fill="var(--up)"/>
+          <text x="63" y="195" fill="rgba(148,163,184,.6)" font-size="9">Up days</text>
+          <rect x="118" y="186" width="9" height="9" rx="2" fill="var(--down)"/>
+          <text x="131" y="195" fill="rgba(148,163,184,.6)" font-size="9">Down days</text>
+          <rect x="195" y="186" width="9" height="9" rx="2" fill="var(--flat)"/>
+          <text x="208" y="195" fill="rgba(148,163,184,.6)" font-size="9">Flat</text>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-lbl">Analysis Results</div>
+    <h2 class="sec-h">2018 Trading Day Breakdown</h2>
+    <p class="sec-sub">Up day: <code style="font-family:monospace;color:var(--cyan)">Close &gt; Open</code> &nbsp;·&nbsp; Down day: <code style="font-family:monospace;color:var(--cyan)">Close &lt; Open</code> &nbsp;·&nbsp; Flat: equal</p>
+
+    <div class="idx-grid">
+
+      <!-- IXIC winner -->
+      <div class="idx-card winner fade-up">
+        <div class="idx-head">
+          <div class="idx-sym">IXIC</div>
+          <div class="badge badge-win">More Up Days</div>
+        </div>
+        <div class="idx-exch">NASDAQ Composite</div>
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-lbl lbl-up">Up</div>
+            <div class="bar-track"><div class="bar-fill fill-up" data-w="52.2"></div></div>
+            <div class="bar-n n-up">131</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-lbl lbl-down">Down</div>
+            <div class="bar-track"><div class="bar-fill fill-down" data-w="47.8"></div></div>
+            <div class="bar-n n-down">120</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-lbl lbl-flat">Flat</div>
+            <div class="bar-track"><div class="bar-fill fill-flat" data-w="0"></div></div>
+            <div class="bar-n n-flat">0</div>
+          </div>
+        </div>
+        <div class="idx-foot">251 trading days &nbsp;·&nbsp; <strong style="color:var(--up)">52.2%</strong> up &nbsp;·&nbsp; +11 day advantage</div>
+      </div>
+
+      <!-- NYA -->
+      <div class="idx-card fade-up" style="transition-delay:.1s">
+        <div class="idx-head">
+          <div class="idx-sym">NYA</div>
+          <div class="badge badge-lose">More Down Days</div>
+        </div>
+        <div class="idx-exch">New York Stock Exchange Composite</div>
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-lbl lbl-up">Up</div>
+            <div class="bar-track"><div class="bar-fill fill-up" data-w="49.8"></div></div>
+            <div class="bar-n n-up">125</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-lbl lbl-down">Down</div>
+            <div class="bar-track"><div class="bar-fill fill-down" data-w="50.2"></div></div>
+            <div class="bar-n n-down">126</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-lbl lbl-flat">Flat</div>
+            <div class="bar-track"><div class="bar-fill fill-flat" data-w="0"></div></div>
+            <div class="bar-n n-flat">0</div>
+          </div>
+        </div>
+        <div class="idx-foot">251 trading days &nbsp;·&nbsp; <strong style="color:var(--down)">49.8%</strong> up &nbsp;·&nbsp; −1 day shortfall</div>
+      </div>
+
+      <!-- GSPTSE -->
+      <div class="idx-card fade-up" style="transition-delay:.2s">
+        <div class="idx-head">
+          <div class="idx-sym">GSPTSE</div>
+          <div class="badge badge-lose">More Down Days</div>
+        </div>
+        <div class="idx-exch">Toronto Stock Exchange Composite</div>
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-lbl lbl-up">Up</div>
+            <div class="bar-track"><div class="bar-fill fill-up" data-w="45.8"></div></div>
+            <div class="bar-n n-up">115</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-lbl lbl-down">Down</div>
+            <div class="bar-track"><div class="bar-fill fill-down" data-w="53.8"></div></div>
+            <div class="bar-n n-down">135</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-lbl lbl-flat">Flat</div>
+            <div class="bar-track"><div class="bar-fill fill-flat" data-w="0.4"></div></div>
+            <div class="bar-n n-flat">1</div>
+          </div>
+        </div>
+        <div class="idx-foot">251 trading days &nbsp;·&nbsp; <strong style="color:var(--down)">45.8%</strong> up &nbsp;·&nbsp; −20 day shortfall</div>
+      </div>
+
+    </div>
+
+    <!-- stat strip -->
+    <div class="stat-strip fade-up">
+      <div class="stat-cell">
+        <div class="stat-n" style="color:var(--up)">1</div>
+        <div class="stat-lbl">Index with more up days</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-n">131</div>
+        <div class="stat-lbl">IXIC up days in 2018</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-n">120</div>
+        <div class="stat-lbl">IXIC down days in 2018</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-n" style="color:var(--blue)">+11</div>
+        <div class="stat-lbl">IXIC's up-day advantage</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- METHODOLOGY -->
+<section id="methodology">
+  <div class="wrap">
+    <div class="sec-lbl">How It Works</div>
+    <h2 class="sec-h">Analysis Methodology</h2>
+    <p class="sec-sub">The agent joined two heterogeneous databases, filtered for North American exchanges, restricted to calendar year 2018, and classified each day by comparing open and close prices.</p>
+
+    <div class="method-grid">
+      <div class="method-card fade-up">
+        <div class="method-num">1</div>
+        <div class="method-title">Schema Discovery</div>
+        <div class="method-desc">Inspected both database files to understand table structure before writing any query. Found SQLite holds exchange metadata; DuckDB holds daily price records.</div>
+        <div class="code-snip">indexInfo_query.db (SQLite)
+  table: index_info
+    Exchange  TEXT
+    Currency  TEXT
+
+indextrade_query.db (DuckDB)
+  table: index_trade
+    Index, Date, Open, High
+    Low, Close, Adj Close, CloseUSD</div>
+      </div>
+
+      <div class="method-card fade-up" style="transition-delay:.1s">
+        <div class="method-num">2</div>
+        <div class="method-title">Data Join &amp; Filter</div>
+        <div class="method-desc">Matched 14 SQLite exchange rows to 13 DuckDB indices by positional ordering. Filtered for North American exchanges: NYSE, NASDAQ, and Toronto.</div>
+        <div class="code-snip">North American indices:
+  NYA    → New York Stock Exchange
+  IXIC   → NASDAQ
+  GSPTSE → Toronto Stock Exchange
+
+104,224 total rows → 753 after
+filtering for NA exchanges + 2018</div>
+      </div>
+
+      <div class="method-card fade-up" style="transition-delay:.2s">
+        <div class="method-num">3</div>
+        <div class="method-title">Day Classification</div>
+        <div class="method-desc">Each trading day labelled using close-versus-open comparison. Date column parsed with <code style="font-family:monospace;color:var(--cyan)">pd.to_datetime(format="mixed")</code> to handle varied formats.</div>
+        <div class="code-snip">Up day   → Close &gt; Open
+Down day → Close &lt; Open
+Flat day → Close == Open
+
+Grouped by Index + day type,
+then compared up count vs down count</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAJECTORY -->
+<section id="trajectory">
+  <div class="wrap">
+    <div class="sec-lbl">Agent Trajectory</div>
+    <h2 class="sec-h">Step-by-Step Execution</h2>
+    <p class="sec-sub">4 execution steps — the agent adapted after a sandbox restriction blocked shell heredocs, then proceeded efficiently to the final answer.</p>
+
+    <div class="traj-wrap">
+
+      <div class="traj-step fade-up">
+        <div class="traj-dot dot-err"></div>
+        <div class="traj-card">
+          <div class="traj-hd">
+            <div class="traj-title">Step 1 — Schema Inspection via heredoc</div>
+            <div class="traj-pill pill-err">Blocked</div>
+          </div>
+          <div class="traj-desc">Agent attempted a shell heredoc (<code style="font-family:monospace;color:var(--cyan)">python - &lt;&lt;'PY'</code>) to run a multi-line schema inspection script. The read-only sandbox blocks temp file creation, which heredocs require.</div>
+          <div class="traj-out out-err">zsh:1: can't create temp file for here document: operation not permitted</div>
+        </div>
+      </div>
+
+      <div class="traj-step fade-up" style="transition-delay:.1s">
+        <div class="traj-dot dot-ok"></div>
+        <div class="traj-card">
+          <div class="traj-hd">
+            <div class="traj-title">Step 2 — Schema Inspection via inline Python</div>
+            <div class="traj-pill pill-ok">Success</div>
+          </div>
+          <div class="traj-desc">Switched to <code style="font-family:monospace;color:var(--cyan)">python -c '...'</code> one-liners (no temp file needed). Discovered both table schemas and confirmed DuckDB version 1.5.3.</div>
+          <div class="traj-out out-ok">SQLite [('index_info',)]
+index_info: Exchange TEXT, Currency TEXT
+duckdb 1.5.3
+DuckDB [('index_trade',)]
+index_trade: Index VARCHAR, Date VARCHAR,
+  Open DOUBLE, High DOUBLE, Low DOUBLE,
+  Close DOUBLE, Adj Close DOUBLE, CloseUSD DOUBLE</div>
+        </div>
+      </div>
+
+      <div class="traj-step fade-up" style="transition-delay:.2s">
+        <div class="traj-dot dot-ok"></div>
+        <div class="traj-card">
+          <div class="traj-hd">
+            <div class="traj-title">Step 3 — Data Exploration</div>
+            <div class="traj-pill pill-ok">Success</div>
+          </div>
+          <div class="traj-desc">Counted rows, listed all 14 exchange names from SQLite, and enumerated all 13 indices in DuckDB with their row counts and date ranges. This revealed which indices exist and confirmed sufficient data coverage.</div>
+          <div class="traj-out out-ok">INFO COUNT (14,)
+  (1, 'New York Stock Exchange', 'USD')
+  (2, 'NASDAQ', 'USD')
+  (8, 'Toronto Stock Exchange', 'CAD') ...
+TRADE COUNT (104224,)
+  GSPTSE  10526 rows  1981 → 2016
+  IXIC    12690 rows  1974 → 2015
+  NYA     13947 rows  1969 → 2020
+  HSI, N225, GDAXI, N100 ... (10 more)</div>
+        </div>
+      </div>
+
+      <div class="traj-step fade-up" style="transition-delay:.3s">
+        <div class="traj-dot dot-done"></div>
+        <div class="traj-card">
+          <div class="traj-hd">
+            <div class="traj-title">Step 4 — Final Computation &amp; Answer</div>
+            <div class="traj-pill pill-done">Answer Found</div>
+          </div>
+          <div class="traj-desc">Merged exchange metadata with trade data via pandas, applied row-ID-to-index mapping, filtered to 2018, classified each day, and aggregated. IXIC was the only index with more up days than down days.</div>
+          <div class="traj-out out-ok"> Index                Exchange  down  flat   up  more_up_than_down
+GSPTSE  Toronto Stock Exchange   135     1  115              False
+  IXIC                  NASDAQ   120     0  131               True
+   NYA New York Stock Exchange   126     0  125              False
+
+ANSWER: IXIC</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DATASETS -->
+<section id="datasets">
+  <div class="wrap">
+    <div class="sec-lbl">Data Sources</div>
+    <h2 class="sec-h">Queried Databases</h2>
+    <p class="sec-sub">Two separate database engines were used. The agent connected to each independently and joined them in-memory via pandas.</p>
+
+    <div class="ds-grid">
+      <div class="ds-card fade-up">
+        <div class="ds-icon icon-sql">🗄️</div>
+        <div class="ds-name">indexInfo_query.db</div>
+        <div class="ds-engine">SQLite</div>
+        <div class="ds-desc">Metadata for 14 global stock exchanges, including their full name and native currency. Used to identify which index symbols are North American.</div>
+        <div class="schema">
+          <div class="sf"><span class="sf-name">Exchange</span><span class="sf-type">TEXT</span></div>
+          <div class="sf"><span class="sf-name">Currency</span><span class="sf-type">TEXT</span></div>
+          <div class="sf" style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(255,255,255,.06)">
+            <span class="sf-name" style="color:var(--text3)">14 rows</span>
+            <span class="sf-type">1 table: index_info</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-card fade-up" style="transition-delay:.1s">
+        <div class="ds-icon icon-duck">🦆</div>
+        <div class="ds-name">indextrade_query.db</div>
+        <div class="ds-engine">DuckDB v1.5.3</div>
+        <div class="ds-desc">104,224 daily OHLC price records for 13 global indices spanning 1969–2020. Date column stored as VARCHAR with mixed formats, parsed at analysis time.</div>
+        <div class="schema">
+          <div class="sf"><span class="sf-name">Index</span><span class="sf-type">VARCHAR</span></div>
+          <div class="sf"><span class="sf-name">Date</span><span class="sf-type">VARCHAR (mixed fmt)</span></div>
+          <div class="sf"><span class="sf-name">Open / High / Low</span><span class="sf-type">DOUBLE</span></div>
+          <div class="sf"><span class="sf-name">Close / Adj Close</span><span class="sf-type">DOUBLE</span></div>
+          <div class="sf"><span class="sf-name">CloseUSD</span><span class="sf-type">DOUBLE</span></div>
+          <div class="sf" style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(255,255,255,.06)">
+            <span class="sf-name" style="color:var(--text3)">104,224 rows</span>
+            <span class="sf-type">1 table: index_trade</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-lbl">FAQ</div>
+    <h2 class="sec-h">Frequently Asked Questions</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>Why was only IXIC the answer and not NYA?</summary>
+        <div class="faq-body">NYA (NYSE Composite) had 125 up days and 126 down days in 2018 — only a one-day margin in favor of down days. IXIC (NASDAQ) had 131 up vs 120 down, an 11-day advantage. The question asks for indices where up days <em>strictly exceed</em> down days, so NYA does not qualify.</div>
+      </details>
+
+      <details>
+        <summary>How did the agent handle the mixed date formats in DuckDB?</summary>
+        <div class="faq-body">The <code style="font-family:monospace;color:var(--cyan)">Date</code> column in index_trade is stored as VARCHAR with mixed formats (e.g., <em>"01 Apr 2003, 00:00"</em> and <em>"September 30, 2015 at 12:00 AM"</em>). The agent used pandas' <code style="font-family:monospace;color:var(--cyan)">pd.to_datetime(format="mixed")</code>, which auto-detects the format per row, to parse all dates correctly before filtering to year 2018.</div>
+      </details>
+
+      <details>
+        <summary>How were exchange names linked to index symbols?</summary>
+        <div class="faq-body">The SQLite <code style="font-family:monospace;color:var(--cyan)">index_info</code> table has no index-symbol column — it only stores Exchange name and Currency. The agent mapped exchange rows to index symbols by assuming a fixed ordering (row 1 = NYSE → NYA, row 2 = NASDAQ → IXIC, row 8 = Toronto → GSPTSE), which matched the known universe of 13 indices.</div>
+      </details>
+
+      <details>
+        <summary>Why did Step 1 fail?</summary>
+        <div class="faq-body">Shell heredocs (<code style="font-family:monospace;color:var(--cyan)">python - &lt;&lt;'PY' ... PY</code>) require the shell to write a temporary file before executing. The sandbox environment was configured as read-only, which blocks temp file creation. The agent immediately adapted by switching to single-line <code style="font-family:monospace;color:var(--cyan)">python -c '...'</code> invocations that require no temp files.</div>
+      </details>
+
+      <details>
+        <summary>What defined a "North American" index?</summary>
+        <div class="faq-body">The agent filtered for exchanges whose names contain "New York", "NASDAQ", or "Toronto" — the three exchanges in the dataset with USD or CAD currencies based in North America. The other 11 exchanges cover Asia, Europe, and Africa.</div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-l">
+      <strong>Case ID:</strong> 04_stockindex_query2 &nbsp;·&nbsp;
+      <strong>Domain:</strong> data_analysis &nbsp;·&nbsp;
+      <strong>Source:</strong> DataAgentBench / regen
+    </div>
+    <div class="foot-r">
+      <div class="foot-item"><strong>Model:</strong> gpt-5.6-sol</div>
+      <div class="foot-item"><strong>Duration:</strong> 69.8 min</div>
+      <div class="foot-item"><strong>Collected:</strong> 2026-07-11</div>
+      <div class="foot-item"><strong>Exit:</strong> 0 (success)</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+}, {passive: true});
+
+// Intersection observer for fade-up
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); } });
+}, {threshold: 0.1});
+document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+
+// Animate progress bars when cards become visible
+const barIO = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.bar-fill').forEach(fill => {
+        const w = fill.getAttribute('data-w');
+        fill.style.width = w + '%';
+      });
+      barIO.unobserve(e.target);
+    }
+  });
+}, {threshold: 0.25});
+document.querySelectorAll('.idx-card').forEach(card => barIO.observe(card));
+
+// Animate hero SVG bars
+(function animateHeroBars() {
+  // scale: max value 135 → max SVG height 135 (1:1 scale), baseline y=155
+  const defs = [
+    // GSPTSE
+    ['b-g-d', 135], ['b-g-u', 115], ['b-g-f', 1],
+    // IXIC
+    ['b-i-d', 120], ['b-i-u', 131],
+    // NYA
+    ['b-n-d', 126], ['b-n-u', 125],
+  ];
+  const maxV = 135, maxH = 135, baseline = 155;
+  function run() {
+    defs.forEach(([id, v]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const h = (v / maxV) * maxH;
+      el.setAttribute('height', h.toFixed(1));
+      el.setAttribute('y', (baseline - h).toFixed(1));
+    });
+  }
+  // small delay so CSS transition can fire
+  setTimeout(run, 250);
+})();
+</script>
+</body>
+</html>

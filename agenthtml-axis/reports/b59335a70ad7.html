@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mind2Web Case: Save a coffee mocha recipe (Allrecipes)</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f5f5f5;
+    color: #1a1a1a;
+    line-height: 1.5;
+    padding: 24px 16px;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .header {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+  }
+
+  .badge-bench  { background: #dbeafe; color: #1d4ed8; }
+  .badge-site   { background: #dcfce7; color: #15803d; }
+  .badge-domain { background: #fef9c3; color: #a16207; }
+  .badge-model  { background: #f3e8ff; color: #7e22ce; }
+
+  .task-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6b7280;
+    margin-bottom: 6px;
+  }
+
+  .task-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .meta-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 14px 18px;
+  }
+
+  .meta-card .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6b7280;
+    margin-bottom: 4px;
+  }
+
+  .meta-card .value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #6b7280;
+    margin-bottom: 12px;
+    padding-left: 2px;
+  }
+
+  .timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 19px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: #e5e7eb;
+    z-index: 0;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+    padding-bottom: 12px;
+  }
+
+  .step:last-child {
+    padding-bottom: 0;
+  }
+
+  .step-bubble {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #e5e7eb;
+  }
+
+  .bubble-click  { background: #dbeafe; color: #1d4ed8; box-shadow: 0 0 0 2px #bfdbfe; }
+  .bubble-hover  { background: #fef9c3; color: #a16207; box-shadow: 0 0 0 2px #fde68a; }
+  .bubble-save   { background: #dcfce7; color: #15803d; box-shadow: 0 0 0 2px #bbf7d0; }
+
+  .step-body {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 2px;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .step-num {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #9ca3af;
+  }
+
+  .step-action-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  .ab-click  { background: #dbeafe; color: #1d4ed8; }
+  .ab-hover  { background: #fef9c3; color: #a16207; }
+  .ab-save   { background: #dcfce7; color: #15803d; }
+
+  .step-repr {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 13px;
+    color: #374151;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    word-break: break-all;
+  }
+
+  .step-detail {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .step-detail table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .step-detail td {
+    padding: 2px 8px 2px 0;
+    vertical-align: top;
+  }
+
+  .step-detail td:first-child {
+    font-weight: 600;
+    color: #9ca3af;
+    white-space: nowrap;
+    min-width: 90px;
+  }
+
+  .candidates-info {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .cand-pill {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .cand-pos { background: #dcfce7; color: #166534; }
+  .cand-neg { background: #fee2e2; color: #991b1b; }
+  .cand-none { background: #f3f4f6; color: #6b7280; }
+
+  .path-viz {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+
+  .path-flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 13px;
+  }
+
+  .path-node {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    padding: 5px 12px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .path-node.active { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; }
+  .path-node.final  { background: #dcfce7; border-color: #86efac; color: #15803d; }
+
+  .path-arrow {
+    color: #9ca3af;
+    font-size: 16px;
+    font-weight: 300;
+  }
+
+  .footnote {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 20px;
+  }
+
+  .footnote strong { color: #374151; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="badge-row">
+      <span class="badge badge-bench">Mind2Web</span>
+      <span class="badge badge-site">Allrecipes</span>
+      <span class="badge badge-domain">Info / Cooking</span>
+      <span class="badge badge-model">Human Demonstration</span>
+    </div>
+    <div class="task-label">Task</div>
+    <div class="task-text">Save a coffee mocha recipe.</div>
+  </div>
+
+  <!-- Meta grid -->
+  <div class="meta-grid">
+    <div class="meta-card">
+      <div class="label">Case ID</div>
+      <div class="value" style="font-size:12px;word-break:break-all;">03_test_domain_test_domain_2_85</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Steps</div>
+      <div class="value">5 actions</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Annotation ID</div>
+      <div class="value" style="font-size:11px;word-break:break-all;">547ed17c-da34-4a20-93cd-24a3603f4ccf</div>
+    </div>
+    <div class="meta-card">
+      <div class="label">Split</div>
+      <div class="value">Test — Domain</div>
+    </div>
+  </div>
+
+  <!-- Navigation path visualization -->
+  <div class="path-viz">
+    <div class="section-title">Navigation Path</div>
+    <div class="path-flow">
+      <span class="path-node">Allrecipes Home</span>
+      <span class="path-arrow">›</span>
+      <span class="path-node active">MEALS (hover)</span>
+      <span class="path-arrow">›</span>
+      <span class="path-node active">Drinks</span>
+      <span class="path-arrow">›</span>
+      <span class="path-node active">Coffee Drinks</span>
+      <span class="path-arrow">›</span>
+      <span class="path-node active">Mochas</span>
+      <span class="path-arrow">›</span>
+      <span class="path-node final">Save Recipe ★</span>
+    </div>
+  </div>
+
+  <!-- Trajectory steps -->
+  <div class="section-title">Trajectory</div>
+  <div class="timeline">
+
+    <!-- Step 0 -->
+    <div class="step">
+      <div class="step-bubble bubble-hover">1</div>
+      <div class="step-body">
+        <div class="step-header">
+          <span class="step-num">Step 1</span>
+          <span class="step-action-badge ab-hover">HOVER → CLICK</span>
+        </div>
+        <div class="step-repr">[link] MEALS → HOVER</div>
+        <div class="step-detail">
+          <table>
+            <tr><td>Element</td><td>&lt;a&gt; — navigation link "MEALS"</td></tr>
+            <tr><td>Node ID</td><td>99</td></tr>
+            <tr><td>Bounding box</td><td>x=127, y=110, w=47, h=18</td></tr>
+            <tr><td>Original op</td><td>HOVER (annotated as CLICK in dataset)</td></tr>
+          </table>
+          <div class="candidates-info">
+            <span class="cand-pill cand-pos">1 positive candidate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-bubble bubble-click">2</div>
+      <div class="step-body">
+        <div class="step-header">
+          <span class="step-num">Step 2</span>
+          <span class="step-action-badge ab-click">CLICK</span>
+        </div>
+        <div class="step-repr">[link] Drinks → CLICK</div>
+        <div class="step-detail">
+          <table>
+            <tr><td>Element</td><td>&lt;a&gt; — dropdown menu item "Drinks"</td></tr>
+            <tr><td>Context</td><td>Appeared after hovering MEALS in the main nav</td></tr>
+            <tr><td>Original op</td><td>CLICK</td></tr>
+          </table>
+          <div class="candidates-info">
+            <span class="cand-pill cand-none">No positive candidates recorded</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-bubble bubble-click">3</div>
+      <div class="step-body">
+        <div class="step-header">
+          <span class="step-num">Step 3</span>
+          <span class="step-action-badge ab-click">CLICK</span>
+        </div>
+        <div class="step-repr">[link] COFFEE DRINKS → CLICK</div>
+        <div class="step-detail">
+          <table>
+            <tr><td>Element</td><td>&lt;a&gt; — taxonomy category link "COFFEE DRINKS"</td></tr>
+            <tr><td>Node ID</td><td>17091</td></tr>
+            <tr><td>Element ID</td><td>taxonomy-nodes__link_1-0-4</td></tr>
+            <tr><td>Bounding box</td><td>x=649, y=796, w=111, h=18</td></tr>
+            <tr><td>Page class</td><td>taxlevel-2 (Drinks category page)</td></tr>
+          </table>
+          <div class="candidates-info">
+            <span class="cand-pill cand-pos">1 positive candidate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-bubble bubble-click">4</div>
+      <div class="step-body">
+        <div class="step-header">
+          <span class="step-num">Step 4</span>
+          <span class="step-action-badge ab-click">CLICK</span>
+        </div>
+        <div class="step-repr">[link] MOCHAS → CLICK</div>
+        <div class="step-detail">
+          <table>
+            <tr><td>Element</td><td>&lt;a&gt; — taxonomy subcategory link "MOCHAS"</td></tr>
+            <tr><td>Node ID</td><td>25001</td></tr>
+            <tr><td>Element ID</td><td>taxonomy-nodes__link_1-0-1</td></tr>
+            <tr><td>Bounding box</td><td>x=447, y=480, w=60, h=18</td></tr>
+            <tr><td>Page class</td><td>taxlevel-3 (Coffee Drinks subcategory)</td></tr>
+          </table>
+          <div class="candidates-info">
+            <span class="cand-pill cand-pos">1 positive candidate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-bubble bubble-save">5</div>
+      <div class="step-body">
+        <div class="step-header">
+          <span class="step-num">Step 5</span>
+          <span class="step-action-badge ab-save">CLICK — TASK COMPLETE</span>
+        </div>
+        <div class="step-repr">[button] Save Recipe → CLICK</div>
+        <div class="step-detail">
+          <table>
+            <tr><td>Element</td><td>&lt;button&gt; — "Save Recipe" button</td></tr>
+            <tr><td>Node ID</td><td>30584</td></tr>
+            <tr><td>Element ID</td><td>mntl-save__link_1-0</td></tr>
+            <tr><td>aria-label</td><td>Save Recipe</td></tr>
+            <tr><td>Bounding box</td><td>x=338.7, y=594, w=48, h=48</td></tr>
+            <tr><td>Page class</td><td>taxlevel-4 (Mochas recipe listing)</td></tr>
+            <tr><td>Original op</td><td>CLICK (is_original_target: true)</td></tr>
+          </table>
+          <div class="candidates-info">
+            <span class="cand-pill cand-pos">1 positive candidate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+  <div class="footnote">
+    <strong>Source:</strong> Mind2Web benchmark — human annotator demonstration trajectory &nbsp;|&nbsp;
+    <strong>Annotation ID:</strong> 547ed17c-da34-4a20-93cd-24a3603f4ccf &nbsp;|&nbsp;
+    <strong>SHA-256:</strong> af0436e6…180a87c7b &nbsp;|&nbsp;
+    No screenshots available for this case. Navigation path and element details derived from trajectory.json candidates.
+  </div>
+
+</div>
+</body>
+</html>

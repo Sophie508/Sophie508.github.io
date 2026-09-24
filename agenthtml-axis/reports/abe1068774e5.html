@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Houston to Fayetteville — Travel planning case</title>
+  <style>
+    :root {
+      --ink: #11233b;
+      --navy: #132a45;
+      --blue: #24527a;
+      --paper: #f5f7f7;
+      --white: #ffffff;
+      --line: #cbd4d9;
+      --muted: #61717d;
+      --orange: #ed6a3a;
+      --orange-soft: #fff0e8;
+      --mint: #d9eee7;
+      --green: #176650;
+      --red: #a43b30;
+      --shadow: 0 18px 46px rgba(17, 35, 59, .10);
+      --display: "Arial Narrow", "Avenir Next Condensed", "Franklin Gothic Condensed", sans-serif;
+      --body: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 16px/1.55 var(--body);
+    }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+
+    .topbar {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 58px;
+      padding: 0 5vw;
+      color: #fff;
+      background: rgba(17, 35, 59, .96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.15);
+    }
+    .case-id, .topnav a {
+      font: 700 11px/1 var(--mono);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .case-id { color: #b9c7d3; }
+    .topnav { display: flex; gap: 22px; }
+    .topnav a { color: #fff; text-decoration: none; }
+    .topnav a:hover { color: #ffad88; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 560px;
+      padding: 72px 5vw 52px;
+      color: #fff;
+      background: var(--navy);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .13;
+      background-image: linear-gradient(rgba(255,255,255,.25) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.25) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to left, #000, transparent 74%);
+    }
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(360px, .85fr);
+      gap: clamp(44px, 7vw, 112px);
+      align-items: center;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    .eyebrow {
+      margin: 0 0 20px;
+      color: #ffad88;
+      font: 800 12px/1.2 var(--mono);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 800px;
+      margin: 0;
+      font: 900 clamp(54px, 7vw, 108px)/.84 var(--display);
+      letter-spacing: -.045em;
+      text-transform: uppercase;
+    }
+    h1 span { display: block; color: #bcd2e4; }
+    .hero-copy {
+      max-width: 650px;
+      margin: 30px 0 0;
+      color: #ced9e2;
+      font-size: clamp(17px, 1.5vw, 21px);
+    }
+    .route-card {
+      position: relative;
+      min-height: 360px;
+      padding: 30px;
+      color: var(--ink);
+      background: #fff;
+      border-radius: 3px;
+      box-shadow: var(--shadow);
+      transform: rotate(1.2deg);
+    }
+    .route-card::before, .route-card::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      top: 97px;
+      width: 18px;
+      height: 36px;
+      background: var(--navy);
+    }
+    .route-card::before { left: -1px; border-radius: 0 18px 18px 0; }
+    .route-card::after { right: -1px; border-radius: 18px 0 0 18px; }
+    .ticket-head { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 25px; border-bottom: 2px dashed var(--line); }
+    .ticket-head strong { font: 900 15px/1 var(--mono); letter-spacing: .08em; }
+    .ticket-head span { color: var(--muted); font: 700 11px/1 var(--mono); text-transform: uppercase; }
+    .route-line { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin: 48px 0 30px; }
+    .route-line::before {
+      content: "";
+      position: absolute;
+      top: 15px;
+      left: 28%;
+      right: 28%;
+      border-top: 3px dotted var(--orange);
+    }
+    .airport:last-child { text-align: right; }
+    .airport-code { font: 900 46px/1 var(--display); letter-spacing: -.02em; }
+    .airport-name { color: var(--muted); font-size: 13px; }
+    .plane { position: absolute; top: -3px; left: calc(50% - 15px); z-index: 2; display: grid; width: 30px; height: 30px; place-items: center; color: #fff; background: var(--orange); border-radius: 50%; font-size: 17px; }
+    .ticket-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 44px; }
+    .ticket-facts span { display: block; color: var(--muted); font: 700 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .ticket-facts strong { display: block; margin-top: 7px; font-size: 18px; }
+    .over-stamp {
+      position: absolute;
+      right: 22px;
+      bottom: 20px;
+      padding: 8px 12px;
+      color: var(--red);
+      border: 3px solid currentColor;
+      font: 900 15px/1 var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transform: rotate(-5deg);
+    }
+
+    main { max-width: 1440px; margin: 0 auto; padding: 0 5vw 90px; }
+    .verdict {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: minmax(220px, .75fr) minmax(0, 1.25fr);
+      gap: 44px;
+      align-items: center;
+      margin: -26px 0 76px;
+      padding: 34px clamp(26px, 4vw, 56px);
+      background: var(--orange-soft);
+      border: 1px solid #f2baa2;
+      box-shadow: 0 12px 24px rgba(114, 52, 28, .08);
+    }
+    .verdict-number { font: 900 clamp(54px, 7vw, 92px)/.85 var(--display); letter-spacing: -.04em; color: var(--red); }
+    .verdict-number span { display: block; margin-top: 12px; color: #864b39; font: 800 11px/1.3 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .verdict h2 { margin: 0 0 10px; font: 900 clamp(25px, 3vw, 38px)/1 var(--display); text-transform: uppercase; }
+    .verdict p { max-width: 760px; margin: 0; color: #65493f; }
+
+    .section { margin-top: 84px; scroll-margin-top: 88px; }
+    .section-head { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 26px; align-items: end; margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+    .section-kicker { color: var(--orange); font: 800 11px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+    .section h2 { margin: 0; font: 900 clamp(34px, 4vw, 56px)/.92 var(--display); letter-spacing: -.025em; text-transform: uppercase; }
+    .lede { max-width: 800px; margin: 0 0 28px 196px; color: var(--muted); font-size: 17px; }
+
+    .flight-board { overflow: hidden; background: var(--ink); color: #fff; border-radius: 3px; box-shadow: var(--shadow); }
+    .board-row { display: grid; grid-template-columns: 1.45fr .8fr .8fr .65fr .7fr; gap: 18px; align-items: center; padding: 18px 24px; border-bottom: 1px solid #30445c; }
+    .board-row:last-child { border-bottom: 0; }
+    .board-row.board-head { padding-block: 13px; color: #9eb0c0; background: #0c1a2b; font: 700 10px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+    .board-row.selected { position: relative; background: #1a3a5a; }
+    .board-row.selected::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--orange); }
+    .board-row strong { font-family: var(--mono); }
+    .price { color: #ffd0b9; font: 800 18px/1 var(--mono); }
+    .badge { justify-self: start; padding: 6px 9px; color: var(--mint); border: 1px solid #5c897e; font: 700 10px/1 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+    .badge.alt { color: #a9b5c0; border-color: #526273; }
+    .return-note { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; margin-top: 14px; padding: 18px 24px; background: #dce7ec; }
+    .return-note span { color: var(--muted); }
+    .return-note strong { font-family: var(--mono); }
+
+    .filterbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .filter-btn, .day-btn {
+      cursor: pointer;
+      padding: 10px 15px;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid var(--line);
+      font: 800 11px/1 var(--mono);
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    .filter-btn:hover, .filter-btn.active, .day-btn:hover, .day-btn.active { color: #fff; background: var(--navy); border-color: var(--navy); }
+    .stay-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .stay-card { display: flex; min-height: 188px; flex-direction: column; padding: 20px; background: #fff; border: 1px solid var(--line); transition: transform .18s ease, opacity .18s ease; }
+    .stay-card:hover { transform: translateY(-3px); }
+    .stay-card.hidden { display: none; }
+    .stay-card.selected { background: var(--mint); border: 2px solid var(--green); }
+    .stay-top { display: flex; justify-content: space-between; gap: 12px; }
+    .stay-card h3 { margin: 0; font-size: 16px; line-height: 1.25; }
+    .stay-card .rate { font: 800 16px/1 var(--mono); white-space: nowrap; }
+    .stay-meta { margin-top: 10px; color: var(--muted); font-size: 13px; }
+    .stay-status { margin-top: auto; padding-top: 20px; color: var(--red); font: 800 10px/1.3 var(--mono); letter-spacing: .07em; text-transform: uppercase; }
+    .selected .stay-status { color: var(--green); }
+    .caveat { display: flex; gap: 16px; margin-top: 18px; padding: 18px 20px; color: #624a20; background: #fff5d9; border-left: 4px solid #d99f2b; }
+    .caveat strong { flex: 0 0 auto; font: 900 11px/1.5 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+
+    .days-nav { display: flex; gap: 8px; margin-bottom: 24px; }
+    .day-panel { display: none; grid-template-columns: 150px minmax(0, 1fr); gap: 36px; animation: reveal .3s ease both; }
+    .day-panel.active { display: grid; }
+    .date-block { padding-top: 8px; }
+    .date-block strong { display: block; font: 900 66px/.8 var(--display); color: var(--orange); }
+    .date-block span { display: block; margin-top: 12px; color: var(--muted); font: 800 11px/1.4 var(--mono); letter-spacing: .09em; text-transform: uppercase; }
+    .timeline { position: relative; padding-left: 30px; }
+    .timeline::before { content: ""; position: absolute; top: 8px; bottom: 8px; left: 6px; border-left: 2px solid var(--line); }
+    .event { position: relative; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 18px; padding: 0 0 24px; }
+    .event:last-child { padding-bottom: 0; }
+    .event::before { content: ""; position: absolute; top: 7px; left: -29px; width: 9px; height: 9px; background: var(--paper); border: 2px solid var(--blue); border-radius: 50%; }
+    .event.meal::before { background: var(--orange); border-color: var(--orange); }
+    .event time { color: var(--muted); font: 700 11px/1.5 var(--mono); text-transform: uppercase; }
+    .event h3 { margin: 0 0 4px; font-size: 17px; }
+    .event p { margin: 0; color: var(--muted); font-size: 14px; }
+    .cuisine { display: inline-block; margin-left: 7px; padding: 4px 7px; color: var(--orange); background: var(--orange-soft); font: 800 9px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; vertical-align: 2px; }
+    .cuisine-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 28px; background: var(--line); border: 1px solid var(--line); }
+    .cuisine-strip div { padding: 16px; background: #fff; }
+    .cuisine-strip span { display: block; color: var(--muted); font: 700 10px/1.2 var(--mono); text-transform: uppercase; }
+    .cuisine-strip strong { display: block; margin-top: 6px; font-size: 14px; }
+
+    .budget-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, .72fr); gap: 26px; align-items: start; }
+    .receipt { padding: 28px; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .receipt-head { display: flex; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 2px dashed var(--line); }
+    .receipt-head strong { font: 900 16px/1 var(--mono); }
+    .receipt-head span { color: var(--muted); font: 700 10px/1.2 var(--mono); text-transform: uppercase; }
+    .receipt-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; padding: 15px 0; border-bottom: 1px solid #e5eaed; }
+    .receipt-row small { display: block; color: var(--muted); }
+    .receipt-row b { font-family: var(--mono); }
+    .receipt-total { display: grid; grid-template-columns: 1fr auto; gap: 20px; padding-top: 22px; font: 900 20px/1 var(--mono); }
+    .receipt-total b { color: var(--red); }
+    .switcher { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 20px; padding: 14px; background: #edf1f3; }
+    .switcher label { color: var(--muted); font-size: 13px; }
+    .toggle { position: relative; display: inline-flex; gap: 4px; padding: 3px; background: #cbd4d9; border-radius: 20px; }
+    .toggle button { cursor: pointer; padding: 7px 10px; color: var(--muted); background: transparent; border: 0; border-radius: 16px; font: 800 10px/1 var(--mono); text-transform: uppercase; }
+    .toggle button.active { color: var(--ink); background: #fff; }
+    .cut-card { padding: 30px; color: #fff; background: var(--navy); }
+    .cut-card .eyebrow { margin-bottom: 13px; }
+    .cut-card h3 { margin: 0 0 15px; font: 900 36px/.95 var(--display); text-transform: uppercase; }
+    .cut-card p { color: #c9d4dd; }
+    .cut-card ul { margin: 22px 0 0; padding: 0; list-style: none; }
+    .cut-card li { position: relative; margin-top: 14px; padding: 14px 0 0 28px; border-top: 1px solid #42556b; }
+    .cut-card li::before { content: "→"; position: absolute; left: 0; color: #ffad88; }
+    .minimum { margin-top: 28px; padding: 18px; color: var(--ink); background: var(--mint); }
+    .minimum span { display: block; color: var(--green); font: 800 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .minimum strong { display: block; margin-top: 6px; font: 900 30px/1 var(--display); }
+
+    .provenance { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .provenance div { min-height: 98px; padding: 18px; background: #fff; }
+    .provenance span { display: block; color: var(--muted); font: 700 10px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .provenance strong { display: block; margin-top: 9px; font-size: 14px; overflow-wrap: anywhere; }
+    footer { margin-top: 70px; padding-top: 20px; color: var(--muted); border-top: 1px solid var(--line); font-size: 12px; }
+
+    @keyframes reveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    @media (max-width: 980px) {
+      .hero-grid, .verdict, .budget-grid { grid-template-columns: 1fr; }
+      .route-card { max-width: 600px; }
+      .verdict { gap: 24px; }
+      .stay-grid { grid-template-columns: repeat(2, 1fr); }
+      .provenance { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .topbar { padding-inline: 20px; }
+      .topnav a:nth-child(-n+2) { display: none; }
+      .hero { padding: 54px 20px 46px; }
+      .hero-grid { gap: 40px; }
+      h1 { font-size: clamp(48px, 16vw, 72px); }
+      .route-card { min-height: 330px; padding: 22px; }
+      main { padding-inline: 20px; }
+      .section { margin-top: 66px; }
+      .section-head { grid-template-columns: 1fr; gap: 10px; }
+      .lede { margin-left: 0; }
+      .board-row { grid-template-columns: 1.25fr .8fr .65fr; padding: 15px; }
+      .board-row > :nth-child(3), .board-row > :nth-child(5) { display: none; }
+      .stay-grid { grid-template-columns: 1fr; }
+      .day-panel, .day-panel.active { grid-template-columns: 1fr; gap: 24px; }
+      .date-block { display: flex; align-items: end; gap: 14px; }
+      .date-block span { margin-bottom: 3px; }
+      .event { grid-template-columns: 75px minmax(0, 1fr); }
+      .cuisine-strip { grid-template-columns: repeat(2, 1fr); }
+      .provenance { grid-template-columns: 1fr; }
+      .caveat { display: block; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="case-id">TravelPlanner / Case 03</div>
+    <nav class="topnav" aria-label="Case sections">
+      <a href="#transport">Flights</a>
+      <a href="#stay">Stay</a>
+      <a href="#plan">3 days</a>
+      <a href="#budget">Budget</a>
+    </nav>
+  </header>
+
+  <section class="hero" aria-labelledby="page-title">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">Family of four · March 20–22, 2022 · $1,500 ceiling</p>
+        <h1 id="page-title">Houston <span>to Fayetteville</span></h1>
+        <p class="hero-copy">A three-day, car-free family plan assembled from the case’s supplied travel search results—and a budget that does not quite make the connection.</p>
+      </div>
+      <article class="route-card" aria-label="Selected round-trip ticket summary">
+        <div class="ticket-head"><strong>FAMILY / 04</strong><span>Cheapest valid air itinerary</span></div>
+        <div class="route-line">
+          <div class="airport"><div class="airport-code">HOU</div><div class="airport-name">Houston</div></div>
+          <div class="plane" aria-hidden="true">✈</div>
+          <div class="airport"><div class="airport-code">FAY</div><div class="airport-name">Fayetteville</div></div>
+        </div>
+        <div class="ticket-facts">
+          <div><span>Outbound</span><strong>F3923211</strong></div>
+          <div><span>Return</span><strong>F3922249</strong></div>
+          <div><span>Family airfare</span><strong>$1,176</strong></div>
+          <div><span>Budget left</span><strong>$324</strong></div>
+        </div>
+        <div class="over-stamp">Budget infeasible</div>
+      </article>
+    </div>
+  </section>
+
+  <main>
+    <section class="verdict" aria-label="Budget verdict">
+      <div class="verdict-number">+$545<span>Over the $1,500 budget</span></div>
+      <div>
+        <h2>No valid plan fits the ceiling</h2>
+        <p>The known plan totals $2,045 when the four restaurant prices are treated as meal totals. Even removing all restaurant spending and using only free attractions leaves flights and qualifying lodging at $1,968—still $468 over, before local transportation or food.</p>
+      </div>
+    </section>
+
+    <section class="section" id="transport">
+      <div class="section-head"><div class="section-kicker">Search 01 / transport</div><h2>The cheapest seats win</h2></div>
+      <p class="lede">The agent searched flights first, compared every outbound air option, excluded self-driving, and retained the sole return flight. Prices below are per person.</p>
+      <div class="flight-board" role="table" aria-label="Outbound flight comparison">
+        <div class="board-row board-head" role="row"><span>Flight</span><span>Depart</span><span>Arrive</span><span>Price</span><span>Decision</span></div>
+        <div class="board-row selected" role="row"><strong>F3923211</strong><span>14:30</span><span>16:17</span><span class="price">$101</span><span class="badge">Selected</span></div>
+        <div class="board-row" role="row"><strong>F3923439</strong><span>09:29</span><span>11:04</span><span class="price">$157</span><span class="badge alt">+$56</span></div>
+        <div class="board-row" role="row"><strong>F3923206</strong><span>19:39</span><span>21:11</span><span class="price">$189</span><span class="badge alt">+$88</span></div>
+      </div>
+      <div class="return-note"><span>Return · March 22 · 19:18–20:52</span><strong>F3922249 · $193/person</strong></div>
+      <div class="caveat"><strong>Ground rule</strong><span>Self-driving was explicitly disallowed. Intercity taxi results cost $1,871 outbound and $1,872 return. Local Fayetteville transit must be taxi, rideshare, or public transit, but the dataset supplied no local fares.</span></div>
+    </section>
+
+    <section class="section" id="stay">
+      <div class="section-head"><div class="section-kicker">Search 02 / lodging</div><h2>One stay clears both gates</h2></div>
+      <p class="lede">The decisive checks were explicit permission for children under 10 and capacity for four. Use the filters to inspect why eleven of twelve listings were rejected.</p>
+      <div class="filterbar" aria-label="Accommodation filters">
+        <button class="filter-btn active" type="button" data-filter="all">All 12</button>
+        <button class="filter-btn" type="button" data-filter="eligible">Qualifying 1</button>
+        <button class="filter-btn" type="button" data-filter="children">Child restriction 5</button>
+        <button class="filter-btn" type="button" data-filter="capacity">Too small 6</button>
+      </div>
+      <div class="stay-grid" id="stay-grid">
+        <article class="stay-card" data-kind="children"><div class="stay-top"><h3>Private BRoom, Bathroom &amp; backyard</h3><span class="rate">$56</span></div><div class="stay-meta">Private room · sleeps 1</div><div class="stay-status">Excluded · no children under 10</div></article>
+        <article class="stay-card" data-kind="children"><div class="stay-top"><h3>CoZy Private Williamsburg Home</h3><span class="rate">$546</span></div><div class="stay-meta">Entire home · sleeps 2</div><div class="stay-status">Excluded · no children under 10</div></article>
+        <article class="stay-card" data-kind="children"><div class="stay-top"><h3>24 Lex Prime Location</h3><span class="rate">$509</span></div><div class="stay-meta">Entire home · sleeps 2</div><div class="stay-status">Excluded · no children under 10</div></article>
+        <article class="stay-card selected" data-kind="eligible"><div class="stay-top"><h3>Brownstone Studio</h3><span class="rate">$396</span></div><div class="stay-meta">Entire home · sleeps 4 · no smoking</div><div class="stay-status">Selected · children allowed + capacity 4</div></article>
+        <article class="stay-card" data-kind="capacity"><div class="stay-top"><h3>GREAT 1BR APT</h3><span class="rate">$135</span></div><div class="stay-meta">Entire home · sleeps 1</div><div class="stay-status">Excluded · capacity below 4</div></article>
+        <article class="stay-card" data-kind="children"><div class="stay-top"><h3>Light-filled South Slope Nest</h3><span class="rate">$790</span></div><div class="stay-meta">Entire home · sleeps 2</div><div class="stay-status">Excluded · no children under 10</div></article>
+        <article class="stay-card" data-kind="children"><div class="stay-top"><h3>Tranquil Haven</h3><span class="rate">$251</span></div><div class="stay-meta">Private room · sleeps 4</div><div class="stay-status">Excluded · no children under 10</div></article>
+        <article class="stay-card" data-kind="capacity"><div class="stay-top"><h3>Modern Luxury Studio</h3><span class="rate">$1,125</span></div><div class="stay-meta">Entire home · sleeps 3</div><div class="stay-status">Excluded · capacity below 4</div></article>
+        <article class="stay-card" data-kind="capacity"><div class="stay-top"><h3>Modern 4-story Building</h3><span class="rate">$276</span></div><div class="stay-meta">Private room · sleeps 3</div><div class="stay-status">Excluded · capacity below 4</div></article>
+        <article class="stay-card" data-kind="capacity"><div class="stay-top"><h3>Charming 1 Bedroom</h3><span class="rate">$433</span></div><div class="stay-meta">Entire home · sleeps 3</div><div class="stay-status">Excluded · capacity below 4</div></article>
+        <article class="stay-card" data-kind="capacity"><div class="stay-top"><h3>Ruby Bedroom</h3><span class="rate">$585</span></div><div class="stay-meta">Private room · sleeps 2</div><div class="stay-status">Excluded · capacity below 4</div></article>
+        <article class="stay-card" data-kind="capacity"><div class="stay-top"><h3>#ERROR!</h3><span class="rate">$442</span></div><div class="stay-meta">Private room · sleeps 3</div><div class="stay-status">Excluded · capacity below 4</div></article>
+      </div>
+      <div class="caveat"><strong>Verify before booking</strong><span>Several names suggest New York rather than Fayetteville, and the dataset supplied no addresses. The agent appropriately flagged this geographic inconsistency. It assumed the displayed $396 rate was nightly, producing $792 for two nights.</span></div>
+    </section>
+
+    <section class="section" id="plan">
+      <div class="section-head"><div class="section-kicker">Searches 03–04 / plan</div><h2>Three days, four cuisines</h2></div>
+      <p class="lede">The plan prioritizes museums, parks, gardens, and nature. Restaurant prices are reported exactly as returned; the search results did not clarify whether they represent a person or an entire check.</p>
+      <div class="days-nav" role="tablist" aria-label="Itinerary days">
+        <button class="day-btn active" type="button" role="tab" aria-selected="true" aria-controls="day-1" data-day="1">Day 1</button>
+        <button class="day-btn" type="button" role="tab" aria-selected="false" aria-controls="day-2" data-day="2">Day 2</button>
+        <button class="day-btn" type="button" role="tab" aria-selected="false" aria-controls="day-3" data-day="3">Day 3</button>
+      </div>
+
+      <div class="day-panel active" id="day-1" role="tabpanel">
+        <div class="date-block"><strong>20</strong><span>Sunday<br>March 2022</span></div>
+        <div class="timeline">
+          <div class="event"><time>2:30 PM</time><div><h3>Depart Houston</h3><p>Flight F3923211, arriving Fayetteville at 4:17 PM.</p></div></div>
+          <div class="event"><time>After arrival</time><div><h3>Taxi or rideshare to Brownstone Studio</h3><p>Check in; local fare was not supplied by the search tool.</p></div></div>
+          <div class="event"><time>Early evening</time><div><h3>Festival Park + downtown walk</h3><p>A low-key outdoor start after the afternoon flight.</p></div></div>
+          <div class="event meal"><time>Dinner</time><div><h3>Chatorey Chacha <span class="cuisine">American</span></h3><p>Returned restaurant price: $11.</p></div></div>
+        </div>
+      </div>
+
+      <div class="day-panel" id="day-2" role="tabpanel" hidden>
+        <div class="date-block"><strong>21</strong><span>Monday<br>March 2022</span></div>
+        <div class="timeline">
+          <div class="event"><time>Breakfast</time><div><h3>Self-cater at the accommodation</h3><p>A deliberate cost-saving choice.</p></div></div>
+          <div class="event"><time>Morning</time><div><h3>Fascinate-U Children’s Museum</h3><p>The most directly child-oriented attraction in the results.</p></div></div>
+          <div class="event meal"><time>Lunch</time><div><h3>Noshi – Yum Asian Delivery <span class="cuisine">French</span></h3><p>Returned restaurant price: $27.</p></div></div>
+          <div class="event"><time>Afternoon</time><div><h3>Museum of the Cape Fear</h3><p>Continue to the nearby 1897 Poe House and Arsenal Park.</p></div></div>
+          <div class="event meal"><time>Dinner</time><div><h3>Smoke N Oven <span class="cuisine">Chinese</span></h3><p>Returned restaurant price: $26.</p></div></div>
+          <div class="event"><time>If time</time><div><h3>North Carolina Veterans Park</h3><p>An optional outdoor close, subject to weather.</p></div></div>
+        </div>
+      </div>
+
+      <div class="day-panel" id="day-3" role="tabpanel" hidden>
+        <div class="date-block"><strong>22</strong><span>Tuesday<br>March 2022</span></div>
+        <div class="timeline">
+          <div class="event"><time>Breakfast</time><div><h3>Self-cater and check out</h3><p>Keep luggage logistics in mind for the day’s stops.</p></div></div>
+          <div class="event"><time>Morning</time><div><h3>Cape Fear Botanical Garden</h3><p>Nature-focused family time before lunch.</p></div></div>
+          <div class="event meal"><time>Lunch</time><div><h3>The Great Kabab Factory <span class="cuisine">Mediterranean</span></h3><p>Returned restaurant price: $13.</p></div></div>
+          <div class="event"><time>Afternoon</time><div><h3>Transportation &amp; Local History Museum</h3><p>Festival Park can fill any extra time before the airport.</p></div></div>
+          <div class="event"><time>7:18 PM</time><div><h3>Fly home to Houston</h3><p>Flight F3922249, arriving at 8:52 PM.</p></div></div>
+        </div>
+      </div>
+
+      <div class="cuisine-strip" aria-label="Cuisine coverage">
+        <div><span>American</span><strong>Chatorey Chacha</strong></div>
+        <div><span>French</span><strong>Noshi</strong></div>
+        <div><span>Chinese</span><strong>Smoke N Oven</strong></div>
+        <div><span>Mediterranean</span><strong>Great Kabab Factory</strong></div>
+      </div>
+    </section>
+
+    <section class="section" id="budget">
+      <div class="section-head"><div class="section-kicker">Final calculation</div><h2>The hard stop is lodging</h2></div>
+      <p class="lede">Cutting meals helps, but it cannot bridge the gap created by mandatory airfare and the only qualifying stay.</p>
+      <div class="budget-grid">
+        <div class="receipt">
+          <div class="receipt-head"><strong>KNOWN COSTS</strong><span>Family of four · 3 days</span></div>
+          <div class="receipt-row"><div>Flights<small>$101 outbound + $193 return × 4</small></div><b>$1,176</b></div>
+          <div class="receipt-row"><div>Brownstone Studio<small>$396 × 2 nights</small></div><b>$792</b></div>
+          <div class="receipt-row"><div>Four assigned restaurant meals<small id="meal-note">Assuming returned prices are per meal/check</small></div><b id="meal-cost">$77</b></div>
+          <div class="receipt-total"><span>Known total</span><b id="known-total">$2,045</b></div>
+          <div class="switcher">
+            <label>Restaurant price interpretation</label>
+            <div class="toggle" aria-label="Restaurant price interpretation">
+              <button class="active" type="button" data-meal="check">Per check</button>
+              <button type="button" data-meal="person">Per person</button>
+            </div>
+          </div>
+        </div>
+        <aside class="cut-card">
+          <p class="eyebrow">Revised plan assessment</p>
+          <h3>Cut food first. The trip still misses.</h3>
+          <p>With every restaurant removed and only free attractions retained, the unavoidable known base remains above budget.</p>
+          <div class="minimum"><span>Flights + qualifying lodging</span><strong>$1,968 · $468 over</strong></div>
+          <ul>
+            <li>Find a qualifying two-night stay at $324 total or less—ideally lower to leave room for food and transit.</li>
+            <li>Use free lodging with family or friends.</li>
+            <li>Secure at least $468 in flight/lodging discounts, plus funds for meals and local transportation.</li>
+            <li>Raise the realistic budget to roughly $2,200–$2,400.</li>
+          </ul>
+        </aside>
+      </div>
+      <div class="caveat"><strong>Unpriced</strong><span>Attraction admission and local transportation were absent from the search results, so the agent did not invent those costs. The $2,045 figure is therefore a known subtotal, not a guaranteed trip total.</span></div>
+    </section>
+
+    <section class="section" aria-labelledby="record-title">
+      <div class="section-head"><div class="section-kicker">Case record</div><h2 id="record-title">What this page represents</h2></div>
+      <div class="provenance">
+        <div><span>Benchmark</span><strong>TravelPlanner</strong></div>
+        <div><span>Model</span><strong>gpt-5.6-sol</strong></div>
+        <div><span>Trajectory format</span><strong>codex-jsonl · 21 records</strong></div>
+        <div><span>Run</span><strong>56.6 seconds · exit 0</strong></div>
+      </div>
+    </section>
+
+    <footer>Case 03_task30_houston_to_fayetteville · Collected July 11, 2026 · No external references were listed in case metadata.</footer>
+  </main>
+
+  <script>
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const stayCards = document.querySelectorAll('.stay-card');
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        filterButtons.forEach(item => item.classList.toggle('active', item === button));
+        const filter = button.dataset.filter;
+        stayCards.forEach(card => card.classList.toggle('hidden', filter !== 'all' && card.dataset.kind !== filter));
+      });
+    });
+
+    const dayButtons = document.querySelectorAll('.day-btn');
+    const dayPanels = document.querySelectorAll('.day-panel');
+    dayButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const selected = button.dataset.day;
+        dayButtons.forEach(item => {
+          const active = item === button;
+          item.classList.toggle('active', active);
+          item.setAttribute('aria-selected', String(active));
+        });
+        dayPanels.forEach(panel => {
+          const active = panel.id === `day-${selected}`;
+          panel.classList.toggle('active', active);
+          panel.hidden = !active;
+        });
+      });
+    });
+
+    const mealButtons = document.querySelectorAll('[data-meal]');
+    const mealCost = document.getElementById('meal-cost');
+    const knownTotal = document.getElementById('known-total');
+    const mealNote = document.getElementById('meal-note');
+    mealButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const perPerson = button.dataset.meal === 'person';
+        mealButtons.forEach(item => item.classList.toggle('active', item === button));
+        mealCost.textContent = perPerson ? '$308' : '$77';
+        knownTotal.textContent = perPerson ? '$2,276' : '$2,045';
+        mealNote.textContent = perPerson ? 'Assuming each returned price applies to each traveler' : 'Assuming returned prices are per meal/check';
+      });
+    });
+  </script>
+</body>
+</html>

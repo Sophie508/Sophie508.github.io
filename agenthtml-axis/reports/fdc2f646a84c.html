@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case 04 — pyupgrade-545 · run trace</title>
+<style>
+  :root{
+    --ink:#15191C;
+    --blue:#20476B;
+    --paper:#EDEFED;
+    --panel:#FBFCFB;
+    --alarm:#D93A1E;
+    --mist:#8C969A;
+    --rule:#CDD3D0;
+
+    --mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
+    --display: "Helvetica Neue", "Inter", "Liberation Sans", Arial, sans-serif;
+    --serif: "Charter", "Bitstream Charter", "Iowan Old Style", Georgia, serif;
+
+    --gut: clamp(1.25rem, 4vw, 3.5rem);
+  }
+
+  *{box-sizing:border-box;}
+
+  html{-webkit-text-size-adjust:100%;}
+
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      linear-gradient(to right, rgba(32,71,107,.055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(32,71,107,.055) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.62;
+  }
+
+  .page{
+    max-width:1140px;
+    margin:0 auto;
+    padding:0 var(--gut) 6rem;
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead{
+    border-bottom:2px solid var(--ink);
+    padding:2rem 0 1.1rem;
+    display:flex;
+    flex-wrap:wrap;
+    gap:1rem 2rem;
+    align-items:flex-end;
+    justify-content:space-between;
+  }
+  .masthead__eyebrow{
+    font-family:var(--mono);
+    font-size:.72rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin:0 0 .5rem;
+  }
+  .masthead__title{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:clamp(1.9rem,5.4vw,3.4rem);
+    line-height:.98;
+    letter-spacing:-.035em;
+    margin:0;
+    text-transform:uppercase;
+  }
+  .masthead__title em{
+    font-style:normal;
+    color:var(--alarm);
+  }
+  .masthead__sub{
+    font-family:var(--mono);
+    font-size:.78rem;
+    color:var(--mist);
+    margin:.8rem 0 0;
+    word-break:break-all;
+  }
+  .stamp{
+    font-family:var(--mono);
+    font-size:.7rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--alarm);
+    border:1.5px solid var(--alarm);
+    border-radius:2px;
+    padding:.5rem .7rem;
+    line-height:1.45;
+    text-align:right;
+    transform:rotate(-1.5deg);
+    flex:0 0 auto;
+  }
+  .stamp b{display:block;font-size:.95rem;letter-spacing:.08em;}
+
+  /* ---------- data strip ---------- */
+
+  .strip{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:1px;
+    background:var(--rule);
+    border:1px solid var(--rule);
+    margin:0 0 4.5rem;
+  }
+  .strip__cell{
+    background:var(--panel);
+    padding:1rem 1.1rem 1.05rem;
+  }
+  .strip__label{
+    font-family:var(--mono);
+    font-size:.64rem;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    color:var(--mist);
+    margin:0 0 .35rem;
+  }
+  .strip__value{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:1.55rem;
+    letter-spacing:-.02em;
+    line-height:1.1;
+    margin:0;
+  }
+  .strip__value small{
+    display:block;
+    font-family:var(--mono);
+    font-weight:400;
+    font-size:.68rem;
+    letter-spacing:.04em;
+    color:var(--blue);
+    margin-top:.2rem;
+  }
+  .is-alarm .strip__value{color:var(--alarm);}
+
+  /* ---------- sectional grid ---------- */
+
+  .band{
+    display:grid;
+    grid-template-columns:minmax(0,150px) minmax(0,1fr);
+    gap:0 clamp(1.25rem,4vw,3.5rem);
+    padding:2.6rem 0;
+    border-top:1px solid var(--rule);
+  }
+  .band__label{
+    font-family:var(--mono);
+    font-size:.68rem;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin:0;
+    padding-top:.55rem;
+  }
+  .band__label span{
+    display:block;
+    color:var(--mist);
+    letter-spacing:.06em;
+    margin-top:.35rem;
+    font-size:.62rem;
+  }
+  .band__body{min-width:0;}
+
+  h2{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:clamp(1.35rem,3vw,1.9rem);
+    letter-spacing:-.025em;
+    line-height:1.08;
+    margin:0 0 .9rem;
+  }
+  h3{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:.95rem;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+    margin:2rem 0 .6rem;
+  }
+  p{margin:0 0 1rem;max-width:64ch;}
+  p.wide{max-width:none;}
+  a{color:var(--blue);}
+  strong{font-weight:700;}
+
+  .lede{
+    font-size:1.09rem;
+    line-height:1.55;
+    color:#2A3134;
+  }
+
+  /* ---------- hero: the constant ---------- */
+
+  .hero{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:clamp(1.5rem,4vw,3rem);
+    align-items:center;
+    margin:.4rem 0 1.4rem;
+  }
+  .runs{
+    display:grid;
+    gap:.85rem;
+    border-left:2px solid var(--ink);
+    padding-left:1.2rem;
+  }
+  .run{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    align-items:center;
+    gap:1rem;
+    opacity:0;
+    animation:stampIn .5s ease forwards;
+  }
+  .run:nth-child(1){animation-delay:.05s;}
+  .run:nth-child(2){animation-delay:.35s;}
+  .run:nth-child(3){animation-delay:.65s;}
+  .run:nth-child(4){animation-delay:.95s;}
+  .run__tag{
+    font-family:var(--mono);
+    font-size:.62rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--mist);
+  }
+  .run__out{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:clamp(2.6rem,8vw,4.6rem);
+    line-height:.85;
+    letter-spacing:-.04em;
+    color:var(--alarm);
+  }
+  .run__note{
+    font-family:var(--mono);
+    font-size:.6rem;
+    color:var(--mist);
+    letter-spacing:.08em;
+    border-top:1px solid var(--rule);
+    padding-top:.3rem;
+  }
+  @keyframes stampIn{
+    from{opacity:0;transform:translateY(8px);}
+    to{opacity:1;transform:none;}
+  }
+
+  .hero__copy{max-width:none;}
+  .hero__copy p:last-child{margin-bottom:0;}
+
+  /* ---------- code ---------- */
+
+  pre.code{
+    font-family:var(--mono);
+    font-size:.76rem;
+    line-height:1.6;
+    background:var(--panel);
+    border:1px solid var(--rule);
+    border-left:3px solid var(--blue);
+    padding:1rem 1.1rem;
+    overflow-x:auto;
+    margin:0 0 1rem;
+    max-width:none;
+  }
+  pre.code .kw{color:var(--blue);}
+  pre.code .cm{color:var(--mist);font-style:italic;}
+
+  .arrowline{
+    font-family:var(--mono);
+    font-size:.74rem;
+    color:var(--mist);
+    margin:.2rem 0 1rem;
+    letter-spacing:.04em;
+  }
+  .arrowline b{color:var(--alarm);font-weight:400;}
+  .arrowline i{color:var(--blue);font-style:normal;}
+
+  /* ---------- echo tape (signature) ---------- */
+
+  .tape{
+    border:1px solid var(--rule);
+    background:var(--panel);
+    padding:1.3rem 1.3rem 1.6rem;
+    margin:.4rem 0 1.2rem;
+    overflow:hidden;
+  }
+  .tape__head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:1rem;
+    font-family:var(--mono);
+    font-size:.62rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--mist);
+    border-bottom:1px solid var(--rule);
+    padding-bottom:.6rem;
+    margin-bottom:1rem;
+  }
+  .tape__head b{color:var(--alarm);font-weight:400;letter-spacing:.1em;}
+  .echo{
+    display:flex;
+    flex-wrap:nowrap;
+    gap:.45rem;
+    font-family:var(--mono);
+    font-size:.64rem;
+    white-space:nowrap;
+    margin-bottom:.5rem;
+    align-items:center;
+  }
+  .echo__n{
+    color:var(--mist);
+    flex:0 0 3.2rem;
+    font-size:.58rem;
+    letter-spacing:.1em;
+  }
+  .echo__step{
+    border:1px solid var(--rule);
+    color:#3A4246;
+    padding:.22rem .5rem;
+    background:var(--paper);
+  }
+  .echo__step.is-edit{
+    border-color:var(--alarm);
+    color:var(--alarm);
+    background:rgba(217,58,30,.06);
+  }
+  .echo--1{opacity:1;margin-left:0;}
+  .echo--2{opacity:.66;margin-left:1.2rem;}
+  .echo--3{opacity:.4;margin-left:2.4rem;}
+  .echo--4{opacity:.22;margin-left:3.6rem;}
+
+  .looprail{
+    position:relative;
+    height:1.5rem;
+    margin-left:3.2rem;
+    border-left:1px solid var(--rule);
+    border-right:1px solid var(--rule);
+    border-bottom:1px solid var(--alarm);
+    border-radius:0 0 6px 6px;
+    max-width:32rem;
+  }
+  .looprail::after{
+    content:"↺ back to scroll_up";
+    position:absolute;
+    left:0;
+    bottom:-1.35rem;
+    font-family:var(--mono);
+    font-size:.6rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--alarm);
+  }
+  .looprail__dot{
+    position:absolute;
+    top:-3px;
+    left:0;
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--alarm);
+    animation:sweep 5.4s linear infinite;
+  }
+  @keyframes sweep{
+    0%{left:0;opacity:1;}
+    88%{left:calc(100% - 7px);opacity:1;}
+    92%{left:calc(100% - 7px);opacity:0;}
+    93%{left:0;opacity:0;}
+    100%{left:0;opacity:1;}
+  }
+  .tape__foot{
+    font-family:var(--mono);
+    font-size:.62rem;
+    color:var(--mist);
+    letter-spacing:.06em;
+    margin:2.4rem 0 0;
+  }
+
+  /* ---------- diff ---------- */
+
+  .diff{
+    font-family:var(--mono);
+    font-size:.74rem;
+    line-height:1.55;
+    border:1px solid var(--rule);
+    background:var(--panel);
+    overflow-x:auto;
+    margin:0 0 1rem;
+    max-width:none;
+  }
+  .diff__head{
+    padding:.6rem 1rem;
+    border-bottom:1px solid var(--rule);
+    font-size:.64rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--mist);
+  }
+  .diff__body{padding:.7rem 0;}
+  .dl{
+    display:block;
+    padding:.05rem 1rem .05rem 2.6rem;
+    position:relative;
+    white-space:pre;
+  }
+  .dl::before{
+    content:attr(data-sign);
+    position:absolute;
+    left:1rem;
+    color:var(--mist);
+  }
+  .dl--add{background:rgba(217,58,30,.075);color:#7E2412;}
+  .dl--add::before{color:var(--alarm);}
+  .dl--ctx{color:#5A6469;}
+  .dl--hunk{color:var(--blue);background:rgba(32,71,107,.05);}
+  .dl--dead{background:rgba(217,58,30,.16);color:#6B1D0E;text-decoration:line-through;
+            text-decoration-color:rgba(217,58,30,.55);}
+
+  .callout{
+    border-left:3px solid var(--alarm);
+    background:rgba(217,58,30,.05);
+    padding:.9rem 1.1rem;
+    margin:0 0 1.2rem;
+    max-width:none;
+  }
+  .callout p{margin:0;max-width:none;}
+  .callout p + p{margin-top:.6rem;}
+
+  /* ---------- tape / turn log ---------- */
+
+  .tools{
+    display:flex;
+    gap:.6rem;
+    align-items:center;
+    margin:0 0 1rem;
+    flex-wrap:wrap;
+  }
+  .btn{
+    font-family:var(--mono);
+    font-size:.66rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    background:var(--panel);
+    color:var(--blue);
+    border:1px solid var(--rule);
+    padding:.45rem .8rem;
+    cursor:pointer;
+  }
+  .btn:hover{border-color:var(--blue);}
+  .btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+  .log{
+    border-top:1px solid var(--rule);
+    counter-reset:turn;
+  }
+  .turn{
+    border-bottom:1px solid var(--rule);
+    background:var(--panel);
+  }
+  .turn[open]{background:#FFF;}
+  .turn__summary{
+    display:grid;
+    grid-template-columns:3.1rem 1fr auto;
+    gap:.9rem;
+    align-items:baseline;
+    padding:.62rem .7rem;
+    cursor:pointer;
+    list-style:none;
+  }
+  .turn__summary::-webkit-details-marker{display:none;}
+  .turn__summary:focus-visible{outline:2px solid var(--blue);outline-offset:-2px;}
+  .turn__no{
+    font-family:var(--mono);
+    font-size:.64rem;
+    letter-spacing:.08em;
+    color:var(--mist);
+  }
+  .turn__cmd{
+    font-family:var(--mono);
+    font-size:.76rem;
+    color:var(--ink);
+    overflow-wrap:anywhere;
+  }
+  .turn__cmd .verb{color:var(--blue);}
+  .turn__res{
+    font-family:var(--mono);
+    font-size:.64rem;
+    color:var(--mist);
+    text-align:right;
+    white-space:nowrap;
+  }
+  .turn--alarm .turn__res{color:var(--alarm);}
+  .turn--alarm .turn__cmd .verb{color:var(--alarm);}
+  .turn__body{
+    padding:0 .7rem 1rem 4.7rem;
+    font-family:var(--mono);
+    font-size:.7rem;
+    line-height:1.65;
+    color:#48525A;
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;
+  }
+  .turn__body b{color:var(--alarm);font-weight:400;}
+
+  /* ---------- close ---------- */
+
+  .closing{
+    border-top:2px solid var(--ink);
+    margin-top:3rem;
+    padding-top:1.6rem;
+    display:grid;
+    grid-template-columns:minmax(0,150px) minmax(0,1fr);
+    gap:0 clamp(1.25rem,4vw,3.5rem);
+  }
+  .closing .band__label{padding-top:.55rem;}
+  .meta{
+    font-family:var(--mono);
+    font-size:.66rem;
+    line-height:1.9;
+    color:var(--mist);
+    margin-top:1.6rem;
+    max-width:none;
+  }
+  .meta span{color:var(--blue);}
+
+  @media (max-width:720px){
+    .band,.closing{grid-template-columns:1fr;}
+    .band__label{padding-top:0;margin-bottom:.9rem;
+      display:flex;gap:1rem;align-items:baseline;}
+    .band__label span{margin-top:0;}
+    .turn__summary{grid-template-columns:2.4rem 1fr;}
+    .turn__res{grid-column:2;text-align:left;white-space:normal;}
+    .turn__body{padding-left:1rem;}
+    .echo--2{margin-left:.4rem;}
+    .echo--3{margin-left:.8rem;}
+    .echo--4{margin-left:1.2rem;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .run{opacity:1;animation:none;}
+    .looprail__dot{animation:none;left:calc(100% - 7px);}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <div>
+      <p class="masthead__eyebrow">Case 04 · code_repair · SWE-bench · upstream</p>
+      <h1 class="masthead__title">pyupgrade <em>545</em><br>the run that looped</h1>
+      <p class="masthead__sub">asottile__pyupgrade-545 · trajs/code_repair/04_asottile__pyupgrade-545.traj</p>
+    </div>
+    <div class="stamp">
+      <b>Not solved</b>
+      exit_context · patch invalid
+    </div>
+  </header>
+
+  <section class="strip" aria-label="Run at a glance">
+    <div class="strip__cell">
+      <p class="strip__label">Agent turns</p>
+      <p class="strip__value">28<small>57 messages total</small></p>
+    </div>
+    <div class="strip__cell">
+      <p class="strip__label">Reproduction runs</p>
+      <p class="strip__value">4<small>all printed the same line</small></p>
+    </div>
+    <div class="strip__cell">
+      <p class="strip__label">Source edits</p>
+      <p class="strip__value">5<small>3 were byte-identical</small></p>
+    </div>
+    <div class="strip__cell is-alarm">
+      <p class="strip__label">Tests run</p>
+      <p class="strip__value">0<small>suite never invoked</small></p>
+    </div>
+    <div class="strip__cell">
+      <p class="strip__label">Model</p>
+      <p class="strip__value" style="font-size:1.05rem">swe-agent<br>llama-70b</p>
+    </div>
+  </section>
+
+  <!-- ================= HERO ================= -->
+  <section class="band">
+    <p class="band__label">The evidence<span>turns 03, 12, 19, 24</span></p>
+    <div class="band__body">
+      <h2>Four runs. One output. Nothing changed.</h2>
+      <div class="hero">
+        <div class="runs" aria-label="Output of python reproduce.py across four runs">
+          <div class="run"><span class="run__tag">Run 01</span><span class="run__out">0</span></div>
+          <div class="run"><span class="run__tag">Run 02</span><span class="run__out">0</span></div>
+          <div class="run"><span class="run__tag">Run 03</span><span class="run__out">0</span></div>
+          <div class="run"><span class="run__tag">Run 04</span><span class="run__out">0</span></div>
+          <div class="run__note">byte-identical stdout, every time</div>
+        </div>
+        <div class="hero__copy">
+          <p class="lede">The agent read this constant <span style="font-family:var(--mono)">0</span> as proof the argument was still being dropped. It was not evidence of anything.</p>
+          <p><span style="font-family:var(--mono);font-size:.85em">reproduce.py</span> contains the issue's example and a final <span style="font-family:var(--mono);font-size:.85em">print(Child.func(1))</span>. Running that file executes the <em>original, un-rewritten</em> source, which returns <span style="font-family:var(--mono);font-size:.85em">0</span> whether or not pyupgrade works. No command in the whole trajectory ever ran pyupgrade over the file.</p>
+          <p>So the check had no discriminating power in either direction, and the agent spent four runs and three edits chasing a number that could not move.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p><strong>The missing step.</strong> A working reproduction would rewrite the file first — pyupgrade over <span style="font-family:var(--mono);font-size:.85em">reproduce.py</span>, then execute the result. Only then does the bug surface as a <span style="font-family:var(--mono);font-size:.85em">TypeError</span> from <span style="font-family:var(--mono);font-size:.85em">super().func()</span> instead of a silent <span style="font-family:var(--mono);font-size:.85em">0</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BUG ================= -->
+  <section class="band">
+    <p class="band__label">The defect<span>issue #545</span></p>
+    <div class="band__body">
+      <h2>Legacy-super rewriting assumes the first argument is <span style="font-family:var(--mono)">self</span></h2>
+      <p>The issue statement is one sentence long: rewriting old-style superclasses removes arguments for static methods.</p>
+      <pre class="code"><span class="kw">class</span> Parent:
+    <span class="cm">@staticmethod</span>
+    <span class="kw">def</span> func(arg):
+        <span class="kw">return</span> 0
+
+<span class="kw">class</span> Child(Parent):
+    <span class="cm">@staticmethod</span>
+    <span class="kw">def</span> func(arg):
+        <span class="kw">return</span> Parent.func(arg)</pre>
+      <p class="arrowline">pyupgrade rewrites&nbsp; <i>Parent.func(arg)</i> &nbsp;→&nbsp; <b>super().func()</b> &nbsp;(should be <i>super().func(arg)</i>)</p>
+      <p>In <span style="font-family:var(--mono);font-size:.85em">pyupgrade/_plugins/legacy.py</span>, the visitor detects <span style="font-family:var(--mono);font-size:.85em">base.name(first_arg, …)</span> when the first argument matches the enclosing function's first parameter, records it as an old-style superclass call, and <span style="font-family:var(--mono);font-size:.85em">visit_Module</span> builds the replacement as <span style="font-family:var(--mono);font-size:.85em">super().{name}({rest})</span>. Downstream, <span style="font-family:var(--mono);font-size:.85em">replace_call</span> derives <span style="font-family:var(--mono);font-size:.85em">rest</span> starting <em>after</em> the first argument. That is correct for an instance method, where argument zero is <span style="font-family:var(--mono);font-size:.85em">self</span> and disappears into <span style="font-family:var(--mono);font-size:.85em">super()</span> — and wrong for a <span style="font-family:var(--mono);font-size:.85em">@staticmethod</span>, where argument zero is a real argument that gets silently discarded.</p>
+      <p>A fix therefore has to reach the detection logic in <span style="font-family:var(--mono);font-size:.85em">legacy.py</span> — the place the agent identified but never edited. It opened that file twice, then moved on and edited a different module entirely.</p>
+    </div>
+  </section>
+
+  <!-- ================= LOOP ================= -->
+  <section class="band">
+    <p class="band__label">Signature<span>the echo tape</span></p>
+    <div class="band__body">
+      <h2>A six-command cycle, replayed verbatim</h2>
+      <p>From turn 13 onward the agent settles into one cycle: two scroll-ups, a scroll-down, an edit of <span style="font-family:var(--mono);font-size:.85em">parse_call_args</span>, a run, repeat. The reasoning text of turns 20&ndash;28 replays turns 13&ndash;21 verbatim. No new file was opened, no test was read, no hypothesis changed.</p>
+
+      <div class="tape">
+        <div class="tape__head">
+          <span>Command tape · turns 13–28</span>
+          <b>repetition ×3</b>
+        </div>
+        <div class="echo echo--1">
+          <span class="echo__n">PASS 1</span>
+          <span class="echo__step">scroll_up</span>
+          <span class="echo__step">scroll_up</span>
+          <span class="echo__step">scroll_down</span>
+          <span class="echo__step is-edit">edit 371:392</span>
+          <span class="echo__step">python reproduce.py</span>
+        </div>
+        <div class="echo echo--2">
+          <span class="echo__n">PASS 2</span>
+          <span class="echo__step">scroll_up</span>
+          <span class="echo__step">scroll_up</span>
+          <span class="echo__step">scroll_down</span>
+          <span class="echo__step is-edit">edit 371:392</span>
+          <span class="echo__step">python reproduce.py</span>
+        </div>
+        <div class="echo echo--3">
+          <span class="echo__n">PASS 3</span>
+          <span class="echo__step">scroll_up</span>
+          <span class="echo__step">scroll_up</span>
+          <span class="echo__step">scroll_down</span>
+          <span class="echo__step is-edit">edit 371:392</span>
+        </div>
+        <div class="echo echo--4">
+          <span class="echo__n">PASS 4</span>
+          <span class="echo__step">…</span>
+        </div>
+        <div class="looprail" aria-hidden="true"><span class="looprail__dot"></span></div>
+        <p class="tape__foot">The run ends mid-edit at turn 28: a fourth identical <span style="font-family:var(--mono)">edit 371:392</span> with no reply. Exit status <span style="color:var(--alarm)">submitted (exit_context)</span> — the budget, not the problem, decided when this stopped.</p>
+      </div>
+
+      <h3>Why the repeated edit could never work</h3>
+      <p>The three identical edits append this to <span style="font-family:var(--mono);font-size:.85em">parse_call_args</span>:</p>
+      <pre class="code"><span class="cm"># Always include the first argument</span>
+<span class="kw">if</span> <span class="kw">not</span> args <span class="kw">and</span> tokens_to_src(tokens[arg_start:i]).strip():
+    args.append((arg_start, i))</pre>
+      <p>For the call in question, <span style="font-family:var(--mono);font-size:.85em">Parent.func(arg)</span>, <span style="font-family:var(--mono);font-size:.85em">parse_call_args</span> already returns exactly one argument — so <span style="font-family:var(--mono);font-size:.85em">not args</span> is false and the new branch never executes. The guard only fires on a zero-argument call, which is the case that was never broken. Even a branch that did fire would not help: <span style="font-family:var(--mono);font-size:.85em">replace_call</span> builds <span style="font-family:var(--mono);font-size:.85em">rest</span> from <span style="font-family:var(--mono);font-size:.85em">args[0][1] + 1</span> regardless, so argument zero is dropped by the caller, not the parser.</p>
+      <p>The earlier edit at turn 11 is the same story in a different register: the narration says "let's edit the function to always include the arguments," and the edit itself only re-indents the signature of <span style="font-family:var(--mono);font-size:.85em">find_and_replace_call</span> from the project's 8-space continuation style to 4, plus one whitespace tweak in <span style="font-family:var(--mono);font-size:.85em">Tuple[int, ...]</span>. Stated intent and applied change have nothing to do with each other.</p>
+    </div>
+  </section>
+
+  <!-- ================= PATCH ================= -->
+  <section class="band">
+    <p class="band__label">The artifact<span>generated_patch</span></p>
+    <div class="band__body">
+      <h2>What was submitted</h2>
+      <p>The patch touches two files. <span style="font-family:var(--mono);font-size:.85em">reproduce.py</span> is a scratch file added to the repository root. The real change is 1,368 bytes against <span style="font-family:var(--mono);font-size:.85em">pyupgrade/_token_helpers.py</span>, and it is broken:</p>
+      <div class="diff">
+        <div class="diff__head">pyupgrade/_token_helpers.py · @@ -389,6 +389,18 @@</div>
+        <div class="diff__body">
+          <span class="dl dl--ctx" data-sign=" ">        i += 1</span>
+          <span class="dl dl--ctx" data-sign=" "></span>
+          <span class="dl dl--add" data-sign="+">    # Always include the first argument</span>
+          <span class="dl dl--add" data-sign="+">    if not args and tokens_to_src(tokens[arg_start:i]).strip():</span>
+          <span class="dl dl--add" data-sign="+">        args.append((arg_start, i))</span>
+          <span class="dl dl--add" data-sign="+"></span>
+          <span class="dl dl--add" data-sign="+">    return args, i</span>
+          <span class="dl dl--dead" data-sign="+">    if not args and tokens_to_src(tokens[arg_start:i]).strip():</span>
+          <span class="dl dl--dead" data-sign="+">        args.append((arg_start, i))</span>
+          <span class="dl dl--dead" data-sign="+"></span>
+          <span class="dl dl--dead" data-sign="+">    return args, i</span>
+          <span class="dl dl--dead" data-sign="+">    if not args and tokens_to_src(tokens[arg_start:i]).strip():</span>
+          <span class="dl dl--dead" data-sign="+">        args.append((arg_start, i))</span>
+          <span class="dl dl--dead" data-sign="+"></span>
+          <span class="dl dl--ctx" data-sign=" ">    return args, i</span>
+        </div>
+      </div>
+      <p>The same three-line block is spliced in three times, twice of it behind an unconditional <span style="font-family:var(--mono);font-size:.85em">return</span> — unreachable code. It is what three successive <span style="font-family:var(--mono);font-size:.85em">edit 371:392</span> commands produce when each one re-inserts its replacement without removing the previous copy; the file's line count creeps 518 → 522 → 526 across the runs. The second hunk is the cosmetic re-indent from turn 11.</p>
+      <p>Nothing here changes pyupgrade's output for the reported case. The patch was never validated against any test.</p>
+    </div>
+  </section>
+
+  <!-- ================= TURN LOG ================= -->
+  <section class="band">
+    <p class="band__label">Full trace<span>28 turns</span></p>
+    <div class="band__body">
+      <h2>Every command, in order</h2>
+      <div class="tools">
+        <button class="btn" type="button" id="expandAll" aria-controls="log">Expand all evidence</button>
+      </div>
+      <div class="log" id="log">
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">01</span><span class="turn__cmd"><span class="verb">create</span> reproduce.py</span><span class="turn__res">file created</span></summary>
+          <div class="turn__body">[File: /pyupgrade/reproduce.py (1 lines total)]</div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">02</span><span class="turn__cmd"><span class="verb">edit</span> 1:1 — insert the issue's example</span><span class="turn__res">11 lines</span></summary>
+          <div class="turn__body">class Parent:
+    @staticmethod
+    def func(arg):
+        return 0
+
+class Child(Parent):
+    @staticmethod
+    def func(arg):
+        return Parent.func(arg)
+
+print(Child.func(1))</div>
+        </details>
+
+        <details class="turn turn--alarm">
+          <summary class="turn__summary"><span class="turn__no">03</span><span class="turn__cmd"><span class="verb">python</span> reproduce.py</span><span class="turn__res">0 — run 1</span></summary>
+          <div class="turn__body">0
+<b>Read as "the argument was not correctly passed." It is the output of the un-rewritten source either way.</b></div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">04</span><span class="turn__cmd"><span class="verb">search_dir</span> "super"</span><span class="turn__res">60 matches / 6 files</span></summary>
+          <div class="turn__body">/pyupgrade/README.md (2 matches)
+/pyupgrade/pyupgrade.egg-info/PKG-INFO (2 matches)
+/pyupgrade/pyupgrade/_main.py (1 matches)
+/pyupgrade/pyupgrade/_plugins/legacy.py (10 matches)
+/pyupgrade/tests/features/super_test.py (41 matches)
+/pyupgrade/tests/main_test.py (4 matches)
+<b>super_test.py — 41 matches, the suite that covers this exact behaviour — is surfaced here and never opened.</b></div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">05</span><span class="turn__cmd"><span class="verb">open</span> pyupgrade/_plugins/legacy.py</span><span class="turn__res">198 lines</span></summary>
+          <div class="turn__body">Correct file. Lines 102–141 hold visit_Call's super / old-super detection; lines 176–198 hold visit_Module, which builds the replacement templates.</div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">06</span><span class="turn__cmd"><span class="verb">scroll_down</span></span><span class="turn__res">now at 99–198</span></summary>
+          <div class="turn__body">Reveals the old-super branch: requires node.args[0].id == first parameter of the enclosing function, and stores (offset, func_name) in old_super_offsets.</div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">07</span><span class="turn__cmd"><span class="verb">goto</span> 188</span><span class="turn__res">same window</span></summary>
+          <div class="turn__body">template = f'super().{func_name}({rest})'  —  the template that discards argument zero.</div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">08</span><span class="turn__cmd"><span class="verb">open</span> pyupgrade/_token_helpers.py</span><span class="turn__res">518 lines</span></summary>
+          <div class="turn__body">Leaves the file that actually needs the fix for the token layer that implements it.</div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">09</span><span class="turn__cmd"><span class="verb">search_file</span> "def find_and_replace_call"</span><span class="turn__res">line 450</span></summary>
+          <div class="turn__body">Found 1 match: line 450.</div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">10</span><span class="turn__cmd"><span class="verb">goto</span> 450</span><span class="turn__res">reads 419–518</span></summary>
+          <div class="turn__body">Sees replace_call: start_rest = args[0][1] + 1 ... rest = tokens_to_src(tokens[start_rest:end_rest]) and src = tmpl.format(args=arg_strs, rest=rest). The skip of argument zero is visible right here.</div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">11</span><span class="turn__cmd"><span class="verb">edit</span> 450:459 — "always include the arguments"</span><span class="turn__res">whitespace only</span></summary>
+          <div class="turn__body">Narration: "Let's edit the function to always include the arguments in the call."
+Applied change: the signature is re-indented from the project's 8-space continuation style to 4 spaces, and Tuple[int, ...] becomes Tuple[int,...],  — no executable change.
+File reported as 518 lines before and after.</div>
+        </details>
+
+        <details class="turn turn--alarm">
+          <summary class="turn__summary"><span class="turn__no">12</span><span class="turn__cmd"><span class="verb">python</span> reproduce.py</span><span class="turn__res">0 — run 2</span></summary>
+          <div class="turn__body">0
+<b>No change is possible: pyupgrade was never executed on this file.</b></div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">13</span><span class="turn__cmd"><span class="verb">scroll_up</span></span><span class="turn__res">cycle begins</span></summary>
+          <div class="turn__body">Cycle pass 1.</div>
+        </details>
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">14</span><span class="turn__cmd"><span class="verb">scroll_up</span></span><span class="turn__res">cycle</span></summary>
+          <div class="turn__body">Cycle pass 1.</div>
+        </details>
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">15</span><span class="turn__cmd"><span class="verb">scroll_down</span></span><span class="turn__res">cycle</span></summary>
+          <div class="turn__body">Cycle pass 1. Re-reads replace_call, then parse_call_args — both already fully read.</div>
+        </details>
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">16</span><span class="turn__cmd"><span class="verb">scroll_up</span></span><span class="turn__res">cycle</span></summary>
+          <div class="turn__body">Cycle pass 1.</div>
+        </details>
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">17</span><span class="turn__cmd"><span class="verb">scroll_down</span></span><span class="turn__res">cycle</span></summary>
+          <div class="turn__body">Cycle pass 1. Same window as turn 15.</div>
+        </details>
+
+        <details class="turn turn--alarm">
+          <summary class="turn__summary"><span class="turn__no">18</span><span class="turn__cmd"><span class="verb">edit</span> 371:392 — append "always include the first argument"</span><span class="turn__res">+4 lines, unreachable</span></summary>
+          <div class="turn__body"># Always include the first argument
+if not args and tokens_to_src(tokens[arg_start:i]).strip():
+    args.append((arg_start, i))
+
+<b>Guard is `not args`; the failing call has one argument, so the branch is dead on arrival.</b></div>
+        </details>
+
+        <details class="turn turn--alarm">
+          <summary class="turn__summary"><span class="turn__no">19</span><span class="turn__cmd"><span class="verb">python</span> reproduce.py</span><span class="turn__res">0 — run 3</span></summary>
+          <div class="turn__body">0</div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">20</span><span class="turn__cmd"><span class="verb">scroll_up</span></span><span class="turn__res">cycle — pass 2</span></summary>
+          <div class="turn__body">Reasoning text from here to turn 28 replays turns 13–21 word for word.</div>
+        </details>
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">21</span><span class="turn__cmd"><span class="verb">scroll_up</span></span><span class="turn__res">cycle</span></summary>
+          <div class="turn__body">Cycle pass 2.</div>
+        </details>
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">22</span><span class="turn__cmd"><span class="verb">scroll_down</span></span><span class="turn__res">cycle</span></summary>
+          <div class="turn__body">Cycle pass 2.</div>
+        </details>
+
+        <details class="turn turn--alarm">
+          <summary class="turn__summary"><span class="turn__no">23</span><span class="turn__cmd"><span class="verb">edit</span> 371:392 — identical to turn 18</span><span class="turn__res">duplicate splices in</span></summary>
+          <div class="turn__body">Byte-identical edit text. File grows 522 → 526 lines; a second copy lands behind the return.</div>
+        </details>
+
+        <details class="turn turn--alarm">
+          <summary class="turn__summary"><span class="turn__no">24</span><span class="turn__cmd"><span class="verb">python</span> reproduce.py</span><span class="turn__res">0 — run 4</span></summary>
+          <div class="turn__body">0</div>
+        </details>
+
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">25</span><span class="turn__cmd"><span class="verb">scroll_up</span></span><span class="turn__res">cycle — pass 3</span></summary>
+          <div class="turn__body">Cycle pass 3.</div>
+        </details>
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">26</span><span class="turn__cmd"><span class="verb">scroll_up</span></span><span class="turn__res">cycle</span></summary>
+          <div class="turn__body">Cycle pass 3.</div>
+        </details>
+        <details class="turn">
+          <summary class="turn__summary"><span class="turn__no">27</span><span class="turn__cmd"><span class="verb">scroll_down</span></span><span class="turn__res">cycle</span></summary>
+          <div class="turn__body">Cycle pass 3.</div>
+        </details>
+
+        <details class="turn turn--alarm">
+          <summary class="turn__summary"><span class="turn__no">28</span><span class="turn__cmd"><span class="verb">edit</span> 371:392 — identical again</span><span class="turn__res">no reply; run ends</span></summary>
+          <div class="turn__body">Third byte-identical edit. The trajectory stops here with no tool result — exit_context. Total turn count: 28.</div>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CLOSE ================= -->
+  <section class="closing">
+    <p class="band__label">Reading<span>and its limits</span></p>
+    <div class="band__body">
+      <h2>What can and cannot be concluded</h2>
+      <p><strong>Solid.</strong> The run did not fix the issue. Its reproduction never invoked the tool under repair, its repeated edit was unreachable by construction, and the submitted patch contains duplicated dead code. Exit status is <span style="font-family:var(--mono);font-size:.85em">submitted (exit_context)</span>: the loop was cut off by the context budget, not by the agent concluding it was done. The failure is one of verification discipline — four identical observations were treated as four pieces of evidence, and the one file that needed editing was read and left alone.</p>
+      <p><strong>Uncertain.</strong> The three default failure modes to watch for (a stuck reproduction, a no-op edit, a loop that ended only on budget) are all present, but I cannot report an official test verdict. <span style="font-family:var(--mono);font-size:.85em">case_meta.json</span> lists <span style="font-family:var(--mono);font-size:.85em">eval_logs</span> and <span style="font-family:var(--mono);font-size:.85em">target</span> among its stripped fields, so the gold patch and the harness result are not in this case directory. The judgement above rests on the transcript and the generated patch as recorded, not on a passing or failing test run.</p>
+      <p class="meta">
+        source <span>trajs/code_repair/04_asottile__pyupgrade-545.traj</span><br>
+        trajectory sha256 <span>4e1458c4cffcd9e1c1501d5df53f9cd7b1dde3c1a41c4c01d8ccf6b101b29b42</span><br>
+        format <span>swe-agent-traj</span> · references <span>none declared</span> · media <span>none embedded</span><br>
+        patch size <span>1368 bytes</span> · exit status <span>submitted (exit_context)</span>
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function () {
+    var btn = document.getElementById('expandAll');
+    var turns = Array.prototype.slice.call(document.querySelectorAll('#log .turn'));
+    if (!btn || !turns.length) return;
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') !== 'true';
+      turns.forEach(function (t) { t.open = open; });
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'Collapse all evidence' : 'Expand all evidence';
+    });
+  })();
+</script>
+</body>
+</html>

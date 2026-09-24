@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DKPES · Random Forest Classifier — Trajectory</title>
+<style>
+  :root{
+    --ink:#0a0f10;
+    --panel:#111a1b;
+    --panel-2:#0e1516;
+    --line:#233031;
+    --line-soft:#1a2425;
+    --paper:#e9efe9;
+    --paper-dim:#9fb0aa;
+    --paper-faint:#6b7d78;
+    --phos:#79e6a8;
+    --cyan:#57cdc0;
+    --amber:#e2a95a;
+    --terra:#d97a5c;
+    --violet:#a89adf;
+    --serif:"Palatino Linotype","Book Antiqua",Palatino,"URW Palladio L",Georgia,serif;
+    --mono:ui-monospace,"SF Mono",Menlo,"Cascadia Mono","Roboto Mono",Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--ink);color:var(--paper);
+    font-family:var(--serif);line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  /* grain + faint grid */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.45;
+    background-image:
+      linear-gradient(rgba(121,230,168,.025) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(121,230,168,.025) 1px,transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(ellipse 120% 80% at 50% 0%,#000 30%,transparent 90%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.4;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+  .wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 28px}
+
+  /* mono utility */
+  .mono{font-family:var(--mono)}
+  .eyebrow{
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--phos);font-weight:500;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;padding:90px 0 54px;overflow:hidden}
+  .steroid{
+    position:absolute;right:-40px;top:20px;width:520px;height:420px;z-index:0;
+    opacity:.16;pointer-events:none;
+  }
+  .steroid path,.steroid line,.steroid circle{stroke:var(--cyan);fill:none;stroke-width:1.4}
+  .hero-inner{position:relative;z-index:2;max-width:760px}
+  .kicker-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:26px}
+  .tag{
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;
+    padding:5px 10px;border:1px solid var(--line);border-radius:2px;color:var(--paper-dim);
+    background:rgba(17,26,27,.6);backdrop-filter:blur(2px);
+  }
+  h1{
+    font-size:clamp(2.7rem,7vw,4.9rem);line-height:.98;margin:.1em 0 .3em;font-weight:600;
+    letter-spacing:-.02em;
+  }
+  h1 .sub{display:block;font-style:italic;font-weight:400;color:var(--phos);font-size:.42em;letter-spacing:0;margin-top:.5em}
+  .lede{font-size:1.24rem;color:var(--paper-dim);max-width:600px;margin:0 0 30px}
+  .lede em{color:var(--paper);font-style:italic}
+  .meta-strip{
+    display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);border-radius:4px;
+    background:linear-gradient(180deg,rgba(17,26,27,.9),rgba(14,21,22,.9));overflow:hidden;
+  }
+  .meta-strip div{
+    flex:1 1 120px;padding:14px 18px;border-right:1px solid var(--line-soft);
+  }
+  .meta-strip div:last-child{border-right:none}
+  .meta-strip .lab{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--paper-faint);display:block;margin-bottom:5px}
+  .meta-strip .val{font-family:var(--mono);font-size:.95rem;color:var(--paper)}
+  .meta-strip .val.ok{color:var(--phos)}
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section{padding:60px 0;border-top:1px solid var(--line-soft)}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:34px}
+  .sec-num{font-family:var(--mono);font-size:.8rem;color:var(--phos);opacity:.7}
+  h2{font-size:clamp(1.6rem,3.4vw,2.3rem);margin:0;font-weight:600;letter-spacing:-.01em}
+  .sec-head p{margin:0;color:var(--paper-faint);font-style:italic;font-size:.95rem}
+
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- BRIEF ---------- */
+  .brief{
+    display:grid;grid-template-columns:1.4fr 1fr;gap:22px;
+  }
+  .brief-card{
+    border:1px solid var(--line);border-radius:6px;padding:26px 28px;
+    background:linear-gradient(160deg,var(--panel),var(--panel-2));
+  }
+  .brief-card h3{margin:0 0 14px;font-size:1.05rem;font-weight:600;color:var(--cyan);
+    font-family:var(--mono);letter-spacing:.02em;font-size:.9rem;text-transform:uppercase;letter-spacing:.14em}
+  .brief-card p{margin:0 0 14px;color:var(--paper-dim)}
+  .brief-card p:last-child{margin-bottom:0}
+  .goal-list{list-style:none;margin:0;padding:0;counter-reset:g}
+  .goal-list li{
+    counter-increment:g;position:relative;padding:11px 0 11px 42px;border-bottom:1px dashed var(--line-soft);
+    color:var(--paper-dim);font-size:.98rem;
+  }
+  .goal-list li:last-child{border-bottom:none}
+  .goal-list li::before{
+    content:counter(g,decimal-leading-zero);position:absolute;left:0;top:11px;
+    font-family:var(--mono);font-size:.72rem;color:var(--phos);border:1px solid var(--line);
+    width:26px;height:26px;display:grid;place-items:center;border-radius:50%;
+  }
+
+  /* ---------- DATASET ---------- */
+  .ds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:34px}
+  .stat{border:1px solid var(--line);border-radius:6px;padding:22px 20px;background:var(--panel-2);position:relative;overflow:hidden}
+  .stat .big{font-size:2.6rem;font-weight:600;line-height:1;font-family:var(--serif)}
+  .stat .lab{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--paper-faint);margin-top:8px}
+  .stat.t .big{color:var(--phos)}
+  .stat.e .big{color:var(--cyan)}
+  .stat.f .big{color:var(--amber)}
+  .stat .spark{position:absolute;right:14px;top:14px;font-family:var(--mono);font-size:.6rem;color:var(--paper-faint)}
+
+  .feat-head{font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--paper-faint);margin:0 0 12px}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:26px}
+  .chip{
+    font-family:var(--mono);font-size:.78rem;padding:7px 13px;border-radius:20px;
+    border:1px solid var(--line);color:var(--paper-dim);cursor:default;position:relative;
+    transition:.25s;background:var(--panel-2);
+  }
+  .chip.struct:hover{border-color:var(--phos);color:var(--phos);transform:translateY(-2px)}
+  .chip.sim{border-color:rgba(87,205,192,.35);color:var(--cyan)}
+  .chip.sim:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 4px 18px rgba(87,205,192,.12)}
+  .chip .tip{
+    visibility:hidden;opacity:0;position:absolute;bottom:130%;left:50%;transform:translateX(-50%) translateY(6px);
+    background:var(--ink);border:1px solid var(--line);color:var(--paper);padding:8px 12px;border-radius:5px;
+    font-size:.72rem;white-space:nowrap;letter-spacing:0;transition:.2s;z-index:5;pointer-events:none;
+    font-family:var(--serif);box-shadow:0 8px 24px rgba(0,0,0,.5);
+  }
+  .chip:hover .tip{visibility:visible;opacity:1;transform:translateX(-50%) translateY(0)}
+  .legend{display:flex;gap:22px;font-family:var(--mono);font-size:.66rem;color:var(--paper-faint);margin-bottom:26px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .dot.g{background:var(--phos)}.dot.c{background:var(--cyan)}
+
+  /* data table */
+  .tbl-wrap{border:1px solid var(--line);border-radius:6px;overflow-x:auto;background:var(--panel-2)}
+  table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:.8rem;min-width:640px}
+  thead th{
+    text-align:right;padding:12px 14px;color:var(--paper-faint);font-weight:500;
+    font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:var(--panel);
+  }
+  thead th:first-child,tbody td:first-child{text-align:left}
+  tbody td{padding:10px 14px;text-align:right;border-bottom:1px solid var(--line-soft);color:var(--paper-dim)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:rgba(121,230,168,.04);color:var(--paper)}
+  .split-tag{font-size:.58rem;letter-spacing:.1em;padding:2px 7px;border-radius:3px;border:1px solid var(--line)}
+  .split-tag.tr{color:var(--phos);border-color:rgba(121,230,168,.4)}
+  .split-tag.te{color:var(--cyan);border-color:rgba(87,205,192,.4)}
+  .si{color:var(--paper);font-weight:600}
+  .caption{font-family:var(--mono);font-size:.66rem;color:var(--paper-faint);margin-top:12px;text-align:right}
+
+  /* ---------- BINARIZE ---------- */
+  .binz{border:1px solid var(--line);border-radius:6px;padding:30px 32px;background:linear-gradient(160deg,var(--panel),var(--panel-2))}
+  .binz p{color:var(--paper-dim);max-width:640px;margin:0 0 26px}
+  .binz code{font-family:var(--mono);color:var(--phos);background:rgba(121,230,168,.08);padding:2px 7px;border-radius:3px;font-size:.85em}
+  .axis{position:relative;height:120px;margin:34px 0 10px}
+  .axis-line{position:absolute;top:70px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--terra),var(--paper-faint),var(--phos))}
+  .thresh{position:absolute;top:30px;bottom:0;width:2px;left:50%;background:var(--amber)}
+  .thresh::before{content:"median θ";position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.62rem;color:var(--amber);white-space:nowrap;letter-spacing:.1em}
+  .bin-lab{position:absolute;top:88px;font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase}
+  .bin-lab.lo{left:8%;color:var(--terra)}
+  .bin-lab.hi{right:8%;color:var(--phos)}
+  .pt{position:absolute;top:64px;width:13px;height:13px;border-radius:50%;transform:translate(-50%,0);border:1.5px solid var(--ink);transition:.4s}
+  .pt.c0{background:var(--terra)}.pt.c1{background:var(--phos)}
+  .pt .pl{position:absolute;bottom:150%;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.55rem;color:var(--paper-faint);white-space:nowrap;opacity:0;transition:.2s}
+  .pt:hover .pl{opacity:1}
+  .binz .note{font-family:var(--mono);font-size:.68rem;color:var(--paper-faint);font-style:normal;margin-top:24px;padding-top:18px;border-top:1px dashed var(--line-soft)}
+
+  /* ---------- PIPELINE ---------- */
+  .flow{position:relative;padding-left:34px}
+  .flow::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--phos),var(--cyan),var(--line))}
+  .step{position:relative;padding:0 0 30px}
+  .step:last-child{padding-bottom:0}
+  .step::before{
+    content:"";position:absolute;left:-33px;top:4px;width:20px;height:20px;border-radius:50%;
+    background:var(--ink);border:2px solid var(--phos);
+  }
+  .step.done::before{background:var(--phos)}
+  .step h4{margin:0 0 6px;font-size:1.12rem;font-weight:600}
+  .step h4 .n{font-family:var(--mono);font-size:.72rem;color:var(--phos);margin-right:10px}
+  .step p{margin:0;color:var(--paper-dim);font-size:.96rem}
+  .step .tools{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap}
+  .step .tools span{font-family:var(--mono);font-size:.64rem;padding:3px 9px;border:1px solid var(--line);border-radius:3px;color:var(--paper-faint)}
+
+  /* ---------- CODE ---------- */
+  .code-frame{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel-2)}
+  .code-bar{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .code-bar .dots{display:flex;gap:6px}
+  .code-bar .dots i{width:11px;height:11px;border-radius:50%;display:block}
+  .code-bar .dots i:nth-child(1){background:var(--terra)}
+  .code-bar .dots i:nth-child(2){background:var(--amber)}
+  .code-bar .dots i:nth-child(3){background:var(--phos)}
+  .code-bar .fname{font-family:var(--mono);font-size:.76rem;color:var(--paper-dim)}
+  .code-bar .badge{margin-left:auto;font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--terra);border:1px solid rgba(217,122,92,.4);padding:3px 9px;border-radius:3px}
+  pre{margin:0;padding:22px 22px 26px;overflow-x:auto;font-family:var(--mono);font-size:.76rem;line-height:1.72}
+  pre code{white-space:pre}
+  .tok-c{color:var(--paper-faint);font-style:italic}
+  .tok-s{color:var(--amber)}
+  .tok-k{color:var(--violet)}
+  .tok-n{color:var(--cyan)}
+  .tok-f{color:var(--phos)}
+
+  /* ---------- OUTCOME ---------- */
+  .outcome{
+    border:1px solid rgba(217,122,92,.4);border-radius:8px;overflow:hidden;
+    background:linear-gradient(160deg,rgba(217,122,92,.08),var(--panel-2));
+  }
+  .outcome-top{padding:26px 30px;border-bottom:1px solid var(--line)}
+  .outcome-top .lab{font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--terra);margin-bottom:12px}
+  .outcome-top h3{margin:0 0 10px;font-size:1.5rem;font-weight:600}
+  .outcome-top p{margin:0;color:var(--paper-dim);max-width:640px}
+  .events{padding:24px 30px 30px}
+  .ev{display:flex;gap:16px;padding:11px 0;border-bottom:1px dashed var(--line-soft);align-items:baseline}
+  .ev:last-child{border-bottom:none}
+  .ev .t{font-family:var(--mono);font-size:.66rem;color:var(--paper-faint);min-width:66px}
+  .ev .d{color:var(--paper-dim);font-size:.94rem;flex:1}
+  .ev .s{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:3px;border:1px solid var(--line);white-space:nowrap}
+  .ev .s.ok{color:var(--phos);border-color:rgba(121,230,168,.4)}
+  .ev .s.deny{color:var(--terra);border-color:rgba(217,122,92,.5)}
+  .ev .s.wait{color:var(--amber);border-color:rgba(226,169,90,.4)}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:50px 0 70px;border-top:1px solid var(--line-soft);text-align:center}
+  footer .fnote{font-family:var(--mono);font-size:.68rem;color:var(--paper-faint);letter-spacing:.06em;line-height:2}
+  footer .fnote span{color:var(--phos)}
+
+  @media(max-width:720px){
+    .brief{grid-template-columns:1fr}
+    .ds-grid{grid-template-columns:1fr}
+    .steroid{opacity:.09;width:340px}
+    .meta-strip div{flex:1 1 50%}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ================= HERO ================= -->
+  <header class="hero">
+    <svg class="steroid" viewBox="0 0 520 420" aria-hidden="true">
+      <!-- steroid nucleus: three fused six-membered rings + one five-membered ring -->
+      <path d="M60 250 L110 220 L160 250 L160 310 L110 340 L60 310 Z"/>
+      <path d="M160 250 L210 220 L260 250 L260 310 L210 340 L160 310 Z"/>
+      <path d="M260 250 L310 220 L360 250 L360 310 L310 340 L260 310 Z"/>
+      <path d="M360 250 L418 236 L440 288 L400 322 L360 310 Z"/>
+      <line x1="110" y1="220" x2="110" y2="185"/>
+      <line x1="210" y1="220" x2="210" y2="185"/>
+      <circle cx="60" cy="250" r="4"/>
+      <circle cx="418" cy="236" r="4"/>
+      <circle cx="160" cy="250" r="3"/>
+      <circle cx="260" cy="250" r="3"/>
+      <line x1="440" y1="288" x2="478" y2="272"/>
+    </svg>
+
+    <div class="hero-inner">
+      <div class="kicker-row">
+        <span class="eyebrow">Scientific Computing · ScienceAgentBench</span>
+      </div>
+      <div class="kicker-row" style="margin-bottom:18px">
+        <span class="tag">DKPES dataset</span>
+        <span class="tag">cheminformatics</span>
+        <span class="tag">binary classification</span>
+        <span class="tag">claude-opus-4-8</span>
+      </div>
+      <h1>Random Forest<span class="sub">predicting signal inhibition from molecular descriptors</span></h1>
+      <p class="lede">A steroid-descriptor dataset, a median-split target, and a fifteen-feature ensemble. The agent <em>designed the whole pipeline</em> — then stopped at a locked door.</p>
+
+      <div class="meta-strip mono">
+        <div><span class="lab">Task ID</span><span class="val">03_dkpes_randomforest</span></div>
+        <div><span class="lab">Duration</span><span class="val">73&nbsp;s</span></div>
+        <div><span class="lab">Exit code</span><span class="val ok">0</span></div>
+        <div><span class="lab">Turns</span><span class="val">2 read · 2 write · 1 reply</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= BRIEF ================= -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-num">§01</span>
+      <div><h2>The brief</h2><p>what the researcher asked for</p></div>
+    </div>
+    <div class="brief reveal">
+      <div class="brief-card">
+        <h3>Problem</h3>
+        <p>Predict whether a chemical <em>inhibits a signal</em> from its molecular descriptors. The DKPES panel describes steroid-like molecules by ring substitutions and shape-similarity scores against a reference.</p>
+        <p>The measured <code style="font-family:var(--mono);color:var(--cyan)">Signal-inhibition</code> is continuous, so the task first reframes it as a two-class problem: split at the <em>training-set median</em> — a balanced, distribution-free threshold that guards against leaking test information.</p>
+      </div>
+      <div class="brief-card">
+        <h3>Five requested steps</h3>
+        <ol class="goal-list">
+          <li>Load &amp; explore both splits</li>
+          <li>Binarize target at train median</li>
+          <li>Train a Random Forest</li>
+          <li>Evaluate: accuracy + report</li>
+          <li>Save test predictions to CSV</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DATASET ================= -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-num">§02</span>
+      <div><h2>Dataset anatomy</h2><p>250 molecules · 15 descriptors · one continuous target</p></div>
+    </div>
+
+    <div class="ds-grid reveal">
+      <div class="stat t"><span class="spark">rows</span><div class="big">200</div><div class="lab">Training molecules</div></div>
+      <div class="stat e"><span class="spark">rows</span><div class="big">50</div><div class="lab">Held-out test molecules</div></div>
+      <div class="stat f"><span class="spark">cols</span><div class="big">15</div><div class="lab">Molecular descriptors</div></div>
+    </div>
+
+    <p class="feat-head reveal">The fifteen features — hover for meaning</p>
+    <div class="legend reveal">
+      <span><i class="dot g"></i> Structural descriptors (ring substitutions, bonds)</span>
+      <span><i class="dot c"></i> Shape / similarity scores</span>
+    </div>
+    <div class="chips reveal">
+      <span class="chip struct">3-Keto<span class="tip">Ketone group at ring position 3</span></span>
+      <span class="chip struct">3-Hydroxy<span class="tip">Hydroxyl at position 3</span></span>
+      <span class="chip struct">12-Keto<span class="tip">Ketone at position 12</span></span>
+      <span class="chip struct">12-Hydroxy<span class="tip">Hydroxyl at position 12</span></span>
+      <span class="chip struct">19-Methyl<span class="tip">Methyl at position 19</span></span>
+      <span class="chip struct">18-Methyl<span class="tip">Methyl at position 18</span></span>
+      <span class="chip struct">Sulfate-Ester<span class="tip">Sulfate ester substituent</span></span>
+      <span class="chip struct">Sulfate-Oxygens<span class="tip">Oxygen count on sulfate</span></span>
+      <span class="chip struct">C4-C5-DB<span class="tip">Double bond between C4 and C5</span></span>
+      <span class="chip struct">C6-C7-DB<span class="tip">Double bond between C6 and C7</span></span>
+      <span class="chip struct">Sulfur<span class="tip">Sulfur atom presence</span></span>
+      <span class="chip sim">TanimotoCombo<span class="tip">Combined shape + color Tanimoto (0–2)</span></span>
+      <span class="chip sim">ShapeTanimoto<span class="tip">3-D shape overlap similarity</span></span>
+      <span class="chip sim">ColorTanimoto<span class="tip">Pharmacophore ("color") similarity</span></span>
+      <span class="chip sim">Overlap<span class="tip">Raw volumetric overlap score</span></span>
+    </div>
+
+    <div class="tbl-wrap reveal">
+      <table>
+        <thead>
+          <tr>
+            <th>index (ZINC)</th><th>split</th><th>Signal-inhib</th>
+            <th>3-Keto</th><th>3-Hydroxy</th><th>TanimotoCombo</th><th>ShapeTanimoto</th><th>Overlap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>ZINC00000000</td><td><span class="split-tag tr">train</span></td><td class="si">0.375</td><td>0.589</td><td>1.396</td><td>1.345</td><td>1.065</td><td>1.791</td></tr>
+          <tr><td>ZINC00000001</td><td><span class="split-tag tr">train</span></td><td class="si">0.951</td><td>0.770</td><td>1.072</td><td>1.593</td><td>0.231</td><td>1.818</td></tr>
+          <tr><td>ZINC00000002</td><td><span class="split-tag tr">train</span></td><td class="si">0.732</td><td>1.702</td><td>0.619</td><td>0.501</td><td>1.211</td><td>0.628</td></tr>
+          <tr><td>ZINC00000003</td><td><span class="split-tag tr">train</span></td><td class="si">0.599</td><td>0.634</td><td>1.628</td><td>1.250</td><td>0.234</td><td>1.382</td></tr>
+          <tr><td>ZINC00000200</td><td><span class="split-tag te">test</span></td><td class="si">0.642</td><td>1.554</td><td>1.065</td><td>1.107</td><td>0.910</td><td>0.047</td></tr>
+          <tr><td>ZINC00000201</td><td><span class="split-tag te">test</span></td><td class="si">0.084</td><td>1.117</td><td>0.104</td><td>1.006</td><td>1.350</td><td>1.670</td></tr>
+          <tr><td>ZINC00000202</td><td><span class="split-tag te">test</span></td><td class="si">0.162</td><td>0.848</td><td>0.673</td><td>0.388</td><td>1.355</td><td>1.949</td></tr>
+          <tr><td>ZINC00000203</td><td><span class="split-tag te">test</span></td><td class="si">0.899</td><td>1.813</td><td>0.269</td><td>1.718</td><td>0.746</td><td>0.271</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">Head of each split · 6 of 15 feature columns shown · values as parsed by the agent</p>
+  </section>
+
+  <!-- ================= BINARIZE ================= -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-num">§03</span>
+      <div><h2>The median split</h2><p>continuous → binary, without peeking at the test set</p></div>
+    </div>
+    <div class="binz reveal">
+      <p>The threshold <code>θ</code> is the <em>median of the training</em> <code>Signal-inhibition</code>. Every molecule at or above <code>θ</code> becomes class&nbsp;<strong style="color:var(--phos)">1</strong> (inhibitor); everything below is class&nbsp;<strong style="color:var(--terra)">0</strong>. Using the median guarantees a near-balanced 50/50 split of the training labels.</p>
+
+      <div class="axis">
+        <div class="axis-line"></div>
+        <div class="thresh"></div>
+        <div class="bin-lab lo">class 0 · below θ</div>
+        <div class="bin-lab hi">class 1 · ≥ θ</div>
+        <!-- sample points positioned illustratively across the [0,1] range -->
+        <div class="pt c0" style="left:8.4%"><span class="pl">0.084</span></div>
+        <div class="pt c0" style="left:16.2%"><span class="pl">0.162</span></div>
+        <div class="pt c0" style="left:37.5%"><span class="pl">0.375</span></div>
+        <div class="pt c1" style="left:59.9%"><span class="pl">0.599</span></div>
+        <div class="pt c1" style="left:64.2%"><span class="pl">0.642</span></div>
+        <div class="pt c1" style="left:73.2%"><span class="pl">0.732</span></div>
+        <div class="pt c1" style="left:89.9%"><span class="pl">0.899</span></div>
+        <div class="pt c1" style="left:95.1%"><span class="pl">0.951</span></div>
+      </div>
+      <p class="note">Points are the eight sampled molecules placed on a 0–1 axis for illustration. The exact θ is computed over all 200 training rows at runtime — a value the agent never got to print, since the script was never executed (see §06).</p>
+    </div>
+  </section>
+
+  <!-- ================= PIPELINE ================= -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-num">§04</span>
+      <div><h2>Designed pipeline</h2><p>the shape of the script the agent authored</p></div>
+    </div>
+    <div class="flow reveal">
+      <div class="step done">
+        <h4><span class="n">01</span>Load &amp; explore</h4>
+        <p>Read both CSVs with pandas; report shapes, missing-value counts, and a full <span class="mono">describe()</span> of the target.</p>
+        <div class="tools"><span>pandas.read_csv</span><span>isna().sum()</span></div>
+      </div>
+      <div class="step done">
+        <h4><span class="n">02</span>Binarize</h4>
+        <p>Compute the training median, then label both splits <span class="mono">(y &gt;= θ)</span> and print class balance for each.</p>
+        <div class="tools"><span>median()</span><span>value_counts()</span></div>
+      </div>
+      <div class="step done">
+        <h4><span class="n">03</span>Train Random Forest</h4>
+        <p>Fit <span class="mono">RandomForestClassifier(n_estimators=200, random_state=42, n_jobs=-1)</span> on the 15 descriptors, then rank feature importances.</p>
+        <div class="tools"><span>200 trees</span><span>seed 42</span><span>all cores</span></div>
+      </div>
+      <div class="step done">
+        <h4><span class="n">04</span>Evaluate</h4>
+        <p>Accuracy, ROC-AUC (guarded for single-class test folds), a 4-digit classification report, and a confusion matrix.</p>
+        <div class="tools"><span>accuracy_score</span><span>roc_auc_score</span><span>classification_report</span></div>
+      </div>
+      <div class="step done">
+        <h4><span class="n">05</span>Persist predictions</h4>
+        <p>Write <span class="mono">dkpes_test_predictions.csv</span> — ZINC index, true continuous value, true &amp; predicted labels, class-1 probability.</p>
+        <div class="tools"><span>DataFrame.to_csv</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CODE ================= -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-num">§05</span>
+      <div><h2>The authored script</h2><p>complete, self-contained — reproduced verbatim from the trajectory</p></div>
+    </div>
+    <div class="code-frame reveal">
+      <div class="code-bar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="fname">dkpes_rf_classifier.py</span>
+        <span class="badge">write denied</span>
+      </div>
+      <pre><code id="src"></code></pre>
+    </div>
+  </section>
+
+  <!-- ================= OUTCOME ================= -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-num">§06</span>
+      <div><h2>What actually happened</h2><p>a pipeline designed, but never run</p></div>
+    </div>
+    <div class="outcome reveal">
+      <div class="outcome-top">
+        <div class="lab">◆ Outcome · no execution results exist</div>
+        <h3>Blocked at the write step</h3>
+        <p>The agent read the data and wrote a complete, correct-looking classifier — but the file-write was <strong style="color:var(--terra)">denied twice</strong>. Rather than force the point, it laid out the plan and code and asked for approval, noting a standing guideline: <em>it does not run training or benchmark experiments on the main agent, preferring to delegate execution to a subagent.</em> So there are no accuracy numbers, no feature importances, no predictions CSV — the science was scoped, not settled.</p>
+      </div>
+      <div class="events">
+        <div class="ev"><span class="t">22:12:54</span><span class="d">Read head of <span class="mono">dkpes_train.csv</span> — 202 lines, 17 columns confirmed</span><span class="s ok">read</span></div>
+        <div class="ev"><span class="t">22:12:55</span><span class="d">Read head of <span class="mono">dkpes_test.csv</span> — 52 lines, same schema</span><span class="s ok">read</span></div>
+        <div class="ev"><span class="t">22:13:18</span><span class="d">Attempt to write <span class="mono">dkpes_rf_classifier.py</span></span><span class="s deny">denied</span></div>
+        <div class="ev"><span class="t">22:13:44</span><span class="d">Retried the identical write</span><span class="s deny">denied</span></div>
+        <div class="ev"><span class="t">22:13:55</span><span class="d">Summarized plan + code, requested approval, offered subagent run</span><span class="s wait">awaiting</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p class="fnote">
+      ScienceAgentBench · <span>03_dkpes_randomforest</span> · regenerated 2026-07-11<br>
+      model claude-opus-4-8 · backend opus · exit 0 · 73 s · trajectory format claude-jsonl<br>
+      a self-contained rendering of one agent trajectory — no external resources
+    </p>
+  </footer>
+
+</div>
+
+<!-- raw source, highlighted on load -->
+<script type="text/plain" id="rawsrc">"""
+Random Forest classifier for predicting signal inhibition of chemicals
+from their molecular descriptors (DKPES dataset).
+
+The continuous "Signal-inhibition" target is binarized using the median of the
+training set as the threshold (values >= median -> 1 "inhibitor", else 0).
+"""
+
+import os
+
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    roc_auc_score,
+)
+
+# --------------------------------------------------------------------------- #
+# Configuration
+# --------------------------------------------------------------------------- #
+HERE = os.path.dirname(os.path.abspath(__file__))
+TRAIN_PATH = os.path.join(HERE, "dkpes", "dkpes_train.csv")
+TEST_PATH = os.path.join(HERE, "dkpes", "dkpes_test.csv")
+PRED_PATH = os.path.join(HERE, "dkpes_test_predictions.csv")
+
+TARGET = "Signal-inhibition"
+ID_COL = "index"
+FEATURES = [
+    "3-Keto", "3-Hydroxy", "12-Keto", "12-Hydroxy", "19-Methyl", "18-Methyl",
+    "Sulfate-Ester", "Sulfate-Oxygens", "C4-C5-DB", "C6-C7-DB", "Sulfur",
+    "TanimotoCombo", "ShapeTanimoto", "ColorTanimoto", "Overlap",
+]
+RANDOM_STATE = 42
+
+
+def main():
+    # 1. Load and explore the data
+    train_df = pd.read_csv(TRAIN_PATH)
+    test_df = pd.read_csv(TEST_PATH)
+
+    print("=" * 70)
+    print("1. DATA OVERVIEW")
+    print("=" * 70)
+    print(f"Training set: {train_df.shape[0]} rows, {train_df.shape[1]} columns")
+    print(f"Test set:     {test_df.shape[0]} rows, {test_df.shape[1]} columns")
+    print(f"\nMissing values (train): {int(train_df.isna().sum().sum())}")
+    print(f"Missing values (test):  {int(test_df.isna().sum().sum())}")
+    print(f"\nTarget '{TARGET}' summary (train):")
+    print(train_df[TARGET].describe().to_string())
+
+    # 2. Binarize the target using the training-set median as the threshold
+    threshold = train_df[TARGET].median()
+    print("\n" + "=" * 70)
+    print("2. BINARIZE TARGET")
+    print("=" * 70)
+    print(f"Median threshold (from train): {threshold:.6f}")
+
+    # values >= median -> 1 (inhibitor), else 0
+    y_train = (train_df[TARGET] >= threshold).astype(int)
+    y_test = (test_df[TARGET] >= threshold).astype(int)
+
+    print(f"\nTrain class balance:\n{y_train.value_counts().sort_index().to_string()}")
+    print(f"\nTest class balance:\n{y_test.value_counts().sort_index().to_string()}")
+
+    X_train = train_df[FEATURES]
+    X_test = test_df[FEATURES]
+
+    # 3. Train a Random Forest classifier
+    print("\n" + "=" * 70)
+    print("3. TRAIN RANDOM FOREST")
+    print("=" * 70)
+    clf = RandomForestClassifier(
+        n_estimators=200,
+        max_depth=None,
+        random_state=RANDOM_STATE,
+        n_jobs=-1,
+    )
+    clf.fit(X_train, y_train)
+    print(f"Trained RandomForestClassifier with {clf.n_estimators} trees "
+          f"on {X_train.shape[0]} samples and {X_train.shape[1]} features.")
+
+    importances = (
+        pd.Series(clf.feature_importances_, index=FEATURES)
+        .sort_values(ascending=False)
+    )
+    print("\nFeature importances (descending):")
+    print(importances.to_string())
+
+    # 4. Evaluate on the test set
+    print("\n" + "=" * 70)
+    print("4. EVALUATION ON TEST SET")
+    print("=" * 70)
+    y_pred = clf.predict(X_test)
+    y_proba = clf.predict_proba(X_test)[:, 1]
+
+    acc = accuracy_score(y_test, y_pred)
+    print(f"Accuracy: {acc:.4f}")
+
+    # ROC-AUC is only defined when both classes are present in y_test
+    if y_test.nunique() > 1:
+        print(f"ROC-AUC:  {roc_auc_score(y_test, y_proba):.4f}")
+
+    print("\nClassification report:")
+    print(classification_report(y_test, y_pred, digits=4, zero_division=0))
+
+    print("Confusion matrix (rows=true, cols=pred):")
+    print(confusion_matrix(y_test, y_pred))
+
+    # 5. Save test predictions
+    out = pd.DataFrame({
+        ID_COL: test_df[ID_COL],
+        "signal_inhibition_true": test_df[TARGET],
+        "y_true": y_test,
+        "y_pred": y_pred,
+        "prob_class1": y_proba,
+    })
+    out.to_csv(PRED_PATH, index=False)
+    print("\n" + "=" * 70)
+    print(f"5. Saved {len(out)} test predictions to: {PRED_PATH}")
+    print("=" * 70)
+
+
+if __name__ == "__main__":
+    main()
+</script>
+
+<script>
+(function(){
+  // ---- lightweight python highlighter ----
+  var raw = document.getElementById('rawsrc').textContent.replace(/^\n/,'');
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var kw = new Set(['import','from','as','def','return','if','else','elif','for','in','while','with','True','False','None','and','or','not','class','is','lambda']);
+  var out='';
+  // token regex: comment | triple-string | string | number | identifier | other
+  var re=/(#[^\n]*)|("""[\s\S]*?"""|'''[\s\S]*?''')|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(\b\d+\.?\d*\b)|([A-Za-z_][A-Za-z0-9_]*)|([\s\S])/g;
+  var m;
+  while((m=re.exec(raw))!==null){
+    if(m[1]) out+='<span class="tok-c">'+esc(m[1])+'</span>';
+    else if(m[2]) out+='<span class="tok-s">'+esc(m[2])+'</span>';
+    else if(m[3]) out+='<span class="tok-s">'+esc(m[3])+'</span>';
+    else if(m[4]) out+='<span class="tok-n">'+esc(m[4])+'</span>';
+    else if(m[5]){
+      if(kw.has(m[5])) out+='<span class="tok-k">'+esc(m[5])+'</span>';
+      else {
+        // function-def name or call: peek next non-space char
+        var rest=raw.slice(re.lastIndex);
+        if(/^\s*\(/.test(rest)) out+='<span class="tok-f">'+esc(m[5])+'</span>';
+        else out+=esc(m[5]);
+      }
+    }
+    else out+=esc(m[6]);
+  }
+  document.getElementById('src').innerHTML=out;
+
+  // ---- scroll reveal ----
+  var io=new IntersectionObserver(function(ents){
+    ents.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(function(el,i){
+    el.style.transitionDelay=(Math.min(i%4,3)*0.06)+'s';
+    io.observe(el);
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task 59433 — Site Code Extraction · SpreadsheetBench</title>
+<style>
+:root {
+  --bg0: #06080b;
+  --bg1: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2128;
+  --border: #30363d;
+  --border-b: #484f58;
+  --text: #c9d1d9;
+  --text-dim: #8b949e;
+  --text-faint: #3d444d;
+  --amber: #e8a838;
+  --amber-dim: #7a5615;
+  --amber-glow: rgba(232,168,56,0.08);
+  --green: #4ac26b;
+  --green-bg: rgba(74,194,107,0.07);
+  --blue: #58a6ff;
+  --blue-bg: rgba(88,166,255,0.06);
+  --purple: #bc8cff;
+  --coral: #f07a6a;
+  --mono: ui-monospace,'Cascadia Code','SF Mono',Menlo,'Courier New',monospace;
+  --serif: Georgia,'Palatino Linotype','Book Antiqua',Palatino,serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--bg0);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.65;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Ambient background gradients */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 80% 10%, rgba(232,168,56,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 10% 90%, rgba(88,166,255,0.03) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* Grain texture */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:1;
+  opacity:0.6;
+}
+
+.page{
+  max-width:1060px;
+  margin:0 auto;
+  padding:0 28px 100px;
+  position:relative;
+  z-index:2;
+}
+
+/* ─── TOPBAR ─── */
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:14px 0 13px;
+  border-bottom:1px solid var(--border);
+  font-size:11px;
+  color:var(--text-dim);
+  letter-spacing:0.04em;
+}
+.topbar .sep{color:var(--text-faint)}
+.topbar .active{color:var(--text)}
+.topbar .right{margin-left:auto;color:var(--text-faint);font-size:10px;letter-spacing:0.06em}
+
+/* ─── HERO ─── */
+.hero{
+  padding:52px 0 44px;
+  border-bottom:1px solid var(--border);
+}
+.hero-eyebrow{
+  font-size:10px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--amber);
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.hero-eyebrow::before{
+  content:'';
+  display:block;
+  width:24px;
+  height:1px;
+  background:var(--amber);
+}
+.hero-title{
+  font-family:var(--serif);
+  font-size:40px;
+  font-weight:normal;
+  color:var(--text);
+  line-height:1.15;
+  margin-bottom:10px;
+  letter-spacing:-0.01em;
+}
+.hero-sub{
+  font-size:14px;
+  color:var(--text-dim);
+  margin-bottom:28px;
+  max-width:580px;
+  line-height:1.6;
+}
+.meta-row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 11px;
+  border-radius:3px;
+  font-size:11px;
+  letter-spacing:0.03em;
+  border:1px solid;
+}
+.b-model{border-color:rgba(88,166,255,0.4);color:var(--blue);background:var(--blue-bg)}
+.b-domain{border-color:var(--border);color:var(--text-dim)}
+.b-time{border-color:var(--amber-dim);color:var(--amber);background:var(--amber-glow)}
+.b-exit{border-color:rgba(74,194,107,0.35);color:var(--green);background:var(--green-bg)}
+
+/* ─── SECTIONS ─── */
+.section{padding:44px 0;border-bottom:1px solid var(--border)}
+.section:last-of-type{border-bottom:none}
+
+.sec-label{
+  font-size:10px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--amber);
+  margin-bottom:24px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.sec-label::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:linear-gradient(to right, var(--amber-dim), transparent);
+}
+
+/* ─── TASK DESCRIPTION ─── */
+.task-desc{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-left:3px solid var(--amber);
+  border-radius:0 4px 4px 0;
+  padding:24px 28px;
+  font-size:13px;
+  line-height:1.75;
+  color:var(--text-dim);
+}
+.task-desc strong{color:var(--text)}
+.task-desc code{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--amber);
+  background:var(--amber-glow);
+  padding:1px 5px;
+  border-radius:2px;
+}
+
+/* ─── SPREADSHEET TABLE ─── */
+.ss-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:4px;margin-bottom:24px}
+.ss-table{
+  width:100%;
+  border-collapse:collapse;
+  font-family:var(--mono);
+  font-size:12px;
+}
+.ss-table th{
+  background:var(--bg3);
+  color:var(--text-dim);
+  padding:7px 14px;
+  text-align:left;
+  border-bottom:1px solid var(--border);
+  border-right:1px solid var(--border);
+  font-size:10px;
+  letter-spacing:0.1em;
+  font-weight:normal;
+}
+.ss-table th:last-child{border-right:none}
+.ss-table td{
+  padding:9px 14px;
+  border-bottom:1px solid var(--border-b)20;
+  border-right:1px solid var(--border);
+  vertical-align:middle;
+  line-height:1.45;
+}
+.ss-table td:last-child{border-right:none}
+.ss-table tr:last-child td{border-bottom:none}
+.ss-table tr:nth-child(even) td{background:var(--bg2)}
+.ss-table tr:nth-child(odd) td{background:var(--bg1)}
+.ss-table tbody tr:hover td{background:var(--bg3)}
+
+.cref{color:var(--text-faint);font-size:10px}
+.seg{color:var(--text-faint)}
+.seg-sep{color:rgba(139,148,158,0.35)}
+.site-highlight{
+  color:var(--amber);
+  background:var(--amber-glow);
+  padding:2px 5px;
+  border-radius:2px;
+  border:1px solid var(--amber-dim);
+  font-weight:bold;
+}
+.pending{color:var(--text-faint);font-style:italic}
+
+/* ─── PATTERN DIAGRAM ─── */
+.pattern-box{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:22px 24px;
+}
+.pattern-box h3{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  color:var(--text-dim);
+  margin-bottom:18px;
+  font-weight:normal;
+}
+.pat-segments{
+  display:flex;
+  align-items:stretch;
+  gap:0;
+  font-family:var(--mono);
+  font-size:12px;
+  flex-wrap:wrap;
+  gap:4px 0;
+}
+.pat-seg{
+  padding:6px 12px;
+  border:1px solid;
+  font-size:11px;
+  letter-spacing:0.04em;
+}
+.ps-name{border-color:var(--border);color:var(--text-dim);background:var(--bg3);border-radius:3px 0 0 3px}
+.ps-sep{border-color:transparent;color:var(--text-faint);padding:6px 5px;font-size:13px}
+.ps-city{border-color:rgba(88,166,255,0.3);color:var(--blue);background:var(--blue-bg)}
+.ps-zip{border-color:rgba(188,140,255,0.3);color:var(--purple);background:rgba(188,140,255,0.05)}
+.ps-code{border-color:var(--amber);color:var(--amber);background:var(--amber-glow);font-weight:bold;border-width:2px}
+.ps-country{border-color:var(--border);color:var(--text-dim);background:var(--bg3);border-radius:0 3px 3px 0}
+.pat-note{margin-top:14px;font-size:11px;color:var(--text-dim);line-height:1.6}
+.pat-note strong{color:var(--amber)}
+.pat-note code{font-family:var(--mono);color:var(--green);font-size:11px}
+
+/* ─── FORMULA HERO ─── */
+.formula-card{
+  background:var(--bg2);
+  border:1px solid var(--amber-dim);
+  border-radius:4px;
+  overflow:hidden;
+  margin-bottom:24px;
+  position:relative;
+}
+.formula-card::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:2px;
+  background:linear-gradient(to bottom, var(--amber), rgba(232,168,56,0.1));
+}
+.formula-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 20px 12px 22px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg3);
+}
+.formula-label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  color:var(--amber);
+}
+.formula-cell-range{
+  font-size:10px;
+  color:var(--text-dim);
+  background:var(--bg2);
+  border:1px solid var(--border);
+  padding:2px 8px;
+  border-radius:2px;
+}
+.formula-body{
+  padding:22px 22px 22px 24px;
+  font-family:var(--mono);
+  font-size:13.5px;
+  line-height:2;
+}
+/* syntax colors */
+.fn{color:var(--blue)}
+.fv{color:#ff9e7a}
+.fs{color:var(--green)}
+.fi{color:var(--purple)}
+.fp{color:var(--text-dim)}
+.fc{color:var(--text-faint)}
+.fr{color:var(--amber)}
+
+/* formula explanation */
+.formula-explain{
+  border-top:1px solid var(--border);
+  padding:20px 22px 20px 24px;
+}
+.ex-title{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-dim);margin-bottom:14px}
+.ex-steps{display:flex;flex-direction:column;gap:10px}
+.ex-step{display:flex;gap:12px;align-items:flex-start}
+.ex-n{
+  width:22px;height:22px;border-radius:50%;
+  border:1px solid var(--amber-dim);
+  background:var(--amber-glow);
+  color:var(--amber);
+  font-size:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.ex-text{font-size:12px;color:var(--text-dim);line-height:1.6}
+.ex-text code{
+  font-family:var(--mono);font-size:11px;
+  color:var(--green);background:var(--green-bg);
+  padding:1px 4px;border-radius:2px;
+}
+.ex-text strong{color:var(--text)}
+
+/* ─── RESULTS TABLE ─── */
+.results-wrap{overflow-x:auto}
+.results-table{
+  width:100%;
+  border-collapse:collapse;
+}
+.results-table th{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  padding:8px 16px;
+  text-align:left;
+  font-size:10px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  font-weight:normal;
+}
+.results-table td{
+  border:1px solid var(--border);
+  padding:12px 16px;
+}
+.rt-cell{
+  font-size:11px;
+  color:var(--text-faint);
+  width:56px;
+}
+.rt-input{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--text-dim);
+  max-width:380px;
+}
+.rt-output{
+  font-family:var(--mono);
+  font-size:14px;
+  font-weight:bold;
+  white-space:nowrap;
+}
+.rt-type{white-space:nowrap}
+.rt-text{color:var(--amber)}
+.rt-num{color:var(--green)}
+.type-badge{
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:2px;
+  font-size:9px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+}
+.tb-text{border:1px solid var(--amber-dim);color:var(--amber)}
+.tb-int{border:1px solid rgba(74,194,107,0.35);color:var(--green);background:var(--green-bg)}
+
+.results-table tr:nth-child(odd) td{background:var(--bg1)}
+.results-table tr:nth-child(even) td{background:var(--bg2)}
+.results-table tbody tr:hover td{background:rgba(232,168,56,0.04)}
+
+.extraction-arrow{
+  color:var(--text-faint);
+  margin:0 4px;
+}
+
+/* ─── EXECUTION TRACE ─── */
+.trace{
+  position:relative;
+  padding-left:0;
+}
+.trace::before{
+  content:'';
+  position:absolute;
+  left:16px;
+  top:24px;
+  bottom:24px;
+  width:1px;
+  background:linear-gradient(to bottom, var(--amber-dim), var(--border), transparent);
+}
+.trace-step{
+  display:flex;
+  gap:20px;
+  padding:14px 0;
+  position:relative;
+}
+.trace-num{
+  width:32px;height:32px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  background:var(--bg2);
+  color:var(--amber);
+  font-size:11px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  z-index:1;
+}
+.trace-num.active{
+  border-color:var(--amber-dim);
+  background:var(--amber-glow);
+}
+.trace-body{padding-top:6px;flex:1}
+.trace-title{
+  font-size:12.5px;
+  color:var(--text);
+  margin-bottom:4px;
+  font-weight:bold;
+}
+.trace-detail{
+  font-size:12px;
+  color:var(--text-dim);
+  line-height:1.6;
+  margin-bottom:0;
+}
+.trace-code{
+  margin-top:10px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:10px 14px;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--green);
+  line-height:1.6;
+  overflow-x:auto;
+}
+.trace-code .comment{color:var(--text-faint)}
+.trace-tag{
+  display:inline-block;
+  margin-left:8px;
+  padding:1px 7px;
+  border-radius:2px;
+  font-size:9px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  border:1px solid rgba(74,194,107,0.3);
+  color:var(--green);
+  background:var(--green-bg);
+  vertical-align:middle;
+}
+
+/* ─── FOOTER ─── */
+.footer{
+  margin-top:60px;
+  padding-top:20px;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:10px;
+  color:var(--text-faint);
+  letter-spacing:0.05em;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes lineGrow{
+  from{transform:scaleX(0);transform-origin:left}
+  to{transform:scaleX(1);transform-origin:left}
+}
+
+.a1{animation:fadeUp 0.5s ease both;animation-delay:0.05s}
+.a2{animation:fadeUp 0.55s ease both;animation-delay:0.12s}
+.a3{animation:fadeUp 0.55s ease both;animation-delay:0.2s}
+.a4{animation:fadeUp 0.55s ease both;animation-delay:0.28s}
+.a5{animation:fadeUp 0.55s ease both;animation-delay:0.36s}
+.a6{animation:fadeUp 0.55s ease both;animation-delay:0.44s}
+
+/* result rows stagger */
+.results-table tbody tr:nth-child(1){animation:fadeUp 0.4s ease both;animation-delay:0.5s}
+.results-table tbody tr:nth-child(2){animation:fadeUp 0.4s ease both;animation-delay:0.6s}
+.results-table tbody tr:nth-child(3){animation:fadeUp 0.4s ease both;animation-delay:0.7s}
+.results-table tbody tr:nth-child(4){animation:fadeUp 0.4s ease both;animation-delay:0.8s}
+.results-table tbody tr:nth-child(5){animation:fadeUp 0.4s ease both;animation-delay:0.9s}
+.results-table tbody tr:nth-child(6){animation:fadeUp 0.4s ease both;animation-delay:1.0s}
+
+/* cursor blink on formula */
+.cursor{
+  display:inline-block;
+  width:2px;height:1.1em;
+  background:var(--amber);
+  vertical-align:text-bottom;
+  margin-left:2px;
+  animation:blink 1.1s step-end infinite;
+}
+@keyframes blink{50%{opacity:0}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Topbar -->
+  <div class="topbar a1">
+    <span>SpreadsheetBench</span>
+    <span class="sep">›</span>
+    <span>spreadsheet_office</span>
+    <span class="sep">›</span>
+    <span class="active">02_task_59433</span>
+    <span class="right">2026-07-11 · source: regen</span>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero a2">
+    <div class="hero-eyebrow">Site Code Extraction</div>
+    <h1 class="hero-title">Parsing Hidden Structure<br>from Delimited Strings</h1>
+    <p class="hero-sub">A formula-based approach to extract embedded site codes from varying-length double-slash delimited text, with automatic numeric type coercion.</p>
+    <div class="meta-row">
+      <span class="badge b-model">◆ gpt-5.6-sol</span>
+      <span class="badge b-domain">spreadsheet_office</span>
+      <span class="badge b-time">⏱ 37.6 s</span>
+      <span class="badge b-exit">✓ exit 0</span>
+    </div>
+  </div>
+
+  <!-- 01: Task -->
+  <div class="section a3">
+    <div class="sec-label">01 · Task</div>
+    <div class="task-desc">
+      <p>The spreadsheet holds business display names structured as <code>//</code>-delimited strings. Each string embeds a <strong>site code</strong> in a fixed structural position — the 4th segment from the left, or equivalently the segment just before the terminal <code>//US</code>.</p>
+      <br>
+      <p>Rows 2–3 come pre-filled with the expected results; rows 4–7 are blank. The task requires writing a <strong>single reusable formula</strong> to <code>B2:B7</code> that extracts the correct site code. Additionally, the formula must <strong>coerce purely numeric codes to integers</strong>, dropping leading zeros (as shown by the known B4 example: <code>00321553 → 321553</code>).</p>
+    </div>
+  </div>
+
+  <!-- 02: Input Data -->
+  <div class="section a4">
+    <div class="sec-label">02 · Input Data</div>
+
+    <div class="ss-wrap">
+      <table class="ss-table">
+        <thead>
+          <tr>
+            <th style="width:32px"></th>
+            <th>A — Display Name</th>
+            <th>B — Expected / Answer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="cref">1</span></td>
+            <td style="color:var(--text-dim)">Display Name</td>
+            <td style="color:var(--text-dim)">Expected Results for Site Code</td>
+          </tr>
+          <tr>
+            <td><span class="cref">2</span></td>
+            <td>
+              <span class="seg"> HONEG BUCKET FLOHAWK</span><span class="seg-sep">//</span><span class="seg">PUYALLUP</span><span class="seg-sep">//</span><span class="seg">98373</span><span class="seg-sep">//</span><span class="site-highlight">103137391INACT</span><span class="seg-sep">//</span><span class="seg">US</span>
+            </td>
+            <td>
+              <span class="rt-text" style="font-weight:bold">103137391INACT</span>
+              &nbsp;<span class="type-badge tb-text">text</span>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="cref">3</span></td>
+            <td>
+              <span class="seg"> ZEPHYRHILLS NATURAL SPRING WATER</span><span class="seg-sep">//</span><span class="seg">CASSELBERRY</span><span class="seg-sep">//</span><span class="seg">32707</span><span class="seg-sep">//</span><span class="site-highlight">10310780INACTIV</span><span class="seg-sep">//</span><span class="seg">US</span>
+            </td>
+            <td>
+              <span class="rt-text" style="font-weight:bold">10310780INACTIV</span>
+              &nbsp;<span class="type-badge tb-text">text</span>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="cref">4</span></td>
+            <td>
+              <span class="seg">#1 LANDSCAPING</span><span class="seg-sep">//</span><span class="seg">MEDINA</span><span class="seg-sep">//</span><span class="seg">44256</span><span class="seg-sep">//</span><span class="site-highlight">00321553</span><span class="seg-sep">//</span><span class="seg">US</span>
+            </td>
+            <td>
+              <span class="rt-num" style="font-weight:bold">321553</span>
+              &nbsp;<span class="type-badge tb-int">int</span>
+              <span style="font-size:10px;color:var(--text-faint);margin-left:4px">← leading zeros stripped</span>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="cref">5</span></td>
+            <td>
+              <span class="seg">09 TOP CARE NASHVILLE</span><span class="seg-sep">//</span><span class="seg">FENTON</span><span class="seg-sep">//</span><span class="seg">63026</span><span class="seg-sep">//</span><span class="site-highlight">20287913</span><span class="seg-sep">//</span><span class="seg">US</span>
+            </td>
+            <td><span class="pending">— to solve —</span></td>
+          </tr>
+          <tr>
+            <td><span class="cref">6</span></td>
+            <td>
+              <span class="seg">1 800 GOT JUNK</span><span class="seg-sep">//</span><span class="seg">BERLIN</span><span class="seg-sep">//</span><span class="seg">21811-1531</span><span class="seg-sep">//</span><span class="site-highlight">A14827</span><span class="seg-sep">//</span><span class="seg">US</span>
+            </td>
+            <td><span class="pending">— to solve —</span></td>
+          </tr>
+          <tr>
+            <td><span class="cref">7</span></td>
+            <td>
+              <span class="seg">1 800 GOT JUNK</span><span class="seg-sep">//</span><span class="seg">DAVENPORT</span><span class="seg-sep">//</span><span class="seg">528072365</span><span class="seg-sep">//</span><span class="site-highlight">00314723</span><span class="seg-sep">//</span><span class="seg">US</span>
+            </td>
+            <td><span class="pending">— to solve —</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pattern-box">
+      <h3>String Structure — Identified Pattern</h3>
+      <div class="pat-segments">
+        <span class="pat-seg ps-name">NAME</span>
+        <span class="pat-sep ps-sep">//</span>
+        <span class="pat-seg ps-city">CITY</span>
+        <span class="pat-sep ps-sep">//</span>
+        <span class="pat-seg ps-zip">ZIP / PHONE</span>
+        <span class="pat-sep ps-sep">//</span>
+        <span class="pat-seg ps-code">SITE CODE ← target</span>
+        <span class="pat-sep ps-sep">//</span>
+        <span class="pat-seg ps-country">COUNTRY</span>
+      </div>
+      <div class="pat-note">
+        Key insight: the site code is always the <strong>4th segment</strong> — equivalently, the segment between the <strong>last two</strong> <code>//</code> delimiters. The segment widths vary across rows; no fixed character offsets work.
+      </div>
+    </div>
+  </div>
+
+  <!-- 03: Formula -->
+  <div class="section a5">
+    <div class="sec-label">03 · Formula</div>
+
+    <div class="formula-card">
+      <div class="formula-header">
+        <span class="formula-label">Excel Formula — written to B2:B7</span>
+        <span class="formula-cell-range">B2:B7</span>
+      </div>
+      <div class="formula-body">
+        <span class="fn">=LET</span><span class="fp">(</span><br>
+        &nbsp;&nbsp;<span class="fv">code</span><span class="fc">,</span>
+        &nbsp;<span class="fn">TEXTBEFORE</span><span class="fp">(</span><span class="fn">TEXTAFTER</span><span class="fp">(</span><span class="fr">A2</span><span class="fc">,</span>&nbsp;<span class="fs">"//"</span><span class="fc">,</span>&nbsp;<span class="fi">-2</span><span class="fp">)</span><span class="fc">,</span>&nbsp;<span class="fs">"//"</span><span class="fp">)</span><span class="fc">,</span><br>
+        &nbsp;&nbsp;<span class="fn">IFERROR</span><span class="fp">(</span><span class="fn">VALUE</span><span class="fp">(</span><span class="fv">code</span><span class="fp">)</span><span class="fc">,</span>&nbsp;<span class="fv">code</span><span class="fp">)</span><br>
+        <span class="fp">)</span><span class="cursor"></span>
+      </div>
+      <div class="formula-explain">
+        <div class="ex-title">Formula Anatomy</div>
+        <div class="ex-steps">
+          <div class="ex-step">
+            <div class="ex-n">1</div>
+            <div class="ex-text">
+              <code>TEXTAFTER(A2, "//", -2)</code> — the <strong>-2 instance</strong> counts from the end, returning everything after the 2nd-to-last <code>//</code>. Result: <code>SITE_CODE//US</code>
+            </div>
+          </div>
+          <div class="ex-step">
+            <div class="ex-n">2</div>
+            <div class="ex-text">
+              <code>TEXTBEFORE(..., "//")</code> — extracts everything before the first <code>//</code> in that result, isolating <code>SITE_CODE</code> alone.
+            </div>
+          </div>
+          <div class="ex-step">
+            <div class="ex-n">3</div>
+            <div class="ex-text">
+              <code>LET(code, ...)</code> — names the intermediate value <code>code</code> so it can be referenced twice without recalculating the nested TEXTAFTER/TEXTBEFORE chain.
+            </div>
+          </div>
+          <div class="ex-step">
+            <div class="ex-n">4</div>
+            <div class="ex-text">
+              <code>IFERROR(VALUE(code), code)</code> — attempts numeric conversion; if <code>VALUE()</code> fails (alphanumeric code), falls back to the text value. This produces <strong>321553</strong> from <em>00321553</em> and preserves <strong>A14827</strong> as text.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04: Results -->
+  <div class="section a6">
+    <div class="sec-label">04 · Results Written to B2:B7</div>
+
+    <div class="results-wrap">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Cell</th>
+            <th>Site Code Segment in Column A</th>
+            <th>Extracted Value</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rt-cell">B2</td>
+            <td class="rt-input">
+              <span style="color:var(--text-faint)">…//98373//</span><span style="color:var(--amber);font-weight:bold">103137391INACT</span><span style="color:var(--text-faint)">//US</span>
+            </td>
+            <td class="rt-output rt-text">103137391INACT</td>
+            <td class="rt-type"><span class="type-badge tb-text">text</span></td>
+          </tr>
+          <tr>
+            <td class="rt-cell">B3</td>
+            <td class="rt-input">
+              <span style="color:var(--text-faint)">…//32707//</span><span style="color:var(--amber);font-weight:bold">10310780INACTIV</span><span style="color:var(--text-faint)">//US</span>
+            </td>
+            <td class="rt-output rt-text">10310780INACTIV</td>
+            <td class="rt-type"><span class="type-badge tb-text">text</span></td>
+          </tr>
+          <tr>
+            <td class="rt-cell">B4</td>
+            <td class="rt-input">
+              <span style="color:var(--text-faint)">…//44256//</span><span style="color:var(--amber);font-weight:bold">00321553</span><span style="color:var(--text-faint)">//US</span>
+            </td>
+            <td class="rt-output rt-num">321553</td>
+            <td class="rt-type"><span class="type-badge tb-int">int</span></td>
+          </tr>
+          <tr>
+            <td class="rt-cell">B5</td>
+            <td class="rt-input">
+              <span style="color:var(--text-faint)">…//63026//</span><span style="color:var(--amber);font-weight:bold">20287913</span><span style="color:var(--text-faint)">//US</span>
+            </td>
+            <td class="rt-output rt-num">20287913</td>
+            <td class="rt-type"><span class="type-badge tb-int">int</span></td>
+          </tr>
+          <tr>
+            <td class="rt-cell">B6</td>
+            <td class="rt-input">
+              <span style="color:var(--text-faint)">…//21811-1531//</span><span style="color:var(--amber);font-weight:bold">A14827</span><span style="color:var(--text-faint)">//US</span>
+            </td>
+            <td class="rt-output rt-text">A14827</td>
+            <td class="rt-type"><span class="type-badge tb-text">text</span></td>
+          </tr>
+          <tr>
+            <td class="rt-cell">B7</td>
+            <td class="rt-input">
+              <span style="color:var(--text-faint)">…//528072365//</span><span style="color:var(--amber);font-weight:bold">00314723</span><span style="color:var(--text-faint)">//US</span>
+            </td>
+            <td class="rt-output rt-num">314723</td>
+            <td class="rt-type"><span class="type-badge tb-int">int</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 05: Execution Trace -->
+  <div class="section">
+    <div class="sec-label">05 · Execution Trace</div>
+
+    <div class="trace">
+
+      <div class="trace-step">
+        <div class="trace-num active">1</div>
+        <div class="trace-body">
+          <div class="trace-title">Inspect Workbook</div>
+          <div class="trace-detail">
+            Loaded <code style="font-family:var(--mono);font-size:11px;color:var(--green)">input.xlsx</code> with openpyxl (<code style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">data_only=False</code>) and printed raw cell values for all 7 rows. Discovered that B4 already stores an integer (<code style="font-family:var(--mono);font-size:11px;color:var(--green)">321553</code>), confirming that numeric site codes must be returned as numbers, not strings.
+          </div>
+          <div class="trace-code"><span class="comment"># output excerpt</span>
+4 '#1 LANDSCAPING//MEDINA//44256//00321553//US'  321553   <span class="comment"># &lt;— int, not "321553"</span>
+5 '09 TOP CARE NASHVILLE//FENTON//63026//20287913//US'  None
+6 '1 800 GOT JUNK//BERLIN//21811-1531//A14827//US'  None
+7 '1 800 GOT JUNK//DAVENPORT//528072365//00314723//US'  None</div>
+        </div>
+      </div>
+
+      <div class="trace-step">
+        <div class="trace-num">2</div>
+        <div class="trace-body">
+          <div class="trace-title">Check Formula Evaluation Options</div>
+          <div class="trace-detail">
+            Probed for LibreOffice / soffice to evaluate Excel formulas natively. Neither found. Decided to write formula strings directly and set <code style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">fullCalcOnLoad=True</code> so Excel recalculates on open.
+          </div>
+          <div class="trace-code">$ which libreoffice || which soffice
+libreoffice not found
+soffice not found</div>
+        </div>
+      </div>
+
+      <div class="trace-step">
+        <div class="trace-num active">3</div>
+        <div class="trace-body">
+          <div class="trace-title">Pattern Recognition &amp; Formula Design</div>
+          <div class="trace-detail">
+            Identified that the site code is always the <strong style="color:var(--amber)">segment between the last two <code style="font-family:var(--mono);font-size:11px;color:var(--amber)">//</code> delimiters</strong>. Designed a two-step extraction using <code style="font-family:var(--mono);font-size:11px;color:var(--green)">TEXTAFTER(…,-2)</code> to anchor from the end, then <code style="font-family:var(--mono);font-size:11px;color:var(--green)">TEXTBEFORE</code> to clip. Wrapped in <code style="font-family:var(--mono);font-size:11px;color:var(--green)">LET</code> + <code style="font-family:var(--mono);font-size:11px;color:var(--green)">IFERROR(VALUE(…),…)</code> for type coercion.
+          </div>
+        </div>
+      </div>
+
+      <div class="trace-step">
+        <div class="trace-num">4</div>
+        <div class="trace-body">
+          <div class="trace-title">Write solve.py &amp; Apply Patch</div>
+          <div class="trace-detail">
+            Created <code style="font-family:var(--mono);font-size:11px;color:var(--green)">solve.py</code> via patch: loads input.xlsx, writes the LET formula string to B2:B7, enables <code style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">fullCalcOnLoad</code>, saves output.xlsx.
+          </div>
+          <div class="trace-code">sheet.cell(row, 2).value = (
+  f'=LET(code,TEXTBEFORE(TEXTAFTER(A{row},"//",-2),"//"),'
+  f'IFERROR(VALUE(code),code))'
+)</div>
+        </div>
+      </div>
+
+      <div class="trace-step">
+        <div class="trace-num active">5</div>
+        <div class="trace-body">
+          <div class="trace-title">Run &amp; Verify <span class="trace-tag">success</span></div>
+          <div class="trace-detail">
+            Executed solve.py (wall time ~0.5 s). Re-read output.xlsx and confirmed all 6 formula strings correctly written to B2:B7. Exit code 0.
+          </div>
+          <div class="trace-code">B2 =LET(code,TEXTBEFORE(TEXTAFTER(A2,"//",-2),"//"),IFERROR(VALUE(code),code))
+B3 =LET(code,TEXTBEFORE(TEXTAFTER(A3,"//",-2),"//"),IFERROR(VALUE(code),code))
+<span class="comment">... (B4–B7 identical pattern)</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>SpreadsheetBench &middot; spreadsheet_office &middot; 02_task_59433</span>
+    <span>gpt-5.6-sol &middot; 37.6 s &middot; collected 2026-07-11</span>
+  </div>
+
+</div>
+</body>
+</html>

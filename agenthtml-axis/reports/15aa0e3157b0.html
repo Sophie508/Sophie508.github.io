@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>ASV 702 — Repair Flight Recorder</title>
+  <style>
+    :root {
+      --paper: #f4f7f6;
+      --paper-blue: #e7eef2;
+      --ink: #17253f;
+      --ink-soft: #58677b;
+      --rule: #bdcbd2;
+      --blue: #2859c5;
+      --blue-dark: #173c8f;
+      --coral: #ee6b57;
+      --coral-pale: #ffe2dc;
+      --lime: #d6ef79;
+      --white: #ffffff;
+      --shadow: 0 18px 50px rgba(23, 37, 63, .11);
+      --display: "Arial Narrow", "Aptos Narrow", Impact, sans-serif;
+      --body: "Trebuchet MS", "Aptos", Arial, sans-serif;
+      --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, transparent calc(100% - 1px), rgba(40,89,197,.045) 1px) 0 0 / 32px 32px,
+        linear-gradient(transparent calc(100% - 1px), rgba(40,89,197,.045) 1px) 0 0 / 32px 32px,
+        var(--paper);
+      font-family: var(--body);
+      line-height: 1.55;
+    }
+
+    button, a { font: inherit; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 58px;
+      padding: 10px clamp(18px, 4vw, 64px);
+      color: var(--white);
+      background: rgba(23,37,63,.96);
+      border-bottom: 4px solid var(--lime);
+      backdrop-filter: blur(12px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      color: var(--ink);
+      background: var(--lime);
+      border-radius: 50%;
+      font-weight: 900;
+    }
+    .topnav { display: flex; gap: 4px; }
+    .topnav a {
+      padding: 7px 10px;
+      border-radius: 4px;
+      color: #dce5f4;
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .topnav a:hover { background: rgba(255,255,255,.1); color: white; }
+
+    main { overflow: hidden; }
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(320px, .88fr);
+      min-height: 660px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(58px, 8vw, 120px) clamp(22px, 6vw, 96px);
+    }
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--blue);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 760px;
+      margin-bottom: 24px;
+      font-family: var(--display);
+      font-size: clamp(58px, 8.7vw, 126px);
+      font-stretch: condensed;
+      font-weight: 900;
+      letter-spacing: -.055em;
+      line-height: .82;
+      text-transform: uppercase;
+    }
+    h1 .slash { color: var(--coral); }
+    .dek {
+      max-width: 650px;
+      margin-bottom: 30px;
+      color: #42546b;
+      font-size: clamp(17px, 1.8vw, 22px);
+      line-height: 1.45;
+    }
+    .verdict {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      gap: 10px;
+      padding: 9px 13px;
+      background: var(--coral-pale);
+      border: 1px solid #e6a69a;
+      border-radius: 4px;
+      color: #7d2d22;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .verdict::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      background: var(--coral);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(238,107,87,.18);
+    }
+
+    .recorder {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 660px;
+      padding: clamp(34px, 5vw, 70px);
+      color: white;
+      background: var(--blue);
+      overflow: hidden;
+    }
+    .recorder::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .2;
+      background: repeating-linear-gradient(0deg, transparent 0 39px, #fff 40px);
+      pointer-events: none;
+    }
+    .recorder-head, .loop, .recorder-foot { position: relative; z-index: 1; }
+    .recorder-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .recorder-head strong { color: var(--lime); }
+    .loop {
+      display: grid;
+      place-items: center;
+      align-content: center;
+      min-height: 430px;
+    }
+    .loop-ring {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: min(28vw, 340px);
+      min-width: 255px;
+      aspect-ratio: 1;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+    }
+    .loop-ring::before, .loop-ring::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+    }
+    .loop-ring::before { inset: 28px; border: 10px solid rgba(214,239,121,.17); }
+    .loop-ring::after {
+      inset: 28px;
+      border: 10px solid transparent;
+      border-top-color: var(--lime);
+      border-right-color: var(--lime);
+      transform: rotate(18deg);
+      animation: orbit 6s linear infinite;
+    }
+    .loop-value {
+      position: relative;
+      z-index: 2;
+      font-family: var(--display);
+      font-size: clamp(100px, 13vw, 180px);
+      font-weight: 900;
+      letter-spacing: -.08em;
+      line-height: .8;
+    }
+    .loop-label {
+      position: absolute;
+      bottom: 25%;
+      z-index: 2;
+      padding: 3px 8px;
+      color: var(--ink);
+      background: var(--lime);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .recorder-foot {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,.35);
+    }
+    .recorder-foot span { color: #ccdaf7; font-size: 12px; }
+    .recorder-foot strong { display: block; color: white; font-size: 15px; }
+
+    .section {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: clamp(72px, 9vw, 124px) 0;
+    }
+    .section-heading {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 30px;
+      align-items: start;
+      margin-bottom: 44px;
+    }
+    .section-heading h2 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(38px, 5vw, 68px);
+      font-weight: 900;
+      letter-spacing: -.045em;
+      line-height: .96;
+      text-transform: uppercase;
+    }
+    .section-heading .summary {
+      max-width: 690px;
+      margin: 5px 0 0;
+      color: var(--ink-soft);
+      font-size: 18px;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,.6);
+      box-shadow: var(--shadow);
+    }
+    .fact { min-height: 135px; padding: 24px; border-right: 1px solid var(--rule); }
+    .fact:last-child { border-right: 0; }
+    .fact .kicker {
+      display: block;
+      margin-bottom: 18px;
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .fact strong { display: block; font-size: 22px; line-height: 1.1; }
+    .fact code { color: var(--blue-dark); font-family: var(--mono); font-size: 13px; }
+
+    .issue-grid {
+      display: grid;
+      grid-template-columns: .78fr 1.22fr;
+      gap: 28px;
+      margin-top: 28px;
+    }
+    .note, .terminal {
+      min-height: 260px;
+      padding: 28px;
+      border: 1px solid var(--rule);
+    }
+    .note { background: var(--lime); }
+    .note h3, .panel-title {
+      margin-bottom: 18px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .note p { font-size: 20px; line-height: 1.45; }
+    .note small { color: #52621d; }
+    .terminal {
+      color: #e9efff;
+      background: var(--ink);
+      box-shadow: var(--shadow);
+      font-family: var(--mono);
+      font-size: 13px;
+      overflow: auto;
+    }
+    .terminal .prompt { color: var(--lime); }
+    .terminal .error { color: #ff9f91; }
+    .terminal .dim { color: #8392aa; }
+
+    .flight-section {
+      padding: clamp(72px, 9vw, 120px) 0;
+      background: var(--paper-blue);
+      border-block: 1px solid var(--rule);
+    }
+    .flight-inner { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: -18px 0 34px 220px;
+    }
+    .filter {
+      padding: 8px 12px;
+      color: var(--blue-dark);
+      background: transparent;
+      border: 1px solid #95aabc;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .filter[aria-pressed="true"] { color: white; background: var(--blue); border-color: var(--blue); }
+    .timeline { position: relative; }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 23px;
+      top: 20px;
+      bottom: 28px;
+      width: 2px;
+      background: #9bb0bd;
+    }
+    .event {
+      position: relative;
+      display: grid;
+      grid-template-columns: 48px 95px 1fr auto;
+      gap: 18px;
+      align-items: start;
+      padding: 15px 0;
+      transition: opacity .2s, transform .2s;
+    }
+    .event.is-hidden { display: none; }
+    .event-dot {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      color: white;
+      background: var(--blue);
+      border: 5px solid var(--paper-blue);
+      border-radius: 50%;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .event[data-kind="failure"] .event-dot { background: var(--coral); }
+    .event[data-kind="edit"] .event-dot { color: var(--ink); background: var(--lime); }
+    .event-step {
+      padding-top: 13px;
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .event-copy { padding: 10px 16px 13px; border-left: 2px solid #9bb0bd; }
+    .event-copy strong { display: block; margin-bottom: 4px; }
+    .event-copy p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+    .event-tag {
+      margin-top: 10px;
+      padding: 4px 7px;
+      color: #5c342d;
+      background: var(--coral-pale);
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .diagnosis-grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 28px;
+    }
+    .diagnosis-card {
+      padding: clamp(26px, 4vw, 46px);
+      background: white;
+      border: 1px solid var(--rule);
+      box-shadow: var(--shadow);
+    }
+    .diagnosis-card h3 {
+      font-family: var(--display);
+      font-size: 34px;
+      letter-spacing: -.03em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .diagnosis-list { margin: 0; padding: 0; list-style: none; }
+    .diagnosis-list li {
+      position: relative;
+      padding: 18px 0 18px 34px;
+      border-top: 1px solid var(--rule);
+    }
+    .diagnosis-list li::before {
+      content: "×";
+      position: absolute;
+      left: 2px;
+      top: 14px;
+      color: var(--coral);
+      font-size: 25px;
+      font-weight: 900;
+    }
+    .diagnosis-list strong { display: block; }
+    .diagnosis-list span { color: var(--ink-soft); font-size: 14px; }
+    .root-cause {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(26px, 4vw, 46px);
+      color: white;
+      background: var(--blue-dark);
+    }
+    .root-cause .quote {
+      font-family: var(--display);
+      font-size: clamp(28px, 3.2vw, 44px);
+      font-weight: 900;
+      letter-spacing: -.035em;
+      line-height: 1.08;
+      text-transform: uppercase;
+    }
+    .root-cause .caveat {
+      margin: 32px 0 0;
+      padding-top: 18px;
+      color: #bdcdf0;
+      border-top: 1px solid rgba(255,255,255,.3);
+      font-size: 13px;
+    }
+
+    .patch-wrap {
+      border: 1px solid #0a1427;
+      background: var(--ink);
+      box-shadow: var(--shadow);
+    }
+    .patch-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 14px 18px;
+      color: #dce6fb;
+      border-bottom: 1px solid #3d4a61;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+    .patch-toggle {
+      padding: 7px 10px;
+      color: var(--ink);
+      background: var(--lime);
+      border: 0;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    .patch-code {
+      margin: 0;
+      padding: 24px;
+      max-height: 520px;
+      overflow: auto;
+      color: #cfdaed;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.65;
+      white-space: pre;
+      tab-size: 4;
+    }
+    .patch-code .add { display: inline-block; width: 100%; color: #dffca0; background: rgba(117,161,36,.15); }
+    .patch-code .del { display: inline-block; width: 100%; color: #ffa99c; background: rgba(238,107,87,.14); }
+    .patch-code .meta { color: #7ea5ff; }
+    .patch-code.compact .context { display: none; }
+
+    .handoff {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 32px;
+      padding: 42px;
+      background: var(--lime);
+      border: 1px solid #9fb74d;
+    }
+    .handoff h2 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 46px;
+      letter-spacing: -.04em;
+      line-height: .95;
+      text-transform: uppercase;
+    }
+    .handoff ol { margin: 0; padding-left: 22px; }
+    .handoff li { padding: 7px 0; }
+    .handoff code { font-family: var(--mono); font-size: 12px; }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 28px clamp(20px, 5vw, 72px);
+      color: #aab8ce;
+      background: var(--ink);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    @keyframes orbit { to { transform: rotate(378deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .loop-ring::after { animation: none; }
+    }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .recorder { min-height: 560px; }
+      .loop-ring { width: 300px; }
+      .facts { grid-template-columns: 1fr 1fr; }
+      .fact:nth-child(2) { border-right: 0; }
+      .fact:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+      .issue-grid, .diagnosis-grid, .handoff { grid-template-columns: 1fr; }
+      .section-heading { grid-template-columns: 1fr; gap: 12px; }
+      .filters { margin-left: 0; }
+    }
+    @media (max-width: 620px) {
+      .topnav { display: none; }
+      .hero-copy { padding-top: 72px; padding-bottom: 72px; }
+      h1 { font-size: clamp(56px, 20vw, 86px); }
+      .recorder { padding: 30px 20px; }
+      .facts { grid-template-columns: 1fr; }
+      .fact, .fact:nth-child(2) { border-right: 0; border-bottom: 1px solid var(--rule); }
+      .fact:last-child { border-bottom: 0; }
+      .event { grid-template-columns: 42px 1fr; gap: 12px; }
+      .event-dot { width: 42px; height: 42px; }
+      .timeline::before { left: 20px; }
+      .event-step { display: none; }
+      .event-copy { padding-top: 8px; }
+      .event-tag { grid-column: 2; margin: -3px 0 10px; justify-self: start; }
+      .handoff { padding: 28px; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">A</span><span>Repair flight recorder · ASV–702</span></div>
+    <nav class="topnav" aria-label="Case sections">
+      <a href="#brief">Brief</a>
+      <a href="#trace">Trace</a>
+      <a href="#diagnosis">Diagnosis</a>
+      <a href="#patch">Patch</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="case-title">
+      <div class="hero-copy">
+        <p class="eyebrow">SWE-bench · code repair · airspeed-velocity/asv</p>
+        <h1 id="case-title">Profile <span class="slash">/</span> loop</h1>
+        <p class="dek">A repair attempt for profiling inside ASV’s existing environment kept circling the same failure. The patch changed; the evidence never did.</p>
+        <div class="verdict">Unresolved at trajectory end</div>
+      </div>
+      <aside class="recorder" aria-label="Repeated verification summary">
+        <div class="recorder-head"><span>Verification channel</span><strong>signal unchanged</strong></div>
+        <div class="loop">
+          <div class="loop-ring" aria-hidden="true">
+            <span class="loop-value">9</span>
+            <span class="loop-label">same failure</span>
+          </div>
+        </div>
+        <div class="recorder-foot">
+          <span>Edits recorded<strong>8</strong></span>
+          <span>Tests recorded<strong>0</strong></span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="brief" aria-labelledby="brief-title">
+      <div class="section-heading">
+        <p class="eyebrow">Case brief</p>
+        <div>
+          <h2 id="brief-title">Profile the code already here.</h2>
+          <p class="summary">The requested behavior was narrow: allow <code>asv profile</code> to run against the current interpreter via <code>-E existing</code> or <code>--python=same</code>, without treating the configured default branch as a user-supplied revision.</p>
+        </div>
+      </div>
+
+      <div class="facts" aria-label="Case metadata">
+        <div class="fact"><span class="kicker">Trajectory</span><strong>71 entries</strong><code>swe-agent-traj</code></div>
+        <div class="fact"><span class="kicker">Model</span><strong>SWE-agent</strong><code>llama-70b</code></div>
+        <div class="fact"><span class="kicker">Exit status</span><strong>Submitted</strong><code>(exit_context)</code></div>
+        <div class="fact"><span class="kicker">Changed file</span><strong>One module</strong><code>asv/commands/profiling.py</code></div>
+      </div>
+
+      <div class="issue-grid">
+        <article class="note">
+          <h3>Expected behavior</h3>
+          <p>Use the already-installed project and current Python, then print or save a cProfile result.</p>
+          <small>The issue also noted that <code>asv run --profile</code> did not expose where profile output was saved.</small>
+        </article>
+        <div class="terminal" aria-label="Issue reproduction">
+          <div class="panel-title">Reported commands</div>
+          <div><span class="prompt">$</span> asv profile -E existing comm.Transfer.time_tcp_large_transfers_uncompressible</div>
+          <div><span class="error">· An explicit revision may not be specified when using an existing environment.</span></div>
+          <br>
+          <div><span class="prompt">$</span> asv profile --python=same comm.Transfer.time_tcp_large_transfers_uncompressible</div>
+          <div><span class="error">· An explicit revision may not be specified when using an existing environment.</span></div>
+          <br>
+          <div class="dim">Reported against ASV 0.2.1</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="flight-section" id="trace" aria-labelledby="trace-title">
+      <div class="flight-inner">
+        <div class="section-heading">
+          <p class="eyebrow">Flight recorder</p>
+          <div>
+            <h2 id="trace-title">Where the loop closed</h2>
+            <p class="summary">The trajectory found the correct module quickly, then repeatedly widened the edit without changing the observed result.</p>
+          </div>
+        </div>
+        <div class="filters" role="group" aria-label="Filter timeline">
+          <button class="filter" type="button" aria-pressed="true" data-filter="all">All signals</button>
+          <button class="filter" type="button" aria-pressed="false" data-filter="inspect">Inspection</button>
+          <button class="filter" type="button" aria-pressed="false" data-filter="edit">Edits</button>
+          <button class="filter" type="button" aria-pressed="false" data-filter="failure">Failures</button>
+        </div>
+
+        <div class="timeline">
+          <article class="event" data-kind="failure">
+            <span class="event-dot">03</span><span class="event-step">step 03</span>
+            <div class="event-copy"><strong>Reproduction confirms both errors</strong><p>The command reports no Python 2.7 executable, then the existing-environment revision error.</p></div>
+            <span class="event-tag">failure 1 / 9</span>
+          </article>
+          <article class="event" data-kind="inspect">
+            <span class="event-dot">19</span><span class="event-step">step 19</span>
+            <div class="event-copy"><strong>Correct module located</strong><p><code>profiling.py</code> reveals that a missing revision is replaced by <code>conf.branches[0]</code> before the explicit-revision guard runs.</p></div>
+            <span class="event-tag">useful evidence</span>
+          </article>
+          <article class="event" data-kind="edit">
+            <span class="event-dot">24</span><span class="event-step">step 24</span>
+            <div class="event-copy"><strong>First guard change</strong><p>The error check becomes conditional on <code>env_spec != "existing"</code>. No test is added.</p></div>
+            <span class="event-tag">edit 1 / 8</span>
+          </article>
+          <article class="event" data-kind="failure">
+            <span class="event-dot">27</span><span class="event-step">step 27</span>
+            <div class="event-copy"><strong>The exact failure returns</strong><p><code>--python=same</code> still produces both messages. The trace does not verify whether the executed <code>asv</code> uses the edited checkout.</p></div>
+            <span class="event-tag">failure 2 / 9</span>
+          </article>
+          <article class="event" data-kind="edit">
+            <span class="event-dot">30</span><span class="event-step">steps 30–48</span>
+            <div class="event-copy"><strong>Three rewrites grow around the same premise</strong><p>An <code>elif</code> for <code>existing</code> is added, environments are reassigned, and finally the whole profile block is replaced.</p></div>
+            <span class="event-tag">edits 2–5</span>
+          </article>
+          <article class="event" data-kind="failure">
+            <span class="event-dot">51</span><span class="event-step">steps 33–51</span>
+            <div class="event-copy"><strong>Four more identical observations</strong><p>Every rerun uses the same installed command and returns the same two-line error.</p></div>
+            <span class="event-tag">failures 3–6</span>
+          </article>
+          <article class="event" data-kind="edit">
+            <span class="event-dot">54</span><span class="event-step">steps 54–66</span>
+            <div class="event-copy"><strong>Boundary edits erase installation</strong><p>Repeated large-range replacements settle on removing <code>env.install_project(...)</code> for every environment path, not only existing ones.</p></div>
+            <span class="event-tag">edits 6–8</span>
+          </article>
+          <article class="event" data-kind="failure">
+            <span class="event-dot">69</span><span class="event-step">steps 57–69</span>
+            <div class="event-copy"><strong>The run never turns green</strong><p>Three final reruns remain unchanged. No unit tests or targeted local invocation appear in the trace.</p></div>
+            <span class="event-tag">failures 7–9</span>
+          </article>
+          <article class="event" data-kind="inspect">
+            <span class="event-dot">70</span><span class="event-step">step 70</span>
+            <div class="event-copy"><strong>Trajectory stops mid-investigation</strong><p>The final action asks to return to line 156. The case records a generated patch and an exit status of <code>submitted (exit_context)</code>.</p></div>
+            <span class="event-tag">no resolution</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="diagnosis" aria-labelledby="diagnosis-title">
+      <div class="section-heading">
+        <p class="eyebrow">Diagnosis</p>
+        <div>
+          <h2 id="diagnosis-title">The guard was not the only problem.</h2>
+          <p class="summary">The generated patch contains a plausible instinct—don’t install into an existing environment—but implements it with an unreliable string check and a global behavior change.</p>
+        </div>
+      </div>
+
+      <div class="diagnosis-grid">
+        <article class="diagnosis-card">
+          <h3>Evidence against the patch</h3>
+          <ul class="diagnosis-list">
+            <li><strong><code>revision</code> is always non-null by line 156.</strong><span>When omitted, line 126 assigns <code>conf.branches[0]</code>. The guard can no longer distinguish a user-supplied revision from the default.</span></li>
+            <li><strong><code>--python=same</code> is not proven equal to <code>"existing"</code>.</strong><span>The patch relies on a raw <code>env_spec</code> string instead of the already-imported <code>is_existing_only(environments)</code> behavior.</span></li>
+            <li><strong>Project installation is removed unconditionally.</strong><span>The final diff deletes <code>env.install_project</code> even for managed environments that can and should install the requested revision.</span></li>
+            <li><strong>The verification path may be stale.</strong><span>Nine unchanged runs after source edits strongly suggest the shell command may not have executed the checkout, though the trace never confirms this.</span></li>
+          </ul>
+        </article>
+        <aside class="root-cause">
+          <div>
+            <p class="eyebrow" style="color:var(--lime)">Most likely repair seam</p>
+            <p class="quote">Preserve whether revision was explicitly supplied. Branch on environment capability, not an option spelling.</p>
+          </div>
+          <p class="caveat">This is an inference from the recorded source and behavior, not a verified replacement patch. The trajectory contains no passing test or evaluation log; those fields were stripped from the case.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="patch" aria-labelledby="patch-title">
+      <div class="section-heading">
+        <p class="eyebrow">Generated patch</p>
+        <div>
+          <h2 id="patch-title">One file, two risky changes</h2>
+          <p class="summary">The recorded diff both weakens the revision guard and removes installation. Use the control to isolate changed lines.</p>
+        </div>
+      </div>
+
+      <div class="patch-wrap">
+        <div class="patch-toolbar"><span>asv/commands/profiling.py · generated diff</span><button class="patch-toggle" type="button" aria-pressed="false">Changed lines only</button></div>
+        <pre class="patch-code" aria-label="Generated patch"><code><span class="meta">@@ -153,31 +153,28 @@ class Profile(Command):</span>
+<span class="context">                 log.error("No environments selected")</span>
+<span class="context">                 return</span>
+<span class="del">-            if revision is not None:</span>
+<span class="add">+            if revision is not None and env_spec!= "existing":</span>
+<span class="context">                 for env in environments:</span>
+<span class="context">                     if not env.can_install_project():</span>
+<span class="context">                         raise util.UserError(</span>
+<span class="context">                             "An explicit revision may not be specified when "</span>
+<span class="context">                             "using an existing environment.")</span>
+<span class="add">+            elif env_spec == "existing":</span>
+<span class="add">+                env = environments[0]</span>
+<span class="add">+                environments = [env]</span>
+<span class="context">             env = environments[0]</span>
+<span class="context">             if env.python != "{0}.{1}".format(*sys.version_info[:2]):</span>
+<span class="context">                 raise util.UserError(</span>
+<span class="context">                     "Profiles must be run in the same version of Python as the "</span>
+<span class="context">                     "asv master process")</span>
+<span class="meta">@@ -185,13 +182,9 @@ class Profile(Command):</span>
+<span class="context">             else:</span>
+<span class="context">                 log.info("Running profiler")</span>
+<span class="context">             with log.indent():</span>
+<span class="del">-                env.install_project(conf, repo, commit_hash)</span>
+<span class="context">                 results = run_benchmarks(</span>
+<span class="context">                     benchmarks, env, show_stderr=True, quick=False, profile=True)</span>
+<span class="context">                 profile_data = results.get_profile(benchmark_name)</span></code></pre>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="handoff-title">
+      <div class="handoff">
+        <h2 id="handoff-title">Clean handoff</h2>
+        <ol>
+          <li>Reproduce with the edited checkout explicitly, not an unknown installed <code>asv</code> entry point.</li>
+          <li>Capture whether <code>revision</code> was supplied before assigning the default branch.</li>
+          <li>Use the resolved environments’ capabilities—or <code>is_existing_only</code>—for control flow.</li>
+          <li>Skip <code>install_project</code> only for environments that cannot install; preserve managed-environment behavior.</li>
+          <li>Add focused tests for both <code>-E existing</code> and <code>--python=same</code>, plus a managed environment with an explicit revision.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Case 05 · airspeed-velocity__asv-702</span>
+    <span>No external references · eval logs and target stripped</span>
+  </footer>
+
+  <script>
+    const filterButtons = [...document.querySelectorAll('.filter')];
+    const events = [...document.querySelectorAll('.event')];
+
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const chosen = button.dataset.filter;
+        filterButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        events.forEach(event => event.classList.toggle('is-hidden', chosen !== 'all' && event.dataset.kind !== chosen));
+      });
+    });
+
+    const patchToggle = document.querySelector('.patch-toggle');
+    const patchCode = document.querySelector('.patch-code');
+    patchToggle.addEventListener('click', () => {
+      const compact = patchCode.classList.toggle('compact');
+      patchToggle.setAttribute('aria-pressed', String(compact));
+      patchToggle.textContent = compact ? 'Show context' : 'Changed lines only';
+    });
+  </script>
+</body>
+</html>

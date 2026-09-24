@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AVUT Case 47 — Audio–Object Matching</title>
+<style>
+:root{--ink:#211d18;--muted:#6e665d;--paper:#f5f0e7;--card:#fffaf1;--line:#d8cdbd;--moss:#536344;--moss2:#7d8f69;--clay:#c8754b;--cream:#efe4cf;--navy:#24313b;--white:#fff;--shadow:0 24px 70px rgba(57,43,27,.13)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:linear-gradient(110deg,#eee7dc 0,#f7f3ec 44%,#e9e1d5 100%);font:15px/1.6 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.34;background-image:radial-gradient(#7c6d5c 0.65px,transparent .7px);background-size:6px 6px;mix-blend-mode:multiply}
+.shell{width:min(1180px,calc(100% - 36px));margin:26px auto 52px;position:relative}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;color:var(--muted);font-size:12px;letter-spacing:.09em;text-transform:uppercase}
+.brand{display:flex;gap:10px;align-items:center}.brand-mark{width:26px;height:26px;border-radius:50%;background:conic-gradient(var(--clay) 0 25%,var(--cream) 0 50%,var(--moss) 0 75%,#b9c5cd 0);border:4px solid var(--card);box-shadow:0 0 0 1px var(--line)}
+.status{display:flex;align-items:center;gap:8px}.dot{width:7px;height:7px;border-radius:50%;background:#6f9159;box-shadow:0 0 0 4px #dfe8d8}
+.hero{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:30px;box-shadow:var(--shadow);display:grid;grid-template-columns:1.18fr .82fr;min-height:470px}
+.hero-copy{padding:58px 58px 48px;position:relative;z-index:2}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:750;letter-spacing:.13em;text-transform:uppercase;color:var(--moss)}
+.eyebrow:before{content:"";width:30px;height:2px;background:var(--clay)}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(46px,6vw,84px);font-weight:500;line-height:.94;letter-spacing:-.045em;margin:24px 0 20px;max-width:760px}
+h1 em{font-weight:400;color:var(--clay)}
+.dek{font-size:18px;color:#5d554b;max-width:620px;margin:0 0 30px}
+.answer-lockup{display:flex;align-items:center;gap:15px;border-top:1px solid var(--line);padding-top:24px}
+.letter{display:grid;place-items:center;width:56px;height:56px;border-radius:18px;background:var(--navy);color:#fff;font:700 28px Georgia,serif;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.answer-lockup strong{display:block;font:600 24px/1.1 Georgia,serif}.answer-lockup span{color:var(--muted);font-size:13px}
+.hero-art{position:relative;background:#ded3c3;min-height:470px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.hero-art:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(33,29,24,.38));z-index:1}
+.hero-art img{width:100%;height:100%;object-fit:cover;object-position:center 18%;position:absolute;inset:0;filter:saturate(.9) contrast(1.03)}
+.frame-label{position:absolute;z-index:2;left:22px;bottom:20px;background:rgba(28,27,24,.78);color:#fff;padding:8px 12px;border-radius:999px;font-size:12px;backdrop-filter:blur(8px)}
+.frame-label b{color:#f3b38d}
+.product-chips{position:absolute;z-index:2;right:18px;top:18px;display:flex;gap:8px}.chip{padding:7px 11px;border-radius:999px;color:#fff;font-size:11px;font-weight:700;box-shadow:0 5px 14px rgba(0,0,0,.16)}.chip.green{background:#4d5e3d}.chip.orange{background:#bf6b41}
+.tabs{display:flex;gap:8px;margin:28px 0 16px}.tab{border:1px solid var(--line);background:rgba(255,250,241,.6);padding:9px 15px;border-radius:999px;color:var(--muted);cursor:pointer;font:600 13px inherit}.tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.panel{display:none}.panel.active{display:block}
+.section-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:18px}
+.card{background:rgba(255,250,241,.88);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 10px 30px rgba(55,40,24,.06)}
+.card h2{font:500 30px/1.1 Georgia,serif;margin:0 0 8px;letter-spacing:-.02em}.kicker{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--clay);margin-bottom:10px}
+.quote{font:400 23px/1.35 Georgia,serif;border-left:3px solid var(--clay);padding-left:20px;margin:25px 0 18px;color:#3d3730}
+.timepill{display:inline-flex;align-items:center;gap:8px;background:#efe7db;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:700}.timepill:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--clay)}
+.timeline{position:relative;margin-top:24px;padding:0 4px}.track{height:10px;background:#ddd3c5;border-radius:99px;overflow:hidden;position:relative}.track:before{content:"";display:block;width:79%;height:100%;background:linear-gradient(90deg,var(--moss),var(--clay))}
+.tickrow{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:7px}.marker{position:absolute;left:67.5%;top:-6px;width:4px;height:22px;border-radius:9px;background:var(--ink);box-shadow:0 0 0 4px var(--card)}
+.sync{margin-top:20px;display:grid;grid-template-columns:1fr 42px 1fr;align-items:center;gap:10px}.sync-item{padding:14px;border:1px solid var(--line);border-radius:16px}.sync-item small{display:block;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-size:10px}.sync-item b{font-size:14px}.arrow{text-align:center;color:var(--clay);font-size:23px}
+.frame-card{padding:0;overflow:hidden}.frame-card .image-wrap{height:355px;background:#d6ccbf;position:relative}.frame-card img{width:100%;height:100%;object-fit:cover;object-position:center 43%;filter:saturate(.9)}.caption{padding:20px 22px}.caption b{font:500 21px Georgia,serif}.caption p{margin:5px 0 0;color:var(--muted)}
+.options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:21px}.option{position:relative;border:1px solid var(--line);border-radius:17px;padding:15px 15px 15px 48px;background:rgba(255,255,255,.46);min-height:75px}.option .opt-letter{position:absolute;left:14px;top:16px;display:grid;place-items:center;width:24px;height:24px;border:1px solid var(--line);border-radius:8px;font-weight:800;font-size:12px}.option b{display:block;font-size:14px}.option span{font-size:12px;color:var(--muted)}.option.correct{background:#e6ebdf;border-color:#92a47e;box-shadow:inset 0 0 0 1px #92a47e}.option.correct .opt-letter{background:var(--moss);color:#fff;border-color:var(--moss)}.option.correct:after{content:"MATCH";position:absolute;right:10px;top:10px;font-size:9px;letter-spacing:.11em;font-weight:900;color:var(--moss)}
+.swatches{display:flex;gap:5px;margin-top:8px}.swatch{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.85);box-shadow:0 0 0 1px rgba(0,0,0,.1)}
+.trace-list{display:grid;gap:10px;margin-top:20px}.trace-row{display:grid;grid-template-columns:110px 1fr auto;gap:15px;align-items:start;padding:14px 0;border-top:1px solid var(--line)}.trace-row:first-child{border-top:0}.trace-row code{font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--moss)}.trace-row p{margin:0;color:#4f4942}.trace-tag{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 8px}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.meta div{padding:15px;border-radius:16px;background:#eee6da}.meta small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}.meta b{display:block;margin-top:3px;font-size:14px}
+footer{display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:11px;padding:18px 5px 0}footer code{font-size:10px}
+@media(max-width:820px){.hero,.section-grid{grid-template-columns:1fr}.hero-art{min-height:420px}.hero-copy{padding:40px 28px}.options{grid-template-columns:1fr}.meta{grid-template-columns:1fr 1fr}.trace-row{grid-template-columns:82px 1fr}.trace-tag{display:none}.topbar{align-items:flex-start}.sync{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}} 
+@media(prefers-reduced-motion:no-preference){.hero,.card{animation:rise .55s ease both}.card:nth-child(2){animation-delay:.08s}@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="topbar">
+    <div class="brand"><span class="brand-mark"></span><span>AVUT · Case 47</span></div>
+    <div class="status"><span class="dot"></span><span>Completed · exit 0</span></div>
+  </div>
+
+  <section class="hero" aria-labelledby="title">
+    <div class="hero-copy">
+      <div class="eyebrow">Audio–object matching</div>
+      <h1 id="title">The first pair was <em>dark green &amp; orange.</em></h1>
+      <p class="dek">The sale announcement anchors the audio at 20.7–25.8 seconds. The opening product shot supplies the visual identity of the first two colored ZEN MagSafe stands.</p>
+      <div class="answer-lockup">
+        <div class="letter">B</div>
+        <div><strong>Dark green &amp; orange</strong><span>Selected from four candidate pairs</span></div>
+      </div>
+    </div>
+    <div class="hero-art">
+      <img src="data:image/jpeg;base64,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" alt="Opening frame: woman presenting white, dark green, and orange charger stands, with dark green and orange prominent in her hands">
+      <div class="product-chips"><span class="chip green">dark green</span><span class="chip orange">orange</span></div>
+      <div class="frame-label"><b>0.0s</b> · first product presentation</div>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist" aria-label="Case views">
+    <button class="tab active" id="evidence-tab" role="tab" aria-selected="true" aria-controls="evidence" data-target="evidence">Evidence</button>
+    <button class="tab" id="trace-tab" role="tab" aria-selected="false" aria-controls="trace" data-target="trace">Agent trace</button>
+  </div>
+
+  <section class="panel active" id="evidence" role="tabpanel" aria-labelledby="evidence-tab">
+    <div class="section-grid">
+      <article class="card">
+        <div class="kicker">01 · Temporal anchor</div>
+        <h2>Locate the spoken cue</h2>
+        <p class="quote">“Our Winter Sale is going to be this Friday December 8 at 10 p.m. EST…”</p>
+        <span class="timepill">20.7s → 25.8s transcript segment</span>
+        <div class="timeline" aria-label="Timeline from 0 to 34 seconds with cue at 20.7 seconds">
+          <div class="track"><i class="marker"></i></div>
+          <div class="tickrow"><span>0s</span><span>10s</span><span>20.7s</span><span>34s</span></div>
+        </div>
+        <div class="sync">
+          <div class="sync-item"><small>Audio</small><b>Sale date &amp; time</b></div>
+          <div class="arrow">→</div>
+          <div class="sync-item"><small>Visual lookup</small><b>First colors held</b></div>
+        </div>
+      </article>
+
+      <figure class="card frame-card">
+        <div class="image-wrap">
+          <img src="data:image/jpeg;base64,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" alt="Frame at 24 seconds showing the Winter Sale overlay: December 8, 10 PM EST, over the charger stand lineup">
+          <div class="frame-label"><b>24.0s</b> · sale title card</div>
+        </div>
+        <figcaption class="caption"><b>The timestamp is visually confirmed.</b><p>The on-screen sale card repeats “December 8, 10PM EST,” aligning with the transcript cue.</p></figcaption>
+      </figure>
+    </div>
+
+    <article class="card" style="margin-top:18px">
+      <div class="kicker">02 · Candidate check</div>
+      <h2>Compare the color pairs</h2>
+      <p>The first product presentation makes dark green and orange the relevant pair. The other combinations do not match that first-held pairing.</p>
+      <div class="options" aria-label="Answer options">
+        <div class="option"><span class="opt-letter">A</span><b>White &amp; green</b><span>Not the first two colored stands</span><div class="swatches"><i class="swatch" style="background:#eee"></i><i class="swatch" style="background:#80926c"></i></div></div>
+        <div class="option correct"><span class="opt-letter">B</span><b>Dark green &amp; orange</b><span>Matches the first presentation</span><div class="swatches"><i class="swatch" style="background:#536344"></i><i class="swatch" style="background:#c8754b"></i></div></div>
+        <div class="option"><span class="opt-letter">C</span><b>Purple &amp; white</b><span>Purple is not shown in the pair</span><div class="swatches"><i class="swatch" style="background:#8f7897"></i><i class="swatch" style="background:#eee"></i></div></div>
+        <div class="option"><span class="opt-letter">D</span><b>Blue &amp; brown</b><span>Does not match the opening frame</span><div class="swatches"><i class="swatch" style="background:#8ea6b5"></i><i class="swatch" style="background:#7d5b49"></i></div></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel" id="trace" role="tabpanel" aria-labelledby="trace-tab" hidden>
+    <article class="card">
+      <div class="kicker">Recorded trajectory</div>
+      <h2>A compact, successful run</h2>
+      <p>The codex-jsonl trajectory records the task context, multimodal inspection, internal reasoning, and a single-letter final response.</p>
+      <div class="trace-list">
+        <div class="trace-row"><code>18:50:41Z</code><p>Case prompt received with ten keyframes, timestamped transcript, question, and four options.</p><span class="trace-tag">input</span></div>
+        <div class="trace-row"><code>18:51:05Z</code><p>Reasoning completed after reviewing the supplied visual material and the audio cue.</p><span class="trace-tag">reasoning</span></div>
+        <div class="trace-row"><code>18:51:05Z</code><p>Final answer emitted exactly as requested: <strong>“B”</strong>.</p><span class="trace-tag">output</span></div>
+      </div>
+      <div class="meta">
+        <div><small>Model</small><b>gpt-5.6-sol</b></div>
+        <div><small>Duration</small><b>26.9 seconds</b></div>
+        <div><small>Format</small><b>codex-jsonl</b></div>
+        <div><small>References</small><b>None omitted</b></div>
+      </div>
+    </article>
+  </section>
+
+  <footer>
+    <span>Source media reference: <code>/mnt/bn/tiktok-mm-4/aiic/users/yangyudong/AVbenchmark/data/oto_oTbQ-ak.mp4</code></span>
+    <span>Frame evidence embedded locally · no remote assets</span>
+  </footer>
+</main>
+<script>
+const tabs=[...document.querySelectorAll('.tab')];
+tabs.forEach(tab=>tab.addEventListener('click',()=>{
+  tabs.forEach(t=>{const on=t===tab;t.classList.toggle('active',on);t.setAttribute('aria-selected',String(on));});
+  document.querySelectorAll('.panel').forEach(p=>{const on=p.id===tab.dataset.target;p.classList.toggle('active',on);p.hidden=!on;});
+}));
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Case 05 · asv-702 · Repair trajectory review</title>
+<style>
+:root{--bg:#f3efe6;--paper:#fffdf8;--ink:#17201d;--muted:#68706b;--line:#d8d2c5;--red:#c74632;--red-soft:#f7dfd8;--green:#23735b;--green-soft:#dcece5;--amber:#a16b18;--amber-soft:#f4e8ca;--navy:#203b4d;--code:#17231f;--code-ink:#e8efe9;--shadow:0 18px 50px rgba(45,42,34,.10)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.shell{max-width:1180px;margin:auto;padding:28px 24px 64px}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.mark{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--ink)}.mark i{width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 0 5px var(--red-soft)}.hero{position:relative;overflow:hidden;background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:38px 40px;box-shadow:var(--shadow)}.hero:after{content:"702";position:absolute;right:22px;bottom:-43px;font:900 170px/1 Georgia,serif;color:#eee8db;z-index:0}.hero>*{position:relative;z-index:1}.eyebrow{color:var(--red);font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase}.hero h1{max-width:770px;margin:14px 0 16px;font:700 clamp(35px,5.3vw,64px)/.98 Georgia,serif;letter-spacing:-.045em}.lede{max-width:700px;color:#4f5752;font-size:17px;line-height:1.6}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}.chip{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#faf7f0;font-size:12px;font-weight:700}.chip.bad{color:#8f2d20;background:var(--red-soft);border-color:#efb9ae}.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px;margin-top:18px}.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:24px}.card h2,.section-title{margin:0 0 16px;font:700 24px/1.15 Georgia,serif}.verdict{background:var(--red-soft);border-color:#eeb9ad}.verdict .stamp{display:inline-block;margin-bottom:13px;padding:6px 9px;background:var(--red);color:#fff;border-radius:6px;font-size:11px;font-weight:900;letter-spacing:.13em}.verdict p{margin:0;line-height:1.58}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{padding:15px;background:#f7f3eb;border-radius:12px}.metric b{display:block;font:700 29px/1 Georgia,serif;color:var(--navy)}.metric span{font-size:12px;color:var(--muted)}.section{margin-top:34px}.section-head{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:14px}.section-head p{margin:0;max-width:600px;color:var(--muted);font-size:14px;line-height:1.45}.tabs{display:flex;gap:6px;background:#e8e2d7;border-radius:12px;padding:5px;width:max-content;max-width:100%;overflow:auto}.tab{border:0;background:transparent;color:#5f6661;border-radius:8px;padding:9px 13px;font:700 12px/1 inherit;cursor:pointer;white-space:nowrap}.tab.active{background:var(--paper);color:var(--ink);box-shadow:0 2px 8px #0001}.panel{display:none}.panel.active{display:block}.issuebox{display:grid;grid-template-columns:1fr 1fr;gap:16px}.quote{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px}.quote h3{font-size:13px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 12px}.quote p{color:#505853;line-height:1.55;margin:0}.terminal{margin-top:12px;background:var(--code);color:var(--code-ink);border-radius:12px;padding:15px 16px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow:auto}.prompt{color:#82c8a9}.err{color:#ff9e8f}.timeline{position:relative;margin-left:12px;padding-left:30px}.timeline:before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--line)}.event{position:relative;margin-bottom:13px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:17px 18px}.event:before{content:"";position:absolute;left:-30px;top:21px;width:13px;height:13px;border-radius:50%;background:var(--paper);border:3px solid var(--navy)}.event.fail:before{border-color:var(--red);background:var(--red-soft)}.event.edit:before{border-color:var(--amber);background:var(--amber-soft)}.event .num{font:800 10px/1 inherit;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}.event h3{font-size:15px;margin:5px 0 7px}.event p{font-size:13px;line-height:1.5;color:#5b635e;margin:0}.loop{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0}.loop div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px}.loop b{display:block;font-size:19px;color:var(--red)}.loop span{font-size:11px;color:var(--muted)}.callout{border-left:4px solid var(--amber);background:var(--amber-soft);padding:15px 17px;border-radius:0 12px 12px 0;font-size:14px;line-height:1.55}.diffwrap{background:var(--code);border-radius:16px;overflow:hidden}.diffbar{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid #31433c;color:#c6d1cb;font-size:12px}.copy{border:1px solid #53655e;background:transparent;color:#e7efe9;border-radius:7px;padding:6px 9px;cursor:pointer}.diff{margin:0;padding:18px;overflow:auto;color:var(--code-ink);font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}.add{color:#a6e3be}.del{color:#ffaaa0}.hunk{color:#9cc8e2}.analysis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.finding{background:var(--paper);border:1px solid var(--line);border-radius:15px;padding:19px}.finding .icon{display:grid;place-items:center;width:31px;height:31px;border-radius:9px;background:#eee8dd;color:var(--navy);font-weight:900;margin-bottom:12px}.finding h3{font-size:14px;margin:0 0 7px}.finding p{font-size:13px;color:#5b635e;line-height:1.52;margin:0}.facts{width:100%;border-collapse:collapse;font-size:13px}.facts th,.facts td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}.facts th{width:190px;color:var(--muted);font-weight:600}.footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:11px}.kbd{font-family:ui-monospace,monospace;background:#e8e3d9;border-radius:4px;padding:2px 5px}@media(max-width:800px){.grid,.issuebox,.analysis-grid{grid-template-columns:1fr}.loop{grid-template-columns:repeat(2,1fr)}.hero{padding:28px 24px}.hero:after{font-size:110px}.section-head{align-items:start;flex-direction:column}.shell{padding:18px 14px 40px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="topbar"><div class="mark"><i></i>Trajectory review</div><div>SWE-bench · code repair</div></div>
+  <header class="hero">
+    <div class="eyebrow">Case 05 / airspeed-velocity__asv-702</div>
+    <h1>Existing environment.<br>Persistent failure.</h1>
+    <p class="lede">A repair session for <code>asv profile</code> that correctly reproduced the reported error, then became trapped in a repetitive edit–rerun loop. The generated patch was submitted without a passing reproduction or broader test evidence.</p>
+    <div class="chips"><span class="chip">swe-agent-traj</span><span class="chip">swe-agent-llama-70b</span><span class="chip">71 messages</span><span class="chip bad">Unresolved in trajectory</span></div>
+  </header>
+
+  <section class="grid" aria-label="Outcome summary">
+    <article class="card verdict"><div class="stamp">EVIDENCE-BASED VERDICT</div><h2>Attempt did not demonstrate a fix</h2><p>Every post-edit reproduction shown in the trajectory returned the same explicit-revision error. No test suite was run, no successful profile output was observed, and the last action was another file navigation command. The metadata records <strong>submitted (exit_context)</strong>, but that status alone is not proof of correctness.</p></article>
+    <article class="card"><h2>At a glance</h2><div class="metrics"><div class="metric"><b>8</b><span>edit attempts</span></div><div class="metric"><b>8</b><span>failed reruns</span></div><div class="metric"><b>1</b><span>file modified</span></div><div class="metric"><b>0</b><span>passing tests shown</span></div></div></article>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><div><div class="eyebrow">Case anatomy</div><h2 class="section-title">Issue, trajectory, and patch</h2></div><div class="tabs" role="tablist"><button class="tab active" data-tab="issue">Issue</button><button class="tab" data-tab="journey">Journey</button><button class="tab" data-tab="patch">Generated patch</button><button class="tab" data-tab="assessment">Assessment</button></div></div>
+
+    <div class="panel active" id="issue">
+      <div class="issuebox">
+        <article class="quote"><h3>Reported behavior</h3><p>Profiling a benchmark against the existing environment fails because the command treats the configured/default revision as though the user explicitly requested one.</p><div class="terminal"><span class="prompt">$</span> asv profile -E existing<br>  comm.Transfer.time_tcp_large_transfers_uncompressible<br><span class="err">· An explicit revision may not be specified when using an existing environment.</span></div></article>
+        <article class="quote"><h3>Alternative forms</h3><p>The report says <code>--python=same</code> fails identically. It also notes that <code>asv run --python=same --profile</code> does not appear to save profile output anywhere.</p><div class="terminal"><span class="prompt">$</span> asv profile --python=same …<br><span class="err">· An explicit revision may not be specified …</span><br><br><span class="prompt">$</span> asv run --python=same --profile -b …</div></article>
+      </div>
+      <div class="card" style="margin-top:16px"><h2>Relevant control flow</h2><p style="line-height:1.6;color:#555e58">The inspected code first replaces a missing revision with <code>conf.branches[0]</code>, then later checks <code>revision is not None</code>. By that point the check can no longer distinguish a user-supplied revision from the default it just assigned. The agent noticed the guard, but its patch keyed off the raw environment specification string instead of resolving this state distinction robustly.</p></div>
+    </div>
+
+    <div class="panel" id="journey">
+      <div class="loop"><div><b>Reproduce</b><span>Observed target error</span></div><div><b>Locate</b><span>Found profiling.py</span></div><div><b>Edit ×8</b><span>Expanded same replacement</span></div><div><b>Fail ×8</b><span>Identical error persisted</span></div></div>
+      <div class="timeline">
+        <article class="event fail"><span class="num">Messages 2–3</span><h3>Bug reproduced immediately</h3><p><code>asv profile -E existing …</code> returned both a Python 2.7 executable warning and the reported explicit-revision error.</p></article>
+        <article class="event"><span class="num">Messages 4–23</span><h3>Source discovery, with one wrong path</h3><p>The agent listed the repository, tried <code>asv/asv/main.py</code> from the repository root (not found), corrected to <code>asv/main.py</code>, searched for “profile,” and opened <code>asv/commands/profiling.py</code> at the relevant guard.</p></article>
+        <article class="event edit"><span class="num">Messages 24–31</span><h3>First two edits target <code>env_spec == "existing"</code></h3><p>The first patch exempted only the literal string <code>existing</code>. After <code>--python=same</code> still failed, a second edit added an <code>elif</code> that merely selected the first environment.</p></article>
+        <article class="event fail"><span class="num">Messages 32–51</span><h3>Broad edits, unchanged outcome</h3><p>Four more rounds replaced progressively larger line ranges. One intermediate state duplicated the <code>run_benchmarks</code> call. Each rerun returned exactly the same error.</p></article>
+        <article class="event edit"><span class="num">Messages 52–69</span><h3>Final edits remove installation, still fail</h3><p>The patch eventually removed <code>env.install_project(...)</code> and compacted formatting. Three additional reruns still failed. No hypothesis was revised based on that evidence.</p></article>
+        <article class="event fail"><span class="num">Message 70</span><h3>Trajectory stops mid-loop</h3><p>The final recorded action is <code>goto 156</code>. There is no successful reproduction, unit test, integration test, or explicit <code>submit</code> command in the visible messages.</p></article>
+      </div>
+    </div>
+
+    <div class="panel" id="patch">
+      <div class="callout">This is the exact generated patch recorded in <code>trajectory.json</code>. Green lines were added; red lines removed. Formatting churn is mixed with two behavioral changes: a literal <code>env_spec</code> exemption and removal of project installation.</div>
+      <div class="diffwrap" style="margin-top:14px"><div class="diffbar"><span>asv/commands/profiling.py · generated diff</span><button class="copy" id="copyDiff">Copy diff</button></div><pre class="diff" id="diffText"><span class="hunk">@@ -153,31 +153,28 @@ class Profile(Command):</span>
+                 log.error("No environments selected")
+                 return
+ 
+<span class="del">-            if revision is not None:</span>
+<span class="add">+            if revision is not None and env_spec!= "existing":</span>
+                 for env in environments:
+                     if not env.can_install_project():
+                         raise util.UserError(
+                             "An explicit revision may not be specified when "
+                             "using an existing environment.")
+<span class="del">-</span>
+<span class="add">+            elif env_spec == "existing":</span>
+<span class="add">+                env = environments[0]</span>
+<span class="add">+                environments = [env]</span>
+             env = environments[0]
+<span class="del">-</span>
+<span class="del">-            if env.python != "{0}.{1}".format(*sys.version_info[:2]):</span>
+<span class="add">+            if env.python!= "{0}.{1}".format(*sys.version_info[:2]):</span>
+                 raise util.UserError(
+                     "Profiles must be run in the same version of Python as the "
+                     "asv master process")
+<span class="del">-</span>
+             benchmarks = Benchmarks.discover(conf, repo, environments,
+                                              [commit_hash],
+                                              regex='^{0}$'.format(benchmark))
+<span class="del">-</span>
+             if len(benchmarks) == 0:
+                 raise util.UserError("'{0}' benchmark not found".format(benchmark))
+             elif len(benchmarks) &gt; 1:
+                 raise util.UserError("'{0}' matches more than one benchmark".format(benchmark))
+<span class="del">-</span>
+             benchmark_name, = benchmarks.keys()
+<span class="del">-</span>
+             if not force:
+                 log.info(
+                     "Profile data does not already exist. "
+<span class="hunk">@@ -185,13 +182,9 @@ class Profile(Command):</span>
+             else:
+                 log.info("Running profiler")
+             with log.indent():
+<span class="del">-                env.install_project(conf, repo, commit_hash)</span>
+<span class="del">-</span>
+                 results = run_benchmarks(
+                     benchmarks, env, show_stderr=True, quick=False, profile=True)
+<span class="del">-</span>
+                 profile_data = results.get_profile(benchmark_name)</pre></div>
+    </div>
+
+    <div class="panel" id="assessment">
+      <div class="analysis-grid">
+        <article class="finding"><div class="icon">01</div><h3>Symptom, not state model</h3><p>The patch checks whether <code>env_spec</code> literally equals <code>existing</code>. That does not cover the reported <code>--python=same</code> form and ignores the existing <code>is_existing_only(environments)</code> abstraction already used above.</p></article>
+        <article class="finding"><div class="icon">02</div><h3>Evidence was not incorporated</h3><p>Identical failures after each change should have triggered source tracing for argument normalization or confirmation that the edited code was the code being executed. Instead, nearly the same edit was repeated.</p></article>
+        <article class="finding"><div class="icon">03</div><h3>Potential regression introduced</h3><p>Removing <code>env.install_project</code> for all paths in this block—not just existing environments—can skip required setup for normal managed environments.</p></article>
+        <article class="finding"><div class="icon">04</div><h3>No tests added</h3><p>The issue has two option forms and revision semantics suitable for focused command tests. The trajectory shows neither new tests nor an existing relevant test suite run.</p></article>
+        <article class="finding"><div class="icon">05</div><h3>Output concern untouched</h3><p>The report’s secondary concern—where <code>asv run --profile</code> stores profile data—was not investigated or addressed.</p></article>
+        <article class="finding"><div class="icon">06</div><h3>Evaluation unavailable</h3><p><code>eval_logs</code> and <code>target</code> were stripped from this case. The review therefore judges only the visible trajectory and patch, not hidden benchmark results.</p></article>
+      </div>
+      <div class="card" style="margin-top:16px"><h2>What a stronger repair process needed</h2><p style="line-height:1.6;color:#555e58;margin-bottom:0">Preserve whether the revision was explicitly supplied before applying a default; use the resolved environment capability/type rather than a single raw option spelling; keep installation behavior intact for installable environments; add coverage for both <code>-E existing</code> and <code>--python=same</code>; then run focused tests plus the original reproductions. This is a process-level assessment, not a claim about the unseen gold patch.</p></div>
+    </div>
+  </section>
+
+  <section class="section card"><h2>Case record</h2><table class="facts"><tr><th>Instance</th><td>airspeed-velocity__asv-702</td></tr><tr><th>Benchmark / domain</th><td>SWE-bench / code_repair</td></tr><tr><th>Model</th><td>swe-agent-llama-70b</td></tr><tr><th>Trajectory format</th><td>swe-agent-traj</td></tr><tr><th>Recorded exit status</th><td>submitted (exit_context)</td></tr><tr><th>Generated patch</th><td>1 file · <code>asv/commands/profiling.py</code></td></tr><tr><th>References</th><td>None</td></tr><tr><th>Stripped fields</th><td><code>eval_logs</code>, <code>target</code></td></tr><tr><th>Trajectory SHA-256</th><td style="word-break:break-all"><code>c068ae0b3c179d692503b41bae5651794cde2975a22f75532162e759071cdd70</code></td></tr></table></section>
+  <footer class="footer"><span>Prepared from case-local metadata, task statement, and trajectory only.</span><span>Use tabs above · <span class="kbd">Esc</span> returns to Issue</span></footer>
+</main>
+<script>
+const tabs=[...document.querySelectorAll('.tab')],panels=[...document.querySelectorAll('.panel')];
+function select(id){tabs.forEach(t=>t.classList.toggle('active',t.dataset.tab===id));panels.forEach(p=>p.classList.toggle('active',p.id===id));}
+tabs.forEach(t=>t.addEventListener('click',()=>select(t.dataset.tab)));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')select('issue')});
+document.getElementById('copyDiff').addEventListener('click',async function(){const text=document.getElementById('diffText').innerText;try{await navigator.clipboard.writeText(text);this.textContent='Copied';setTimeout(()=>this.textContent='Copy diff',1400)}catch(e){this.textContent='Select manually'}});
+</script>
+</body>
+</html>

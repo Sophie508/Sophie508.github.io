@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Case report · St. Petersburg to Rockford</title><style>
+:root{--ink:#192c35;--muted:#586871;--paper:#f4f3ee;--line:#d5dbd8;--teal:#206f70;--red:#a4402f}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:48px 32px}header{border-top:5px solid var(--teal);padding-top:25px}.eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);font-weight:750}h1{font-size:clamp(32px,5vw,55px);line-height:1.12;letter-spacing:-2px;margin:15px 0}h2{font-size:25px;letter-spacing:-.5px;margin:0 0 18px}h3{font-size:17px;margin:0 0 7px}p{margin:8px 0 16px}.subtitle{font-size:18px;color:var(--muted)}.status{display:inline-block;background:#f4e3d9;color:#813827;padding:5px 12px;border-radius:4px;font-size:13px;font-weight:700}.lead{font-size:20px;max-width:900px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:28px 0}.stat{border:1px solid var(--line);padding:20px;background:white}.stat b{display:block;font-size:34px;line-height:1.3}.stat span,.small{font-size:13px;color:var(--muted)}section{padding:30px 0;border-top:1px solid var(--line)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}.note{background:#e6edeb;padding:20px;border-left:4px solid var(--teal)}.warn{background:#f2e7df;border-left-color:var(--red)}table{border-collapse:collapse;width:100%;font-size:14px}th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.6px}td,th{padding:14px 12px;border-bottom:1px solid var(--line);vertical-align:top}td:first-child,th:first-child{padding-left:0}.money{white-space:nowrap;font-weight:700}.over{color:var(--red)}.timeline{list-style:none;padding:0;counter-reset:step}.timeline li{position:relative;padding:0 0 20px 44px;border-left:1px solid var(--line);margin-left:15px}.timeline li:before{counter-increment:step;content:counter(step);position:absolute;left:-16px;top:0;width:30px;height:30px;border-radius:50%;background:var(--teal);color:white;text-align:center;font-size:14px;line-height:30px}.timeline p{margin:3px 0;font-size:14px}.source{color:var(--muted);font-size:12px}.bar{display:flex;height:36px;max-width:100%;margin:14px 0 8px;border-radius:4px;overflow:hidden}.bar div{display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700}.flights{width:75.58%;background:#206f70}.lodging{width:14.19%;background:#647c89}.food{width:10.23%;background:#ab7050}.findings article{padding:16px 0;border-bottom:1px solid var(--line)}.findings p{font-size:14px;margin-bottom:0}details{border:1px solid var(--line);background:white;margin:10px 0}summary{padding:15px;cursor:pointer;font-weight:650}summary span{display:block;font-weight:400;color:var(--muted);font-size:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.6 ui-monospace,monospace;padding:20px;margin:0;border-top:1px solid var(--line);max-height:550px;overflow:auto}footer{border-top:1px solid var(--line);padding-top:22px;font-size:12px;color:var(--muted);overflow-wrap:anywhere}.tablewrap{overflow:auto}@media(max-width:700px){main{padding:24px 18px}.stats,.grid{grid-template-columns:1fr 1fr;gap:12px}.grid{grid-template-columns:1fr}.stat{padding:14px}.stat b{font-size:28px}h1{letter-spacing:-1px}}@media print{body{background:white}main{padding:20px}.stat,article,tr{break-inside:avoid}details pre{max-height:none}summary{cursor:default}}
+</style></head><body><main>
+<header><div class="eyebrow">TravelPlanner / Recorded case 01</div><h1>St. Petersburg → Rockford</h1><p class="subtitle">March 16–18, 2022 · 1 traveler · 3 days · $900 maximum</p><span class="status">Budget requirement unmet</span><p class="lead">The assistant recognized that the available flights and lodging exceeded the cap, then delivered an explicitly over-budget itinerary. Its arithmetic was consistent, but its proposed stay was not validated.</p></header>
+<div class="stats"><div class="stat"><span>Requested ceiling</span><b>$900</b></div><div class="stat"><span>Round-trip flights</span><b>$820</b></div><div class="stat"><span>Reported plan total</span><b>$1,085</b></div><div class="stat"><span>Reported overrun</span><b class="over">+$185</b></div></div>
+<section class="grid"><div><h2>Task and execution</h2><p>The user required separate searches in this order: flights, accommodations, restaurants, attractions. The assistant was to track the remaining budget, produce a daily plan, and revise it if over $900.</p><p>All four searches ran separately and returned without tool errors. The recorded process exited with code 0; that indicates execution completion, not fulfillment of the budget constraint.</p></div><div class="note"><h3>Outcome in the record</h3><p>No compliant itinerary was delivered. The assistant acknowledged the shortfall and suggested a higher budget, a shorter trip, or different dates/airports. It did not search those alternatives or produce a revised feasible plan.</p><p class="small">Model: claude-opus-4-8 · Backend: opus<br>Collected: July 11, 2026 · Duration: 74.9 seconds<br>No evaluator score is supplied in this case.</p></div></section>
+<section><h2>Decision trail</h2><ol class="timeline"><li><h3>Flights left only $80</h3><p>Outbound F3573659 cost $474; return F3573120 cost $346. The assistant correctly calculated $820 in transportation and $80 remaining. Driving and taxi entries had no valid information.</p><div class="source">Trajectory records 4–7</div></li><li><h3>Cheapest listed lodging already crossed the cap</h3><p>Among 13 accommodation results, “The heart of Brooklyn” had the lowest listed price, $154. The assistant calculated $974 before meals and attractions.</p><div class="source">Trajectory records 8–11</div></li><li><h3>Completed the remaining searches</h3><p>The restaurant search returned 27 entries, with Flying Mango lowest at $20. The attraction search returned 20 names, with no prices or opening hours.</p><div class="source">Trajectory records 12–15</div></li><li><h3>Presented and checked an over-budget plan</h3><p>The final answer reported $1,085, then considered $1,034 with one $20 meal daily and a $974 floor without food. None met the cap; both reductions retained the same lodging assumption.</p><div class="source">Trajectory record 17</div></li></ol></section>
+<section><h2>The itinerary the assistant actually reported</h2><p class="small">Reproduction of the recorded choices and totals, not a new travel recommendation. Lodging was charged once as a whole-stay cost; admission and local transport were not priced.</p><div class="tablewrap"><table><thead><tr><th>Date</th><th>Recorded activities and meals</th><th>Daily cost</th><th>Running total</th></tr></thead><tbody><tr><td>Mar 16</td><td>Flight 15:40–17:04; check in at The heart of Brooklyn; Flying Mango dinner.<br><span class="small">$474 flight + $154 lodging + $20 dinner</span></td><td class="money">$648</td><td class="money">$648</td></tr><tr><td>Mar 17</td><td>Anderson Japanese Gardens, Nicholas Conservatory, Burpee Museum, Discovery Center Museum; Grappa lunch and Subway dinner.<br><span class="small">$21 lunch + $26 dinner</span></td><td class="money">$47</td><td class="money">$695</td></tr><tr><td>Mar 18</td><td>Dunkin’ breakfast; Klehm Arboretum and Tinker Swiss Cottage; Flying Mango lunch; flight 19:00–22:43.<br><span class="small">$24 breakfast + $20 lunch + $346 flight</span></td><td class="money">$390</td><td class="money over">$1,085</td></tr></tbody></table></div><div class="bar" role="img" aria-label="Reported total 1085 dollars: flights 820, lodging 154, meals 111"><div class="flights">Flights $820</div><div class="lodging">Stay $154</div><div class="food">Food $111</div></div><p class="small">$820 + $154 + $111 = $1,085. The reported overrun is $185 (20.6%). Flights alone use 91.1% of the requested budget.</p></section>
+<section><h2>What holds up—and what does not</h2><div class="grid findings"><div><article><h3>Supported budget warning</h3><p>The quoted flight costs, remaining $80, daily sums, and $185 overrun all reconcile. Even charging the lowest lodging price only once gives $974. The infeasibility warning is supported for the returned options under that optimistic assumption.</p></article><article><h3>Unsupported whole-stay price</h3><p>The response calls $154 the price “for the stay.” The tool returns a bare price; neither its formatting nor the reference field establishes that this covers two nights. The reported total is therefore not a verified trip cost.</p></article><article><h3>Missing fees and meal coverage</h3><p>Attractions had no fee data, yet the plan described free/low-cost sightseeing and added no admission costs. Local transfers were also unpriced, and only five meals were included. The record does not substantiate a complete $1,085 budget.</p></article></div><div><article><h3>Hidden 30-night minimum</h3><p>The case’s reference data assigns the chosen lodging a <strong>30-night minimum</strong>, incompatible with the proposed two-night stay. The tool formatter omits minimum nights and occupancy, so this constraint was absent from the assistant’s search result. This is a case-file finding, not a check performed in the recorded run.</p></article><article><h3>Incorrect claim in the recommendations</h3><p>The assistant says “flights alone still exceed the current cap” when discussing an overnight trip. Its own $820 flight total is $80 below the $900 cap. It also cannot demonstrate a saving from one fewer night after charging lodging as a flat whole-stay amount.</p></article><article><h3>Minimum-cost and feasibility claims are too strong</h3><p>The final answer labels the plan “cheapest realistic,” without verifying lodging eligibility, attraction fees, or schedules. Its suggested $1,050–$1,100 budget retains those gaps. Names mentioning Brooklyn/NYC are labeled Rockford in the supplied dataset; the names alone do not establish a location error.</p></article></div></div></section>
+<section><h2>Primary evidence</h2><p class="small">Expandable excerpts from the supplied trajectory. Record numbers are one-based JSONL line numbers. Raw final-answer wording is preserved, including its unsupported claims.</p><details><summary>Flight search result <span>trajectory.jsonl · record 5</span></summary><pre>[
+  &quot;Flight from St. Petersburg to Rockford on 2022-03-16: F3573659, Price $474, Depart 15:40, Arrive 17:04&quot;,
+  &quot;Self-driving from St. Petersburg to Rockford: No valid information.&quot;,
+  &quot;Taxi from St. Petersburg to Rockford: No valid information.&quot;,
+  &quot;Flight from Rockford to St. Petersburg on 2022-03-18: F3573120, Price $346, Depart 19:00, Arrive 22:43&quot;,
+  &quot;Self-driving from Rockford to St. Petersburg: No valid information.&quot;,
+  &quot;Taxi from Rockford to St. Petersburg: No valid information.&quot;
+]</pre></details><details><summary>Accommodation search result <span>trajectory.jsonl · record 9</span></summary><pre>[
+  &quot;Spacious 3BDR Prime Location!, $1030, Entire home/apt, No smoking, 2&quot;,
+  &quot;Private Room in a two bedroom apt., $210, Private room, No visitors &amp; No smoking, 4&quot;,
+  &quot;Private rooms And Matchless Location, $1075, Private room, No pets &amp; No parties, 2&quot;,
+  &quot;Park Side Zen Home - Terrace &amp; next to CentralPark, $250, Entire home/apt, No children under 10, 3&quot;,
+  &quot;Lux 2 Bedroom NYC Apt on the Hudson River!, $737, Entire home/apt, No smoking, 5&quot;,
+  &quot;Modern 1-bedroom apartment in Fordham, $377, Entire home/apt, No pets, 5&quot;,
+  &quot;Private bedroom in BedStuy!, $1107, Private room, No smoking, 4&quot;,
+  &quot;Pure luxury one bdrm + sofa bed on Central Park, $243, Entire home/apt, No smoking &amp; No parties, 3&quot;,
+  &quot;Charming studio in the heart of Astoria, $519, Entire home/apt, No parties, 4&quot;,
+  &quot;The heart of Brooklyn, $154, Entire home/apt, No children under 10 &amp; No visitors &amp; No pets, 2&quot;,
+  &quot;Private Stuyvesant Bedroom Madison 1R-2, $395, Private room, No parties &amp; No children under 10, 3&quot;,
+  &quot;Sunny big bedroom in lively Brooklyn neighborhood, $440, Private room, No pets &amp; No smoking, 3&quot;,
+  &quot;Midtown 2 Bed United Nations Loc, Full Kitchen, $245, Entire home/apt, No visitors, 4&quot;
+]</pre></details><details><summary>Restaurant search result <span>trajectory.jsonl · record 13</span></summary><pre>[
+  &quot;Coco Bambu, $72, Tea/French/Bakery/BBQ/Cafe, 4.9&quot;,
+  &quot;Flying Mango, $20, American/BBQ/Seafood, 4.5&quot;,
+  &quot;Gajalee Sea Food, $49, Bakery/BBQ, 3.9&quot;,
+  &quot;Shree Balaji Chaat Bhandar, $97, French/Bakery/BBQ/Italian, 3.2&quot;,
+  &quot;Moets Arabica, $43, Tea/Bakery/Indian/Fast Food, 3.5&quot;,
+  &quot;Cafe Coffee Day, $28, Chinese/Desserts/Pizza/Cafe/Mediterranean, 0.0&quot;,
+  &quot;Nutri Punch, $34, Tea/Chinese/Cafe/Desserts, 4.0&quot;,
+  &quot;Cafe Southall, $56, Seafood/Pizza/Cafe/Fast Food, 4.2&quot;,
+  &quot;Eggspectation - Jaypee Vasant Continental, $77, Tea/Mediterranean/Seafood, 3.6&quot;,
+  &quot;Aroma Rest O Bar, $58, Bakery/Fast Food/Chinese/American/Seafood, 3.6&quot;,
+  &quot;Advance Bakery, $100, Desserts/Pizza/Mexican/Bakery/Chinese/Seafood, 2.9&quot;,
+  &quot;Dial A Cake, $29, Cafe/American/Mediterranean/Desserts, 0.0&quot;,
+  &quot;U Like, $32, Tea/French/Desserts, 0.0&quot;,
+  &quot;Subway, $42, Tea/Chinese/Pizza, 3.4&quot;,
+  &quot;Aggarwal Sweet Centre, $81, Desserts/Tea/Italian/Bakery/Cafe, 0.0&quot;,
+  &quot;Aggarwal Sweets Centre, $73, Fast Food/Chinese/BBQ/Italian, 0.0&quot;,
+  &quot;Giri Momos Centre &amp; Chinese Fast Food, $44, Cafe/Indian/Seafood, 2.4&quot;,
+  &quot;Mr. Confectioner - Pride Plaza Hotel, $74, Bakery/Desserts, 0.0&quot;,
+  &quot;Faaso&#x27;s, $98, Bakery/Desserts/Seafood, 0.0&quot;,
+  &quot;Hangchuaa&#x27;s Chinese Food Corner, $64, Tea/BBQ/Seafood, 3.1&quot;,
+  &quot;Grappa - Shangri-La&#x27;s - Eros Hotel, $21, Bakery/Desserts/Italian, 3.4&quot;,
+  &quot;New Bhappe Di Hatti, $76, Seafood/Mexican/BBQ/Fast Food, 0.0&quot;,
+  &quot;Dunkin&#x27; Donuts, $24, Cafe/Bakery/BBQ/Seafood, 0.0&quot;,
+  &quot;Subway, $26, Bakery/Pizza/BBQ/Desserts, 3.8&quot;,
+  &quot;The Gourmet Shack, $77, Tea/Pizza/Indian/Fast Food, 3.3&quot;,
+  &quot;Mirchievous, $64, American/Indian/BBQ/Seafood, 3.1&quot;,
+  &quot;Chaophraya, $74, Chinese/Pizza/Cafe/Desserts, 3.9&quot;
+]</pre></details><details><summary>Attraction search result <span>trajectory.jsonl · record 15</span></summary><pre>Burpee Museum of Natural History, Midway Village Museum, Discovery Center Museum, Tinker Swiss Cottage Museum and Gardens, Anderson Japanese Gardens, Nicholas Conservatory &amp; Gardens, Erlander Home Museum, Ethnic Heritage Museum, Sinnissippi Park, Klehm Arboretum &amp; Botanic Garden, Davis Park at Founders Landing, Frank Lloyd Wright&#x27;s Laurent House, Sinnissippi Gardens, Riverfront Museum Park, Searls Park, La Paloma Gardens, Rockford Park District, Aldeen Park, Blackhawk Springs Forest Preserve, Ingersoll Centennial Park</pre></details><details><summary>Complete recorded final answer <span>trajectory.jsonl · record 17</span></summary><pre>All searches complete. Here&#x27;s the analysis.
+
+## Search results summary
+
+**Flights** (only one option each way — no driving/taxi data available):
+- Mar 16: F3573659, St. Petersburg → Rockford, $474 (15:40 → 17:04)
+- Mar 18: F3573120, Rockford → St. Petersburg, $346 (19:00 → 22:43)
+- **Transportation total: $820**
+
+## ⚠️ Budget problem — the trip cannot fit in $900
+
+After flights, only **$80** remains. But the **cheapest accommodation available is $154** (&quot;The heart of Brooklyn&quot;). So even the floor of the trip is over budget:
+
+| Item | Cheapest available |
+|---|---|
+| Flights (fixed, only option) | $820 |
+| Cheapest lodging, whole stay | $154 |
+| **Subtotal (no food, no attractions)** | **$974** |
+
+That is **$74 over budget before a single meal**. The flights alone consume 91% of the $900 cap, and there is no cheaper transport or lodging option in the data to cut. There is no combination of the available options that lands at or under $900.
+
+## Minimum-cost plan (closest achievable itinerary)
+
+Since the budget can&#x27;t be met, here&#x27;s the cheapest realistic 3-day plan with a running total. All Rockford attractions returned with no listed fee, so I&#x27;ve built the days around free/low-cost sights and the cheapest well-rated restaurants (Flying Mango $20 @ 4.5, Subway $26 @ 3.8, Grappa $21, Dunkin&#x27; $24).
+
+**Lodging:** The heart of Brooklyn — entire home/apt, $154 for the stay.
+
+| Day | Plan | Cost | Running total |
+|---|---|---|---|
+| **Mar 16 (arrive 17:04)** | Land, check in. Dinner at **Flying Mango** (American/BBQ/Seafood, 4.5) | Flight $474 · Lodging $154 · Dinner $20 | **$648** |
+| **Mar 17** | Morning: **Anderson Japanese Gardens** + **Nicholas Conservatory**. Lunch **Grappa** $21. Afternoon: **Burpee Museum of Natural History** + **Discovery Center Museum**. Dinner **Subway** $26 | $21 + $26 = $47 | **$695** |
+| **Mar 18 (depart 19:00)** | Breakfast **Dunkin&#x27;** $24. Morning: **Klehm Arboretum** + **Tinker Swiss Cottage**. Light lunch **Flying Mango** $20. Head to airport | Breakfast $24 · Lunch $20 · Flight $346 | **$1,085** |
+
+## Verification — over budget
+
+- **Total: $1,085** vs. $900 budget → **$185 over.**
+- Even stripping food to one $20 meal per day and cutting nothing else: $820 + $154 + $60 = **$1,034** (still $134 over).
+- Absolute floor — flights + cheapest bed, zero food: **$974** (still $74 over).
+
+**The $900 target is not attainable** with the available options, because the round-trip flight ($820) is fixed and the cheapest lodging ($154) alone breaks the remaining $80.
+
+### Recommendations to make it feasible
+1. **Raise the budget to ~$1,050–$1,100**, which covers flights, the cheapest lodging, and modest meals.
+2. **Shorten to an overnight (1 night)** to drop a night of lodging and 1–2 meals — but flights alone still exceed the current cap, so this only helps if the budget also rises.
+3. **Check alternative dates/airports** for cheaper flights — the single fixed option here is the binding constraint; nothing else in the plan can close a $74+ gap.
+
+Want me to build the itinerary around a specific revised budget, or re-plan as a 1-night trip?</pre></details></section>
+<footer><strong>Scope and provenance</strong><p>Case: 01_task0_stpetersburg_to_rockford · Domain: travel_planning · Benchmark: TravelPlanner · Source: regen<br>Inputs read: /app/case/case_meta.json; /app/case/trajectory.jsonl; /app/case/workspace/prompt.txt; /app/case/workspace/tools/tool_server.py; /app/case/workspace/tools/ref_info.json.</p><p>The trajectory contains 17 records in claude-jsonl format. Supporting tool source and reference data were inspected only to assess the recorded result; no travel searches were rerun. No external resources were accessed. Metadata lists no references or media_refs, and no media is embedded. Bash was used to read and parse the five inputs because no Read tool was available, and to write the assigned HTML output.</p></footer>
+</main></body></html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case 03_gpt-4o-airline_51 · Change request that ended in a cancellation</title>
+<style>
+  :root{
+    --tray:#D9E0E4;
+    --strip:#F7F8F5;
+    --strip-edge:#C4CCD1;
+    --ink:#14213D;
+    --ink-soft:#3B4660;
+    --mark:#F5D547;
+    --stamp:#A8322A;
+    --tower:#2E6E5C;
+    --util:#5C6670;
+    --display:"Arial Narrow","Helvetica Neue Condensed","Roboto Condensed","Liberation Sans Narrow",Impact-free,sans-serif;
+    --body:Georgia,"Iowan Old Style",Charter,"Times New Roman",serif;
+    --mono:"SF Mono",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--tray)}
+  body{
+    margin:0;color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;
+    background:
+      repeating-linear-gradient(0deg,transparent 0 47px,rgba(20,33,61,.045) 47px 48px),
+      var(--tray);
+  }
+  a{color:var(--ink)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+  /* ---------- masthead ---------- */
+  header.mast{padding:40px 0 24px;border-bottom:2px solid var(--ink)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--util);margin:0 0 10px}
+  h1{
+    font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.01em;
+    font-size:clamp(34px,6vw,64px);line-height:.95;margin:0 0 18px;max-width:18ch
+  }
+  .lede{font-size:19px;max-width:62ch;margin:0 0 26px}
+  .route{
+    position:relative;background:var(--strip);border:1px solid var(--strip-edge);
+    border-left:10px solid var(--ink);padding:14px 18px;font-family:var(--mono);font-size:13px;
+    display:grid;grid-template-columns:1fr auto;gap:12px 24px;align-items:center;overflow:hidden
+  }
+  .route .legs{font-size:clamp(22px,4vw,34px);font-family:var(--display);font-weight:700;letter-spacing:.04em;line-height:1.1}
+  .route .legs span{color:var(--util);font-weight:400;padding:0 .2em}
+  .route .meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:6px;color:var(--ink-soft)}
+  .stamp{
+    justify-self:end;font-family:var(--display);font-weight:700;font-size:clamp(20px,3.6vw,30px);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--stamp);border:4px double var(--stamp);padding:6px 14px;transform:rotate(-8deg);
+    opacity:.92;mix-blend-mode:multiply;animation:stampin .55s cubic-bezier(.2,1.4,.4,1) .3s both
+  }
+  @keyframes stampin{from{transform:rotate(-8deg) scale(2.2);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:.92}}
+  /* ---------- sections ---------- */
+  section{padding:36px 0 8px}
+  h2{
+    font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:15px;
+    margin:0 0 16px;display:flex;align-items:center;gap:12px;color:var(--ink-soft)
+  }
+  h2::after{content:"";flex:1;height:1px;background:var(--ink);opacity:.35}
+  p{margin:0 0 14px;max-width:70ch}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:0 0 8px}
+  .fact{background:var(--strip);border:1px solid var(--strip-edge);padding:12px 14px}
+  .fact b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--util);margin-bottom:4px;font-weight:400}
+  .fact span{font-family:var(--display);font-size:22px;line-height:1.1}
+  mark{background:var(--mark);color:var(--ink);padding:0 .15em}
+  /* ---------- strips (trajectory) ---------- */
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;font-family:var(--mono);font-size:12px}
+  .controls button{
+    font:inherit;letter-spacing:.06em;text-transform:uppercase;background:var(--strip);color:var(--ink);
+    border:1px solid var(--ink);padding:7px 12px;cursor:pointer
+  }
+  .controls button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .controls button:focus-visible,details summary:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+  .bay{display:flex;flex-direction:column;gap:6px}
+  .strip{
+    display:grid;grid-template-columns:64px 118px 1fr;background:var(--strip);border:1px solid var(--strip-edge);
+    border-left:10px solid var(--util);min-height:52px
+  }
+  .strip.user{border-left-color:var(--mark)}
+  .strip.assistant{border-left-color:var(--ink)}
+  .strip.tool{border-left-color:var(--tower)}
+  .strip.system{border-left-color:var(--util)}
+  .strip[hidden]{display:none}
+  .seq{font-family:var(--mono);font-size:13px;padding:12px 10px;border-right:1px dashed var(--strip-edge);color:var(--util);display:flex;flex-direction:column;gap:4px}
+  .seq b{font-size:18px;color:var(--ink);font-weight:400}
+  .who{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:12px 10px;border-right:1px dashed var(--strip-edge);color:var(--ink-soft)}
+  .who small{display:block;font-size:10px;letter-spacing:.04em;text-transform:none;color:var(--util);margin-top:4px;word-break:break-all}
+  .say{padding:12px 16px;font-size:16px}
+  .say p{margin:0 0 8px;max-width:75ch}
+  .say p:last-child{margin-bottom:0}
+  .say ol{margin:4px 0 8px 20px;padding:0}
+  .call{font-family:var(--mono);font-size:13px;color:var(--tower);margin:0 0 6px}
+  .call.out{color:var(--ink)}
+  pre{
+    font-family:var(--mono);font-size:12.5px;line-height:1.45;background:#EEF1EE;border:1px solid var(--strip-edge);
+    padding:10px 12px;margin:6px 0 0;overflow:auto;white-space:pre;max-height:420px;color:var(--ink)
+  }
+  details summary{cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);padding:2px 0}
+  .note{background:var(--strip);border:1px solid var(--strip-edge);border-left:10px solid var(--mark);padding:12px 16px;margin:0 0 12px;font-size:15.5px;max-width:none}
+  .note.red{border-left-color:var(--stamp)}
+  .note.green{border-left-color:var(--tower)}
+  .note b{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:400;color:var(--util);display:block;margin-bottom:4px}
+  /* ---------- tables ---------- */
+  table{width:100%;border-collapse:collapse;background:var(--strip);border:1px solid var(--strip-edge);font-size:15px;margin:0 0 16px}
+  th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--strip-edge)}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:400;color:var(--util);background:#EEF1EE}
+  td code,p code,li code{font-family:var(--mono);font-size:.88em;background:#EEF1EE;padding:1px 4px}
+  .ok{color:var(--tower);font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  .warn{color:var(--stamp);font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  .obs{color:var(--util);font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  ul.plain{margin:0 0 14px 20px;padding:0;max-width:75ch}
+  ul.plain li{margin-bottom:8px}
+  footer{margin-top:40px;border-top:2px solid var(--ink);padding-top:14px;font-family:var(--mono);font-size:12px;color:var(--util)}
+  @media (max-width:720px){
+    .strip{grid-template-columns:52px 1fr}
+    .who{grid-column:2;border-right:0;padding-bottom:0}
+    .say{grid-column:1 / -1;padding-top:8px}
+    .seq{grid-row:1 / span 2}
+    .route{grid-template-columns:1fr}
+    .stamp{justify-self:start}
+    table{display:block;overflow-x:auto}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .stamp{animation:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">Recorded case 03_gpt-4o-airline_51 · tau-bench · airline · model gpt-4o · trial 1</p>
+  <h1>A change request that ended as a cancellation</h1>
+  <p class="lede">The user asked to change a return flight from Texas to Newark. The only matching reservation was basic economy, which the policy says cannot be modified. The user then chose to cancel under travel insurance for health reasons, and the agent completed that cancellation after explicit confirmation.</p>
+  <div class="route" aria-label="Reservation Z7GOZK route summary">
+    <div>
+      <div class="legs">EWR <span>→</span> IAH <span>→</span> EWR</div>
+      <div class="meta">
+        <span>RES Z7GOZK</span><span>HAT188 · HAT207</span><span>2024-05-28</span><span>BASIC ECONOMY</span><span>1 PAX · GONZALEZ/OLIVIA</span><span>INSURANCE YES</span><span>PAID $169 GIFT CARD</span>
+      </div>
+    </div>
+    <div class="stamp" aria-label="Status: cancelled">Cancelled</div>
+  </div>
+</header>
+
+<section id="objective">
+  <h2>Objective as recorded</h2>
+  <p>The task statement supplied with the case is a single line, identical to the user's first message in the transcript:</p>
+  <p class="note"><b>Task statement</b>Hi! I need to change my return flight from Texas to Newark.</p>
+  <p>The agent worked under the tau-bench airline policy (shown in full in the first strip below). The rules that decided this case: basic economy flights cannot be modified; basic economy and economy reservations can be cancelled outside the 24-hour window only when travel insurance was bought and its condition is met; and any database update needs the user's explicit "yes" first.</p>
+  <div class="facts">
+    <div class="fact"><b>Policy clock</b><span>2024-05-15 15:00 EST</span></div>
+    <div class="fact"><b>User</b><span>olivia_gonzalez_2305</span></div>
+    <div class="fact"><b>Membership</b><span>regular</span></div>
+    <div class="fact"><b>Tool calls</b><span>5, all succeeded</span></div>
+    <div class="fact"><b>Final state</b><span>Z7GOZK cancelled, $169 refunded</span></div>
+    <div class="fact"><b>Benchmark score</b><span>not in evidence</span></div>
+  </div>
+</section>
+
+<section id="work">
+  <h2>What the agent did</h2>
+  <p>The interaction ran as a clean sequence with no tool errors and no retries. In outline:</p>
+  <ul class="plain">
+    <li><b>Identify.</b> The agent asked for user ID and reservation ID. The user supplied only the user ID, so the agent pulled the profile and found three reservations.</li>
+    <li><b>Locate.</b> When the user could not name the reservation, the agent read all three reservations one call at a time and found that only Z7GOZK contains a Texas-to-Newark segment (IAH → EWR, flight HAT207 on 2024-05-28).</li>
+    <li><b>Decline the change.</b> The agent told the user that Z7GOZK is basic economy and cannot be modified, and asked whether they wanted to explore other options such as booking a new flight.</li>
+    <li><b>Pivot to cancellation.</b> The user said they were feeling unwell and wanted to cancel using travel insurance. The agent listed the cancellation details and asked for confirmation. The user answered "Yes, please proceed".</li>
+    <li><b>Cancel.</b> The agent called the cancellation tool. The reservation came back with status cancelled and a −$169 entry against the original gift card. The agent reported the 5-to-7-business-day refund timeline from the policy, and the user closed the conversation.</li>
+  </ul>
+</section>
+
+<section id="strips">
+  <h2>Trajectory, turn by turn</h2>
+  <p>Each strip is one recorded message. Sequence numbers follow the transcript order. Tool payloads are reproduced verbatim from the recording, reformatted for reading only.</p>
+  <div class="controls" role="group" aria-label="Filter strips">
+    <button type="button" data-filter="all" aria-pressed="true">All turns</button>
+    <button type="button" data-filter="dialogue" aria-pressed="false">Dialogue only</button>
+    <button type="button" data-filter="tool" aria-pressed="false">Tool activity only</button>
+    <button type="button" id="toggle-payloads" aria-pressed="false">Expand payloads</button>
+  </div>
+  <div class="bay">
+
+    <article class="strip system" data-kind="system">
+      <div class="seq"><b>00</b>sys</div>
+      <div class="who">System<small>policy prompt</small></div>
+      <div class="say">
+        <p>Airline agent policy, current time 2024-05-15 15:00:00 EST. Full text as recorded:</p>
+        <details><summary>Show policy text</summary>
+<pre># Airline Agent Policy
+
+The current time is 2024-05-15 15:00:00 EST.
+
+As an airline agent, you can help users book, modify, or cancel flight reservations.
+
+- Before taking any actions that update the booking database (booking, modifying flights, editing baggage, upgrading cabin class, or updating passenger information), you must list the action details and obtain explicit user confirmation (yes) to proceed.
+
+- You should not provide any information, knowledge, or procedures not provided by the user or available tools, or give subjective recommendations or comments.
+
+- You should only make one tool call at a time, and if you make a tool call, you should not respond to the user simultaneously. If you respond to the user, you should not make a tool call at the same time.
+
+- You should deny user requests that are against this policy.
+
+- You should transfer the user to a human agent if and only if the request cannot be handled within the scope of your actions.
+
+## Domain Basic
+
+- Each user has a profile containing user id, email, addresses, date of birth, payment methods, reservation numbers, and membership tier.
+
+- Each reservation has an reservation id, user id, trip type (one way, round trip), flights, passengers, payment methods, created time, baggages, and travel insurance information.
+
+- Each flight has a flight number, an origin, destination, scheduled departure and arrival time (local time), and for each date:
+  - If the status is "available", the flight has not taken off, available seats and prices are listed.
+  - If the status is "delayed" or "on time", the flight has not taken off, cannot be booked.
+  - If the status is "flying", the flight has taken off but not landed, cannot be booked.
+
+## Book flight
+
+- The agent must first obtain the user id, then ask for the trip type, origin, destination.
+
+- Passengers: Each reservation can have at most five passengers. The agent needs to collect the first name, last name, and date of birth for each passenger. All passengers must fly the same flights in the same cabin.
+
+- Payment: each reservation can use at most one travel certificate, at most one credit card, and at most three gift cards. The remaining amount of a travel certificate is not refundable. All payment methods must already be in user profile for safety reasons.
+
+- Checked bag allowance: If the booking user is a regular member, 0 free checked bag for each basic economy passenger, 1 free checked bag for each economy passenger, and 2 free checked bags for each business passenger. If the booking user is a silver member, 1 free checked bag for each basic economy passenger, 2 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. If the booking user is a gold member, 2 free checked bag for each basic economy passenger, 3 free checked bag for each economy passenger, and 3 free checked bags for each business passenger. Each extra baggage is 50 dollars.
+
+- Travel insurance: the agent should ask if the user wants to buy the travel insurance, which is 30 dollars per passenger and enables full refund if the user needs to cancel the flight given health or weather reasons.
+
+## Modify flight
+
+- The agent must first obtain the user id and the reservation id.
+
+- Change flights: Basic economy flights cannot be modified. Other reservations can be modified without changing the origin, destination, and trip type. Some flight segments can be kept, but their prices will not be updated based on the current price. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!
+
+- Change cabin: all reservations, including basic economy, can change cabin without changing the flights. Cabin changes require the user to pay for the difference between their current cabin and the new cabin class. Cabin class must be the same across all the flights in the same reservation; changing cabin for just one flight segment is not possible.
+
+- Change baggage and insurance: The user can add but not remove checked bags. The user cannot add insurance after initial booking.
+
+- Change passengers: The user can modify passengers but cannot modify the number of passengers. This is something that even a human agent cannot assist with.
+
+- Payment: If the flights are changed, the user needs to provide one gift card or credit card for payment or refund method. The agent should ask for the payment or refund method instead.
+
+## Cancel flight
+
+- The agent must first obtain the user id, the reservation id, and the reason for cancellation (change of plan, airline cancelled flight, or other reasons)
+
+- All reservations can be cancelled within 24 hours of booking, or if the airline cancelled the flight. Otherwise, basic economy or economy flights can be cancelled only if travel insurance is bought and the condition is met, and business flights can always be cancelled. The rules are strict regardless of the membership status. The API does not check these for the agent, so the agent must make sure the rules apply before calling the API!
+
+- The agent can only cancel the whole trip that is not flown. If any of the segments are already used, the agent cannot help and transfer is needed.
+
+- The refund will go to original payment methods in 5 to 7 business days.
+
+## Refund
+
+- If the user is silver/gold member or has travel insurance or flies business, and complains about cancelled flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $100 times the number of passengers.
+
+- If the user is silver/gold member or has travel insurance or flies business, and complains about delayed flights in a reservation and wants to change or cancel the reservation, the agent can offer a certificate as a gesture after confirming the facts and changing or cancelling the reservation, with the amount being $50 times the number of passengers.
+
+- Do not proactively offer these unless the user complains about the situation and explicitly asks for some compensation. Do not compensate if the user is regular member and has no travel insurance and flies (basic) economy.</pre>
+        </details>
+      </div>
+    </article>
+
+    <article class="strip user" data-kind="dialogue">
+      <div class="seq"><b>01</b>user</div>
+      <div class="who">User</div>
+      <div class="say"><p>Hi! I need to change my return flight from Texas to Newark.</p></div>
+    </article>
+
+    <article class="strip assistant" data-kind="dialogue">
+      <div class="seq"><b>02</b>agent</div>
+      <div class="who">Assistant<small>reply</small></div>
+      <div class="say"><p>I can help you with that. Could you please provide your user ID and reservation ID?</p></div>
+    </article>
+
+    <article class="strip user" data-kind="dialogue">
+      <div class="seq"><b>03</b>user</div>
+      <div class="who">User</div>
+      <div class="say"><p>I know my user ID, it's olivia_gonzalez_2305. But I don’t remember my reservation ID.</p></div>
+    </article>
+
+    <article class="strip assistant" data-kind="tool">
+      <div class="seq"><b>04</b>agent</div>
+      <div class="who">Assistant<small>tool call</small></div>
+      <div class="say">
+        <p class="call out">get_user_details · call_MY94XAcnfHzfAZcVHqt5FRRQ</p>
+        <pre>{"user_id": "olivia_gonzalez_2305"}</pre>
+      </div>
+    </article>
+
+    <article class="strip tool" data-kind="tool">
+      <div class="seq"><b>05</b>tool</div>
+      <div class="who">Tool result<small>get_user_details</small></div>
+      <div class="say">
+        <p class="call">Profile found: regular member, one gift card ($123) and one Mastercard, three reservations.</p>
+        <details><summary>Show payload</summary>
+<pre>{
+  "name": {"first_name": "Olivia", "last_name": "Gonzalez"},
+  "address": {
+    "address1": "334 Laurel Lane", "address2": "Suite 970",
+    "city": "Los Angeles", "country": "USA", "province": "CA", "zip": "90504"
+  },
+  "email": "olivia.gonzalez4421@example.com",
+  "dob": "1988-06-13",
+  "payment_methods": {
+    "gift_card_2200803": {"source": "gift_card", "amount": 123, "id": "gift_card_2200803"},
+    "credit_card_9969263": {"source": "credit_card", "brand": "mastercard", "last_four": "9475", "id": "credit_card_9969263"}
+  },
+  "saved_passengers": [
+    {"first_name": "Mei", "last_name": "Johansson", "dob": "1981-09-25"},
+    {"first_name": "Yara", "last_name": "Lopez", "dob": "1975-09-15"}
+  ],
+  "membership": "regular",
+  "reservations": ["Z7GOZK", "K67C4W", "THY2DG"]
+}</pre>
+        </details>
+      </div>
+    </article>
+
+    <article class="strip assistant" data-kind="dialogue">
+      <div class="seq"><b>06</b>agent</div>
+      <div class="who">Assistant<small>reply</small></div>
+      <div class="say">
+        <p>I found your reservations. Could you please confirm which reservation ID you would like to modify? Here are your options:</p>
+        <ol><li>Z7GOZK</li><li>K67C4W</li><li>THY2DG</li></ol>
+        <p>Let me know which one corresponds to your return flight from Texas to Newark.</p>
+      </div>
+    </article>
+
+    <article class="strip user" data-kind="dialogue">
+      <div class="seq"><b>07</b>user</div>
+      <div class="who">User</div>
+      <div class="say"><p>I'm not sure which one it is. I just want to change the return flight from Texas to Newark.</p></div>
+    </article>
+
+    <article class="strip assistant" data-kind="tool">
+      <div class="seq"><b>08</b>agent</div>
+      <div class="who">Assistant<small>tool call</small></div>
+      <div class="say">
+        <p class="call out">get_reservation_details · call_l1YtJ8E1m4eBoWiJjFlomdL4</p>
+        <pre>{"reservation_id": "Z7GOZK"}</pre>
+      </div>
+    </article>
+
+    <article class="strip tool" data-kind="tool">
+      <div class="seq"><b>09</b>tool</div>
+      <div class="who">Tool result<small>get_reservation_details</small></div>
+      <div class="say">
+        <p class="call">Z7GOZK: EWR → IAH → EWR on 2024-05-28, <mark>basic economy</mark>, one passenger, <mark>insurance yes</mark>, paid $169 by gift card, created 2024-05-13 19:41:32.</p>
+        <details><summary>Show payload</summary>
+<pre>{
+  "reservation_id": "Z7GOZK",
+  "user_id": "olivia_gonzalez_2305",
+  "origin": "EWR",
+  "destination": "EWR",
+  "flight_type": "one_way",
+  "cabin": "basic_economy",
+  "flights": [
+    {"origin": "EWR", "destination": "IAH", "flight_number": "HAT188", "date": "2024-05-28", "price": 52},
+    {"origin": "IAH", "destination": "EWR", "flight_number": "HAT207", "date": "2024-05-28", "price": 87}
+  ],
+  "passengers": [{"first_name": "Olivia", "last_name": "Gonzalez", "dob": "1988-06-13"}],
+  "payment_history": [{"payment_id": "gift_card_2200803", "amount": 169}],
+  "created_at": "2024-05-13T19:41:32",
+  "total_baggages": 0,
+  "nonfree_baggages": 0,
+  "insurance": "yes"
+}</pre>
+        </details>
+      </div>
+    </article>
+
+    <article class="strip assistant" data-kind="tool">
+      <div class="seq"><b>10</b>agent</div>
+      <div class="who">Assistant<small>tool call</small></div>
+      <div class="say">
+        <p class="call out">get_reservation_details · call_dhYivf6VRUVJfU9DItC2EQ95</p>
+        <pre>{"reservation_id": "K67C4W"}</pre>
+      </div>
+    </article>
+
+    <article class="strip tool" data-kind="tool">
+      <div class="seq"><b>11</b>tool</div>
+      <div class="who">Tool result<small>get_reservation_details</small></div>
+      <div class="say">
+        <p class="call">K67C4W: LAS → MCO on 2024-05-17, economy, three passengers, no insurance. No Texas or Newark segment.</p>
+        <details><summary>Show payload</summary>
+<pre>{
+  "reservation_id": "K67C4W",
+  "user_id": "olivia_gonzalez_2305",
+  "origin": "LAS",
+  "destination": "MCO",
+  "flight_type": "one_way",
+  "cabin": "economy",
+  "flights": [
+    {"origin": "LAS", "destination": "MCO", "flight_number": "HAT137", "date": "2024-05-17", "price": 114}
+  ],
+  "passengers": [
+    {"first_name": "Olivia", "last_name": "Gonzalez", "dob": "1988-06-13"},
+    {"first_name": "Mei", "last_name": "Johansson", "dob": "1981-09-25"},
+    {"first_name": "Yara", "last_name": "Lopez", "dob": "1975-09-15"}
+  ],
+  "payment_history": [{"payment_id": "credit_card_9969263", "amount": 342}],
+  "created_at": "2024-05-11T06:28:05",
+  "total_baggages": 1,
+  "nonfree_baggages": 0,
+  "insurance": "no"
+}</pre>
+        </details>
+      </div>
+    </article>
+
+    <article class="strip assistant" data-kind="tool">
+      <div class="seq"><b>12</b>agent</div>
+      <div class="who">Assistant<small>tool call</small></div>
+      <div class="say">
+        <p class="call out">get_reservation_details · call_4T5zndIlDe4bKuURD2Snz7v8</p>
+        <pre>{"reservation_id": "THY2DG"}</pre>
+      </div>
+    </article>
+
+    <article class="strip tool" data-kind="tool">
+      <div class="seq"><b>13</b>tool</div>
+      <div class="who">Tool result<small>get_reservation_details</small></div>
+      <div class="say">
+        <p class="call">THY2DG: MSP → DTW → ORD on 2024-05-26, economy, passenger Yara Martin, no insurance. No Texas or Newark segment.</p>
+        <details><summary>Show payload</summary>
+<pre>{
+  "reservation_id": "THY2DG",
+  "user_id": "olivia_gonzalez_2305",
+  "origin": "MSP",
+  "destination": "ORD",
+  "flight_type": "one_way",
+  "cabin": "economy",
+  "flights": [
+    {"origin": "MSP", "destination": "DTW", "flight_number": "HAT248", "date": "2024-05-26", "price": 160},
+    {"origin": "DTW", "destination": "ORD", "flight_number": "HAT119", "date": "2024-05-26", "price": 178}
+  ],
+  "passengers": [{"first_name": "Yara", "last_name": "Martin", "dob": "1950-01-15"}],
+  "payment_history": [{"payment_id": "credit_card_9969263", "amount": 338}],
+  "created_at": "2024-05-03T23:15:42",
+  "total_baggages": 1,
+  "nonfree_baggages": 0,
+  "insurance": "no"
+}</pre>
+        </details>
+      </div>
+    </article>
+
+    <article class="strip assistant" data-kind="dialogue">
+      <div class="seq"><b>14</b>agent</div>
+      <div class="who">Assistant<small>reply</small></div>
+      <div class="say">
+        <p>It seems that the reservation with ID <strong>Z7GOZK</strong> includes a return flight from Texas (IAH) to Newark (EWR) on May 28, 2024. However, this reservation is in basic economy, which cannot be modified.</p>
+        <p>Would you like to explore other options, such as booking a new flight?</p>
+      </div>
+    </article>
+
+    <article class="strip user" data-kind="dialogue">
+      <div class="seq"><b>15</b>user</div>
+      <div class="who">User</div>
+      <div class="say"><p>I'm willing to cancel the trip using travel insurance, as I'm feeling unwell. Can you help with that?</p></div>
+    </article>
+
+    <article class="strip assistant" data-kind="dialogue">
+      <div class="seq"><b>16</b>agent</div>
+      <div class="who">Assistant<small>reply · confirmation request</small></div>
+      <div class="say">
+        <p>Since you have travel insurance and are unwell, you are eligible to cancel the reservation. Here are the details for the cancellation:</p>
+        <ul class="plain"><li><strong>Reservation ID</strong>: Z7GOZK</li><li><strong>Reason for Cancellation</strong>: Health reasons (covered by travel insurance)</li></ul>
+        <p>Please confirm if you would like to proceed with the cancellation.</p>
+      </div>
+    </article>
+
+    <article class="strip user" data-kind="dialogue">
+      <div class="seq"><b>17</b>user</div>
+      <div class="who">User<small>explicit yes</small></div>
+      <div class="say"><p>Yes, please proceed with the cancellation.</p></div>
+    </article>
+
+    <article class="strip assistant" data-kind="tool">
+      <div class="seq"><b>18</b>agent</div>
+      <div class="who">Assistant<small>tool call · database update</small></div>
+      <div class="say">
+        <p class="call out">cancel_reservation · call_NIuPQiqio3fLd0a21tKnZJPd</p>
+        <pre>{"reservation_id": "Z7GOZK"}</pre>
+      </div>
+    </article>
+
+    <article class="strip tool" data-kind="tool">
+      <div class="seq"><b>19</b>tool</div>
+      <div class="who">Tool result<small>cancel_reservation</small></div>
+      <div class="say">
+        <p class="call">Status <mark>cancelled</mark>. Payment history now shows +169 and −169 against gift_card_2200803.</p>
+        <details><summary>Show payload</summary>
+<pre>{
+  "reservation_id": "Z7GOZK",
+  "user_id": "olivia_gonzalez_2305",
+  "origin": "EWR",
+  "destination": "EWR",
+  "flight_type": "one_way",
+  "cabin": "basic_economy",
+  "flights": [
+    {"origin": "EWR", "destination": "IAH", "flight_number": "HAT188", "date": "2024-05-28", "price": 52},
+    {"origin": "IAH", "destination": "EWR", "flight_number": "HAT207", "date": "2024-05-28", "price": 87}
+  ],
+  "passengers": [{"first_name": "Olivia", "last_name": "Gonzalez", "dob": "1988-06-13"}],
+  "payment_history": [
+    {"payment_id": "gift_card_2200803", "amount": 169},
+    {"payment_id": "gift_card_2200803", "amount": -169}
+  ],
+  "created_at": "2024-05-13T19:41:32",
+  "total_baggages": 0,
+  "nonfree_baggages": 0,
+  "insurance": "yes",
+  "status": "cancelled"
+}</pre>
+        </details>
+      </div>
+    </article>
+
+    <article class="strip assistant" data-kind="dialogue">
+      <div class="seq"><b>20</b>agent</div>
+      <div class="who">Assistant<small>reply</small></div>
+      <div class="say"><p>Your reservation with ID <strong>Z7GOZK</strong> has been successfully cancelled due to health reasons covered by your travel insurance. The refund will be processed to your original payment method within 5 to 7 business days. If you need further assistance, feel free to ask!</p></div>
+    </article>
+
+    <article class="strip user" data-kind="dialogue">
+      <div class="seq"><b>21</b>user</div>
+      <div class="who">User<small>ends session (###STOP###)</small></div>
+      <div class="say"><p>Thank you so much for your help. That's all I needed for now.</p></div>
+    </article>
+
+  </div>
+</section>
+
+<section id="policy">
+  <h2>Policy check</h2>
+  <p>The assessments below are this report's reading of the transcript against the recorded policy. They are not the benchmark's own grade, which was stripped from the case.</p>
+  <table>
+    <thead><tr><th>Policy rule</th><th>What the record shows</th><th>Assessment</th></tr></thead>
+    <tbody>
+      <tr><td>Modify: obtain user ID and reservation ID first</td><td>User ID given at turn 03. Reservation ID unknown to the user, so the agent identified it from the profile and three reservation lookups.</td><td><span class="ok">Followed</span></td></tr>
+      <tr><td>Modify: basic economy cannot be changed</td><td>Z7GOZK is basic economy. The agent declined the change at turn 14 instead of calling an update tool.</td><td><span class="ok">Followed</span></td></tr>
+      <tr><td>Cancel: obtain user ID, reservation ID, and reason</td><td>All three present. The user's stated reason was feeling unwell with travel insurance. The agent labelled it "Health reasons (covered by travel insurance)" rather than one of the policy's three listed categories. The cancellation tool call carried only the reservation ID, so no reason was passed to the API.</td><td><span class="obs">Followed · wording note</span></td></tr>
+      <tr><td>Cancel: eligibility outside 24 hours</td><td>Booked 2024-05-13 19:41:32; policy clock 2024-05-15 15:00, so the 24-hour window had passed. Basic economy with insurance "yes" and a health reason meets the insurance path. Both segments are dated 2024-05-28, so nothing had been flown.</td><td><span class="ok">Eligible as recorded</span></td></tr>
+      <tr><td>Explicit confirmation before a database update</td><td>Turn 16 listed reservation ID and reason and asked to confirm. Turn 17 was "Yes, please proceed with the cancellation." The cancel call came at turn 18.</td><td><span class="ok">Followed</span></td></tr>
+      <tr><td>One tool call at a time, no reply alongside a call</td><td>Each of the five calls sits alone in its turn with null message content. The three reservation lookups are sequential, not batched.</td><td><span class="ok">Followed</span></td></tr>
+      <tr><td>No subjective recommendations or unsourced information</td><td>Turn 14 ended with "Would you like to explore other options, such as booking a new flight?" This suggests an alternative not asked for, though booking is within the agent's scope.</td><td><span class="obs">Borderline</span></td></tr>
+      <tr><td>Refund timing statement</td><td>Turn 20 quoted 5 to 7 business days to the original payment method, which matches the policy text.</td><td><span class="ok">Followed</span></td></tr>
+      <tr><td>Compensation not offered proactively</td><td>The user did not complain or ask for compensation, and the agent offered none.</td><td><span class="ok">Followed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="failures">
+  <h2>Failures and recoveries</h2>
+  <p class="note red"><b>Original request not fulfilled</b>The change the user asked for was never made. This was a policy-bound denial: the matching reservation is basic economy, which cannot be modified. The transcript shows no attempt to call a modify tool and no tool error.</p>
+  <p class="note green"><b>Recovery</b>The user, not the agent, proposed cancelling under travel insurance. The agent checked eligibility in its reply, sought confirmation, and completed the cancellation. The user's closing message says they got what they needed.</p>
+  <p class="note"><b>Unverified user claim</b>The health reason rests on the user's statement alone. The recorded toolset offers no way to verify it, and the policy does not require verification beyond "the condition is met". The agent accepted the claim as stated.</p>
+  <p class="note"><b>Data oddity in the record</b>Z7GOZK is stored with flight type "one_way" and origin and destination both EWR, yet it holds two segments (EWR → IAH, IAH → EWR) on the same day. The user and the agent both treated the second segment as a "return flight". The report reproduces the data as recorded and does not resolve the inconsistency.</p>
+</section>
+
+<section id="result">
+  <h2>Final result</h2>
+  <table>
+    <thead><tr><th>Item</th><th>Before</th><th>After</th></tr></thead>
+    <tbody>
+      <tr><td>Reservation Z7GOZK status</td><td>active (no status field)</td><td>cancelled</td></tr>
+      <tr><td>Payment history, gift_card_2200803</td><td>+169</td><td>+169, −169</td></tr>
+      <tr><td>Reservations K67C4W and THY2DG</td><td>unchanged</td><td>unchanged (read only)</td></tr>
+      <tr><td>User's original change request</td><td>open</td><td>declined under the basic economy rule; superseded by cancellation</td></tr>
+    </tbody>
+  </table>
+  <p>Whether this outcome matches the benchmark's expected end state cannot be determined from the supplied files. The reward and info fields were removed from the case before delivery.</p>
+</section>
+
+<section id="evidence">
+  <h2>Evidence coverage and faithfulness note</h2>
+  <ul class="plain">
+    <li><b>Read in full:</b> case_meta.json (17 lines), task/task_statement.md (1 line), trajectory.json (153 lines, 22 messages including the system prompt). All three sizes and SHA-256 hashes matched the input manifest.</li>
+    <li><b>Stripped fields:</b> case_meta.json declares that the "info" and "reward" fields were removed. No benchmark score, expected actions, or grader output is in evidence, and none is claimed here.</li>
+    <li><b>Hash discrepancy:</b> case_meta.json lists a trajectory hash beginning 89445ecf, while the manifest and the delivered file both hash to 33e913a8. The delivered trajectory was likely rewritten after case_meta.json was produced, consistent with the field stripping. The report uses the delivered file.</li>
+    <li><b>Not included:</b> the upstream provenance path named in case_meta.json was not supplied and was not followed. The case has no images, media references, or other attachments.</li>
+    <li><b>Interpretation:</b> the policy-check table and the notes on failures are this report's reading of the recorded text. Quoted messages and payloads are reproduced verbatim apart from JSON whitespace.</li>
+  </ul>
+</section>
+
+<footer>Case 03_gpt-4o-airline_51 · tau-bench airline · tool_use_customer_service · report generated 2026-09-20 from the supplied case files only.</footer>
+</div>
+
+<script>
+(function(){
+  var buttons=document.querySelectorAll('.controls button[data-filter]');
+  var strips=document.querySelectorAll('.strip');
+  function apply(f){
+    buttons.forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-filter')===f));});
+    strips.forEach(function(s){
+      var k=s.getAttribute('data-kind');
+      var show = f==='all' || (f==='dialogue' && (k==='dialogue'||k==='system')) || (f==='tool' && k==='tool');
+      if(show){s.removeAttribute('hidden');}else{s.setAttribute('hidden','');}
+    });
+  }
+  buttons.forEach(function(b){b.addEventListener('click',function(){apply(b.getAttribute('data-filter'));});});
+  var tog=document.getElementById('toggle-payloads');
+  var open=false;
+  tog.addEventListener('click',function(){
+    open=!open;
+    document.querySelectorAll('.bay details').forEach(function(d){d.open=open;});
+    tog.setAttribute('aria-pressed',String(open));
+    tog.textContent=open?'Collapse payloads':'Expand payloads';
+  });
+})();
+</script>
+</body>
+</html>

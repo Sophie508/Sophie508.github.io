@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>04_task_15027 · Textile Quota Formula</title>
+<style>
+  :root {
+    --ink: #14110e;
+    --ink-2: #1e1914;
+    --panel: #221c16;
+    --panel-2: #2b231b;
+    --line: rgba(232, 210, 170, 0.14);
+    --line-strong: rgba(232, 210, 170, 0.28);
+    --paper: #f3e6c8;
+    --paper-dim: #d9c49a;
+    --muted: #a59478;
+    --soft: #cbb892;
+    
+    --copper: #d08a4c;
+    --ember: #ffb454;
+    --mint: #9fd6a2;
+    --danger: #ff8f7a;
+    --sky: #8ec8ff;
+    --good: #6fbf87;
+    --shadow: 0 24px 60px rgba(0,0,0,.45);
+    --radius: 18px;
+    --mono: "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
+    --display: "Futura", "Avenir Next Condensed", "Avenir Next", "Segoe UI", "Trebuchet MS", sans-serif;
+    --body: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--paper);
+    font-family: var(--body);
+    background:
+      radial-gradient(1200px 700px at 10% -10%, rgba(208,138,76,.18), transparent 55%),
+      radial-gradient(900px 600px at 100% 0%, rgba(159,214,162,.08), transparent 45%),
+      linear-gradient(180deg, #0f0d0b 0%, var(--ink) 40%, #0c0a08 100%);
+    min-height: 100vh;
+    line-height: 1.55;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .07;
+    background-image:
+      linear-gradient(rgba(243,230,200,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(243,230,200,.05) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: radial-gradient(circle at 50% 20%, black, transparent 75%);
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: min(1180px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 2.25rem 0 4rem;
+  }
+
+  /* Top bar */
+  .topline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem 1rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+  }
+
+  .brand {
+    display: flex;
+    gap: .9rem;
+    align-items: center;
+  }
+
+  .mark {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background:
+      linear-gradient(145deg, rgba(255,180,84,.25), rgba(208,138,76,.05)),
+      var(--panel);
+    border: 1px solid var(--line-strong);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    font-family: var(--display);
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--ember);
+    font-size: .78rem;
+  }
+
+  .brand h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .brand p {
+    margin: .15rem 0 0;
+    color: var(--muted);
+    font-size: .92rem;
+  }
+
+  .meta-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+  }
+
+  .chip {
+    font-family: var(--display);
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--soft);
+    border: 1px solid var(--line);
+    background: rgba(34,28,22,.85);
+    padding: .42rem .65rem;
+    border-radius: 999px;
+  }
+
+  .chip strong { color: var(--ember); font-weight: 700; }
+  .chip.ok { border-color: rgba(111,191,135,.35); color: var(--mint); }
+  .chip.ok strong { color: var(--mint); }
+
+  /* Hero */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.35fr .85fr;
+    gap: 1.1rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .card {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.025), transparent 30%),
+      var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,.03), transparent 40%);
+  }
+
+  .hero-main { padding: 1.45rem 1.5rem 1.55rem; }
+  .kicker {
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: .16em;
+    font-size: .72rem;
+    color: var(--copper);
+    margin-bottom: .7rem;
+  }
+
+  .hero h2 {
+    margin: 0 0 .85rem;
+    font-family: var(--display);
+    font-weight: 700;
+    letter-spacing: .02em;
+    font-size: clamp(1.7rem, 3.4vw, 2.55rem);
+    line-height: 1.08;
+    max-width: 16ch;
+  }
+
+  .hero h2 span {
+    color: var(--ember);
+  }
+
+  .lede {
+    margin: 0;
+    color: var(--soft);
+    font-size: 1.05rem;
+    max-width: 52ch;
+  }
+
+  .hero-side {
+    padding: 1.25rem 1.25rem 1.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: .9rem;
+    background:
+      radial-gradient(400px 180px at 80% 0%, rgba(255,180,84,.12), transparent 60%),
+      var(--panel-2);
+  }
+
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: .85rem .95rem;
+    background: rgba(20,17,14,.45);
+  }
+
+  .stat .label {
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-size: .68rem;
+    color: var(--muted);
+    margin-bottom: .35rem;
+  }
+
+  .stat .value {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    letter-spacing: .03em;
+    color: var(--paper);
+  }
+
+  .stat .value em {
+    font-style: normal;
+    color: var(--ember);
+  }
+
+  /* Nav */
+  .section-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: 1.25rem 0 1.35rem;
+    position: sticky;
+    top: .6rem;
+    z-index: 5;
+    padding: .45rem;
+    border-radius: 999px;
+    background: rgba(20,17,14,.72);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(14px);
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .section-nav button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--soft);
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    font-size: .68rem;
+    padding: .65rem .9rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: .2s ease;
+  }
+
+  .section-nav button:hover,
+  .section-nav button.active {
+    background: rgba(255,180,84,.14);
+    color: var(--ember);
+  }
+
+  /* Layout blocks */
+  section {
+    margin-bottom: 1.15rem;
+    scroll-margin-top: 4.5rem;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 .8rem .15rem;
+  }
+
+  .section-head h3 {
+    margin: 0;
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-size: .95rem;
+  }
+
+  .section-head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: .92rem;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .pad { padding: 1.2rem 1.25rem 1.35rem; }
+
+  .task-box {
+    border-left: 3px solid var(--copper);
+    padding-left: 1rem;
+    margin: .4rem 0 0;
+  }
+
+  .task-box p { margin: .45rem 0; color: var(--soft); }
+
+  .wrong {
+    margin-top: 1rem;
+    padding: .9rem 1rem;
+    border-radius: 12px;
+    background: rgba(255,143,122,.08);
+    border: 1px solid rgba(255,143,122,.28);
+  }
+
+  .wrong .tag {
+    font-family: var(--display);
+    font-size: .68rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--danger);
+    margin-bottom: .4rem;
+  }
+
+  code, .formula {
+    font-family: var(--mono);
+    font-size: .84rem;
+    word-break: break-word;
+  }
+
+  .formula {
+    display: block;
+    white-space: pre-wrap;
+    color: var(--paper);
+    line-height: 1.45;
+  }
+
+  /* Spreadsheet */
+  .sheet-wrap {
+    overflow: auto;
+    border-radius: 14px;
+    border: 1px solid var(--line-strong);
+    background: #1a1510;
+  }
+
+  table.sheet {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 760px;
+    font-size: .82rem;
+  }
+
+  .sheet th, .sheet td {
+    border: 1px solid rgba(232,210,170,.1);
+    padding: .55rem .5rem;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  .sheet thead th {
+    font-family: var(--display);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-size: .68rem;
+    color: var(--muted);
+    background: rgba(0,0,0,.28);
+    position: sticky;
+    top: 0;
+  }
+
+  .sheet tbody th {
+    font-family: var(--display);
+    color: var(--muted);
+    background: rgba(0,0,0,.18);
+    width: 2.2rem;
+    text-align: center;
+  }
+
+  .sheet td {
+    color: var(--paper-dim);
+    font-family: var(--mono);
+    font-size: .76rem;
+  }
+
+  .sheet td.labelish {
+    font-family: var(--body);
+    color: var(--soft);
+    font-size: .82rem;
+  }
+
+  .sheet td.num { text-align: right; color: var(--paper); }
+  .sheet td.zero { color: #706551; }
+  .sheet td.hit {
+    background: rgba(255,180,84,.14);
+    color: var(--ember);
+    box-shadow: inset 0 0 0 1px rgba(255,180,84,.35);
+  }
+  .sheet td.sold {
+    background: rgba(142,200,255,.08);
+    color: var(--sky);
+  }
+  .sheet td.remain {
+    background: rgba(159,214,162,.07);
+    color: var(--mint);
+  }
+  .sheet td.header-row {
+    font-family: var(--display);
+    letter-spacing: .04em;
+    color: var(--paper);
+    background: rgba(208,138,76,.08);
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem;
+    margin-top: .85rem;
+  }
+
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    color: var(--muted);
+    font-size: .82rem;
+  }
+
+  .swatch {
+    width: .75rem;
+    height: .75rem;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .swatch.hit { background: rgba(255,180,84,.7); }
+  .swatch.sold { background: rgba(142,200,255,.7); }
+  .swatch.remain { background: rgba(159,214,162,.7); }
+
+  /* Formula comparison */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: .8rem;
+    align-items: stretch;
+  }
+
+  .compare .arrow {
+    align-self: center;
+    font-family: var(--display);
+    color: var(--ember);
+    letter-spacing: .12em;
+    font-size: .75rem;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    opacity: .85;
+  }
+
+  .formula-card {
+    padding: 1.1rem 1.15rem 1.2rem;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(0,0,0,.22);
+    min-height: 100%;
+  }
+
+  .formula-card.before { border-color: rgba(255,143,122,.3); }
+  .formula-card.after { border-color: rgba(111,191,135,.35); }
+
+  .formula-card h4 {
+    margin: 0 0 .65rem;
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-size: .72rem;
+  }
+  .before h4 { color: var(--danger); }
+  .after h4 { color: var(--mint); }
+
+  .formula-card .meta {
+    margin-top: .8rem;
+    color: var(--muted);
+    font-size: .88rem;
+  }
+
+  .pillrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-top: .85rem;
+  }
+
+  .pill {
+    font-family: var(--display);
+    font-size: .66rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: .35rem .55rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--soft);
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding: .2rem 0 .2rem .2rem;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(var(--copper), rgba(208,138,76,.05));
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    gap: .85rem;
+    padding: .55rem 0 .85rem;
+  }
+
+  .step .node {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--ink-2);
+    border: 1px solid var(--line-strong);
+    font-family: var(--display);
+    font-size: .72rem;
+    color: var(--ember);
+    z-index: 1;
+    transition: .25s ease;
+  }
+
+  .step.open .node,
+  .step:hover .node {
+    background: rgba(255,180,84,.16);
+    box-shadow: 0 0 0 4px rgba(255,180,84,.08);
+  }
+
+  .step-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(0,0,0,.18);
+    overflow: hidden;
+    transition: border-color .2s ease;
+  }
+
+  .step.open .step-card { border-color: rgba(255,180,84,.35); }
+
+  .step-summary {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    padding: .9rem 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .step-summary strong {
+    display: block;
+    font-family: var(--display);
+    letter-spacing: .04em;
+    font-size: .95rem;
+    margin-bottom: .2rem;
+  }
+
+  .step-summary span.desc {
+    color: var(--muted);
+    font-size: .9rem;
+  }
+
+  .badge {
+    flex: none;
+    font-family: var(--display);
+    font-size: .65rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: .35rem .55rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--soft);
+  }
+  .badge.think { color: var(--sky); border-color: rgba(142,200,255,.3); }
+  .badge.tool { color: var(--ember); border-color: rgba(255,180,84,.3); }
+  .badge.out { color: var(--mint); border-color: rgba(159,214,162,.3); }
+  .badge.final { color: var(--paper); background: rgba(255,180,84,.14); border-color: rgba(255,180,84,.4); }
+
+  .step-body {
+    display: none;
+    border-top: 1px solid var(--line);
+    padding: .9rem 1rem 1.05rem;
+  }
+
+  .step.open .step-body { display: block; }
+
+  pre {
+    margin: .55rem 0 0;
+    padding: .85rem .95rem;
+    border-radius: 10px;
+    background: #100e0b;
+    border: 1px solid rgba(232,210,170,.1);
+    color: var(--paper-dim);
+    font-family: var(--mono);
+    font-size: .75rem;
+    overflow: auto;
+    line-height: 1.45;
+    white-space: pre-wrap;
+  }
+
+  /* Solution */
+  .solution-grid {
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 1rem;
+  }
+
+  .big-answer {
+    padding: 1.3rem 1.35rem 1.4rem;
+    border-radius: 16px;
+    background:
+      radial-gradient(500px 220px at 0% 0%, rgba(159,214,162,.12), transparent 55%),
+      rgba(0,0,0,.25);
+    border: 1px solid rgba(111,191,135,.3);
+  }
+
+  .big-answer .cell {
+    font-family: var(--display);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    font-size: .72rem;
+    color: var(--mint);
+    margin-bottom: .45rem;
+  }
+
+  .big-answer code {
+    display: block;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--paper);
+    line-height: 1.4;
+  }
+
+  .why {
+    color: var(--soft);
+    margin: .9rem 0 0;
+  }
+
+  .why ol { margin: .4rem 0 0 1.1rem; padding: 0; }
+  .why li { margin: .35rem 0; }
+
+  .codefile {
+    font-family: var(--mono);
+    font-size: .78rem;
+  }
+
+  .foot {
+    margin-top: 1.6rem;
+    color: var(--muted);
+    font-size: .85rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0 .2rem;
+  }
+
+  /* Motion */
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: rise .7s ease forwards;
+  }
+  .r1 { animation-delay: .05s; }
+  .r2 { animation-delay: .15s; }
+  .r3 { animation-delay: .25s; }
+  .r4 { animation-delay: .35s; }
+
+  @keyframes rise {
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (max-width: 920px) {
+    .hero, .grid-2, .solution-grid, .compare { grid-template-columns: 1fr; }
+    .compare .arrow {
+      writing-mode: horizontal-tb;
+      transform: none;
+      text-align: center;
+      padding: .2rem 0;
+    }
+    .hero h2 { max-width: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topline reveal r1">
+      <div class="brand">
+        <div class="mark">TX</div>
+        <div>
+          <h1>SpreadsheetBench · 04_task_15027</h1>
+          <p>Shorten the mill-floor “daily quota to date” lookup in E1</p>
+        </div>
+      </div>
+      <div class="meta-chips">
+        <div class="chip">domain <strong>spreadsheet_office</strong></div>
+        <div class="chip">model <strong>gpt-5.6-sol</strong></div>
+        <div class="chip">duration <strong>34.8s</strong></div>
+        <div class="chip ok">exit <strong>0</strong></div>
+      </div>
+    </header>
+
+    <div class="hero reveal r2">
+      <article class="card hero-main">
+        <div class="kicker">Textile production board</div>
+        <h2>Find the last non-zero <span>daily quota</span> without an array crawl.</h2>
+        <p class="lede">
+          A weeklong textiles ledger tracks sold units, rolling daily quotas, and remaining
+          weekly commitment. Cell <strong>E1</strong> already works, but the formula is a
+          long array <code>INDEX/MAX/IF/COLUMN</code> chain. The agent replaces it with a
+          compact <code>LOOKUP</code> idiom that still returns <strong>1008.33…</strong>.
+        </p>
+      </article>
+      <aside class="card hero-side">
+        <div class="stat">
+          <div class="label">Answer cell</div>
+          <div class="value">E1 · <em>formula rewrite</em></div>
+        </div>
+        <div class="stat">
+          <div class="label">Cached target value</div>
+          <div class="value">1008.3333333333334</div>
+        </div>
+        <div class="stat">
+          <div class="label">Trajectory</div>
+          <div class="value">codex-jsonl · 14 events</div>
+        </div>
+        <div class="stat">
+          <div class="label">Final formula</div>
+          <div class="value" style="font-family:var(--mono);font-size:.82rem;color:var(--mint)">=LOOKUP(2,1/(B6:H6<>0),B6:H6)</div>
+        </div>
+      </aside>
+    </div>
+
+    <nav class="section-nav reveal r3" aria-label="Sections">
+      <button type="button" data-target="task" class="active">Task</button>
+      <button type="button" data-target="sheet">Sheet</button>
+      <button type="button" data-target="formulas">Formulas</button>
+      <button type="button" data-target="trajectory">Trajectory</button>
+      <button type="button" data-target="solution">Solution</button>
+    </nav>
+
+    <section id="task" class="reveal r3">
+      <div class="section-head">
+        <h3>01 · Task brief</h3>
+        <p>Original user prompt condensed into the work order</p>
+      </div>
+      <div class="grid-2">
+        <article class="card pad">
+          <div class="kicker">Instruction</div>
+          <div class="task-box">
+            <p>How can I shorten the existing formula used in cells <strong>B6:H6</strong> related logic that feeds/mirrors <strong>E1</strong>?</p>
+            <p>Place the shortened answer formula in <strong>E1</strong> using openpyxl, write <code>output.xlsx</code>, and print the value written.</p>
+          </div>
+          <div class="wrong">
+            <div class="tag">Marked wrong answer (array formula to beat)</div>
+            <code class="formula">INDEX($B$6:$H$6,,MAX(IF($B$6:$H$6<>0,COLUMN($B$6:$H$6)-COLUMN($B$6)+1)))</code>
+          </div>
+        </article>
+        <article class="card pad">
+          <div class="kicker">Case meta</div>
+          <table class="sheet" style="min-width:0">
+            <tbody>
+              <tr><th>id</th><td class="labelish">04_task_15027</td></tr>
+              <tr><th>benchmark</th><td class="labelish">SpreadsheetBench</td></tr>
+              <tr><th>source</th><td class="labelish">regen · trajs_regen/…/04_task_15027</td></tr>
+              <tr><th>collected</th><td class="labelish">2026-07-11</td></tr>
+              <tr><th>backend</th><td class="labelish">gpt-5.6-sol</td></tr>
+              <tr><th>references</th><td class="labelish">[] · none</td></tr>
+              <tr><th>artifacts</th><td class="labelish">input.xlsx · output.xlsx · solve.py · trajectory.jsonl</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </div>
+    </section>
+
+    <section id="sheet" class="reveal r4">
+      <div class="section-head">
+        <h3>02 · Sheet1 snapshot</h3>
+        <p>Typeset from evaluated values; formulas live under the surface</p>
+      </div>
+      <article class="card pad">
+        <div class="sheet-wrap">
+          <table class="sheet" aria-label="Sheet1 data">
+            <thead>
+              <tr>
+                <th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>1</th>
+                <td class="labelish header-row">TEXTILES</td>
+                <td class="labelish header-row">DAILY QUOTA TO DATE</td>
+                <td></td>
+                <td class="labelish">▶▶▶▶▶</td>
+                <td class="num hit" title="Answer cell">1008.333…</td>
+                <td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <th>2</th>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <th>3</th>
+                <td class="labelish">WEEK'S QUOTA ↓↓</td>
+                <td class="num">2014-07-01</td>
+                <td class="num">2014-07-02</td>
+                <td class="num">2014-07-03</td>
+                <td class="num">2014-07-04</td>
+                <td class="num">2014-07-05</td>
+                <td class="num">2014-07-06</td>
+                <td class="num">2014-07-07</td>
+              </tr>
+              <tr>
+                <th>4</th>
+                <td class="num">7000</td>
+                <td class="labelish header-row">Sunday</td>
+                <td class="labelish header-row">Monday</td>
+                <td class="labelish header-row">Tuesday</td>
+                <td class="labelish header-row">Wednesday</td>
+                <td class="labelish header-row">Thursday</td>
+                <td class="labelish header-row">Friday</td>
+                <td class="labelish header-row">Saturday</td>
+              </tr>
+              <tr>
+                <th>5</th>
+                <td class="labelish">SOLD ▶▶▶▶▶▶</td>
+                <td class="num sold">950</td>
+                <td class="num sold">953</td>
+                <td class="zero">—</td>
+                <td class="zero">—</td>
+                <td class="zero">—</td>
+                <td class="zero">—</td>
+                <td class="zero">—</td>
+              </tr>
+              <tr>
+                <th>6</th>
+                <td class="labelish">DAILY QUOTA TO DATE ▶▶▶▶▶</td>
+                <td class="num hit">1000</td>
+                <td class="num hit">1008.333…</td>
+                <td class="num zero">0</td>
+                <td class="num zero">0</td>
+                <td class="num zero">0</td>
+                <td class="num zero">0</td>
+                <td class="num zero">0</td>
+              </tr>
+              <tr>
+                <th>7</th>
+                <td class="labelish">WEEK'S REMAINING TO DATE ▶▶</td>
+                <td class="num remain">6050</td>
+                <td class="num remain">5097</td>
+                <td class="num remain">5097</td>
+                <td class="num remain">5097</td>
+                <td class="num remain">5097</td>
+                <td class="num remain">5097</td>
+                <td class="num remain">5097</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="legend">
+          <span><i class="swatch hit"></i> E1 / last non-zero quota path</span>
+          <span><i class="swatch sold"></i> Units sold</span>
+          <span><i class="swatch remain"></i> Remaining weekly quota</span>
+        </div>
+      </article>
+    </section>
+
+    <section id="formulas">
+      <div class="section-head">
+        <h3>03 · Formula anatomy</h3>
+        <p>What the workbook already contained before the rewrite</p>
+      </div>
+      <div class="card pad" style="margin-bottom:1rem">
+        <div class="compare">
+          <div class="formula-card before">
+            <h4>Before · E1 array formula</h4>
+            <code class="formula">=INDEX($B$6:$H$6,,MAX(IF($B$6:$H$6<>0,COLUMN($B$6:$H$6)-COLUMN($B$6)+1)))</code>
+            <div class="meta">Stored as an array formula (<code>t="array" ref="E1"</code>). Scans relative columns, takes the max position among non-zeros, then indexes that position — heavy for the job.</div>
+            <div class="pillrow">
+              <span class="pill">array-entered</span>
+              <span class="pill">INDEX</span>
+              <span class="pill">MAX + IF</span>
+              <span class="pill">COLUMN math</span>
+            </div>
+          </div>
+          <div class="arrow">rewrite →</div>
+          <div class="formula-card after">
+            <h4>After · E1 shortened</h4>
+            <code class="formula">=LOOKUP(2,1/(B6:H6<>0),B6:H6)</code>
+            <div class="meta">Classic last-match trick: divide 1 by the boolean mask, LOOKUP seeks 2 past every 1, and falls back to the final numeric hit — no CSE array entry required for this pattern.</div>
+            <div class="pillrow">
+              <span class="pill">lookup idiom</span>
+              <span class="pill">non-array</span>
+              <span class="pill">last non-zero</span>
+              <span class="pill">same result</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <article class="card pad">
+          <div class="kicker">Row 6 · Daily quota engines</div>
+          <pre>B6 =IF(B5=0,0,A4/7)
+C6 =IF(C5=0,0,B7/6)
+D6 =IF(D5=0,0,C7/5)
+E6 =IF(E5=0,0,D7/4)
+F6 =IF(F5=0,0,E7/3)
+G6 =IF(G5=0,0,F7/2)
+H6 =IF(H5=0,0,G7)</pre>
+        </article>
+        <article class="card pad">
+          <div class="kicker">Row 7 · Remaining to date</div>
+          <pre>B7 =A4-B5
+C7 =B7-C5
+D7 =C7-D5
+E7 =D7-E5
+F7 =E7-F5
+G7 =F7-G5
+H7 =G7-H5</pre>
+          <p class="why" style="margin-top:.85rem">With only Sunday/Monday sales filled, C6 holds the latest live quota (1008.33…); D6:H6 collapse to 0. E1 must pick that last non-zero without walking the whole column lattice by hand.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="trajectory">
+      <div class="section-head">
+        <h3>04 · Agent trajectory</h3>
+        <p>Direct solve path — inspect, patch, verify, report</p>
+      </div>
+      <article class="card pad">
+        <div class="timeline" id="timeline"></div>
+      </article>
+    </section>
+
+    <section id="solution">
+      <div class="section-head">
+        <h3>05 · Delivered solution</h3>
+        <p>What landed in output.xlsx and solve.py</p>
+      </div>
+      <div class="solution-grid">
+        <article class="card pad">
+          <div class="big-answer">
+            <div class="cell">E1 final write</div>
+            <code>=LOOKUP(2,1/(B6:H6<>0),B6:H6)</code>
+            <div class="why">
+              <ol>
+                <li><code>B6:H6<>0</code> builds a truth mask over the week’s quotas.</li>
+                <li><code>1/mask</code> yields 1s for live days and #DIV/0! for zeros (ignored by LOOKUP).</li>
+                <li>Lookup value <code>2</code> is larger than any 1, so Excel settles on the last successful match — Monday’s 1008.33….</li>
+              </ol>
+            </div>
+          </div>
+          <div class="pillrow" style="margin-top:1rem">
+            <span class="pill">exit code 0</span>
+            <span class="pill">34.8 seconds</span>
+            <span class="pill">openpyxl write</span>
+            <span class="pill">verified readback</span>
+          </div>
+        </article>
+        <article class="card pad">
+          <div class="kicker">solve.py</div>
+          <pre class="codefile">from openpyxl import load_workbook
+
+INPUT_PATH = ".../workspace/input.xlsx"
+OUTPUT_PATH = ".../workspace/output.xlsx"
+
+wb = load_workbook(INPUT_PATH)
+ws = wb["Sheet1"]
+
+# Return the last non-zero daily quota from B6:H6
+# without an array-entered formula.
+ws["E1"] = "=LOOKUP(2,1/(B6:H6<>0),B6:H6)"
+
+wb.save(OUTPUT_PATH)
+print(f"E1={ws['E1'].value}")</pre>
+          <p class="why">Run output:</p>
+          <pre>E1==LOOKUP(2,1/(B6:H6<>0),B6:H6)
+Verified: =LOOKUP(2,1/(B6:H6<>0),B6:H6)</pre>
+        </article>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <div>Case directory only · no external assets · trajectory_format: codex-jsonl</div>
+      <div>Bash fallback used for case file reads (openpyxl unavailable; xlsx via zip/xml)</div>
+    </footer>
+  </div>
+
+<script>
+const steps = [
+  {
+    badge: "think",
+    title: "Plan the inspection",
+    desc: "Assistant opens by reading real workbook formulas before rewriting E1.",
+    body: "I’ll inspect the workbook’s actual formulas first, then write the shortened E1 formula and verify the saved file."
+  },
+  {
+    badge: "tool",
+    title: "Dump Sheet1 with openpyxl",
+    desc: "Loads input.xlsx formulas for rows 1–7.",
+    body: `python - <<'PY'
+from openpyxl import load_workbook
+wb=load_workbook('input.xlsx', data_only=False)
+ws=wb['Sheet1']
+for row in range(1,8):
+    print(row,[ws.cell(row,col).value for col in range(1,9)])
+PY`
+  },
+  {
+    badge: "out",
+    title: "Discover installed structure",
+    desc: "E1 is an ArrayFormula; B6:H6 / B7:H7 carry the rolling quota logic.",
+    body: `E1 → ArrayFormula(
+  INDEX($B$6:$H$6,,MAX(IF($B$6:$H$6<>0,
+       COLUMN($B$6:$H$6)-COLUMN($B$6)+1)))
+)
+B6:H6 daily quota IFs
+B7:H7 remaining-to-date chain
+Cached E1 value: 1008.3333333333334`
+  },
+  {
+    badge: "tool",
+    title: "Patch solve.py",
+    desc: "Writes a non-array LOOKUP compression into E1.",
+    body: `ws["E1"] = "=LOOKUP(2,1/(B6:H6<>0),B6:H6)"
+wb.save(OUTPUT_PATH)
+print(f"E1={ws['E1'].value}")`
+  },
+  {
+    badge: "tool",
+    title: "Execute + verify",
+    desc: "Runs solve.py and re-reads output.xlsx.",
+    body: `python solve.py && python - <<'PY'
+from openpyxl import load_workbook
+wb=load_workbook('output.xlsx', data_only=False)
+print('Verified:', wb['Sheet1']['E1'].value)
+PY`
+  },
+  {
+    badge: "out",
+    title: "Verification output",
+    desc: "Formula persisted exactly as intended.",
+    body: `E1==LOOKUP(2,1/(B6:H6<>0),B6:H6)
+Verified: =LOOKUP(2,1/(B6:H6<>0),B6:H6)`
+  },
+  {
+    badge: "final",
+    title: "Final answer",
+    desc: "Reports artifacts and the written cell payload.",
+    body: `Created output.xlsx and solve.py.
+
+Final value written:
+E1 = =LOOKUP(2,1/(B6:H6<>0),B6:H6)`
+  }
+];
+
+const timeline = document.getElementById('timeline');
+steps.forEach((step, i) => {
+  const el = document.createElement('div');
+  el.className = 'step' + (i === steps.length - 1 ? ' open' : '');
+  el.innerHTML = `
+    <div class="node">${String(i + 1).padStart(2, '0')}</div>
+    <div class="step-card">
+      <button class="step-summary" type="button" aria-expanded="${i === steps.length - 1}">
+        <div>
+          <strong>${step.title}</strong>
+          <span class="desc">${step.desc}</span>
+        </div>
+        <span class="badge ${step.badge}">${step.badge}</span>
+      </button>
+      <div class="step-body"><pre></pre></div>
+    </div>`;
+  el.querySelector('pre').textContent = step.body;
+  el.querySelector('.step-summary').addEventListener('click', () => {
+    const open = el.classList.toggle('open');
+    el.querySelector('.step-summary').setAttribute('aria-expanded', open);
+  });
+  timeline.appendChild(el);
+});
+
+// Section nav
+const buttons = [...document.querySelectorAll('.section-nav button')];
+const sections = buttons.map(b => document.getElementById(b.dataset.target));
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById(btn.dataset.target).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const id = entry.target.id;
+    buttons.forEach(b => b.classList.toggle('active', b.dataset.target === id));
+  });
+}, { rootMargin: '-40% 0px -50% 0px', threshold: 0.01 });
+
+sections.forEach(sec => io.observe(sec));
+</script>
+</body>
+</html>

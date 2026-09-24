@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Get Me Bodied · Apple Music Canada Revenue</title>
+<style>
+  :root {
+    --bg: #070910;
+    --bg-2: #0d1020;
+    --surface: #13162a;
+    --surface-2: #1a1e36;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.14);
+    --text: #ebe9f4;
+    --muted: #8e8caa;
+    --faint: #5c5a75;
+    --magenta: #ff3d8a;
+    --magenta-dim: rgba(255, 61, 138, 0.15);
+    --cyan: #3de0ff;
+    --cyan-dim: rgba(61, 224, 255, 0.12);
+    --gold: #ffc857;
+    --gold-dim: rgba(255, 200, 87, 0.14);
+    --green: #40d9a0;
+    --green-dim: rgba(64, 217, 160, 0.12);
+    --red: #ff6b7a;
+    --red-dim: rgba(255, 107, 122, 0.12);
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --radius: 14px;
+    --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    background:
+      radial-gradient(1200px 700px at 10% -10%, rgba(255, 61, 138, 0.14), transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, rgba(61, 224, 255, 0.08), transparent 55%),
+      linear-gradient(180deg, var(--bg-2), var(--bg) 40%, #05060c);
+  }
+
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  button:focus-visible, a:focus-visible, summary:focus-visible, .step:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 3px;
+  }
+
+  .wrap {
+    width: min(1120px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 2rem 0 5rem;
+  }
+
+  /* —— Hero —— */
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 2.5rem;
+    align-items: center;
+    padding: 1.5rem 0 2.75rem;
+    min-height: 420px;
+  }
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    font-weight: 600;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 1.4rem;
+    height: 1px;
+    background: var(--cyan);
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(2.1rem, 4.4vw, 3.35rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin: 0.85rem 0 1rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--magenta);
+  }
+
+  .lede {
+    color: var(--muted);
+    font-size: 1.05rem;
+    max-width: 36rem;
+    margin: 0 0 1.5rem;
+  }
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .chip {
+    border: 1px solid var(--border-strong);
+    background: rgba(255,255,255,0.03);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  .chip strong { color: var(--text); font-weight: 600; }
+
+  /* vinyl */
+  .vinyl-stage {
+    position: relative;
+    aspect-ratio: 1;
+    max-width: 360px;
+    margin: 0 auto;
+    display: grid;
+    place-items: center;
+  }
+  .vinyl {
+    position: relative;
+    width: min(100%, 320px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 50% 50%,
+        #1a0a18 0 10%,
+        #2a0f22 11% 14%,
+        #0c0c14 15% 18%,
+        #16131f 19% 22%,
+        #0c0c14 23% 26%,
+        #16131f 27% 30%,
+        #0c0c14 31% 34%,
+        #16131f 35% 38%,
+        #0c0c14 39% 42%,
+        #16131f 43% 46%,
+        #0c0c14 47% 50%,
+        #16131f 51% 54%,
+        #0c0c14 55% 58%,
+        #16131f 59% 62%,
+        #0c0c14 63% 66%,
+        #16131f 67% 70%,
+        #0c0c14 71% 100%);
+    box-shadow:
+      0 0 0 10px #0a0a12,
+      0 30px 80px rgba(0,0,0,0.55),
+      inset 0 0 40px rgba(255,61,138,0.12);
+    animation: spin 28s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vinyl { animation: none; }
+  }
+  .vinyl::before {
+    content: "";
+    position: absolute;
+    inset: 34%;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, #ff8fbc, #ff3d8a 40%, #b01855 72%, #4a0d2a);
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.35);
+  }
+  .vinyl::after {
+    content: "B";
+    position: absolute;
+    inset: 42%;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.4rem;
+    color: rgba(255,255,255,0.85);
+    background: rgba(0,0,0,0.2);
+  }
+  .record-slider {
+    position: absolute;
+    right: 8%;
+    top: 14%;
+    width: 55%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25));
+    transform: rotate(-28deg);
+    transform-origin: left center;
+    pointer-events: none;
+  }
+  .record-slider::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: -10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #2c3148;
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .hero-meta {
+    position: absolute;
+    left: 0; right: 0; bottom: -0.5rem;
+  }
+  .meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem 1.4rem;
+    padding: 0.95rem 1.15rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: rgba(19, 22, 42, 0.72);
+    backdrop-filter: blur(10px);
+  }
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 5.5rem;
+  }
+  .meta-item span {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .meta-item strong {
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* —— Sections —— */
+  section {
+    margin-top: 3.25rem;
+  }
+  .section-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--magenta);
+    font-weight: 600;
+    margin-bottom: 0.65rem;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.55rem, 2.5vw, 2rem);
+    letter-spacing: -0.015em;
+    margin: 0 0 0.75rem;
+  }
+  .section-intro {
+    color: var(--muted);
+    max-width: 42rem;
+    margin: 0 0 1.5rem;
+  }
+
+  /* —— Task question card —— */
+  .question-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.5rem;
+    padding: 1.5rem 1.6rem;
+    border-radius: calc(var(--radius) + 2px);
+    border: 1px solid var(--border-strong);
+    background:
+      linear-gradient(145deg, rgba(255,61,138,0.08), transparent 40%),
+      var(--surface);
+    box-shadow: var(--shadow);
+  }
+  @media (max-width: 720px) {
+    .question-card { grid-template-columns: 1fr; }
+  }
+  .question-card blockquote {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+    line-height: 1.35;
+    font-style: italic;
+  }
+  .question-card blockquote span {
+    color: var(--gold);
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 0.85em;
+  }
+  .data-files {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    min-width: 12rem;
+  }
+  .data-file {
+    padding: 0.7rem 0.85rem;
+    border-radius: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+  }
+  .data-file .engine {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    font-weight: 600;
+  }
+  .data-file .fname {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    margin-top: 0.2rem;
+  }
+
+  /* —— Timeline —— */
+  .timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 1.15rem;
+    top: 1.2rem;
+    bottom: 1.2rem;
+    width: 2px;
+    background: linear-gradient(180deg, var(--magenta), var(--cyan), var(--gold));
+    opacity: 0.45;
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.4rem 1fr;
+    gap: 0.9rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .step:hover { border-color: var(--border-strong); }
+  .step.is-open { border-color: rgba(61, 224, 255, 0.35); }
+
+  .step-mark {
+    position: relative;
+    z-index: 1;
+    width: 2.4rem;
+    display: flex;
+    justify-content: center;
+    padding-top: 1.15rem;
+  }
+  .step-dot {
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    background: var(--surface-2);
+    border: 2px solid var(--border-strong);
+    color: var(--text);
+  }
+  .step[data-tone="fail"] .step-dot {
+    border-color: var(--red);
+    color: var(--red);
+    background: var(--red-dim);
+  }
+  .step[data-tone="warn"] .step-dot {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+  .step[data-tone="ok"] .step-dot {
+    border-color: var(--green);
+    color: var(--green);
+    background: var(--green-dim);
+  }
+  .step[data-tone="info"] .step-dot {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: var(--cyan-dim);
+  }
+
+  .step-body { padding: 1rem 1.1rem 1rem 0; }
+  @media (max-width: 560px) {
+    .step-body { padding-right: 0.75rem; }
+    .timeline::before { left: 1.05rem; }
+  }
+
+  .step-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.4rem 1rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .step-head::-webkit-details-marker { display: none; }
+  .step-title {
+    font-weight: 600;
+    font-size: 1.02rem;
+  }
+  .step-time {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--faint);
+  }
+  .step-summary {
+    color: var(--muted);
+    margin: 0.35rem 0 0;
+    font-size: 0.94rem;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .badge-fail { background: var(--red-dim); color: var(--red); }
+  .badge-warn { background: var(--gold-dim); color: var(--gold); }
+  .badge-ok { background: var(--green-dim); color: var(--green); }
+  .badge-info { background: var(--cyan-dim); color: var(--cyan); }
+
+  .step-detail {
+    margin-top: 0.95rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .panel {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #0b0d18;
+    overflow: hidden;
+  }
+  .panel-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    background: rgba(255,255,255,0.02);
+  }
+  pre {
+    margin: 0;
+    padding: 0.85rem 0.9rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: #cfd3eb;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .panel.out pre { color: #b8f0d8; }
+  .panel.err pre { color: #ffb0b8; }
+  .note {
+    font-size: 0.88rem;
+    color: var(--muted);
+    padding: 0.55rem 0.15rem 0;
+  }
+
+  /* —— Schema strip —— */
+  .schema-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 700px) {
+    .schema-grid { grid-template-columns: 1fr; }
+  }
+  .schema-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 1.1rem 1.15rem 1.2rem;
+  }
+  .schema-card h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+  .schema-card .src {
+    font-size: 0.75rem;
+    color: var(--cyan);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.85rem;
+  }
+  .cols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .col {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    padding: 0.28rem 0.5rem;
+    border-radius: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .col.key {
+    border-color: rgba(255, 61, 138, 0.45);
+    color: #ff9ec4;
+    background: var(--magenta-dim);
+  }
+  .col.metric {
+    border-color: rgba(255, 200, 87, 0.45);
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+
+  /* —— Tracks table —— */
+  .track-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.75rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 600;
+    background: rgba(255,255,255,0.02);
+  }
+  tr:last-child td { border-bottom: 0; }
+  td.num {
+    font-family: var(--mono);
+    text-align: right;
+    color: var(--gold);
+  }
+  td.id {
+    font-family: var(--mono);
+    color: var(--cyan);
+  }
+  .hit {
+    display: inline-block;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--green);
+    margin-right: 0.35rem;
+    box-shadow: 0 0 0 3px var(--green-dim);
+  }
+  .miss {
+    display: inline-block;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--faint);
+    margin-right: 0.35rem;
+  }
+  .row-zero td { color: var(--muted); }
+
+  /* —— Receipt (signature) —— */
+  .receipt-stage {
+    display: grid;
+    place-items: center;
+    padding: 0.5rem 0 1rem;
+  }
+  .receipt {
+    width: min(420px, 100%);
+    background: #f7f1e6;
+    color: #1a1520;
+    border-radius: 4px;
+    padding: 1.6rem 1.4rem 1.3rem;
+    font-family: var(--mono);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.6) inset,
+      0 30px 60px rgba(0,0,0,0.45);
+    position: relative;
+    transform: rotate(-0.6deg);
+  }
+  .receipt::before,
+  .receipt::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    height: 10px;
+    background:
+      linear-gradient(135deg, #070910 6.5px, transparent 0) 0 0 / 12px 10px,
+      linear-gradient(45deg, #070910 6.5px, transparent 0) 0 0 / 12px 10px;
+  }
+  .receipt::before { top: -10px; }
+  .receipt::after {
+    bottom: -10px;
+    transform: rotate(180deg);
+  }
+  .receipt .store {
+    text-align: center;
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .receipt .tagline {
+    text-align: center;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #5c5464;
+    margin: 0.25rem 0 1rem;
+  }
+  .receipt .rule {
+    border: none;
+    border-top: 1px dashed #b9aeba;
+    margin: 0.75rem 0;
+  }
+  .receipt .line {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.82rem;
+    margin: 0.35rem 0;
+  }
+  .receipt .line.muted { color: #5c5464; font-size: 0.74rem; }
+  .receipt .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 0.4rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+  .receipt .total-row .amt {
+    font-size: 1.55rem;
+    color: #8a1848;
+  }
+  .receipt .footer {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.72rem;
+    color: #5c5464;
+  }
+  .receipt-note {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.92rem;
+    max-width: 36rem;
+  }
+
+  /* —— Final answer banner —— */
+  .answer {
+    margin-top: 2.2rem;
+    padding: 1.4rem 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid rgba(255, 200, 87, 0.35);
+    background:
+      linear-gradient(120deg, var(--gold-dim), transparent 55%),
+      var(--surface);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.1rem;
+    align-items: center;
+  }
+  @media (max-width: 560px) {
+    .answer { grid-template-columns: 1fr; }
+  }
+  .answer-amt {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 5vw, 3rem);
+    color: var(--gold);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .answer p {
+    margin: 0;
+    color: var(--muted);
+  }
+  .answer p strong { color: var(--text); }
+
+  /* —— Controls —— */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-bottom: 1rem;
+  }
+  .btn {
+    appearance: none;
+    border: 1px solid var(--border-strong);
+    background: var(--surface-2);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn:hover {
+    background: rgba(61, 224, 255, 0.1);
+    border-color: rgba(61, 224, 255, 0.4);
+  }
+
+  footer.page-foot {
+    margin-top: 3.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    color: var(--faint);
+    font-size: 0.78rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">DataAgentBench · music catalog join</div>
+        <h1>How much did <em>Get Me Bodied</em> earn on Apple Music in Canada?</h1>
+        <p class="lede">
+          An agent walks two engines — SQLite track metadata and DuckDB sales —
+          through messy song titles, a dead-end exact match, and a recovery that
+          lands on a single dollar figure.
+        </p>
+        <div class="chip-row">
+          <span class="chip"><strong>domain</strong> data_analysis</span>
+          <span class="chip"><strong>model</strong> gpt-5.6-sol</span>
+          <span class="chip"><strong>duration</strong> 39.4s</span>
+          <span class="chip"><strong>exit</strong> 0</span>
+        </div>
+      </div>
+
+      <div class="vinyl-stage" aria-hidden="true">
+        <div class="vinyl"></div>
+        <div class="record-slider"></div>
+      </div>
+    </header>
+
+    <div class="meta-bar" style="margin-top:0.5rem">
+      <div class="meta-item">
+        <span>Case ID</span>
+        <strong>01_music_brainz_20k_query1</strong>
+      </div>
+      <div class="meta-item">
+        <span>Benchmark</span>
+        <strong>DataAgentBench</strong>
+      </div>
+      <div class="meta-item">
+        <span>Backend</span>
+        <strong>gpt-5.6-sol</strong>
+      </div>
+      <div class="meta-item">
+        <span>Trajectory</span>
+        <strong>codex-jsonl · 22 events</strong>
+      </div>
+      <div class="meta-item">
+        <span>Collected</span>
+        <strong>2026-07-11</strong>
+      </div>
+    </div>
+
+    <!-- Task -->
+    <section id="task">
+      <div class="section-label">The brief</div>
+      <h2>One revenue question, two databases</h2>
+      <p class="section-intro">
+        The agent must write and run Python that joins catalog identity in
+        <code style="font-family:var(--mono);color:var(--cyan)">tracks.db</code>
+        with store sales in
+        <code style="font-family:var(--mono);color:var(--cyan)">sales.duckdb</code>,
+        then print the filtered sum.
+      </p>
+
+      <div class="question-card">
+        <div>
+          <blockquote>
+            How much revenue in USD did Apple Music make from Beyoncé’s song
+            ‘Get Me Bodied’ in <span>Canada</span>?
+          </blockquote>
+        </div>
+        <div class="data-files">
+          <div class="data-file">
+            <div class="engine">DuckDB</div>
+            <div class="fname">sales.duckdb</div>
+          </div>
+          <div class="data-file">
+            <div class="engine">SQLite</div>
+            <div class="fname">tracks.db</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schema -->
+    <section id="schema">
+      <div class="section-label">Discovered schema</div>
+      <h2>Join key shared: <span style="font-family:var(--mono);color:var(--magenta)">track_id</span></h2>
+      <p class="section-intro">
+        After a sandbox heredoc failure, an inline probe revealed a clean two-table model —
+        identity in SQLite, transactional metrics in DuckDB.
+      </p>
+      <div class="schema-grid">
+        <article class="schema-card">
+          <div class="src">SQLite · tracks</div>
+          <h3>tracks</h3>
+          <div class="cols">
+            <span class="col key">track_id</span>
+            <span class="col">source_id</span>
+            <span class="col">source_track_id</span>
+            <span class="col">title</span>
+            <span class="col">artist</span>
+            <span class="col">album</span>
+            <span class="col">year</span>
+            <span class="col">length</span>
+            <span class="col">language</span>
+          </div>
+        </article>
+        <article class="schema-card">
+          <div class="src">DuckDB · sales</div>
+          <h3>sales</h3>
+          <div class="cols">
+            <span class="col">sale_id</span>
+            <span class="col key">track_id</span>
+            <span class="col">country</span>
+            <span class="col">store</span>
+            <span class="col">units_sold</span>
+            <span class="col metric">revenue_usd</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Investigation -->
+    <section id="trajectory">
+      <div class="section-label">Investigation</div>
+      <h2>Five moves to a dollar figure</h2>
+      <p class="section-intro">
+        Expand any step for the exact command the agent ran and what came back.
+        Order is chronological; the zero-revenue miss is intentional — it forces
+        the fuzzy catalog search that solves the case.
+      </p>
+
+      <div class="toolbar">
+        <button type="button" class="btn" id="expandAll">Expand all steps</button>
+        <button type="button" class="btn" id="collapseAll">Collapse all</button>
+      </div>
+
+      <div class="timeline" id="timeline">
+
+        <!-- Step 1 -->
+        <details class="step" data-tone="info" open>
+          <div class="step-mark"><div class="step-dot">01</div></div>
+          <div class="step-body">
+            <summary class="step-head">
+              <span class="step-title">Plan the join <span class="badge badge-info">commentary</span></span>
+              <span class="step-time">22:16:53</span>
+            </summary>
+            <p class="step-summary">
+              “I’ll inspect both database schemas, identify the join keys and revenue fields,
+              then run a focused aggregation and print the result.”
+            </p>
+            <div class="step-detail">
+              <div class="note">
+                Opening intent is clear and scoped: schemas first, then a single aggregation
+                filtered to Apple Music · Canada · Beyoncé · Get Me Bodied.
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Step 2 -->
+        <details class="step" data-tone="fail">
+          <div class="step-mark"><div class="step-dot">02</div></div>
+          <div class="step-body">
+            <summary class="step-head">
+              <span class="step-title">Schema probe via heredoc <span class="badge badge-fail">blocked</span></span>
+              <span class="step-time">22:16:58 · 0.1s</span>
+            </summary>
+            <p class="step-summary">
+              Multi-line Python via shell heredoc fails in the read-only sandbox —
+              temporary files are forbidden.
+            </p>
+            <div class="step-detail">
+              <div class="panel">
+                <div class="panel-label"><span>exec</span><span>python heredoc</span></div>
+                <pre>import sqlite3, duckdb
+# SQLite: list tables + pragma table_info
+# DuckDB: SHOW TABLES + DESCRIBE</pre>
+              </div>
+              <div class="panel err">
+                <div class="panel-label"><span>output</span><span>wall 0.1s</span></div>
+                <pre>zsh:1: can't create temp file for here document: operation not permitted</pre>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Step 3 -->
+        <details class="step" data-tone="ok">
+          <div class="step-mark"><div class="step-dot">03</div></div>
+          <div class="step-body">
+            <summary class="step-head">
+              <span class="step-title">Inline Python recovers schemas <span class="badge badge-ok">ok</span></span>
+              <span class="step-time">22:17:01 → 22:17:06 · 0.2s</span>
+            </summary>
+            <p class="step-summary">
+              Agent switches to <code style="font-family:var(--mono);font-size:0.85em">python -c</code>
+              and surfaces both table layouts in one shot.
+            </p>
+            <div class="step-detail">
+              <div class="panel out">
+                <div class="panel-label"><span>output</span><span>wall 0.2s</span></div>
+                <pre>SQLITE TABLES
+tracks [(track_id INTEGER PK), source_id, source_track_id, title, artist, album, year, length, language]
+
+DUCKDB TABLES
+sales [(sale_id INTEGER PRI), track_id, country, store, units_sold, revenue_usd DOUBLE]</pre>
+              </div>
+              <div class="note">Join path is now obvious: resolve track_ids by title/artist in SQLite, sum revenue_usd in DuckDB with store and country filters.</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Step 4 -->
+        <details class="step" data-tone="warn">
+          <div class="step-mark"><div class="step-dot">04</div></div>
+          <div class="step-body">
+            <summary class="step-head">
+              <span class="step-title">Exact match returns empty <span class="badge badge-warn">false zero</span></span>
+              <span class="step-time">22:17:14 · 0.2s</span>
+            </summary>
+            <p class="step-summary">
+              <code style="font-family:var(--mono);font-size:0.85em">lower(title)=lower('Get Me Bodied') AND lower(artist)=lower('Beyoncé')</code>
+              matches nothing. Revenue printed: $0.00 — a clean-looking wrong answer.
+            </p>
+            <div class="step-detail">
+              <div class="panel">
+                <div class="panel-label"><span>query intent</span><span>exact</span></div>
+                <pre>SELECT track_id, title, artist, album, year
+FROM tracks
+WHERE lower(title) = lower(?)
+  AND lower(artist) = lower(?)
+-- params: "Get Me Bodied", "Beyoncé"
+
+-- then:
+SELECT COALESCE(SUM(revenue_usd), 0)
+FROM sales
+WHERE country = 'Canada'
+  AND store = 'Apple Music'
+  AND track_id IN (...)</pre>
+              </div>
+              <div class="panel err">
+                <div class="panel-label"><span>output</span><span>misleading success shape</span></div>
+                <pre>Matched tracks: []
+Revenue USD: $0.00</pre>
+              </div>
+              <div class="note">Catalog titles are messy — remix tags, artist-in-title prefixes, accent variation. The agent correctly refuses to stop at zero and probes with <code style="font-family:var(--mono);font-size:0.85em">LIKE</code>.</div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Step 5 -->
+        <details class="step" data-tone="info">
+          <div class="step-mark"><div class="step-dot">05</div></div>
+          <div class="step-body">
+            <summary class="step-head">
+              <span class="step-title">Fuzzy title search finds four cuts <span class="badge badge-info">catalog noise</span></span>
+              <span class="step-time">22:17:18 · 0.1s</span>
+            </summary>
+            <p class="step-summary">
+              <code style="font-family:var(--mono);font-size:0.85em">LIKE '%get me bodied%'</code>
+              surfaces four track rows — mixed artists, nulls, and anthology suffixes.
+            </p>
+            <div class="step-detail">
+              <div class="panel out">
+                <div class="panel-label"><span>matched rows</span><span>tracks.db</span></div>
+                <pre>(4233,  'Get Me Bodied (Sexxxplicit R&B, Volume 25)', 'Beyoncé',  'Sexxxplicit R&B, Volume 25', '2007')
+(10838, 'Beyoncé - Get Me Bodied',                   None,      'Sexxxplicit R&B, Volume 25', '07')
+(12954, 'Get Me Bodied - Sexxxplicit R&B, Volume 25','Beyoncé',  None,                         '"07"')
+(15158, '022-Get Me Bodied',                         'Beyonce',  'Sexxxplicit R&B, Volume 25 (2007)', None)</pre>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Step 6 -->
+        <details class="step" data-tone="ok" open>
+          <div class="step-mark"><div class="step-dot">06</div></div>
+          <div class="step-body">
+            <summary class="step-head">
+              <span class="step-title">Beyoncé filter + Apple Music Canada join <span class="badge badge-ok">answer</span></span>
+              <span class="step-time">22:17:27 · 0.6s</span>
+            </summary>
+            <p class="step-summary">
+              Keep tracks whose artist is a Beyoncé variant or whose title embeds her name,
+              then SUM revenue for Canada × Apple Music per track_id.
+            </p>
+            <div class="step-detail">
+              <div class="panel">
+                <div class="panel-label"><span>filter logic</span><span>python + duckdb</span></div>
+                <pre>tracks WHERE lower(title) LIKE '%get me bodied%'
+  AND (
+    lower(coalesce(artist,'')) IN ('beyoncé','beyonce')
+    OR lower(title) LIKE '%beyoncé%'
+    OR lower(title) LIKE '%beyonce%'
+  )
+
+sales WHERE country='Canada' AND store='Apple Music'
+  AND track_id IN (...)
+GROUP BY track_id</pre>
+              </div>
+              <div class="panel out">
+                <div class="panel-label"><span>output</span><span>wall 0.6s</span></div>
+                <pre>Matched tracks:
+  (4233,  'Get Me Bodied (Sexxxplicit R&B, Volume 25)', 'Beyoncé')
+  (10838, 'Beyoncé - Get Me Bodied',                   None)
+  (12954, 'Get Me Bodied - Sexxxplicit R&B, Volume 25','Beyoncé')
+  (15158, '022-Get Me Bodied',                         'Beyonce')
+
+Revenue by track ID: [(4233, 377.62), (12954, 223.82)]
+Total revenue USD: $601.44</pre>
+              </div>
+            </div>
+          </div>
+        </details>
+
+      </div>
+    </section>
+
+    <!-- Contribution table -->
+    <section id="breakdown">
+      <div class="section-label">Attribution</div>
+      <h2>Only two of four IDs carried Canada revenue</h2>
+      <p class="section-intro">
+        Catalog identity is noisy; commercial reality is sparse. Two track records
+        contributed dollars; two matched titles but had no qualifying sales rows.
+      </p>
+      <div class="track-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>track_id</th>
+              <th>Title</th>
+              <th>Artist</th>
+              <th>Apple Music · Canada</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="hit" title="contributed"></span>hit</td>
+              <td class="id">4233</td>
+              <td>Get Me Bodied (Sexxxplicit R&B, Volume 25)</td>
+              <td>Beyoncé</td>
+              <td class="num">$377.62</td>
+            </tr>
+            <tr>
+              <td><span class="hit" title="contributed"></span>hit</td>
+              <td class="id">12954</td>
+              <td>Get Me Bodied - Sexxxplicit R&B, Volume 25</td>
+              <td>Beyoncé</td>
+              <td class="num">$223.82</td>
+            </tr>
+            <tr class="row-zero">
+              <td><span class="miss" title="no sales"></span>zero</td>
+              <td class="id">10838</td>
+              <td>Beyoncé - Get Me Bodied</td>
+              <td class="muted">—</td>
+              <td class="num">$0.00</td>
+            </tr>
+            <tr class="row-zero">
+              <td><span class="miss" title="no sales"></span>zero</td>
+              <td class="id">15158</td>
+              <td>022-Get Me Bodied</td>
+              <td>Beyonce</td>
+              <td class="num">$0.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="answer">
+        <div class="answer-amt">$601.44</div>
+        <div>
+          <p><strong>Final answer printed by the agent</strong></p>
+          <p>
+            Apple Music made <strong>$601.44 USD</strong> from Beyoncé’s “Get Me Bodied” in Canada.
+            This total combines the matching track records in the catalog.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Receipt signature -->
+    <section id="receipt">
+      <div class="section-label">Ledger view</div>
+      <h2>Store receipt for the sum</h2>
+      <div class="receipt-stage">
+        <div class="receipt" role="img" aria-label="Receipt showing total revenue of 601 dollars and 44 cents">
+          <div class="store">APPLE MUSIC</div>
+          <div class="tagline">Canada · streaming royalty rollup</div>
+          <div class="line muted"><span>Artist</span><span>Beyoncé</span></div>
+          <div class="line muted"><span>Track</span><span>Get Me Bodied</span></div>
+          <div class="line muted"><span>Currency</span><span>USD</span></div>
+          <hr class="rule" />
+          <div class="line"><span>#4233 anthology cut</span><span>377.62</span></div>
+          <div class="line"><span>#12954 alt title cut</span><span>223.82</span></div>
+          <div class="line muted"><span>#10838 no CA sales</span><span>0.00</span></div>
+          <div class="line muted"><span>#15158 no CA sales</span><span>0.00</span></div>
+          <hr class="rule" />
+          <div class="total-row">
+            <span>TOTAL</span>
+            <span class="amt">$601.44</span>
+          </div>
+          <div class="footer">matched ISRC-like catalog records · agent exit 0</div>
+        </div>
+        <p class="receipt-note">
+          Signature of the case: a paper-thin store receipt for a digital query —
+          the thing an analyst would wave when saying “here’s what Canada paid.”
+        </p>
+      </div>
+    </section>
+
+    <!-- Method notes -->
+    <section id="method">
+      <div class="section-label">Why this trajectory matters</div>
+      <h2>Exact match is brittle music data</h2>
+      <div class="schema-grid">
+        <article class="schema-card">
+          <div class="src">Failure mode</div>
+          <h3 style="font-family:var(--serif);font-size:1.15rem">Pretty zero</h3>
+          <p style="color:var(--muted);margin:0.5rem 0 0;font-size:0.92rem">
+            A well-formed query returned <code style="font-family:var(--mono)">$0.00</code>
+            because titles in the wild carry anthology tags, track-number prefixes,
+            and accent spellings. Agents that treat zero as terminal fail here.
+          </p>
+        </article>
+        <article class="schema-card">
+          <div class="src">Recovery</div>
+          <h3 style="font-family:var(--serif);font-size:1.15rem">Broaden, then constrain</h3>
+          <p style="color:var(--muted);margin:0.5rem 0 0;font-size:0.92rem">
+            First expand with <code style="font-family:var(--mono)">LIKE '%get me bodied%'</code>,
+            then re-tighten provenance through Beyoncé artist variants and the
+            Apple Music × Canada sales slice. No over-claiming of the zero rows.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <footer class="page-foot">
+      <span>case 01_music_brainz_20k_query1 · DataAgentBench · data_analysis</span>
+      <span>trajectory_format: codex-jsonl · self-contained report</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var steps = Array.prototype.slice.call(document.querySelectorAll(".step"));
+      function setOpen(flag) {
+        steps.forEach(function (s) {
+          s.open = flag;
+          s.classList.toggle("is-open", flag);
+        });
+      }
+      document.getElementById("expandAll").addEventListener("click", function () { setOpen(true); });
+      document.getElementById("collapseAll").addEventListener("click", function () { setOpen(false); });
+      steps.forEach(function (s) {
+        s.addEventListener("toggle", function () {
+          s.classList.toggle("is-open", s.open);
+        });
+        s.classList.toggle("is-open", s.open);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Melevir Cognitive Complexity Repair Case</title>
+  <style>
+    :root {
+      --ink: #171814;
+      --paper: #f4f0e5;
+      --paper-2: #ebe3d0;
+      --line: rgba(23, 24, 20, 0.17);
+      --line-strong: rgba(23, 24, 20, 0.34);
+      --green: #2f6b4f;
+      --green-deep: #164634;
+      --clay: #b7603d;
+      --blue: #315c83;
+      --gold: #c69a32;
+      --charcoal: #22251f;
+      --white: #fffaf0;
+      --shadow: 0 24px 70px rgba(28, 29, 24, 0.18);
+      --mono: "SFMono-Regular", "Cascadia Mono", "Liberation Mono", Menlo, Consolas, monospace;
+      --display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      --body: "Avenir Next", "Segoe UI", Verdana, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 10%, rgba(198, 154, 50, 0.18), transparent 24rem),
+        radial-gradient(circle at 90% 4%, rgba(49, 92, 131, 0.14), transparent 25rem),
+        linear-gradient(135deg, rgba(23, 24, 20, 0.04) 25%, transparent 25%) 0 0 / 18px 18px,
+        var(--paper);
+      font-family: var(--body);
+      line-height: 1.5;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(23, 24, 20, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 24, 20, 0.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 86%);
+      z-index: -1;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid transparent;
+      background: rgba(244, 240, 229, 0.78);
+      backdrop-filter: blur(16px);
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .topbar.is-scrolled {
+      border-color: var(--line);
+      box-shadow: 0 12px 42px rgba(35, 32, 24, 0.1);
+    }
+
+    .nav {
+      width: min(1180px, calc(100% - 36px));
+      min-height: 70px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 210px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line-strong);
+      background:
+        linear-gradient(135deg, transparent 48%, rgba(255, 250, 240, 0.8) 49% 53%, transparent 54%),
+        linear-gradient(135deg, var(--green) 0 49%, var(--gold) 50% 100%);
+      box-shadow: inset 0 0 0 6px rgba(255, 250, 240, 0.24);
+    }
+
+    .brand span:last-child {
+      display: block;
+      font-family: var(--display);
+      font-size: 1.05rem;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+
+    .navlinks {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .navlinks a,
+    .pill-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 0 13px;
+      border: 1px solid transparent;
+      color: rgba(23, 24, 20, 0.74);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 999px;
+    }
+
+    .navlinks a:hover {
+      border-color: var(--line);
+      background: rgba(255, 250, 240, 0.65);
+      color: var(--ink);
+    }
+
+    .pill-button {
+      border-color: rgba(22, 70, 52, 0.36);
+      background: var(--green-deep);
+      color: var(--white);
+      box-shadow: 0 10px 22px rgba(22, 70, 52, 0.18);
+    }
+
+    main {
+      overflow: hidden;
+    }
+
+    .hero {
+      width: min(1180px, calc(100% - 36px));
+      min-height: calc(100vh - 70px);
+      margin: 0 auto;
+      padding: 66px 0 34px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(390px, 0.78fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--green-deep);
+      font-weight: 700;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 36px;
+      height: 2px;
+      background: var(--clay);
+    }
+
+    h1 {
+      max-width: 850px;
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(3.4rem, 8vw, 7.8rem);
+      line-height: 0.88;
+      letter-spacing: 0;
+      color: var(--charcoal);
+    }
+
+    .hero-copy {
+      max-width: 650px;
+      margin: 24px 0 0;
+      font-size: clamp(1.03rem, 1.7vw, 1.26rem);
+      color: rgba(23, 24, 20, 0.72);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border: 1px solid var(--line-strong);
+      color: var(--ink);
+      background: rgba(255, 250, 240, 0.64);
+      text-decoration: none;
+      font-weight: 800;
+      border-radius: 6px;
+      box-shadow: 0 12px 28px rgba(35, 32, 24, 0.08);
+    }
+
+    .action.primary {
+      border-color: var(--green-deep);
+      background: var(--green-deep);
+      color: var(--white);
+    }
+
+    .case-panel {
+      position: relative;
+      border: 1px solid var(--line-strong);
+      background:
+        linear-gradient(180deg, rgba(255, 250, 240, 0.86), rgba(235, 227, 208, 0.82)),
+        repeating-linear-gradient(0deg, transparent 0 27px, rgba(23, 24, 20, 0.035) 27px 28px);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      border-radius: 8px;
+      transform: rotate(1deg);
+    }
+
+    .case-panel::before {
+      content: "";
+      position: absolute;
+      left: 22px;
+      right: 22px;
+      top: -10px;
+      height: 20px;
+      background: rgba(183, 96, 61, 0.72);
+      border: 1px solid rgba(23, 24, 20, 0.14);
+      transform: rotate(-2deg);
+    }
+
+    .console-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      color: rgba(23, 24, 20, 0.68);
+    }
+
+    .lights {
+      display: flex;
+      gap: 7px;
+    }
+
+    .lights i {
+      display: block;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--clay);
+      border: 1px solid rgba(23, 24, 20, 0.18);
+    }
+
+    .lights i:nth-child(2) {
+      background: var(--gold);
+    }
+
+    .lights i:nth-child(3) {
+      background: var(--green);
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .score {
+      min-height: 116px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.7);
+      border-radius: 7px;
+    }
+
+    .score b {
+      display: block;
+      font-family: var(--display);
+      font-size: 2.55rem;
+      line-height: 0.9;
+      color: var(--green-deep);
+    }
+
+    .score span {
+      display: block;
+      margin-top: 9px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: rgba(23, 24, 20, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .section {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 58px 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 26px;
+      margin-bottom: 22px;
+    }
+
+    h2 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      max-width: 460px;
+      margin: 0;
+      color: rgba(23, 24, 20, 0.66);
+      font-size: 0.98rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .feature {
+      min-height: 210px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.62);
+      border-radius: 8px;
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .feature:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 18px 46px rgba(28, 29, 24, 0.12);
+      background: rgba(255, 250, 240, 0.86);
+    }
+
+    .feature .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      margin-bottom: 26px;
+      border: 1px solid var(--line-strong);
+      background: var(--charcoal);
+      color: var(--white);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      border-radius: 50%;
+    }
+
+    .feature h3,
+    .patch-card h3,
+    .timeline h3 {
+      margin: 0 0 10px;
+      font-family: var(--display);
+      font-size: 1.38rem;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .feature p,
+    .timeline p {
+      margin: 0;
+      color: rgba(23, 24, 20, 0.66);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .timeline {
+      border-left: 2px solid rgba(22, 70, 52, 0.35);
+      padding-left: 24px;
+    }
+
+    .step {
+      position: relative;
+      padding: 0 0 24px;
+    }
+
+    .step::before {
+      content: "";
+      position: absolute;
+      left: -31px;
+      top: 3px;
+      width: 13px;
+      height: 13px;
+      background: var(--paper);
+      border: 2px solid var(--green-deep);
+      border-radius: 50%;
+    }
+
+    .step:last-child {
+      padding-bottom: 0;
+    }
+
+    .step time {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--clay);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .patch-card {
+      border: 1px solid var(--line-strong);
+      background: #20231e;
+      color: #f4f0e5;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .patch-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(255, 250, 240, 0.12);
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      color: rgba(244, 240, 229, 0.76);
+    }
+
+    .copy-button {
+      appearance: none;
+      border: 1px solid rgba(244, 240, 229, 0.24);
+      background: rgba(244, 240, 229, 0.08);
+      color: var(--white);
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 5px;
+      font-family: var(--mono);
+      cursor: pointer;
+    }
+
+    pre {
+      margin: 0;
+      padding: 18px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.55;
+      tab-size: 2;
+    }
+
+    .diff-add {
+      color: #a7dfb8;
+    }
+
+    .diff-del {
+      color: #f0a48f;
+    }
+
+    .diff-meta {
+      color: #9fc1df;
+    }
+
+    .proof {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .proof-card {
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.66);
+      border-radius: 8px;
+      padding: 22px;
+    }
+
+    .proof-card strong {
+      display: block;
+      margin-bottom: 10px;
+      font-family: var(--display);
+      font-size: 1.5rem;
+      line-height: 1.05;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255, 250, 240, 0.72);
+    }
+
+    .metric {
+      padding: 22px;
+      border-right: 1px solid var(--line);
+    }
+
+    .metric:last-child {
+      border-right: 0;
+    }
+
+    .metric b {
+      display: block;
+      font-family: var(--display);
+      font-size: clamp(2rem, 4vw, 3.6rem);
+      line-height: 0.9;
+      color: var(--green-deep);
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: rgba(23, 24, 20, 0.62);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.6);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 17px 18px;
+      font-weight: 850;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "+";
+      font-family: var(--mono);
+      color: var(--green-deep);
+      font-weight: 900;
+    }
+
+    details[open] summary::after {
+      content: "-";
+    }
+
+    details p {
+      margin: 0;
+      padding: 0 18px 18px;
+      color: rgba(23, 24, 20, 0.68);
+    }
+
+    footer {
+      width: min(1180px, calc(100% - 36px));
+      margin: 20px auto 0;
+      padding: 32px 0 46px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      color: rgba(23, 24, 20, 0.62);
+      font-size: 0.86rem;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      animation: rise 720ms ease forwards;
+    }
+
+    .delay-1 { animation-delay: 90ms; }
+    .delay-2 { animation-delay: 180ms; }
+    .delay-3 { animation-delay: 270ms; }
+
+    @keyframes rise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 920px) {
+      .nav {
+        min-height: auto;
+        padding: 14px 0;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .navlinks {
+        justify-content: flex-start;
+      }
+
+      .hero,
+      .split,
+      .proof {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 46px;
+      }
+
+      .case-panel {
+        transform: none;
+      }
+
+      .feature-grid,
+      .metric-row {
+        grid-template-columns: 1fr;
+      }
+
+      .metric {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .metric:last-child {
+        border-bottom: 0;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .section-head p {
+        margin-top: 12px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero,
+      .section,
+      .nav,
+      footer {
+        width: min(100% - 24px, 1180px);
+      }
+
+      h1 {
+        font-size: clamp(2.8rem, 17vw, 4.6rem);
+      }
+
+      .score-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        display: grid;
+      }
+
+      .action {
+        width: 100%;
+      }
+
+      footer {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" id="topbar">
+    <nav class="nav" aria-label="Case navigation">
+      <a class="brand" href="#top" aria-label="Case overview">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Complexity Repair Dossier</span>
+      </a>
+      <div class="navlinks">
+        <a href="#issue">Issue</a>
+        <a href="#path">Path</a>
+        <a href="#patch">Patch</a>
+        <a href="#verification">Verification</a>
+        <a class="pill-button" href="#transcript">Transcript</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="reveal">
+        <div class="kicker">SWE-bench case 03 / submitted</div>
+        <h1>Boolean nesting was counted too loudly.</h1>
+        <p class="hero-copy">
+          This repair adjusts the cognitive complexity calculator so sequences of binary logical
+          operators receive their fundamental increment without an extra nesting multiplier.
+        </p>
+        <div class="hero-actions">
+          <a class="action primary" href="#patch">Inspect patch</a>
+          <a class="action" href="#verification">See test result</a>
+        </div>
+      </div>
+
+      <aside class="case-panel reveal delay-1" aria-label="Case summary">
+        <div class="console-head">
+          <span>Melevir__cognitive_complexity-15</span>
+          <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        </div>
+        <div class="score-grid">
+          <div class="score">
+            <b>9</b>
+            <span>Correct real function complexity</span>
+          </div>
+          <div class="score">
+            <b>20</b>
+            <span>Tests passing after repair</span>
+          </div>
+          <div class="score">
+            <b>3</b>
+            <span>Files touched in narrative</span>
+          </div>
+          <div class="score">
+            <b>B1</b>
+            <span>BoolOp increment retained</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="issue">
+      <div class="section-head reveal">
+        <h2>Issue Frame</h2>
+        <p>
+          The case centers on a specification mismatch: boolean operator sequences should not
+          inherit the current nesting depth when scored.
+        </p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature reveal delay-1">
+          <span class="num">01</span>
+          <h3>Observed behavior</h3>
+          <p>The existing `test_real_function()` expected 11, because nested bool operations were multiplied by the nesting increment.</p>
+        </article>
+        <article class="feature reveal delay-2">
+          <span class="num">02</span>
+          <h3>Specification cue</h3>
+          <p>Sequences of binary logical operators receive a fundamental increment, B1, but not nesting increment B3.</p>
+        </article>
+        <article class="feature reveal delay-3">
+          <span class="num">03</span>
+          <h3>Target outcome</h3>
+          <p>The multiline condition in `process_raw_constant` should contribute +2, making the final complexity 9 instead of 11.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="path">
+      <div class="section-head reveal">
+        <h2>Repair Path</h2>
+        <p>
+          The trajectory is a compact debugging loop: locate the failing test, trace through
+          the API, adjust BoolOp accounting, then update expectations exposed by the new rule.
+        </p>
+      </div>
+      <div class="split">
+        <div class="timeline reveal delay-1">
+          <div class="step">
+            <time>Search</time>
+            <h3>Found the failing surface</h3>
+            <p>`test_real_function` was located in `tests/test_cognitive_complexity.py` after the first literal function search missed it.</p>
+          </div>
+          <div class="step">
+            <time>Trace</time>
+            <h3>Followed the calculator</h3>
+            <p>The investigation moved from `tests/conftest.py` to `cognitive_complexity/api.py`, then into `cognitive_complexity/utils/ast.py`.</p>
+          </div>
+          <div class="step">
+            <time>Fix</time>
+            <h3>Removed nesting from BoolOp base complexity</h3>
+            <p>The multiplication by `max(increment_by, 1)` was replaced with a plain count of bool operation sequences.</p>
+          </div>
+          <div class="step">
+            <time>Recover</time>
+            <h3>Corrected one edit misfire</h3>
+            <p>An assertion edit was attempted while the AST utility file was open; the editor rejected it, and the agent reopened the test file.</p>
+          </div>
+        </div>
+
+        <div class="patch-card reveal delay-2">
+          <div class="patch-toolbar">
+            <span>core before/after</span>
+            <button class="copy-button" type="button" data-copy="boolop-code">Copy</button>
+          </div>
+          <pre id="boolop-code"><code>elif isinstance(node, ast.BoolOp):
+    inner_boolops_amount = len([
+        n for n in ast.walk(node)
+        if isinstance(n, ast.BoolOp)
+    ])
+<span class="diff-del">-   base_complexity = inner_boolops_amount * max(increment_by, 1)</span>
+<span class="diff-add">+   base_complexity = inner_boolops_amount  # Remove the nesting increment (B3)</span>
+    return increment_by, base_complexity, False</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="patch">
+      <div class="section-head reveal">
+        <h2>Generated Patch</h2>
+        <p>
+          The final diff touches the BoolOp scoring rule and two test assertions that changed
+          because boolean operations no longer scale with nesting.
+        </p>
+      </div>
+      <div class="patch-card reveal delay-1">
+        <div class="patch-toolbar">
+          <span>generated_patch</span>
+          <button class="copy-button" type="button" data-copy="patch-code">Copy</button>
+        </div>
+        <pre id="patch-code"><code><span class="diff-meta">diff --git a/cognitive_complexity/utils/ast.py b/cognitive_complexity/utils/ast.py</span>
+<span class="diff-meta">@@ -85,7 +85,7 @@ def process_node_itself(</span>
+     elif isinstance(node, ast.BoolOp):
+         inner_boolops_amount = len([n for n in ast.walk(node) if isinstance(n, ast.BoolOp)])
+<span class="diff-del">-        base_complexity = inner_boolops_amount * max(increment_by, 1)</span>
+<span class="diff-add">+        base_complexity = inner_boolops_amount  # Remove the nesting increment (B3)</span>
+         return increment_by, base_complexity, False
+
+<span class="diff-meta">diff --git a/tests/test_cognitive_complexity.py b/tests/test_cognitive_complexity.py</span>
+<span class="diff-meta">@@ -122,7 +122,7 @@ def test_real_function():</span>
+         return processed_words, raw_camelcase_words
+<span class="diff-del">-    """) == 11</span>
+<span class="diff-add">+    """) == 9  # Updated assertion</span>
+
+<span class="diff-meta">@@ -144,7 +144,7 @@ def test_nested_functions():</span>
+         bar = lambda a: lambda b: b or 2  # +2 (+2 for or because lambda increases nesting)
+         return bar(foo(a))(a)
+<span class="diff-del">-    """) == 4</span>
+<span class="diff-add">+    """) == 3  # Updated assertion</span></code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="verification">
+      <div class="section-head reveal">
+        <h2>Verification</h2>
+        <p>
+          The first test run confirmed the behavior change by failing only the old expectations.
+          After assertions were updated, the full test suite passed.
+        </p>
+      </div>
+      <div class="metric-row reveal delay-1">
+        <div class="metric">
+          <b>2</b>
+          <span>Expected failures after code fix</span>
+        </div>
+        <div class="metric">
+          <b>18</b>
+          <span>Tests already passing on first run</span>
+        </div>
+        <div class="metric">
+          <b>0.18s</b>
+          <span>Final pytest duration</span>
+        </div>
+      </div>
+      <div class="proof" style="margin-top:16px">
+        <article class="proof-card reveal delay-2">
+          <strong>First pytest result</strong>
+          <p>`test_real_function` reported actual 9 versus expected 11. `test_nested_functions` reported actual 3 versus expected 4.</p>
+        </article>
+        <article class="proof-card reveal delay-3">
+          <strong>Final pytest result</strong>
+          <p>`tests/test_cognitive_complexity.py .................... [100%]` followed by `20 passed in 0.18s`.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="transcript">
+      <div class="section-head reveal">
+        <h2>Transcript Notes</h2>
+        <p>
+          These expandable notes condense the trajectory without reproducing the full 43-message
+          command transcript.
+        </p>
+      </div>
+      <div class="reveal delay-1">
+        <details open>
+          <summary>Case metadata</summary>
+          <p>Benchmark: SWE-bench. Source: upstream. Model: swe-agent-llama-70b. Trajectory format: swe-agent-traj. Exit status: submitted. References list: none.</p>
+        </details>
+        <details>
+          <summary>Files central to the repair</summary>
+          <p>`cognitive_complexity/utils/ast.py` contained the BoolOp calculation. `tests/test_cognitive_complexity.py` contained `test_real_function` and `test_nested_functions`. `tests/conftest.py` revealed the helper route into the API.</p>
+        </details>
+        <details>
+          <summary>Why the nested function test changed</summary>
+          <p>The lambda body `b or 2` still counts as a boolean operator sequence, but it no longer gains extra complexity merely because it appears under nested lambdas.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Single-case presentation: 03_Melevir__cognitive_complexity-15</span>
+    <span>No external assets, links, fonts, scripts, or stylesheets.</span>
+  </footer>
+
+  <script>
+    const topbar = document.getElementById("topbar");
+    const syncTopbar = () => {
+      topbar.classList.toggle("is-scrolled", window.scrollY > 12);
+    };
+    syncTopbar();
+    window.addEventListener("scroll", syncTopbar, { passive: true });
+
+    document.querySelectorAll("[data-copy]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const target = document.getElementById(button.dataset.copy);
+        const text = target ? target.innerText : "";
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = "Copied";
+          setTimeout(() => { button.textContent = "Copy"; }, 1200);
+        } catch (error) {
+          button.textContent = "Select";
+          setTimeout(() => { button.textContent = "Copy"; }, 1200);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

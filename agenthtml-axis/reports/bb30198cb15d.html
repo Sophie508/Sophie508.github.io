@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retail Agent Case · Yara Silva · #04_sonnet-35-new-retail_458</title>
+<style>
+  :root{
+    --bg:#0f1218; --panel:#171c26; --panel2:#1d2431; --line:#2a3342;
+    --ink:#e6ebf2; --mut:#93a0b4; --dim:#6b7688;
+    --user:#3a86ff; --agent:#2dd4a7; --tool:#f59e0b; --sys:#8b5cf6;
+    --ok:#22c55e; --warn:#ef4444; --refund:#38bdf8;
+    --chip:#232b3a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5; font-size:15px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+  header.hero{
+    background:linear-gradient(135deg,#1a2030,#141926);
+    border:1px solid var(--line); border-radius:14px; padding:24px 26px; margin-bottom:22px;
+  }
+  .hero h1{margin:0 0 6px;font-size:22px;letter-spacing:.2px}
+  .hero .sub{color:var(--mut);font-size:13.5px}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px}
+  .meta{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+  .meta .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim)}
+  .meta .v{font-size:14px;margin-top:3px;font-weight:600;word-break:break-word}
+
+  h2.section{font-size:13px;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);
+    margin:34px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+
+  /* task card */
+  .task{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .task .q{font-size:16px;font-style:italic;color:#cdd6e4}
+  .goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}
+  .goal{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--agent);
+    border-radius:8px;padding:12px 14px}
+  .goal .t{font-weight:700;font-size:14px;margin-bottom:4px}
+  .goal .d{font-size:12.5px;color:var(--mut)}
+  .goal .badge{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+  .b-done{background:rgba(34,197,94,.15);color:var(--ok);border:1px solid rgba(34,197,94,.35)}
+
+  /* timeline */
+  .timeline{position:relative;margin-top:6px}
+  .turn{position:relative;padding-left:40px;margin-bottom:16px}
+  .turn::before{content:"";position:absolute;left:15px;top:30px;bottom:-16px;width:2px;background:var(--line)}
+  .turn:last-child::before{display:none}
+  .dot{position:absolute;left:6px;top:6px;width:20px;height:20px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0f1218;z-index:1}
+  .d-user{background:var(--user)} .d-agent{background:var(--agent)}
+  .d-tool{background:var(--tool)} .d-sys{background:var(--sys)}
+  .bubble{border-radius:11px;padding:12px 15px;border:1px solid var(--line)}
+  .role{font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .role .who{}
+  .b-user{background:rgba(58,134,255,.08);border-color:rgba(58,134,255,.28)} .b-user .role{color:var(--user)}
+  .b-agent{background:var(--panel);} .b-agent .role{color:var(--agent)}
+  .b-sys{background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.25)} .b-sys .role{color:var(--sys)}
+  .txt{white-space:pre-wrap;font-size:14px;color:#dbe3ee}
+
+  /* tool call */
+  .toolcall{background:var(--panel2);border:1px solid rgba(245,158,11,.3);border-radius:10px;
+    margin-top:10px;overflow:hidden}
+  .tc-head{display:flex;align-items:center;gap:8px;padding:9px 13px;background:rgba(245,158,11,.08);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--tool);font-weight:700}
+  .tc-head .arrow{color:var(--dim)}
+  .tc-body{padding:0}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;padding:10px 13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+  .kv .kk{color:var(--dim)} .kv .vv{color:#cbd5e5;word-break:break-word}
+  .tc-return{border-top:1px dashed var(--line);padding:9px 13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--mut)}
+  .tc-return .lbl{color:var(--ok);font-weight:700}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{background:var(--chip);border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:11.5px;color:var(--mut)}
+  .chip b{color:var(--ink)}
+
+  .money{color:var(--refund);font-weight:700}
+  .strike{text-decoration:line-through;color:var(--dim)}
+
+  /* orders table */
+  table.orders{width:100%;border-collapse:collapse;margin-top:6px;font-size:13px}
+  table.orders th,table.orders td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line)}
+  table.orders th{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  table.orders td{color:#d6deea}
+  .stat{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+  .st-pending{background:rgba(245,158,11,.15);color:#f6b23e;border:1px solid rgba(245,158,11,.3)}
+  .st-mod{background:rgba(56,189,248,.15);color:var(--refund);border:1px solid rgba(56,189,248,.3)}
+  .st-del{background:rgba(148,163,184,.14);color:#a9b6c8;border:1px solid rgba(148,163,184,.28)}
+  .rowmark{font-size:11px;color:var(--agent);font-weight:700}
+
+  .footnote{color:var(--dim);font-size:12px;margin-top:26px;border-top:1px solid var(--line);padding-top:14px}
+  code.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--panel2);
+    padding:1px 6px;border-radius:5px;font-size:12px;color:#c9d4e3;border:1px solid var(--line)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 0;font-size:12px;color:var(--mut)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .ld{width:12px;height:12px;border-radius:50%}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>Retail Support Session &mdash; Yara Silva</h1>
+    <div class="sub">τ-bench &middot; tool-use customer service &middot; agent handles multiple order modifications in one authenticated session</div>
+    <div class="meta-grid">
+      <div class="meta"><div class="k">Case ID</div><div class="v">04_sonnet-35-new-retail_458</div></div>
+      <div class="meta"><div class="k">Domain</div><div class="v">Retail agent</div></div>
+      <div class="meta"><div class="k">Model</div><div class="v">sonnet-35-new</div></div>
+      <div class="meta"><div class="k">Benchmark</div><div class="v">tau-bench</div></div>
+      <div class="meta"><div class="k">User</div><div class="v">yara_silva_7567</div></div>
+      <div class="meta"><div class="k">Tool calls</div><div class="v">9</div></div>
+    </div>
+  </header>
+
+  <!-- TASK -->
+  <h2 class="section">Customer Request</h2>
+  <div class="task">
+    <div class="q">&ldquo;Hello... I need to make some changes to my recent orders... I'm Yara Silva.&rdquo;</div>
+    <div class="goals">
+      <div class="goal">
+        <div class="t">1 · Reroute laptop</div>
+        <div class="d">Change laptop order shipping address from Houston, TX to the NYC address.</div>
+        <span class="badge b-done">✓ Completed</span>
+      </div>
+      <div class="goal">
+        <div class="t">2 · Swap laptop model</div>
+        <div class="d">Change laptop to item <code class="mono">9844888101</code> (same product, different variant).</div>
+        <span class="badge b-done">✓ Completed</span>
+      </div>
+      <div class="goal">
+        <div class="t">3 · Recolor watch dial</div>
+        <div class="d">Change wristwatch dial to black, keeping the leather strap.</div>
+        <span class="badge b-done">✓ Completed</span>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="ld" style="background:var(--user)"></i>Customer</span>
+      <span><i class="ld" style="background:var(--agent)"></i>Agent</span>
+      <span><i class="ld" style="background:var(--tool)"></i>Tool call / result</span>
+      <span><i class="ld" style="background:var(--sys)"></i>System policy</span>
+    </div>
+  </div>
+
+  <!-- ORDER SNAPSHOT -->
+  <h2 class="section">Account &amp; Order Snapshot</h2>
+  <div class="task">
+    <div class="chips">
+      <span class="chip">Email <b>yara.silva2443@example.com</b></span>
+      <span class="chip">Default addr <b>116 Laurel Lane, Houston TX 77159</b></span>
+      <span class="chip">Payment <b>gift_card_7252880</b></span>
+      <span class="chip">Balance <b>$56.00</b> (start)</span>
+    </div>
+    <table class="orders">
+      <thead><tr><th>Order</th><th>Contents</th><th>Status</th><th>Touched?</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code class="mono">#W9810810</code></td>
+          <td>Electric Kettle, <b>Wristwatch</b>, Bookshelf</td>
+          <td><span class="stat st-mod">pending (item modified)</span></td>
+          <td class="rowmark">✎ watch dial → black</td>
+        </tr>
+        <tr>
+          <td><code class="mono">#W9034102</code></td>
+          <td>Air Purifier, Backpack, Water Bottle, Tablet</td>
+          <td><span class="stat st-pending">pending</span></td>
+          <td>&mdash;</td>
+        </tr>
+        <tr>
+          <td><code class="mono">#W3964602</code></td>
+          <td>Helmet ×2, Dumbbell Set, Vacuum, Speaker</td>
+          <td><span class="stat st-del">delivered</span></td>
+          <td>&mdash; (already NYC)</td>
+        </tr>
+        <tr>
+          <td><code class="mono">#W3730488</code></td>
+          <td>Espresso Machine, <b>Laptop</b></td>
+          <td><span class="stat st-mod">pending (item modified)</span></td>
+          <td class="rowmark">✎ addr + laptop swap</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CONVERSATION TIMELINE -->
+  <h2 class="section">Conversation Timeline</h2>
+  <div class="timeline">
+
+    <!-- system -->
+    <div class="turn">
+      <div class="dot d-sys">S</div>
+      <div class="bubble b-sys">
+        <div class="role"><span class="who">System · Retail Policy</span></div>
+        <div class="txt">Agent may cancel/modify pending orders, return/exchange delivered orders, update address, and share profile info. Must authenticate the user first (email, or name + zip). Consequential DB actions require explicit user confirmation. Item modification can be called only once per order.</div>
+      </div>
+    </div>
+
+    <!-- user greeting -->
+    <div class="turn">
+      <div class="dot d-user">U</div>
+      <div class="bubble b-user">
+        <div class="role"><span class="who">Customer</span></div>
+        <div class="txt">Hello... I need to make some changes to my recent orders... I'm Yara Silva.</div>
+      </div>
+    </div>
+
+    <!-- agent ask auth -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent</span></div>
+        <div class="txt">Hello Yara! I'd be happy to help. First I need to authenticate your account. Could you provide your email address? Alternatively I can look you up using your zip code.</div>
+      </div>
+    </div>
+
+    <!-- user zip -->
+    <div class="turn">
+      <div class="dot d-user">U</div>
+      <div class="bubble b-user">
+        <div class="role"><span class="who">Customer</span></div>
+        <div class="txt">Um... my zip code is 77159...</div>
+      </div>
+    </div>
+
+    <!-- agent auth toolcall -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent</span></div>
+        <div class="txt">Since you've provided your first name and zip, I'll look up your account (last name assumed "Silva").</div>
+        <div class="toolcall">
+          <div class="tc-head"><span class="arrow">▶</span> find_user_id_by_name_zip</div>
+          <div class="kv">
+            <span class="kk">first_name</span><span class="vv">Yara</span>
+            <span class="kk">last_name</span><span class="vv">Silva</span>
+            <span class="kk">zip</span><span class="vv">77159</span>
+          </div>
+          <div class="tc-return"><span class="lbl">→ returns</span> yara_silva_7567</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- agent get_user_details -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent</span></div>
+        <div class="txt">Found your account. Let me pull your details.</div>
+        <div class="toolcall">
+          <div class="tc-head"><span class="arrow">▶</span> get_user_details</div>
+          <div class="kv"><span class="kk">user_id</span><span class="vv">yara_silva_7567</span></div>
+          <div class="tc-return"><span class="lbl">→ returns</span> profile + 4 orders: #W9810810, #W9034102, #W3964602, #W3730488 · gift_card balance $56</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- agent list orders -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent</span></div>
+        <div class="txt">I can see 4 orders. Which one would you like to change, and what changes?</div>
+      </div>
+    </div>
+
+    <!-- user address change -->
+    <div class="turn">
+      <div class="dot d-user">U</div>
+      <div class="bubble b-user">
+        <div class="role"><span class="who">Customer</span></div>
+        <div class="txt">*sigh* Well... I need to change two things... First, the laptop delivery address... I want it sent to my NYC address instead...</div>
+      </div>
+    </div>
+
+    <!-- agent looks up 4 orders -->
+    <div class="turn">
+      <div class="dot d-tool">T</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent · lookup sweep</span></div>
+        <div class="txt">To locate the laptop, the agent fetches all four orders in sequence.</div>
+        <div class="toolcall">
+          <div class="tc-head"><span class="arrow">▶</span> get_order_details ×4</div>
+          <div class="tc-return">
+            <div><span class="lbl">#W9810810</span> pending · Kettle, Wristwatch, Bookshelf</div>
+            <div><span class="lbl">#W9034102</span> pending · Air Purifier, Backpack, Water Bottle, Tablet</div>
+            <div><span class="lbl">#W3964602</span> delivered · already ships to NYC (555 Highland Dr)</div>
+            <div><span class="lbl">#W3730488</span> pending · Espresso Machine, <b>Laptop</b> ← target</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- agent confirms address -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent</span></div>
+        <div class="txt">Found it — laptop is order #W3730488, status pending, so we can modify the address. Confirm changing shipping to:
+555 Highland Drive, Suite 872, New York, NY 10116, USA?</div>
+      </div>
+    </div>
+
+    <!-- user yes + model change -->
+    <div class="turn">
+      <div class="dot d-user">U</div>
+      <div class="bubble b-user">
+        <div class="role"><span class="who">Customer</span></div>
+        <div class="txt">Yes... that's right... and um, I also need to change the laptop model number to 9844888101...</div>
+      </div>
+    </div>
+
+    <!-- agent get_product_details laptop + modify address -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent</span></div>
+        <div class="txt">A pending order can only change to a variant of the same product. Let me verify that item number belongs to the same laptop, then apply the confirmed address change.</div>
+        <div class="toolcall">
+          <div class="tc-head"><span class="arrow">▶</span> get_product_details</div>
+          <div class="kv"><span class="kk">product_id</span><span class="vv">4760268021 (Laptop)</span></div>
+          <div class="tc-return"><span class="lbl">→</span> item <code class="mono" style="color:#c9d4e3">9844888101</code> is a valid variant: 15", i7, 8GB, 1TB SSD, black · available · $2,459.74</div>
+        </div>
+        <div class="toolcall">
+          <div class="tc-head"><span class="arrow">▶</span> modify_pending_order_address</div>
+          <div class="kv">
+            <span class="kk">order_id</span><span class="vv">#W3730488</span>
+            <span class="kk">address1</span><span class="vv">555 Highland Drive</span>
+            <span class="kk">address2</span><span class="vv">Suite 872</span>
+            <span class="kk">city / state / zip</span><span class="vv">New York, NY 10116, USA</span>
+          </div>
+          <div class="tc-return"><span class="lbl">→ ok</span> shipping address updated · status stays pending</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- agent shows model diff, asks confirm -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent</span></div>
+        <div class="txt">Address done. The new laptop swap:</div>
+        <div class="chips">
+          <span class="chip">Current <b class="strike">i9 · 32GB · 512GB · $2,701.89</b></span>
+          <span class="chip">New <b>i7 · 8GB · 1TB · $2,459.74</b></span>
+          <span class="chip">Refund <b class="money">$242.15</b> → gift card</span>
+        </div>
+        <div class="txt" style="margin-top:8px">Please confirm "yes" to modify the laptop to item 9844888101.</div>
+      </div>
+    </div>
+
+    <!-- user yes + watch request -->
+    <div class="turn">
+      <div class="dot d-user">U</div>
+      <div class="bubble b-user">
+        <div class="role"><span class="who">Customer</span></div>
+        <div class="txt">Yes, that's fine... *hesitates* There's one more thing... about my watch order... I'd like to change the dial color to black...</div>
+      </div>
+    </div>
+
+    <!-- agent watch lookup + laptop modify -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent</span></div>
+        <div class="txt">The watch is in order #W9810810. Let me check its variants, then process the confirmed laptop change.</div>
+        <div class="toolcall">
+          <div class="tc-head"><span class="arrow">▶</span> get_product_details</div>
+          <div class="kv"><span class="kk">product_id</span><span class="vv">6066914160 (Wristwatch)</span></div>
+          <div class="tc-return"><span class="lbl">→</span> leather + black dial = item <code class="mono" style="color:#c9d4e3">9949163720</code> · available · $1,908.15</div>
+        </div>
+        <div class="toolcall">
+          <div class="tc-head"><span class="arrow">▶</span> modify_pending_order_items <span style="color:var(--dim);font-weight:400">(laptop)</span></div>
+          <div class="kv">
+            <span class="kk">order_id</span><span class="vv">#W3730488</span>
+            <span class="kk">item_ids</span><span class="vv">[2913673670]</span>
+            <span class="kk">new_item_ids</span><span class="vv">[9844888101]</span>
+            <span class="kk">payment</span><span class="vv">gift_card_7252880</span>
+          </div>
+          <div class="tc-return"><span class="lbl">→ ok</span> status → pending (item modified) · <span class="money">refund $242.15</span> to gift card</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- agent asks watch confirm -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent</span></div>
+        <div class="txt">Laptop change processed ($242.15 refunded). For the watch: switch to the black-dial version (item 9949163720)? This refunds $77.15. Confirm "yes"?</div>
+      </div>
+    </div>
+
+    <!-- user yes keep strap -->
+    <div class="turn">
+      <div class="dot d-user">U</div>
+      <div class="bubble b-user">
+        <div class="role"><span class="who">Customer</span></div>
+        <div class="txt">Yes... and I want to keep the leather strap on the watch... just changing the dial color...</div>
+      </div>
+    </div>
+
+    <!-- agent modify watch -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent</span></div>
+        <div class="txt">Correct — item 9949163720 keeps the leather strap and only changes the dial to black. Processing now.</div>
+        <div class="toolcall">
+          <div class="tc-head"><span class="arrow">▶</span> modify_pending_order_items <span style="color:var(--dim);font-weight:400">(watch)</span></div>
+          <div class="kv">
+            <span class="kk">order_id</span><span class="vv">#W9810810</span>
+            <span class="kk">item_ids</span><span class="vv">[1355937109]</span>
+            <span class="kk">new_item_ids</span><span class="vv">[9949163720]</span>
+            <span class="kk">payment</span><span class="vv">gift_card_7252880</span>
+          </div>
+          <div class="tc-return"><span class="lbl">→ ok</span> status → pending (item modified) · <span class="money">refund $77.15</span> to gift card</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- agent summary -->
+    <div class="turn">
+      <div class="dot d-agent">A</div>
+      <div class="bubble b-agent">
+        <div class="role"><span class="who">Agent · summary</span></div>
+        <div class="txt">All changes complete:
+1. Laptop delivery address → NYC (555 Highland Drive)
+2. Laptop → i7 / 1TB model (refund $242.15)
+3. Watch → black dial, leather strap (refund $77.15)
+
+Total refund to gift card: $319.30. Anything else?</div>
+      </div>
+    </div>
+
+    <!-- user stop -->
+    <div class="turn">
+      <div class="dot d-user">U</div>
+      <div class="bubble b-user">
+        <div class="role"><span class="who">Customer</span></div>
+        <div class="txt">###STOP###</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- OUTCOME -->
+  <h2 class="section">Outcome</h2>
+  <div class="task">
+    <div class="chips">
+      <span class="chip">Actions committed <b>3</b></span>
+      <span class="chip">Laptop refund <b class="money">$242.15</b></span>
+      <span class="chip">Watch refund <b class="money">$77.15</b></span>
+      <span class="chip">Total refunded <b class="money">$319.30</b></span>
+      <span class="chip">Gift card balance <b>$56.00 → $375.30</b></span>
+    </div>
+    <div class="txt" style="margin-top:12px;color:var(--mut);font-size:13.5px">
+      The agent authenticated via name + zip, confirmed each consequential action before committing,
+      and correctly validated that each requested item swap was a same-product variant. Every modification
+      routed refunds to the original gift-card payment method. Both item-modify calls were single-use and final.
+    </div>
+  </div>
+
+  <div class="footnote">
+    Source trajectory format: <code class="mono">tau-bench-json</code> ·
+    stripped fields: info, reward ·
+    no external references. Rendered from case <code class="mono">04_sonnet-35-new-retail_458</code>.
+  </div>
+
+</div>
+</body>
+</html>

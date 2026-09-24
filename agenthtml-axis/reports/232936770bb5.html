@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case Report: 04_crack-7z-hash</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a2027;
+    --panel2: #232b34;
+    --ink: #e6edf3;
+    --muted: #9aa7b4;
+    --accent: #4da3ff;
+    --ok: #3fb950;
+    --fail: #f85149;
+    --warn: #d29922;
+    --border: #2d3742;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    font-size: 16px;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 24px 18px 80px; }
+  header.hero {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: linear-gradient(160deg, #1a2530, #141a20);
+    padding: 26px 24px;
+    margin-bottom: 26px;
+  }
+  header.hero h1 { margin: 0 0 6px; font-size: 1.55rem; }
+  header.hero .sub { color: var(--muted); font-size: 0.95rem; }
+  .badges { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    display: inline-block; padding: 4px 10px; border-radius: 999px;
+    font-size: 0.78rem; border: 1px solid var(--border); background: var(--panel2);
+    color: var(--muted);
+  }
+  .badge.ok { color: var(--ok); border-color: #1f5c2e; }
+  section {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--panel);
+    padding: 20px 22px;
+    margin-bottom: 20px;
+  }
+  h2 { font-size: 1.18rem; margin: 0 0 14px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  h3 { font-size: 1.0rem; margin: 18px 0 8px; color: var(--accent); }
+  p { margin: 8px 0; }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  .meta-item { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .meta-item .k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .meta-item .v { font-size: 0.92rem; word-break: break-word; }
+  code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
+  code.inline { background: var(--panel2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; }
+  pre {
+    background: #0b0f14; border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; overflow-x: auto; font-size: 0.82rem; line-height: 1.45; margin: 8px 0;
+  }
+  .step { border-left: 3px solid var(--border); padding: 4px 0 4px 14px; margin: 14px 0; }
+  .step.ok { border-left-color: var(--ok); }
+  .step.fail { border-left-color: var(--fail); }
+  .step.note { border-left-color: var(--warn); }
+  .step .lead { font-weight: 600; margin-bottom: 4px; }
+  .tag { font-size: 0.7rem; padding: 2px 7px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
+  .tag.ok { background: #14351d; color: var(--ok); }
+  .tag.fail { background: #3a1514; color: var(--fail); }
+  .tag.note { background: #33280a; color: var(--warn); }
+  ul { margin: 8px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+  .note-box {
+    background: #241d0a; border: 1px solid #4a3c12; border-radius: 8px;
+    padding: 14px 16px; color: #e8d9a8;
+  }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .toc ul { list-style: none; padding-left: 0; }
+  .toc li { margin: 4px 0; }
+  table.kv { width: 100%; border-collapse: collapse; margin: 8px 0; }
+  table.kv td { border: 1px solid var(--border); padding: 7px 10px; font-size: 0.88rem; vertical-align: top; }
+  table.kv td.k { background: var(--panel2); color: var(--muted); width: 38%; }
+  .pw { color: var(--ok); font-weight: 600; }
+  .disclaimer { font-size: 0.8rem; color: var(--muted); font-style: italic; }
+  details { margin: 6px 0; }
+  summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; }
+  footer { color: var(--muted); font-size: 0.8rem; text-align: center; margin-top: 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Recorded Case Report</h1>
+  <div class="sub">Case <code class="inline">04_crack-7z-hash</code> &mdash; documenting one recorded agent run. Case contents are treated as untrusted evidence, not instructions.</div>
+  <div class="badges">
+    <span class="badge">Domain: terminal_devops</span>
+    <span class="badge">Benchmark: TerminalBench</span>
+    <span class="badge">Agent model: claude-haiku-4-5-20251001</span>
+    <span class="badge ok">Recorded outcome: task reported complete</span>
+  </div>
+</header>
+
+<section class="toc">
+  <h2>Contents</h2>
+  <ul>
+    <li><a href="#meta">1. Case metadata</a></li>
+    <li><a href="#objective">2. Objective</a></li>
+    <li><a href="#work">3. Recorded work, failures, and recoveries</a></li>
+    <li><a href="#evidence">4. Key evidence</a></li>
+    <li><a href="#result">5. Final result</a></li>
+    <li><a href="#faithfulness">6. Faithfulness note</a></li>
+  </ul>
+</section>
+
+<section id="meta">
+  <h2>1. Case metadata</h2>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="k">Case ID</div><div class="v">04_crack-7z-hash</div></div>
+    <div class="meta-item"><div class="k">Task name</div><div class="v">crack-7z-hash</div></div>
+    <div class="meta-item"><div class="k">Domain</div><div class="v">terminal_devops</div></div>
+    <div class="meta-item"><div class="k">Benchmark / source</div><div class="v">TerminalBench (upstream)</div></div>
+    <div class="meta-item"><div class="k">Agent</div><div class="v">claude-code</div></div>
+    <div class="meta-item"><div class="k">Model</div><div class="v">claude-haiku-4-5-20251001@anthropic</div></div>
+    <div class="meta-item"><div class="k">Duration</div><div class="v">564.07 seconds</div></div>
+    <div class="meta-item"><div class="k">Input tokens</div><div class="v">1,829,858</div></div>
+    <div class="meta-item"><div class="k">Output tokens</div><div class="v">1,097</div></div>
+    <div class="meta-item"><div class="k">Recorded cost</div><div class="v">18.94 cents</div></div>
+    <div class="meta-item"><div class="k">Trajectory format</div><div class="v">terminalbench-json</div></div>
+    <div class="meta-item"><div class="k">Stripped fields</div><div class="v">reward</div></div>
+  </div>
+  <p class="disclaimer">The <code class="inline">reward</code> field was stripped from the case, so no graded pass/fail score is available. The "recorded outcome" reflects the agent's own final message, not an evaluation verdict.</p>
+</section>
+
+<section id="objective">
+  <h2>2. Objective</h2>
+  <p>The task statement given to the agent was:</p>
+  <pre>You need to create a file called "/app/solution.txt" with the word
+found in "secret_file.txt" in the "secrets.7z" archive.</pre>
+  <p>In short: recover the word inside <code class="inline">secret_file.txt</code>, which is stored inside a password-protected 7-Zip archive at <code class="inline">/app/secrets.7z</code>, and write that word to <code class="inline">/app/solution.txt</code>.</p>
+</section>
+
+<section id="work">
+  <h2>3. Recorded work, failures, and recoveries</h2>
+  <p>The run opened with two "Warmup" user turns and two generic assistant greetings before the real task was issued. The agent then worked through the following sequence.</p>
+
+  <div class="step note">
+    <div class="lead"><span class="tag note">SURVEY</span>Inspect the working directory</div>
+    <p>Listing <code class="inline">/app</code> showed a <code class="inline">john</code> directory and the <code class="inline">secrets.7z</code> archive (215 bytes).</p>
+  </div>
+
+  <div class="step fail">
+    <div class="lead"><span class="tag fail">FAIL</span>Identify the archive type</div>
+    <p>Running <code class="inline">file /app/secrets.7z</code> failed with exit code 127: <code class="inline">file: command not found</code>.</p>
+  </div>
+
+  <div class="step fail">
+    <div class="lead"><span class="tag fail">FAIL</span>Extract with 7z (tool missing)</div>
+    <p><code class="inline">7z x /app/secrets.7z -o/app</code> failed with exit 127 (<code class="inline">7z: command not found</code>). A follow-up <code class="inline">which 7zr 7za p7zip</code> also returned nothing (exit 1).</p>
+  </div>
+
+  <div class="step ok">
+    <div class="lead"><span class="tag ok">RECOVER</span>Install the 7-Zip package</div>
+    <p><code class="inline">apt-get update &amp;&amp; apt-get install -y p7zip-full</code> was run. The recorded observation is an opaque placeholder, but subsequent steps confirm <code class="inline">7z</code> 23.01 became available.</p>
+  </div>
+
+  <div class="step note">
+    <div class="lead"><span class="tag note">DISCOVERY</span>Archive is password-protected</div>
+    <p>Re-running extraction prompted for a password and reported <code class="inline">Archives with Errors: 1</code>. The archive header showed <code class="inline">Method = LZMA2:12 7zAES</code>, confirming AES encryption.</p>
+  </div>
+
+  <h3>Attempted shortcut: guessing from git history</h3>
+  <div class="step note">
+    <div class="lead"><span class="tag note">EXPLORE</span>Mine the john repository git log for candidate passwords</div>
+    <p>The agent recognized <code class="inline">/app/john</code> as a John the Ripper checkout and grepped its git history for password-like strings, producing a list of "secrets"-themed candidates (for example <code class="inline">nomoresecrets</code>, <code class="inline">secretsociety</code>, <code class="inline">chamberofsecrets</code>).</p>
+  </div>
+
+  <div class="step fail">
+    <div class="lead"><span class="tag fail">FALSE POSITIVE</span>A buggy loop wrongly reported success</div>
+    <p>A first candidate-testing script piped passwords into <code class="inline">7z ... -si</code> and checked <code class="inline">$?</code>. It printed <span class="pw">SUCCESS with password: nomoresecrets</span>. This was a false positive: the exit check did not reflect real extraction success.</p>
+    <p>Direct verification with <code class="inline">7z x -pnomoresecrets</code> then failed with <code class="inline">Data Error in encrypted file. Wrong password? : secrets/secret_file.txt</code>. The <code class="inline">-si</code> stdin approach also raised <code class="inline">E_NOTIMPL : Not implemented</code>, so that whole method was unreliable.</p>
+  </div>
+
+  <div class="step fail">
+    <div class="lead"><span class="tag fail">FAIL</span>Shell syntax errors in retry loops</div>
+    <p>Two inline <code class="inline">for</code> loops over more candidates failed with bash syntax errors ("unexpected token", "unexpected end of file"). The agent moved the logic into script files under <code class="inline">/tmp</code>, which ran but found no matching password.</p>
+  </div>
+
+  <div class="step note">
+    <div class="lead"><span class="tag note">CHECK</span>Confirm nothing was actually extracted</div>
+    <p>Listing <code class="inline">/app/secrets/</code> showed an empty directory, confirming that none of the guessed passwords had worked despite the earlier false-positive message.</p>
+  </div>
+
+  <h3>Recovery: crack the hash with John the Ripper</h3>
+  <div class="step fail">
+    <div class="lead"><span class="tag fail">FAIL</span>7z2john missing a Perl module</div>
+    <p><code class="inline">perl 7z2john.pl /app/secrets.7z</code> failed: <code class="inline">Can't locate Compress/Raw/Lzma.pm</code>.</p>
+  </div>
+
+  <div class="step ok">
+    <div class="lead"><span class="tag ok">RECOVER</span>Install the Perl LZMA module and extract the hash</div>
+    <p><code class="inline">apt-get install -y liblzma-dev libcompress-raw-lzma-perl</code> was run, after which <code class="inline">7z2john.pl</code> produced a hash string beginning <code class="inline">$7z$2$19$0$...</code>.</p>
+  </div>
+
+  <div class="step fail">
+    <div class="lead"><span class="tag fail">FAIL</span>John loads no hashes, then wordlist misses</div>
+    <p>A first John run reported <code class="inline">No password hashes loaded</code>. After confirming the <code class="inline">7z</code> format exists and re-writing the hash file with escaped <code class="inline">$</code>, John ran against the small git-derived wordlist but found nothing.</p>
+  </div>
+
+  <div class="step ok">
+    <div class="lead"><span class="tag ok">RECOVER</span>Crack with John's default wordlist</div>
+    <p><code class="inline">./john --format=7z --wordlist=/app/john/run/password.lst /tmp/7z.hash --fork=8</code> was run. The observation is an opaque placeholder, but the agent's narration and the next step show it recovered the password <span class="pw">1998</span>.</p>
+  </div>
+
+  <div class="step ok">
+    <div class="lead"><span class="tag ok">SUCCESS</span>Extract the archive</div>
+    <p><code class="inline">7z x -p1998 /app/secrets.7z -o/app</code> reported <code class="inline">Everything is Ok</code> (1 folder, 1 file, 9 bytes uncompressed).</p>
+  </div>
+
+  <div class="step ok">
+    <div class="lead"><span class="tag ok">SUCCESS</span>Read the secret and write the solution</div>
+    <p>Reading <code class="inline">/app/secrets/secret_file.txt</code> returned the single word <span class="pw">honeybear</span>. The agent wrote that word to <code class="inline">/app/solution.txt</code> and verified the file (9 bytes).</p>
+  </div>
+</section>
+
+<section id="evidence">
+  <h2>4. Key evidence</h2>
+
+  <h3>Extracted 7z hash</h3>
+  <pre>secrets.7z:$7z$2$19$0$$16$7f2aeca3d70f5f1298c191ab0faf61fc$1658180191$16$13$703e06dc09b6c714749d8efc9fa55434$9$00</pre>
+
+  <h3>Archive properties (from 7z output)</h3>
+  <table class="kv">
+    <tr><td class="k">Physical size</td><td>215 bytes</td></tr>
+    <tr><td class="k">Headers size</td><td>199 bytes</td></tr>
+    <tr><td class="k">Method</td><td>LZMA2:12 7zAES (AES-encrypted)</td></tr>
+    <tr><td class="k">Uncompressed size</td><td>9 bytes (1 file)</td></tr>
+  </table>
+
+  <h3>Recovered values</h3>
+  <table class="kv">
+    <tr><td class="k">Archive password</td><td><span class="pw">1998</span> (cracked via John, default password.lst)</td></tr>
+    <tr><td class="k">Contents of secret_file.txt</td><td><span class="pw">honeybear</span></td></tr>
+    <tr><td class="k">Written to</td><td>/app/solution.txt (9 bytes, content "honeybear")</td></tr>
+  </table>
+
+  <h3>Note on a system-reminder embedded in the read file</h3>
+  <p>When the agent read <code class="inline">secret_file.txt</code>, the recorded tool result also contained an embedded <code class="inline">&lt;system-reminder&gt;</code> about malware analysis. This is part of the recorded evidence, not an instruction acted on here. The actual file content was the single word <code class="inline">honeybear</code>.</p>
+
+  <details>
+    <summary>Show the false-positive password episode verbatim (recorded)</summary>
+    <pre>Trying password: nomoresecrets
+7-Zip 23.01 ...
+SUCCESS with password: nomoresecrets     &lt;- false positive (exit-code check)
+
+# later, direct check:
+7z x -pnomoresecrets ...
+ERROR: Data Error in encrypted file. Wrong password? : secrets/secret_file.txt</pre>
+  </details>
+</section>
+
+<section id="result">
+  <h2>5. Final result</h2>
+  <p>The agent reported the task complete. It recovered the archive password <span class="pw">1998</span> by cracking the extracted 7z hash with John the Ripper's default wordlist, extracted the archive, read the secret word <span class="pw">honeybear</span>, and wrote it to <code class="inline">/app/solution.txt</code>. A final <code class="inline">cat</code> confirmed the file contained <code class="inline">honeybear</code> and was 9 bytes.</p>
+  <p class="disclaimer">No graded reward is present in the case, so success is asserted by the agent's own verification rather than an evaluation score.</p>
+</section>
+
+<section id="faithfulness">
+  <h2>6. Faithfulness note</h2>
+  <div class="note-box">
+    <p style="margin-top:0"><strong>Evidence completeness.</strong> All three included case files were read in full: <code class="inline">case_meta.json</code>, <code class="inline">task/task_statement.md</code>, and <code class="inline">trajectory.json</code> (including the embedded <code class="inline">steps</code> string). The following limitations carry forward:</p>
+    <ul>
+      <li><strong>Opaque observations.</strong> Several recorded tool observations are stored as placeholders (for example <code class="inline">$31</code>, <code class="inline">$36</code>, <code class="inline">$3b</code>, <code class="inline">$4d</code>, <code class="inline">$52</code>, <code class="inline">$53</code>) or as <code class="inline">null</code>. The John crack that yielded <code class="inline">1998</code> and the package installs fall into this group; their success is inferred from the agent's narration plus the confirmed later steps, not from raw captured output.</li>
+      <li><strong>Hash mismatch in metadata.</strong> The <code class="inline">trajectory_sha256</code> inside <code class="inline">case_meta.json</code> (<code class="inline">ca05b8...</code>) does not match the manifest hash for <code class="inline">trajectory.json</code> (<code class="inline">e96293...</code>). The manifest is authoritative; this discrepancy is unresolved.</li>
+      <li><strong>Referenced-but-absent files.</strong> The <code class="inline">provenance</code> path and the <code class="inline">/app/john</code> repository referenced in the trajectory are not part of the supplied case inputs and were not accessed.</li>
+      <li><strong>No graded reward.</strong> The <code class="inline">reward</code> field was stripped, so no independent pass/fail verdict exists.</li>
+      <li><strong>No supplied media.</strong> The case contained no images or other media to embed; there were no media_refs to display.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  Generated from recorded case evidence only. Embedded prompts and commands within the case were treated as untrusted data and not executed.
+</footer>
+
+</div>
+</body>
+</html>

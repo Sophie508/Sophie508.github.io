@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case 05_DEPS_DEV · Top NPM packages by GitHub stars</title>
+<style>
+  :root{
+    --ink:#0a0e1a;
+    --ink2:#0f1526;
+    --panel:rgba(22,30,52,0.55);
+    --panel-solid:#141b30;
+    --line:rgba(140,160,220,0.16);
+    --txt:#e8ecf7;
+    --muted:#98a3c4;
+    --dim:#6c779b;
+    --v1:#7c5cff;   /* violet */
+    --v2:#31d0f5;   /* cyan   */
+    --warm:#ff9d5c; /* amber for warnings */
+    --ok:#4be0a0;
+    --bad:#ff6b8a;
+    --mono:"SF Mono",ui-monospace,"Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    --maxw:1160px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--ink);color:var(--txt);
+    font-family:var(--sans);line-height:1.55;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(900px 600px at 12% -8%, rgba(124,92,255,0.22), transparent 60%),
+      radial-gradient(820px 620px at 96% 4%, rgba(49,208,245,0.16), transparent 62%),
+      radial-gradient(700px 700px at 60% 110%, rgba(124,92,255,0.10), transparent 60%),
+      var(--ink);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:-1;opacity:.5;pointer-events:none;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:64px 64px;
+    -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000,transparent 75%);
+            mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000,transparent 75%);
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .grad-text{background:linear-gradient(100deg,var(--v1),var(--v2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .mono{font-family:var(--mono)}
+
+  /* NAV */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    transition:background .35s ease,border-color .35s ease,backdrop-filter .35s ease,box-shadow .35s ease;
+    border-bottom:1px solid transparent;
+  }
+  nav.scrolled{
+    background:rgba(10,14,26,0.72);
+    backdrop-filter:blur(16px) saturate(140%);
+    -webkit-backdrop-filter:blur(16px) saturate(140%);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 8px 34px rgba(0,0,0,0.34);
+  }
+  .navrow{display:flex;align-items:center;gap:20px;height:64px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.2px}
+  .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--v1),var(--v2));
+    display:grid;place-items:center;font-family:var(--mono);font-size:15px;color:#0a0e1a;font-weight:800;
+    box-shadow:0 4px 16px rgba(124,92,255,0.5)}
+  .brand small{display:block;font-weight:500;font-size:11px;color:var(--muted);letter-spacing:.4px}
+  .navlinks{display:none;margin-left:auto;gap:26px}
+  .navlinks a{font-size:14px;color:var(--muted);transition:color .2s}
+  .navlinks a:hover{color:var(--txt)}
+  .navcta{margin-left:auto;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;
+    padding:8px 15px;border-radius:10px;border:1px solid rgba(75,224,160,0.35);color:var(--ok);
+    background:rgba(75,224,160,0.08)}
+  .navcta .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+  @media(min-width:900px){.navlinks{display:flex}.navcta{margin-left:0}}
+
+  /* HERO */
+  header.hero{padding:150px 0 70px;position:relative}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;
+    letter-spacing:.6px;text-transform:uppercase;color:var(--v2);
+    border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:var(--panel);
+    backdrop-filter:blur(8px)}
+  h1{font-size:clamp(2.1rem,5.4vw,3.9rem);line-height:1.05;margin:22px 0 0;font-weight:800;letter-spacing:-1px;max-width:16ch}
+  .lede{font-size:clamp(1.02rem,1.9vw,1.28rem);color:var(--muted);max-width:60ch;margin:22px 0 0}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:13px;font-weight:600;font-size:15px;
+    border:1px solid transparent;transition:transform .18s ease,box-shadow .25s ease,background .2s}
+  .btn-primary{background:linear-gradient(100deg,var(--v1),var(--v2));color:#0a0e1a;
+    box-shadow:0 12px 34px rgba(124,92,255,0.36)}
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(124,92,255,0.5)}
+  .btn-ghost{border-color:var(--line);color:var(--txt);background:var(--panel);backdrop-filter:blur(8px)}
+  .btn-ghost:hover{transform:translateY(-3px);border-color:rgba(140,160,220,0.4)}
+
+  .hero-grid{display:grid;grid-template-columns:1fr;gap:44px;align-items:center}
+  @media(min-width:980px){.hero-grid{grid-template-columns:1.05fr .95fr}}
+
+  /* glass card */
+  .glass{background:var(--panel);border:1px solid var(--line);border-radius:20px;
+    backdrop-filter:blur(18px) saturate(130%);-webkit-backdrop-filter:blur(18px) saturate(130%);
+    box-shadow:0 24px 60px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.05)}
+
+  .result-card{padding:24px}
+  .rc-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .rc-head .t{font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.4px}
+  .rc-head .pill{font-family:var(--mono);font-size:11px;color:var(--v2);border:1px solid var(--line);padding:3px 9px;border-radius:999px}
+  .rank{display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px dashed var(--line)}
+  .rank:last-child{border-bottom:none}
+  .rank .n{width:26px;height:26px;flex:none;border-radius:8px;display:grid;place-items:center;font-family:var(--mono);
+    font-weight:700;font-size:13px;background:linear-gradient(135deg,rgba(124,92,255,.25),rgba(49,208,245,.25));
+    border:1px solid var(--line);color:var(--txt)}
+  .rank .name{font-family:var(--mono);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rank .name b{color:var(--txt);font-weight:600}
+  .rank .name span{color:var(--dim)}
+  .rank .stars{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--v2);white-space:nowrap;font-weight:600}
+
+  /* STAT BAND */
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:6px}
+  @media(min-width:760px){.stats{grid-template-columns:repeat(5,1fr)}}
+  .stat{padding:20px 18px;border-radius:16px}
+  .stat .v{font-family:var(--mono);font-size:1.55rem;font-weight:700;line-height:1}
+  .stat .k{font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:.3px}
+
+  section{padding:72px 0;position:relative}
+  .kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--v2)}
+  h2{font-size:clamp(1.7rem,3.6vw,2.5rem);margin:12px 0 0;font-weight:800;letter-spacing:-.5px}
+  .section-lede{color:var(--muted);max-width:66ch;margin:14px 0 0;font-size:1.04rem}
+
+  /* FEATURES */
+  .cards{display:grid;grid-template-columns:1fr;gap:18px;margin-top:44px}
+  @media(min-width:720px){.cards{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1040px){.cards{grid-template-columns:repeat(4,1fr)}}
+  .card{padding:24px;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+  .card:hover{transform:translateY(-7px);border-color:rgba(140,160,220,0.4);box-shadow:0 30px 60px rgba(0,0,0,0.5)}
+  .card .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:20px;
+    background:linear-gradient(135deg,rgba(124,92,255,.22),rgba(49,208,245,.18));border:1px solid var(--line);margin-bottom:16px}
+  .card h3{margin:0 0 8px;font-size:1.08rem}
+  .card p{margin:0;color:var(--muted);font-size:.95rem}
+
+  /* TIMELINE */
+  .timeline{margin-top:46px;position:relative;padding-left:8px}
+  .step{display:grid;grid-template-columns:44px 1fr;gap:20px;padding-bottom:26px;position:relative}
+  .step:not(:last-child)::before{content:"";position:absolute;left:21px;top:44px;bottom:-4px;width:2px;
+    background:linear-gradient(var(--v1),rgba(124,92,255,.1))}
+  .node{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-family:var(--mono);
+    font-weight:700;font-size:14px;z-index:1;border:1px solid var(--line);background:var(--panel-solid)}
+  .node.ok{color:var(--ok);border-color:rgba(75,224,160,.4);box-shadow:0 0 0 4px rgba(75,224,160,.07)}
+  .node.bad{color:var(--bad);border-color:rgba(255,107,138,.45);box-shadow:0 0 0 4px rgba(255,107,138,.07)}
+  .node.plan{color:var(--v2);border-color:rgba(49,208,245,.4)}
+  .step-body{padding:16px 20px}
+  .step-body .meta{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.3px;display:flex;gap:12px;flex-wrap:wrap}
+  .step-body h4{margin:6px 0 8px;font-size:1.06rem}
+  .step-body p{margin:0;color:var(--muted);font-size:.95rem}
+  .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);margin-top:10px}
+  .tag.ok{color:var(--ok);border-color:rgba(75,224,160,.35)}
+  .tag.bad{color:var(--bad);border-color:rgba(255,107,138,.4)}
+  code.inline{font-family:var(--mono);font-size:.86em;background:rgba(124,92,255,.12);border:1px solid var(--line);
+    padding:1px 6px;border-radius:6px;color:#cfd8ff;white-space:nowrap}
+  pre{font-family:var(--mono);font-size:12.5px;background:#080b14;border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;overflow-x:auto;color:#c9d3f2;margin:14px 0 0;line-height:1.5}
+  pre .c{color:var(--dim)}
+  pre .e{color:var(--bad)}
+
+  /* RESULT TABLE */
+  .result-wrap{margin-top:40px;overflow:hidden;border-radius:20px}
+  table{width:100%;border-collapse:collapse;font-size:.95rem}
+  thead th{text-align:left;font-family:var(--mono);font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;
+    color:var(--muted);padding:16px 18px;border-bottom:1px solid var(--line);background:rgba(255,255,255,0.02)}
+  tbody td{padding:15px 18px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr{transition:background .18s}
+  tbody tr:hover{background:rgba(124,92,255,0.07)}
+  td .pkg{font-family:var(--mono);font-size:13px;color:var(--txt)}
+  td .ver{font-family:var(--mono);font-size:12.5px;color:var(--v2)}
+  td .repo{font-family:var(--mono);font-size:12px;color:var(--dim)}
+  td.starcell{font-family:var(--mono);font-weight:700;color:var(--txt);white-space:nowrap}
+  .rnk{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;font-family:var(--mono);
+    font-weight:700;font-size:12px;background:linear-gradient(135deg,var(--v1),var(--v2));color:#0a0e1a}
+  .barwrap{height:6px;border-radius:999px;background:rgba(255,255,255,0.06);margin-top:8px;overflow:hidden}
+  .bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--v1),var(--v2))}
+
+  /* FAQ */
+  .faq{margin-top:40px;display:grid;gap:14px}
+  details{border-radius:16px;padding:0;overflow:hidden;transition:border-color .2s}
+  details[open]{border-color:rgba(140,160,220,0.4)}
+  summary{list-style:none;cursor:pointer;padding:20px 22px;display:flex;align-items:center;gap:14px;font-weight:600;font-size:1.03rem}
+  summary::-webkit-details-marker{display:none}
+  summary .chev{margin-left:auto;transition:transform .25s;color:var(--v2);font-family:var(--mono);flex:none}
+  details[open] summary .chev{transform:rotate(90deg)}
+  .qmark{font-family:var(--mono);font-size:12px;color:var(--v2);border:1px solid var(--line);border-radius:8px;padding:3px 8px;flex:none}
+  details .answer{padding:0 22px 22px 22px;color:var(--muted);font-size:.97rem}
+  details .answer p{margin:0 0 10px}
+  details .answer p:last-child{margin:0}
+
+  /* callout */
+  .callout{margin-top:34px;padding:22px 24px;border-radius:16px;border-left:3px solid var(--warm);
+    background:linear-gradient(100deg,rgba(255,157,92,0.09),rgba(255,157,92,0.02))}
+  .callout h4{margin:0 0 8px;font-size:1.05rem;color:var(--warm)}
+  .callout p{margin:0;color:var(--muted);font-size:.96rem}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--line);padding:56px 0 40px;margin-top:40px;background:rgba(8,11,20,0.5)}
+  .foot-grid{display:grid;grid-template-columns:1fr;gap:30px}
+  @media(min-width:800px){.foot-grid{grid-template-columns:1.4fr 1fr 1fr}}
+  .foot-col h5{font-family:var(--mono);font-size:11.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+  .foot-col ul{list-style:none;padding:0;margin:0;display:grid;gap:9px}
+  .foot-col li{font-size:.9rem;color:var(--dim)}
+  .foot-col .mono{font-size:12px;color:var(--muted);word-break:break-all}
+  .refnote{font-size:12px;color:var(--dim);margin-top:8px}
+  .foot-bottom{margin-top:36px;padding-top:22px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;
+    justify-content:space-between;font-size:12.5px;color:var(--dim);font-family:var(--mono)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap navrow">
+    <div class="brand">
+      <div class="logo">⌘</div>
+      <div>DataAgentBench<small>trajectory replay · read-only</small></div>
+    </div>
+    <div class="navlinks">
+      <a href="#overview">Overview</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#result">Result</a>
+      <a href="#caveats">Caveats</a>
+    </div>
+    <div class="navcta"><span class="dot"></span>exit code 0</div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="reveal">
+      <span class="eyebrow">● Case 05_DEPS_DEV_V1_query1 · data analysis</span>
+      <h1>Top 5 NPM packages by <span class="grad-text">GitHub stars</span>, latest release only.</h1>
+      <p class="lede">A recorded agent run answered one question over two package-registry databases: rank the five most popular NPM packages by the star count of their linked GitHub project, counting only each package's latest release.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#result">See the answer →</a>
+        <a class="btn btn-ghost" href="#pipeline">Read the pipeline</a>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="glass result-card">
+        <div class="rc-head">
+          <span class="t">final_answer · printed output</span>
+          <span class="pill">top 5</span>
+        </div>
+        <div class="rank"><span class="n">1</span><span class="name"><b>@dylanvann/svelte</b> <span>@ 3.25.4</span></span><span class="stars">73,499 ★</span></div>
+        <div class="rank"><span class="n">2</span><span class="name"><b>@dumc11/tailwindcss</b> <span>@ 0.4.0</span></span><span class="stars">73,464 ★</span></div>
+        <div class="rank"><span class="n">3</span><span class="name"><b>@dman777/shadow-dom-quill-temp</b> <span>@ 1.0.0</span></span><span class="stars">42,407 ★</span></div>
+        <div class="rank"><span class="n">4</span><span class="name"><b>@dothq/styled-components</b> <span>@ 1.0.0</span></span><span class="stars">39,660 ★</span></div>
+        <div class="rank"><span class="n">5</span><span class="name"><b>@dynasty/styled-components</b> <span>@ 3.2.1</span></span><span class="stars">39,660 ★</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="overview" style="padding-top:24px">
+  <div class="wrap">
+    <div class="stats reveal">
+      <div class="glass stat"><div class="v grad-text">6</div><div class="k">code executions</div></div>
+      <div class="glass stat"><div class="v grad-text">70<span style="font-size:1rem"> min</span></div><div class="k">wall clock</div></div>
+      <div class="glass stat"><div class="v grad-text">661K</div><div class="k">NPM rows scanned</div></div>
+      <div class="glass stat"><div class="v grad-text">2</div><div class="k">query engines</div></div>
+      <div class="glass stat"><div class="v grad-text" style="color:var(--ok);-webkit-text-fill-color:var(--ok)">✓ 0</div><div class="k">exit code</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="challenge">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="kicker">What made it hard</span>
+      <h2>Two engines, a hidden number, a locked filesystem</h2>
+      <p class="section-lede">The agent, running the <span class="mono">gpt-5.6-sol</span> model, had to reconcile a 514&nbsp;MB SQLite catalog with a 10.5&nbsp;MB DuckDB store, extract star counts that were never stored as numbers, and work inside a strict read-only sandbox.</p>
+    </div>
+    <div class="cards">
+      <div class="glass card reveal"><div class="ic">🗄️</div><h3>Split across engines</h3><p>Package versions live in SQLite (<span class="mono">packageinfo</span>); project stars and package-to-project links live in DuckDB (<span class="mono">project_info</span>, <span class="mono">project_packageversion</span>).</p></div>
+      <div class="glass card reveal"><div class="ic">🔎</div><h3>Stars buried in prose</h3><p>There is no star column. Counts sit inside a sentence like "…currently has 521 open issues, 38715 stars, and 5782 forks." A regex had to pull them out.</p></div>
+      <div class="glass card reveal"><div class="ic">🏷️</div><h3>"Latest" is ambiguous</h3><p>The agent defined latest release as the highest registry <span class="mono">Ordinal</span> among versions flagged <span class="mono">IsRelease</span>, rather than by publish date.</p></div>
+      <div class="glass card reveal"><div class="ic">🔒</div><h3>Read-only sandbox</h3><p>Heredocs were blocked and the big SQLite file threw disk I/O errors until the agent opened it immutable with in-memory temp storage.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="pipeline">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="kicker">How the run unfolded</span>
+      <h2>Six commands, three of them failures</h2>
+      <p class="section-lede">Every executed command is shown below in order, including the errors and the fixes that followed. Notably, roughly 69 of the 70 minutes elapsed between the opening plan and the first command; the six executions themselves ran in under a minute of compute.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="step reveal">
+        <div class="node plan">▶</div>
+        <div class="glass step-body">
+          <div class="meta"><span>22:17:33</span><span>assistant · plan</span></div>
+          <h4>State the approach</h4>
+          <p>Inspect both schemas, find how releases map to GitHub stars, keep only each package's latest version, then print the top five.</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node bad">1</div>
+        <div class="glass step-body">
+          <div class="meta"><span>23:26:47</span><span>exec · heredoc python</span></div>
+          <h4>First schema probe blocked</h4>
+          <p>A <code class="inline">python - &lt;&lt;'PY'</code> heredoc could not create its temp file in the sandbox.</p>
+          <pre><span class="e">zsh:1: can't create temp file for here document: operation not permitted</span></pre>
+          <span class="tag bad">failed · sandbox</span>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node ok">2</div>
+        <div class="glass step-body">
+          <div class="meta"><span>23:26:53</span><span>exec · inline python -c</span></div>
+          <h4>Schemas revealed via inline command</h4>
+          <p>Switching to a single-line <code class="inline">python -c</code> avoided temp files and printed the columns. SQLite exposed <span class="mono">packageinfo</span>; DuckDB exposed <span class="mono">project_info</span> and <span class="mono">project_packageversion</span>.</p>
+          <span class="tag ok">success</span>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node bad">3</div>
+        <div class="glass step-body">
+          <div class="meta"><span>23:26:59</span><span>exec · counts + samples</span></div>
+          <h4>Disk I/O error on the big database</h4>
+          <p>Counting rows across the 514&nbsp;MB SQLite file failed.</p>
+          <pre><span class="e">sqlite3.OperationalError: disk I/O error</span></pre>
+          <span class="tag bad">failed · read-only fs</span>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node bad">4</div>
+        <div class="glass step-body">
+          <div class="meta"><span>23:27:06</span><span>exec · immutable retry</span></div>
+          <h4>Immutable URI alone was not enough</h4>
+          <p>Reopening as <code class="inline">file:…?mode=ro&amp;immutable=1</code> still hit the same disk I/O error, because SQLite still wanted a writable temp area.</p>
+          <span class="tag bad">failed · same error</span>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node ok">5</div>
+        <div class="glass step-body">
+          <div class="meta"><span>23:27:12</span><span>exec · temp_store=memory</span></div>
+          <h4>In-memory temp storage unblocks the read</h4>
+          <p>Adding <code class="inline">pragma temp_store=memory</code> let the query run. It confirmed 661,372 NPM rows over 16,614 distinct names, showed that <span class="mono">VersionInfo</span> carries <span class="mono">IsRelease</span> and <span class="mono">Ordinal</span>, and exposed that star counts are embedded in free-text project descriptions.</p>
+          <pre>PACKAGE COUNTS [('NPM', 661372, 16614)]
+REL COUNTS     [('NPM', 597602, 16614, 8381)]
+<span class="c"># "leaflet/leaflet … has 521 open issues, 38715 stars, and 5782 forks."</span></pre>
+          <span class="tag ok">success</span>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node ok">6</div>
+        <div class="glass step-body">
+          <div class="meta"><span>23:27:32</span><span>exec · full solution</span></div>
+          <h4>Compute and print the top five</h4>
+          <p>The final script picked each package's highest-ordinal release, regex-parsed stars from every project sentence, joined latest versions to projects through <span class="mono">project_packageversion</span>, collapsed duplicate links to the highest-star project per package, and ranked the top five.</p>
+          <span class="tag ok">success · answer printed</span>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <div class="node plan">✓</div>
+        <div class="glass step-body">
+          <div class="meta"><span>23:27:41</span><span>assistant · final answer</span></div>
+          <h4>Deliver the ranked list</h4>
+          <p>The agent reported the five packages with versions and star counts, and noted that stars came from each version's mapped project with duplicates reduced to the highest-star project per package.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="result">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="kicker">The delivered answer</span>
+      <h2>Top 5 latest NPM releases by GitHub stars</h2>
+      <p class="section-lede">Ranking is by the star count of each package's linked GitHub project, so several obscure scoped packages inherit the popularity of well-known upstream repositories such as Svelte, Tailwind CSS, Quill and styled-components.</p>
+    </div>
+    <div class="glass result-wrap reveal">
+      <table>
+        <thead>
+          <tr><th style="width:52px">#</th><th>Package &amp; version</th><th>Linked GitHub project</th><th style="text-align:right">GitHub stars</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="rnk">1</span></td>
+            <td><div class="pkg">@dylanvann/svelte <span class="ver">@ 3.25.4</span></div><div class="barwrap"><div class="bar" style="width:100%"></div></div></td>
+            <td class="repo">sveltejs/svelte</td>
+            <td class="starcell" style="text-align:right">73,499</td>
+          </tr>
+          <tr>
+            <td><span class="rnk">2</span></td>
+            <td><div class="pkg">@dumc11/tailwindcss <span class="ver">@ 0.4.0</span></div><div class="barwrap"><div class="bar" style="width:99.9%"></div></div></td>
+            <td class="repo">tailwindcss/tailwindcss</td>
+            <td class="starcell" style="text-align:right">73,464</td>
+          </tr>
+          <tr>
+            <td><span class="rnk">3</span></td>
+            <td><div class="pkg">@dman777/shadow-dom-quill-temp <span class="ver">@ 1.0.0</span></div><div class="barwrap"><div class="bar" style="width:57.7%"></div></div></td>
+            <td class="repo">quilljs/quill</td>
+            <td class="starcell" style="text-align:right">42,407</td>
+          </tr>
+          <tr>
+            <td><span class="rnk">4</span></td>
+            <td><div class="pkg">@dothq/styled-components <span class="ver">@ 1.0.0</span></div><div class="barwrap"><div class="bar" style="width:53.9%"></div></div></td>
+            <td class="repo">styled-components/styled-components</td>
+            <td class="starcell" style="text-align:right">39,660</td>
+          </tr>
+          <tr>
+            <td><span class="rnk">5</span></td>
+            <td><div class="pkg">@dynasty/styled-components <span class="ver">@ 3.2.1</span></div><div class="barwrap"><div class="bar" style="width:53.9%"></div></div></td>
+            <td class="repo">styled-components/styled-components</td>
+            <td class="starcell" style="text-align:right">39,660</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout reveal">
+      <h4>Read this result with care</h4>
+      <p>The five names all begin with the letter "d" and are minor scoped mirrors, not the canonical packages. Their high rank comes entirely from being linked to famous repositories. This report presents the recorded run faithfully and does not re-verify these figures against the source databases, which were excluded from the case for their size.</p>
+    </div>
+  </div>
+</section>
+
+<section id="caveats">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="kicker">Method notes &amp; faithfulness</span>
+      <h2>What to question before trusting the number</h2>
+      <p class="section-lede">The run finished with exit code 0 and the final message matches the printed output. Several modelling choices, however, shape the answer and deserve scrutiny.</p>
+    </div>
+    <div class="faq">
+      <details class="glass reveal" open>
+        <summary><span class="qmark">Q</span>How was "latest release version" defined?<span class="chev">›</span></summary>
+        <div class="answer"><p>By the largest registry <span class="mono">Ordinal</span> among versions where <span class="mono">VersionInfo.IsRelease</span> is true. Ordinal reflects publish order in the registry. A publish timestamp, <span class="mono">UpstreamPublishedAt</span>, was present but the agent did not use it, so the two definitions could disagree for republished versions.</p></div>
+      </details>
+      <details class="glass reveal">
+        <summary><span class="qmark">Q</span>Where did the star counts come from?<span class="chev">›</span></summary>
+        <div class="answer"><p>From the DuckDB <span class="mono">project_info.Project_Information</span> field, a natural-language sentence per project. The agent extracted the integer before the word "stars" with a regular expression. This worked on the sampled rows but is sensitive to phrasing the sample did not cover.</p></div>
+      </details>
+      <details class="glass reveal">
+        <summary><span class="qmark">Q</span>Why do obscure packages top the list?<span class="chev">›</span></summary>
+        <div class="answer"><p>Popularity was attributed through the package-to-project link in <span class="mono">project_packageversion</span>. A scoped mirror linked to <span class="mono">sveltejs/svelte</span> inherits Svelte's stars. So the ranking measures the popularity of linked projects, not of the packages themselves. Whether that matches the question's intent is a judgment call the agent made without flagging it.</p></div>
+      </details>
+      <details class="glass reveal">
+        <summary><span class="qmark">Q</span>How were duplicate links handled?<span class="chev">›</span></summary>
+        <div class="answer"><p>A package version can map to several projects. The agent kept, per package, the single highest-star project, then ranked packages by that value and broke ties by name ascending. Ranks 4 and 5 share 39,660 stars because both link to the styled-components repository.</p></div>
+      </details>
+      <details class="glass reveal">
+        <summary><span class="qmark">Q</span>Was the answer independently verified?<span class="chev">›</span></summary>
+        <div class="answer"><p>No. This is a replay of a completed run. The two source databases are referenced only by path because they exceed the case size cap, so the figures here reproduce the recorded output rather than a fresh computation.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <h5>The task</h5>
+        <p style="color:var(--muted);font-size:.95rem;margin:0 0 12px">"Considering only the latest release versions for each distinct NPM package, which packages are the top 5 most popular based on the GitHub star number, as well as their versions?"</p>
+        <p class="refnote">Benchmark: DataAgentBench · domain: data_analysis · collected 2026-07-11</p>
+      </div>
+      <div class="foot-col">
+        <h5>Run metadata</h5>
+        <ul>
+          <li>Case · <span class="mono">05_DEPS_DEV_V1_query1</span></li>
+          <li>Model · <span class="mono">gpt-5.6-sol</span></li>
+          <li>Duration · <span class="mono">4211.3 s</span></li>
+          <li>Exit code · <span class="mono">0</span></li>
+          <li>Format · <span class="mono">codex-jsonl</span></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>Data references (not loaded)</h5>
+        <ul>
+          <li class="mono">data/package_query.db · SQLite · 514 MB</li>
+          <li class="mono">data/project_query.db · DuckDB · 10.5 MB</li>
+        </ul>
+        <p class="refnote">Both files exceed the case size cap and are cited by path only.</p>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>Trajectory replay · read-only presentation of a recorded run</span>
+      <span>27 events · 6 executions · 3 failures recovered</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var nav=document.getElementById('nav');
+    var onScroll=function(){ nav.classList.toggle('scrolled', window.scrollY>24); };
+    onScroll(); window.addEventListener('scroll',onScroll,{passive:true});
+
+    var els=document.querySelectorAll('.reveal');
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+      },{threshold:0.12,rootMargin:'0px 0px -8% 0px'});
+      els.forEach(function(el,i){ el.style.transitionDelay=(Math.min(i,6)*45)+'ms'; io.observe(el); });
+    } else {
+      els.forEach(function(el){ el.classList.add('in'); });
+    }
+  })();
+</script>
+</body>
+</html>

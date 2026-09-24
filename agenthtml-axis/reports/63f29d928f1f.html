@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case Report — 04_024 SpotHero Parking Reservation</title>
+<style>
+  :root{
+    --bg:#0f1420; --panel:#161d2c; --panel2:#1d2637; --border:#2b3750;
+    --text:#e8edf6; --muted:#9aa8c0; --accent:#5aa9ff; --ok:#3ddc97;
+    --warn:#ffb454; --bad:#ff6b6b; --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0b101a,#0f1420 240px);color:var(--text);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       line-height:1.55;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 22px 80px}
+  header.top{border-bottom:1px solid var(--border);padding-bottom:18px;margin-bottom:26px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  h1{font-size:25px;margin:6px 0 8px;line-height:1.25}
+  .sub{color:var(--muted);font-size:13.5px}
+  .badges{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .badge{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);
+         background:var(--panel);color:var(--muted);white-space:nowrap}
+  .badge.fail{color:#ffd7d7;border-color:#5e2b2b;background:#3a1e1e}
+  .badge.ok{color:#c9ffe6;border-color:#1f5c43;background:#12332a}
+  h2{font-size:17px;margin:34px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+  h3{font-size:14px;margin:20px 0 8px;color:var(--text)}
+  p{margin:9px 0}
+  a{color:var(--accent)}
+  .grid{display:grid;gap:12px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+  .card h4{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .stat{font-size:24px;font-weight:700;color:var(--accent)}
+  .stat small{display:block;font-size:12px;font-weight:400;color:var(--muted);margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  tr:last-child td{border-bottom:none}
+  code,.mono{font-family:var(--mono);font-size:12.5px;background:#0c1220;border:1px solid var(--border);
+        border-radius:5px;padding:1px 5px;color:#cfe3ff;word-break:break-all}
+  pre{background:#0b1120;border:1px solid var(--border);border-radius:9px;padding:13px 15px;overflow:auto;
+      font-family:var(--mono);font-size:12.5px;color:#cfe3ff;margin:10px 0}
+  .quote{border-left:3px solid var(--accent);background:var(--panel2);padding:9px 14px;border-radius:0 8px 8px 0;
+         color:#d7e2f5;margin:10px 0;font-size:13.5px}
+  .callout{border-radius:9px;padding:12px 15px;margin:12px 0;font-size:13.5px;border:1px solid}
+  .callout.bad{background:#2a1616;border-color:#5e2b2b;color:#ffd9d9}
+  .callout.warn{background:#2b2313;border-color:#5e4a1f;color:#ffe6bd}
+  .callout.info{background:#132133;border-color:#264a6e;color:#d3e7ff}
+  .timeline{position:relative;margin:10px 0 0;padding-left:26px}
+  .timeline::before{content:"";position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:var(--border)}
+  .step{position:relative;margin-bottom:14px}
+  .step::before{content:"";position:absolute;left:-23px;top:5px;width:11px;height:11px;border-radius:50%;
+                background:var(--accent);border:2px solid var(--bg)}
+  .step.bad::before{background:var(--bad)}
+  .step.warn::before{background:var(--warn)}
+  .step.ok::before{background:var(--ok)}
+  .step .t{font-size:12px;color:var(--muted);font-family:var(--mono)}
+  .step .h{font-weight:600;margin:1px 0 3px}
+  .step .d{color:var(--muted);font-size:13px}
+  details{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:10px 14px;margin:9px 0}
+  summary{cursor:pointer;font-weight:600;font-size:13.5px}
+  details[open] summary{margin-bottom:8px}
+  ul{margin:8px 0;padding-left:20px}
+  li{margin:4px 0}
+  .muted{color:var(--muted)}
+  .nowrap{white-space:nowrap}
+  .pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;margin-right:5px}
+  .pill.err{background:#3a1e1e;color:#ffc9c9;border:1px solid #5e2b2b}
+  .pill.ok{background:#12332a;color:#c9ffe6;border:1px solid #1f5c43}
+  .pill.neu{background:#20293c;color:#b9c6de;border:1px solid var(--border)}
+  footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--border);color:var(--muted);font-size:12.5px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">ClawBench · daily_web_tasks · transportation</div>
+  <h1>SpotHero parking reservation — “tomorrow 9am–5pm, downtown Toronto”</h1>
+  <div class="sub">
+    Case <span class="mono">04_024-daily-life-transportation-spothero-claude-opus-4-6-20260327-145954</span><br>
+    Model <strong>claude-opus-4-6</strong> · thinking level <em>medium</em> · trajectory format <span class="mono">clawbench-dir</span>
+  </div>
+  <div class="badges">
+    <span class="badge fail">Outcome: FAIL</span>
+    <span class="badge">stop_reason: time_limit_exceeded</span>
+    <span class="badge fail">Eval interceptor never triggered</span>
+    <span class="badge">duration 1828 s (~30.5 min)</span>
+    <span class="badge">103 tool calls</span>
+  </div>
+</header>
+
+<h2>1. Task</h2>
+<div class="card">
+  <div class="quote">“Reserve a parking spot on SpotHero for tomorrow 9am–5pm in downtown Toronto”</div>
+  <p class="muted" style="margin-bottom:0">Run date <strong>2026-03-27</strong>, so “tomorrow” = <strong>2026-03-28</strong>. The user turn added a hard constraint: the entire task must be carried out
+  <em>through the browser</em> — no command-line tools, scripts, or direct API calls — and the agent was told to proceed autonomously without asking for confirmation.</p>
+</div>
+
+<h2>2. Environment &amp; grading contract</h2>
+<div class="grid g3">
+  <div class="card"><h4>Disposable email</h4><div class="mono">cb01709d163de2@clawbench.cc</div></div>
+  <div class="card"><h4>Site</h4><div>spothero.com</div></div>
+  <div class="card"><h4>Time limit</h4><div>30 minutes</div></div>
+  <div class="card"><h4>Wall duration</h4><div>1828 s</div></div>
+  <div class="card"><h4>Transcript span</h4><div class="mono">15:00:14 → 15:12:12 Z</div></div>
+  <div class="card"><h4>Provider</h4><div>anthropic</div></div>
+</div>
+
+<p>The evaluator watches for one specific network call (<span class="mono">data/interception.json</span>). Success required the agent to issue:</p>
+<pre>POST https://spothero.com/api/v1/checkout
+body: {
+  items: [ { item_type: "rental",
+             item_context: { starts: "...T09:00:00", ends: "...T17:00:00" } } ],
+  email: "cb01709d163de2@clawbench.cc"
+}</pre>
+<p class="muted">The regex anchors on <span class="mono">starts …T09:00:00</span> and <span class="mono">ends …T17:00:00</span>, so the checkout payload had to carry the exact 9&nbsp;AM–5&nbsp;PM window and the assigned email.</p>
+
+<h2>3. What the run actually did</h2>
+
+<div class="grid g2">
+  <div class="card"><h4>Tool calls by type</h4>
+    <div class="stat">103<small>101 × <span class="mono">browser</span>, 2 × <span class="mono">exec</span></small></div>
+  </div>
+  <div class="card"><h4>Failed tool results</h4>
+    <div class="stat" style="color:var(--bad)">16<small>Stripe iframe timeouts, stale refs, gateway timeout</small></div>
+  </div>
+  <div class="card"><h4>External content wrappers</h4>
+    <div class="stat" style="color:var(--warn)">18<small>page text wrapped in untrusted-content notice</small></div>
+  </div>
+  <div class="card"><h4>Checkout POSTs observed</h4>
+    <div class="stat" style="color:var(--bad)">0<small>no <span class="mono">/api/v1/checkout</span> in 523 recorded requests</small></div>
+  </div>
+</div>
+
+<div class="legend">
+  <span><span class="dot" style="background:var(--ok)"></span>progress</span>
+  <span><span class="dot" style="background:var(--warn)"></span>obstacle / detour</span>
+  <span><span class="dot" style="background:var(--bad)"></span>failure</span>
+</div>
+
+<div class="timeline">
+  <div class="step ok">
+    <div class="t">15:00:14 – 15:00:28 · msgs 4–10</div>
+    <div class="h">Reconnaissance</div>
+    <div class="d">Ran <span class="mono">ls /my-info/</span> and read <span class="mono">alex_green_personal_info.json</span> (name Alex Green, email, card), then opened <span class="mono">https://spothero.com</span>. This is the only non-browser tool use in the whole run (2 <span class="mono">exec</span> calls); every subsequent action went through the browser.</div>
+  </div>
+  <div class="step ok">
+    <div class="t">15:00 – 15:04 · msgs 11–46</div>
+    <div class="h">Search setup: location + date + times</div>
+    <div class="d">Typed “Downtown Toronto”, picked the autocomplete entry “Downtown, Old Toronto, Toronto, ON, Canada”, opened the date/time dialog and selected <strong>Mar 28</strong>. Selecting the 9&nbsp;AM / 5&nbsp;PM comboboxes initially failed twice on stale element refs (<span class="mono">e93</span>, <span class="mono">e112</span>), but an aria-ref snapshot recovered, and start/end were set to 9:00 AM and 5:00 PM before search.</div>
+  </div>
+  <div class="step ok">
+    <div class="t">~15:05 · msgs 47–52</div>
+    <div class="h">Search results &amp; lot choice</div>
+    <div class="d">Clicked “Book Now” on the first result, <strong>63 Centre Ave. – Lot</strong>, landing on
+      <span class="mono">spothero.com/search?...ends=2026-03-28T17%3A00&amp;starts=2026-03-28T09%3A00</span>.</div>
+  </div>
+  <div class="step warn">
+    <div class="t">~15:05 – 15:06 · msgs 53–77</div>
+    <div class="h">End-time drift: 5 PM silently became 6 PM</div>
+    <div class="d">The checkout page displayed the reservation as <strong>9:00 AM → 6:00 PM</strong> even though the URL/search carried 17:00. The agent tried to reselect “5:00 PM” in the Reservation Period dialog; the URL briefly updated to <span class="mono">ends=17:00:00</span> but the UI reverted to 6:00 PM. The agent concluded it was the lot’s minimum rate block and proceeded anyway — a reasonable but <strong>directly relevant</strong> deviation, since the grader’s schema requires <span class="mono">T17:00:00</span>.</div>
+  </div>
+  <div class="step warn">
+    <div class="t">~15:06 – 15:08 · msgs 78–118</div>
+    <div class="h">Contact fields would not persist</div>
+    <div class="d">Email/phone fills and clicks repeatedly reported success, yet screenshots showed the fields empty. The agent switched to a JS React-state fill via <span class="mono">#email</span>/<span class="mono">#phone</span> and verified values with <span class="mono">evaluate</span> before continuing. It also hit <span class="mono">"fields are required"</span> once, and invented a placeholder phone number <span class="mono">(416) 555-1234</span> because none existed in the profile.</div>
+  </div>
+  <div class="step bad">
+    <div class="t">~15:08 – 15:10 · msgs 119–194</div>
+    <div class="h">Stripe card entry inside a cross-origin iframe</div>
+    <div class="d">Card fields live in a Stripe <span class="mono">Secure card payment input frame</span>. Selector- and frame-based clicks timed out repeatedly (8 s each), <span class="mono">input</span> selectors matched 8 elements, and two snapshots hard-failed with <em>“timed out. Restart the OpenClaw gateway … Do NOT retry the browser tool.”</em> The agent recovered by re-snapshotting with aria refs (<span class="mono">f105e*</span>) and typing into the iframe refs directly. Card details eventually registered: <span class="mono">4519 8734 2460 4532</span>, exp <span class="mono">09/28</span>, CVC <span class="mono">847</span>, name “Alex Green”.</div>
+  </div>
+  <div class="step bad">
+    <div class="t">~15:11 – 15:12 · msgs 195–209</div>
+    <div class="h">“Pay and Reserve” → payment declined</div>
+    <div class="d">A screenshot confirmed “VISA •••• 4532” was accepted and the review page showed the total (CA$9.49). Clicking <em>Pay and Reserve</em> then produced:
+      <span class="mono">“Unable to process payment. Please try again or select another payment method.”</span>
+      The agent recognised the test card cannot be charged and ended its turn. No checkout request reached SpotHero’s API, so the interceptor never fired.</div>
+  </div>
+</div>
+
+<h2>4. Verbatim turning points</h2>
+<details open>
+  <summary>End-time mismatch (assistant reasoning, msgs 71 / 77)</summary>
+  <div class="quote">“It still shows 6:00 PM. This might be the lot's minimum rate block — 9 AM to 6 PM. The URL still has <span class="mono">ends=18:00:00</span>. This is likely how the lot pricing works. Let me proceed with the booking.”</div>
+  <div class="quote">“The page still shows 6:00 PM for the reservation end — this seems to be the lot's rate block (9 AM to 6 PM is their pricing tier).”</div>
+</details>
+<details>
+  <summary>Stripe iframe trouble (tool errors)</summary>
+  <pre>TimeoutError: locator.click: Timeout 8000ms exceeded.
+  - waiting for locator('iframe[title="Secure card payment input frame"]')
+TimeoutError: locator.click: Timeout 8000ms exceeded.
+  - waiting for locator('[name="cardnumber"]')
+Error: Selector "input" matched 8 elements. Run a new snapshot to get updated refs...
+Error: refs=aria does not support selector/frame snapshots yet.
+{ "status": "error", "tool": "browser",
+  "error": "timed out. Restart the OpenClaw gateway ... Do NOT retry the browser tool" }</pre>
+</details>
+<details>
+  <summary>Final assistant message (msg 209, abridged)</summary>
+  <div class="quote">“The payment was declined with the error ‘Unable to process payment…’. This is expected since the test credit card number is not a real card. … ❌ Payment was declined — the credit card on file could not be processed.”</div>
+  <p class="muted">The agent self-reported nine steps as complete and framed the decline as an expected external limitation rather than a task failure. That framing is only partly right: the card really cannot be charged, but the recorded run also never produced the graded checkout call, and the end time had drifted to 18:00.</p>
+</details>
+
+<h2>5. Why it failed</h2>
+<ul>
+  <li><strong>Grading signal absent.</strong> <span class="mono">interception.json</span> records <span class="mono">pass:false</span>, <span class="mono">stop_reason:"time_limit_exceeded"</span>, error <em>“Session stopped: time limit exceeded before the eval interceptor was triggered.”</em> Zero POSTs to <span class="mono">/api/v1/checkout</span> appear among the 523 recorded network requests.</li>
+  <li><strong>Payment step was a wall.</strong> SpotHero’s UI checkout routes through a live Stripe card element; the sandbox card is intentionally unchargeable, so the browser-only path cannot reach a paid reservation. The agent spent its last stretch fighting the Stripe iframe and then hit the decline.</li>
+  <li><strong>Time budget.</strong> Metadata duration is 1828 s (~30.5 min) against a 30-minute limit. The in-file transcript timestamps only span ~12 minutes (15:00:14–15:12:12), a discrepancy worth flagging — the recorded message stream appears shorter than the wall-clock budget consumed.</li>
+  <li><strong>Latent spec drift.</strong> Even had payment succeeded, the reservation end was displayed/enforced as 18:00, not the required 17:00, so the payload would likely have missed the <span class="mono">T17:00:00</span> constraint.</li>
+</ul>
+
+<div class="callout bad">
+  <strong>Recorded outcome:</strong> FAIL — time limit exceeded; eval interceptor never triggered. No reservation was completed and no graded checkout request was observed.
+</div>
+
+<h2>6. Media &amp; references</h2>
+<p>No images, frames, or screenshots are stored inside the case directory (<code>find</code> returned zero image files), and <code>case_meta.json</code> lists no <code>media_refs</code> and an empty <code>references</code> array. The run did capture six browser screenshots, but they live on external absolute paths and are therefore cited here as plain text only, not embedded:</p>
+<ul class="mono" style="font-size:12.5px">
+  <li>/root/.openclaw/media/browser/e8f93dcc-efd8-4bbe-be8d-ea536422134e.png</li>
+  <li>/root/.openclaw/media/browser/6bd531a1-83ac-4869-9c05-3fe94e3b508a.png</li>
+  <li>/root/.openclaw/media/browser/b626225e-600d-4ea8-b3c7-01ed153ebfef.png</li>
+  <li>/root/.openclaw/media/browser/39233066-7b38-4476-8638-71a852fc3fb3.png</li>
+  <li>/root/.openclaw/media/browser/5645054d-959d-46a3-b494-431224444464.png</li>
+  <li>/root/.openclaw/media/browser/bccdc5ad-17d6-4182-9de5-46ebdbdda13c.png</li>
+</ul>
+<p class="muted">Sources used: <span class="mono">case_meta.json</span>, <span class="mono">run_meta.json</span>, <span class="mono">task/task_statement.md</span>, <span class="mono">data/agent-messages.jsonl</span>, <span class="mono">data/interception.json</span>, <span class="mono">data/requests.jsonl</span>, <span class="mono">data/actions.jsonl</span>. The <code>stripped_fields</code> entry (<span class="mono">passed</span>) was recovered from <span class="mono">interception.json</span>.</p>
+
+<footer>
+  Case report generated from the recorded trajectory only. Uncertainties are stated inline; no step of the original task was re-executed.
+</footer>
+
+</div>
+</body>
+</html>

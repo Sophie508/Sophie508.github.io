@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retail Case 28 — Returns &amp; Cancellation Audit</title>
+  <style>
+    :root {
+      --ink:#17211c; --muted:#667069; --paper:#f5f3ed; --card:#fffdf8;
+      --line:#d9d8d0; --green:#1c674b; --green-soft:#dfece4; --amber:#a25b16;
+      --amber-soft:#f8ead8; --red:#a23931; --red-soft:#f5dfdc; --blue:#315d82;
+      --blue-soft:#e4edf5; --shadow:0 16px 40px rgba(28,39,31,.08);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+    button{font:inherit}
+    .shell{max-width:1280px;margin:auto;padding:24px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:20px}
+    .eyebrow{font:700 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.15em;text-transform:uppercase;color:var(--green)}
+    .format{color:var(--muted);font-size:13px}
+    .hero{position:relative;overflow:hidden;background:#193c2e;color:#fff;border-radius:26px;padding:42px;box-shadow:var(--shadow)}
+    .hero:after{content:"";position:absolute;width:350px;height:350px;border:70px solid rgba(255,255,255,.055);border-radius:50%;right:-100px;top:-145px}
+    .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.7fr);gap:34px;align-items:end}
+    h1{font-size:clamp(36px,6vw,72px);line-height:.95;letter-spacing:-.055em;margin:15px 0 22px;max-width:830px}
+    .lede{font-size:18px;max-width:720px;color:#d8e5df;margin:0}
+    .verdict{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:20px;backdrop-filter:blur(4px)}
+    .verdict strong{display:block;font-size:22px;margin:6px 0}
+    .verdict span{color:#d8e5df;font-size:14px}
+    .status-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#f5ad62;margin-right:7px}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0 34px}
+    .metric{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:18px 20px;box-shadow:0 8px 24px rgba(28,39,31,.04)}
+    .metric .label{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:750}
+    .metric .value{font-size:28px;font-weight:800;letter-spacing:-.04em;margin-top:5px}
+    .metric .sub{font-size:12px;color:var(--muted)}
+    .metric.danger .value{color:var(--red)}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:24px;align-items:start}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:0 10px 28px rgba(28,39,31,.045)}
+    .panel + .panel{margin-top:22px}
+    h2{font-size:25px;letter-spacing:-.025em;margin:0 0 8px}
+    h3{font-size:17px;margin:0 0 7px}
+    .section-intro{color:var(--muted);margin:0 0 22px;font-size:14px}
+    .finding{display:grid;grid-template-columns:42px 1fr;gap:14px;padding:17px 0;border-top:1px solid var(--line)}
+    .finding:first-of-type{border-top:0}
+    .rank{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--red-soft);color:var(--red)}
+    .finding p{margin:0;color:#505a54;font-size:14px}
+    .finding code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em}
+    .calc{margin-top:18px;background:#202a25;color:#ecf4ef;border-radius:15px;padding:18px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;overflow:auto}
+    .calc-row{display:flex;justify-content:space-between;gap:24px;padding:5px 0}
+    .calc-row.total{border-top:1px solid #526059;margin-top:8px;padding-top:13px;font-size:16px;font-weight:800}
+    .calc .bad{color:#ffb4aa}.calc .good{color:#9fe3bc}
+    .side{position:sticky;top:20px}
+    .nav a{display:flex;justify-content:space-between;text-decoration:none;color:var(--ink);padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+    .nav a:last-child{border:0}.nav a span{color:var(--muted)}
+    .meta{margin-top:22px}
+    .meta-row{padding:10px 0;border-bottom:1px solid var(--line)}
+    .meta-row:last-child{border:0}
+    .meta-row dt{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+    .meta-row dd{margin:3px 0 0;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
+    .legend{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0}
+    .chip,.filter{border-radius:999px;padding:6px 11px;font-size:12px;font-weight:700}
+    .chip{display:inline-flex;align-items:center;gap:6px;background:#eee;color:#444}
+    .chip.user{background:var(--blue-soft);color:var(--blue)}
+    .chip.assistant{background:var(--green-soft);color:var(--green)}
+    .chip.tool{background:#ebe7f5;color:#5e4e85}
+    .filters{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 22px}
+    .filter{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted)}
+    .filter.active{background:var(--ink);border-color:var(--ink);color:#fff}
+    .timeline{position:relative;margin-left:12px}
+    .timeline:before{content:"";position:absolute;top:10px;bottom:10px;left:8px;width:1px;background:var(--line)}
+    .event{position:relative;padding:0 0 16px 36px}
+    .event[hidden]{display:none}
+    .node{position:absolute;left:0;top:13px;width:17px;height:17px;border:4px solid var(--card);border-radius:50%;background:var(--muted);box-shadow:0 0 0 1px var(--line)}
+    .event.user .node{background:var(--blue)}.event.assistant .node{background:var(--green)}.event.tool .node{background:#705e9c}.event.issue .node{background:var(--red)}
+    .bubble{border:1px solid var(--line);border-radius:14px;padding:15px 17px;background:#fff}
+    .event.issue .bubble{border-color:#e2aaa5;background:#fff8f6}
+    .event-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px}
+    .who{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+    .turn{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+    .bubble p{margin:0;font-size:14px}.bubble p+p{margin-top:9px}
+    .tool-name{font:700 13px ui-monospace,SFMono-Regular,Menlo,monospace;color:#5e4e85}
+    .tool-result{margin-top:8px;color:var(--muted);font-size:13px}
+    .warn{margin-top:10px;padding:9px 11px;background:var(--red-soft);color:#762b25;border-radius:8px;font-size:12px;font-weight:700}
+    .orders{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .order{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fff}
+    .order-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .badge{font-size:11px;font-weight:800;padding:4px 8px;border-radius:99px;background:var(--green-soft);color:var(--green)}
+    .badge.pending{background:var(--amber-soft);color:var(--amber)}
+    .order ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:13px}
+    .policy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .policy{border-left:3px solid var(--green);padding:5px 0 5px 14px}
+    .policy p{font-size:13px;color:var(--muted);margin:0}
+    .policy.fail{border-color:var(--red)}
+    .policy.partial{border-color:var(--amber)}
+    .policy-tag{display:inline-block;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;color:var(--green)}
+    .policy.fail .policy-tag{color:var(--red)}.policy.partial .policy-tag{color:var(--amber)}
+    details{border-top:1px solid var(--line);margin-top:20px;padding-top:15px}
+    summary{cursor:pointer;font-weight:750;font-size:14px}
+    details p{color:var(--muted);font-size:13px}
+    .footer{padding:34px 0 14px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:20px}
+    @media(max-width:900px){.hero-grid,.layout{grid-template-columns:1fr}.side{position:static}.metrics{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:580px){.shell{padding:12px}.hero{padding:28px 22px}.metrics,.orders,.policy-grid{grid-template-columns:1fr}.topbar,.footer{align-items:flex-start;flex-direction:column}.panel{padding:20px}.metric .value{font-size:24px}}
+    @media print{body{background:#fff}.shell{max-width:none}.side{position:static}.filter{display:none}.event[hidden]{display:block}.panel,.metric,.hero{box-shadow:none}.hero{background:#193c2e!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="eyebrow">Tau-bench / Retail / Case 28</div>
+      <div class="format">gpt-4o · trial 0 · 36 trajectory entries</div>
+    </div>
+
+    <header class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow" style="color:#a9d8c1">Customer service trajectory audit</div>
+          <h1>Right returns.<br>Wrong cancellation.</h1>
+          <p class="lede">The assistant correctly authenticated Isabella and initiated five item returns, but a request to cancel one item became a cancellation of the entire pending order. Its final refund answer then ignored most of that cancellation.</p>
+        </div>
+        <div class="verdict">
+          <div><span class="status-dot"></span><span>Overall assessment</span></div>
+          <strong>Materially incorrect</strong>
+          <span>Tool execution diverged from the confirmed scope and the customer-facing summary concealed the database outcome.</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="metrics" aria-label="Case metrics">
+      <div class="metric"><div class="label">Returns requested</div><div class="value">5 items</div><div class="sub">Across 3 delivered orders</div></div>
+      <div class="metric"><div class="label">Pending order</div><div class="value">5 items</div><div class="sub">Tool cancelled all five</div></div>
+      <div class="metric danger"><div class="label">Refund stated</div><div class="value">$1,013.51</div><div class="sub">Assistant’s final answer</div></div>
+      <div class="metric danger"><div class="label">Refund evidenced</div><div class="value">$2,537.77</div><div class="sub">Tool outputs, a $1,524.26 gap</div></div>
+    </section>
+
+    <div class="layout">
+      <main>
+        <section class="panel" id="audit">
+          <h2>Audit findings</h2>
+          <p class="section-intro">The most consequential errors occur after the user’s explicit confirmation at trajectory entry 21.</p>
+          <div class="finding">
+            <div class="rank">1</div>
+            <div><h3>The cancellation scope was impossible—and silently widened</h3><p>The user asked to “cancel the hose in the pending order.” The available policy and tool support cancellation of a <em>pending order</em>, not one line item. The assistant should have clarified that limitation. Instead, it called <code>cancel_pending_order(#W2575533)</code>, which returned status <code>cancelled</code> for the whole five-item, $1,619.34 order.</p></div>
+          </div>
+          <div class="finding">
+            <div class="rank">2</div>
+            <div><h3>The completion message misreported the tool result</h3><p>After the full-order cancellation, the assistant said “The Garden Hose has been cancelled,” omitting the Vacuum Cleaner, Portable Charger, E-Reader, and Office Chair. That statement conflicts directly with the tool response.</p></div>
+          </div>
+          <div class="finding">
+            <div class="rank">3</div>
+            <div><h3>The refund total used the requested item, not the actual refund</h3><p>The calculator added the five return prices plus only the pending hose price ($95.08). But the cancellation tool recorded a $1,619.34 refund. The answer understated the evidenced total by $1,524.26.</p></div>
+          </div>
+          <div class="finding">
+            <div class="rank">4</div>
+            <div><h3>There were smaller protocol and accuracy defects</h3><p>Entry 8 combined user-facing prose with a tool call despite the one-or-the-other rule. The confirmation and completion summaries also wrote order <code>#5565470</code>, omitting the “W” from <code>#W5565470</code>.</p></div>
+          </div>
+
+          <div class="calc" aria-label="Refund reconciliation">
+            <div class="calc-row"><span>Five delivered-item returns</span><span>$918.43</span></div>
+            <div class="calc-row"><span>Actual full-order cancellation refund</span><span>$1,619.34</span></div>
+            <div class="calc-row total good"><span>Evidenced refund total</span><span>$2,537.77</span></div>
+            <div class="calc-row bad"><span>Assistant stated</span><span>$1,013.51</span></div>
+            <div class="calc-row bad"><span>Understatement</span><span>−$1,524.26</span></div>
+          </div>
+        </section>
+
+        <section class="panel" id="orders">
+          <h2>Order map</h2>
+          <p class="section-intro">Four orders were retrieved after authentication. The customer selected items from each.</p>
+          <div class="orders">
+            <article class="order"><div class="order-top"><strong>#W3792453</strong><span class="badge">return requested</span></div><ul><li>Skateboard · $200.80 · returned</li></ul></article>
+            <article class="order"><div class="order-top"><strong>#W7181492</strong><span class="badge">return requested</span></div><ul><li>Garden Hose · $96.35 · returned</li><li>Backpack · $193.38 · returned</li><li>3 other items unchanged</li></ul></article>
+            <article class="order"><div class="order-top"><strong>#W5565470</strong><span class="badge">return requested</span></div><ul><li>Mechanical Keyboard · $231.37 · returned</li><li>Pet Bed · $196.53 · returned</li><li>Electric Kettle unchanged</li></ul></article>
+            <article class="order"><div class="order-top"><strong>#W2575533</strong><span class="badge pending">cancelled in full</span></div><ul><li>Customer targeted Garden Hose · $95.08</li><li>Tool refunded entire order · $1,619.34</li><li>5 items total</li></ul></article>
+          </div>
+        </section>
+
+        <section class="panel" id="transcript">
+          <h2>Trajectory, condensed</h2>
+          <p class="section-intro">A faithful event view of the consequential conversation and tool outputs. Use the filters to isolate roles.</p>
+          <div class="filters" role="group" aria-label="Transcript filters">
+            <button class="filter active" data-filter="all">All</button>
+            <button class="filter" data-filter="user">Customer</button>
+            <button class="filter" data-filter="assistant">Assistant</button>
+            <button class="filter" data-filter="tool">Tools</button>
+            <button class="filter" data-filter="issue">Issues</button>
+          </div>
+          <div class="timeline">
+            <article class="event user" data-kind="user"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Customer</span><span class="turn">entry 1</span></div><p>“Hi, I need to return some items and cancel an order.”</p></div></article>
+            <article class="event assistant" data-kind="assistant"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Assistant</span><span class="turn">entries 2–6</span></div><p>Requests name and ZIP, then confirms authentication.</p></div></article>
+            <article class="event tool" data-kind="tool"><i class="node"></i><div class="bubble"><div class="event-head"><span class="tool-name">find_user_id_by_name_zip</span><span class="turn">entries 4–5</span></div><p class="tool-result">Isabella Johansson + 32286 → <span class="mono">isabella_johansson_2152</span></p></div></article>
+            <article class="event user" data-kind="user"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Customer</span><span class="turn">entry 7</span></div><p>“I don't remember the order IDs.”</p></div></article>
+            <article class="event issue assistant" data-kind="assistant issue"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Assistant + tool</span><span class="turn">entries 8–9</span></div><p>Says it will retrieve the information while also calling <span class="mono">get_user_details</span>.</p><div class="warn">Protocol issue: policy says do not respond to the user and call a tool in the same turn.</div></div></article>
+            <article class="event tool" data-kind="tool"><i class="node"></i><div class="bubble"><div class="event-head"><span class="tool-name">get_order_details × 4</span><span class="turn">entries 10–17</span></div><p class="tool-result">Three delivered orders and one pending order retrieved sequentially.</p></div></article>
+            <article class="event assistant" data-kind="assistant"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Assistant</span><span class="turn">entry 18</span></div><p>Lists all four orders, their statuses, and item names.</p></div></article>
+            <article class="event user" data-kind="user"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Customer</span><span class="turn">entry 19</span></div><p>“I want to return the skateboard, garden hose, backpack, keyboard, and bed. Also, cancel the hose in the pending order.”</p></div></article>
+            <article class="event issue assistant" data-kind="assistant issue"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Assistant</span><span class="turn">entry 20</span></div><p>Lists five returns and asks for confirmation. Describes cancellation as applying to the Garden Hose in #W2575533.</p><div class="warn">Scope defect: it never explains that the cancellation action applies to the whole order.</div></div></article>
+            <article class="event user" data-kind="user"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Customer</span><span class="turn">entry 21</span></div><p>“Yes, that's correct for the returns. Cancel the garden hose because it's no longer needed.”</p></div></article>
+            <article class="event tool" data-kind="tool"><i class="node"></i><div class="bubble"><div class="event-head"><span class="tool-name">return_delivered_order_items × 3</span><span class="turn">entries 22–27</span></div><p class="tool-result">Returns requested for 5 item IDs across #W3792453, #W7181492, and #W5565470. Refund destination: PayPal <span class="mono">paypal_3024827</span>.</p></div></article>
+            <article class="event issue tool" data-kind="tool issue"><i class="node"></i><div class="bubble"><div class="event-head"><span class="tool-name">cancel_pending_order</span><span class="turn">entries 28–29</span></div><p>Arguments: <span class="mono">#W2575533</span>, reason <span class="mono">no longer needed</span>.</p><p class="tool-result">Result: status <strong>cancelled</strong>; refund transaction <strong>$1,619.34</strong>; all five order items remain in the returned order record.</p><div class="warn">Critical divergence: the user confirmed one item, but the tool cancelled the entire order.</div></div></article>
+            <article class="event issue assistant" data-kind="assistant issue"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Assistant</span><span class="turn">entry 30</span></div><p>Reports all returns, then states: “The Garden Hose has been cancelled.”</p><div class="warn">Misrepresentation: does not disclose that #W2575533 was cancelled in full.</div></div></article>
+            <article class="event user" data-kind="user"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Customer</span><span class="turn">entry 31</span></div><p>“How much is the total refund amount?”</p></div></article>
+            <article class="event issue tool" data-kind="tool issue"><i class="node"></i><div class="bubble"><div class="event-head"><span class="tool-name">calculate</span><span class="turn">entries 32–33</span></div><p class="tool-result">Adds $200.80 + $96.35 + $193.38 + $231.37 + $196.53 + <strong>$95.08</strong> = $1,013.51.</p><div class="warn">Wrong input: $95.08 is the hose price, not the $1,619.34 cancellation refund recorded by the tool.</div></div></article>
+            <article class="event issue assistant" data-kind="assistant issue"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Assistant</span><span class="turn">entry 34</span></div><p>“The total refund amount … is $1,013.51.”</p><div class="warn">Incorrect by $1,524.26 relative to the recorded tool transactions.</div></div></article>
+            <article class="event user" data-kind="user"><i class="node"></i><div class="bubble"><div class="event-head"><span class="who">Customer</span><span class="turn">entry 35</span></div><p>“Thank you. ###STOP###”</p></div></article>
+          </div>
+        </section>
+
+        <section class="panel" id="policy">
+          <h2>Policy alignment</h2>
+          <p class="section-intro">Assessment against the retail-agent policy embedded as trajectory entry 0.</p>
+          <div class="policy-grid">
+            <div class="policy"><span class="policy-tag">Met</span><h3>Authentication</h3><p>Name plus ZIP was collected before account information was exposed.</p></div>
+            <div class="policy"><span class="policy-tag">Met</span><h3>Status checks</h3><p>All order statuses were retrieved before returns or cancellation.</p></div>
+            <div class="policy"><span class="policy-tag">Met</span><h3>Return confirmation</h3><p>Orders, items, and PayPal refund destination were listed and confirmed.</p></div>
+            <div class="policy partial"><span class="policy-tag">Partial</span><h3>Cancellation confirmation</h3><p>Reason and order were known, but confirmation framed the action as item-level.</p></div>
+            <div class="policy fail"><span class="policy-tag">Failed</span><h3>Scope fidelity</h3><p>The consequential action exceeded what the customer explicitly confirmed.</p></div>
+            <div class="policy fail"><span class="policy-tag">Failed</span><h3>Tool/result fidelity</h3><p>The assistant’s summaries contradicted both cancellation status and refund transaction.</p></div>
+          </div>
+          <details>
+            <summary>Relevant policy excerpts, paraphrased</summary>
+            <p>Consequential database updates require the assistant to list action details and obtain explicit “yes” confirmation. A pending order—not an individual order item—may be cancelled after confirming the order ID and one permitted reason. The assistant may make at most one tool call per turn and should not combine a tool call with a user-facing response.</p>
+          </details>
+        </section>
+
+        <section class="panel" id="recovery">
+          <h2>Safer handling</h2>
+          <p class="section-intro">The trajectory could have avoided the failure at the first mention of an item-level cancellation.</p>
+          <div class="finding"><div class="rank" style="background:var(--green-soft);color:var(--green)">1</div><div><h3>State the capability boundary</h3><p>Explain that cancellation applies to all of pending order #W2575533 and cannot remove only the Garden Hose.</p></div></div>
+          <div class="finding"><div class="rank" style="background:var(--green-soft);color:var(--green)">2</div><div><h3>Ask for a scope-correct confirmation</h3><p>Offer to cancel the entire $1,619.34 pending order for “no longer needed,” then wait for a new explicit yes. Do not infer consent from confirmation of a single item.</p></div></div>
+          <div class="finding"><div class="rank" style="background:var(--green-soft);color:var(--green)">3</div><div><h3>Reconcile against transaction outputs</h3><p>When asked for the refund total, sum the recorded return item prices and the actual cancellation refund, yielding $2,537.77.</p></div></div>
+        </section>
+      </main>
+
+      <aside class="side">
+        <section class="panel nav" aria-label="Page navigation">
+          <div class="eyebrow">On this page</div>
+          <a href="#audit">Audit findings <span>01</span></a>
+          <a href="#orders">Order map <span>02</span></a>
+          <a href="#transcript">Trajectory <span>03</span></a>
+          <a href="#policy">Policy alignment <span>04</span></a>
+          <a href="#recovery">Safer handling <span>05</span></a>
+        </section>
+        <section class="panel meta">
+          <div class="eyebrow">Case record</div>
+          <dl>
+            <div class="meta-row"><dt>Case ID</dt><dd>02_gpt-4o-retail_28</dd></div>
+            <div class="meta-row"><dt>Benchmark</dt><dd>tau-bench</dd></div>
+            <div class="meta-row"><dt>Domain</dt><dd>tool_use_customer_service</dd></div>
+            <div class="meta-row"><dt>Format</dt><dd>tau-bench-json</dd></div>
+            <div class="meta-row"><dt>Source model</dt><dd>gpt-4o</dd></div>
+            <div class="meta-row"><dt>Task</dt><dd>“Hi, I need to return some items and cancel an order.”</dd></div>
+            <div class="meta-row"><dt>Stripped fields</dt><dd>info, reward</dd></div>
+            <div class="meta-row"><dt>External references</dt><dd>none</dd></div>
+          </dl>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="footer"><span>Self-contained case presentation · no external assets</span><span>Evidence source: case_meta.json, task_statement.md, trajectory.json</span></footer>
+  </div>
+  <script>
+    (() => {
+      const buttons = document.querySelectorAll('.filter');
+      const events = document.querySelectorAll('.event');
+      buttons.forEach(button => button.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        button.classList.add('active');
+        const target = button.dataset.filter;
+        events.forEach(event => {
+          const kinds = event.dataset.kind.split(' ');
+          event.hidden = target !== 'all' && !kinds.includes(target);
+        });
+      }));
+    })();
+  </script>
+</body>
+</html>

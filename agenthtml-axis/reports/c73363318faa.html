@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case report — asottile__pyupgrade-545</title>
+<style>
+  :root{
+    --bg:#0f1420;
+    --panel:#161d2c;
+    --panel-2:#1d2637;
+    --ink:#e7ecf5;
+    --muted:#98a4b8;
+    --line:#2b3549;
+    --accent:#7aa2f7;
+    --good:#5fd39a;
+    --warn:#f0b849;
+    --bad:#f2748b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1100px 500px at 15% -10%, #1b2740 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, #241f3a 0%, transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font:15px/1.62 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:0 0 70px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  header.top{padding:44px 0 26px;border-bottom:1px solid var(--line)}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  h1{font-size:30px;line-height:1.2;margin:10px 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .badge{
+    font-size:12px;padding:4px 10px;border-radius:999px;
+    border:1px solid var(--line);background:var(--panel);color:var(--muted)
+  }
+  .badge.b-ok{color:var(--good);border-color:#265c45;background:#12241d}
+  .badge.b-warn{color:var(--warn);border-color:#5c4a1e;background:#241f11}
+  .badge.b-bad{color:var(--bad);border-color:#5c2733;background:#241318}
+  h2{font-size:19px;margin:38px 0 12px;letter-spacing:-.005em}
+  h2 .num{color:var(--accent);font-weight:700;margin-right:8px;font-variant-numeric:tabular-nums}
+  h3{font-size:15px;margin:22px 0 8px;color:var(--ink)}
+  p{margin:10px 0}
+  .muted{color:var(--muted)}
+  .grid{display:grid;gap:14px}
+  .grid.cols-3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .card{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line);border-radius:12px;padding:16px 18px
+  }
+  .stat .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .stat .v{font-size:22px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums}
+  .stat .n{font-size:12px;color:var(--muted);margin-top:2px}
+  table.meta{width:100%;border-collapse:collapse;font-size:14px}
+  table.meta th,table.meta td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.meta th{color:var(--muted);font-weight:600;width:210px;font-size:12.5px;letter-spacing:.03em}
+  code,pre,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+  code{font-size:13px;background:#0c111b;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:#cfe0ff}
+  pre{
+    background:#0b0f18;border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;overflow:auto;font-size:12.6px;line-height:1.55;color:#d7e0f0;margin:10px 0
+  }
+  pre .c{color:#6f7d93}
+  pre .add{color:#7ee2a8}
+  pre .del{color:#f2889d}
+  blockquote{
+    margin:12px 0;padding:12px 16px;border-left:3px solid var(--accent);
+    background:#111827;border-radius:0 10px 10px 0;color:#cdd7e8
+  }
+  ol.timeline{list-style:none;margin:0;padding:0}
+  ol.timeline>li{
+    position:relative;padding:0 0 0 26px;margin:0 0 12px;
+    border-left:1px solid var(--line)
+  }
+  ol.timeline>li:last-child{border-left-color:transparent}
+  ol.timeline>li::before{
+    content:"";position:absolute;left:-5px;top:9px;width:9px;height:9px;border-radius:50%;
+    background:var(--accent);box-shadow:0 0 0 3px #0f1420
+  }
+  ol.timeline>li.bad::before{background:var(--bad)}
+  ol.timeline>li.warn::before{background:var(--warn)}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 14px}
+  .step .hdr{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
+  .step .act{font-weight:650}
+  .step .idx{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+  .step .cmd{
+    display:inline-block;margin-top:8px;font-size:12.3px;background:#0b0f18;
+    border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:#cfe0ff
+  }
+  .step .obs{color:var(--muted);font-size:13.2px;margin-top:7px}
+  details{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:0;margin:10px 0}
+  details>summary{cursor:pointer;padding:11px 14px;font-weight:600;list-style:none}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary::before{content:"▸ ";color:var(--accent)}
+  details[open]>summary::before{content:"▾ "}
+  details .body{padding:0 14px 14px;border-top:1px solid var(--line)}
+  .find{border-left:3px solid var(--bad);background:#1b1420;padding:12px 16px;border-radius:0 10px 10px 0;margin:12px 0}
+  .find.good{border-left-color:var(--good);background:#111f19}
+  .find.warn{border-left-color:var(--warn);background:#1e1a10}
+  .find h4{margin:0 0 6px;font-size:14px}
+  .pill{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--muted);white-space:nowrap}
+  footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+  a{color:var(--accent)}
+  .kv{font-size:13.4px}
+  .kv div{display:flex;gap:8px;padding:3px 0;border-bottom:1px dashed #212a3c}
+  .kv span:first-child{color:var(--muted);min-width:132px}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px}
+  .flow .box{border:1px solid var(--line);background:#0b0f18;border-radius:8px;padding:5px 10px}
+  .flow .arw{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">SWE-bench · code repair · trajectory report</div>
+  <h1>asottile__pyupgrade-545 — rewriting old-style superclasses drops args for static methods</h1>
+  <div class="sub">Recorded agent run: <strong>swe-agent-llama-70b</strong> · trajectory format <code>swe-agent-traj</code> · 57 messages</div>
+  <div class="badges">
+    <span class="badge b-bad">exit: submitted (exit_context)</span>
+    <span class="badge b-bad">no test suite executed</span>
+    <span class="badge b-bad">fix ineffective / dead code</span>
+    <span class="badge b-warn">reproduction invalid</span>
+    <span class="badge">19 commands</span>
+    <span class="badge">no media refs</span>
+  </div>
+</header>
+
+<h2><span class="num">01</span>Case metadata</h2>
+<table class="meta">
+  <tr><th>Instance id</th><td><code>asottile__pyupgrade-545</code></td></tr>
+  <tr><th>Benchmark / domain</th><td>SWE-bench · <code>code_repair</code> · source: upstream</td></tr>
+  <tr><th>Agent model</th><td><code>swe-agent-llama-70b</code></td></tr>
+  <tr><th>Trajectory file</th><td><code>trajectory.json</code> (sha256 <code>4e1458c4…29b42</code>, 112,003 bytes)</td></tr>
+  <tr><th>Exit status</th><td><span class="badge b-bad">submitted (exit_context)</span> — the run ended on context exhaustion, not on a deliberate, verified <code>submit</code> after confirmation.</td></tr>
+  <tr><th>Stripped fields</th><td><code>eval_logs</code>, <code>target</code> — the official gold patch and evaluation logs are <em>not</em> available in this case, so the correctness claim below rests on the recorded evidence only.</td></tr>
+  <tr><th>References</th><td>none (<code>references: []</code>); no large external files. No media refs → nothing to embed or cite.</td></tr>
+  <tr><th>Media in case dir</th><td>none — <code>/app/case</code> contains only <code>case_meta.json</code>, <code>trajectory.json</code> and <code>task/task_statement.md</code></td></tr>
+</table>
+
+<h2><span class="num">02</span>The task the agent was given</h2>
+<p>The issue text embedded in the task statement (agent works in <code>/pyupgrade</code>):</p>
+<blockquote>
+<strong>Rewriting old-style superclasses removes args for static methods</strong>
+<pre><span class="c">class Parent:</span>
+    @staticmethod
+    def func(arg):
+        return 0
+
+
+<span class="c">class Child(Parent):</span>
+    @staticmethod
+    def func(arg):
+        return Parent.func(arg)
+</pre>
+rewrites <code>Parent._thing(arg)</code> to <code>super()._thing()</code> rather than <code>super()._thing(arg)</code>
+</blockquote>
+<p class="muted">The task instructions asked the agent to reproduce the bug, fix it, and re-run the reproduction; the agent could also have run the project's own test suite. The target behaviour: <code>pyupgrade</code> must emit <code>super().func(arg)</code>, i.e. keep the argument.</p>
+
+<h2><span class="num">03</span>Run at a glance</h2>
+<div class="grid cols-3">
+  <div class="card stat"><div class="k">Messages</div><div class="v">57</div><div class="n">1 system · 1 task · 27 agent · 28 tool results</div></div>
+  <div class="card stat"><div class="k">Agent commands</div><div class="v">19</div><div class="n">3 edits, 4 repro runs, 12 read/nav</div></div>
+  <div class="card stat"><div class="k">Test invocations</div><div class="v" style="color:var(--bad)">0</div><div class="n">no <code>pytest</code>, no <code>pyupgrade</code> CLI run</div></div>
+  <div class="card stat"><div class="k">Distinct files edited</div><div class="v">1</div><div class="n"><code>pyupgrade/_token_helpers.py</code></div></div>
+  <div class="card stat"><div class="k">Effective fix</div><div class="v" style="color:var(--bad)">No</div><div class="n">edits are no-ops / unreachable code</div></div>
+  <div class="card stat"><div class="k">Repeated no-op edit</div><div class="v">3×</div><div class="n">same <code>edit 371:392</code> issued three times</div></div>
+</div>
+
+<h2><span class="num">04</span>Step-by-step timeline</h2>
+<p class="muted">Every command the agent issued, in order, with the observed result. Marker colours: <span class="badge b-warn">amber</span> = questionable method, <span class="badge b-bad">red</span> = wasted/failed step.</p>
+
+<ol class="timeline">
+  <li><div class="step">
+    <div class="hdr"><span class="act">Create the reproduction file</span><span class="idx">msg 2–5</span></div>
+    <span class="cmd">create reproduce.py</span><br>
+    <span class="cmd">edit 1:1 &lt;issue snippet + print(Child.func(1))&gt;</span>
+    <div class="obs">The issue snippet was pasted verbatim into <code>/pyupgrade/reproduce.py</code> (11 lines), ending with <code>print(Child.func(1))</code>.</div>
+  </div></li>
+
+  <li class="bad"><div class="step">
+    <div class="hdr"><span class="act">“Reproduce” the bug</span><span class="idx">msg 6–7</span></div>
+    <span class="cmd">python reproduce.py</span>
+    <div class="obs">Output: <code>0</code>. The agent read this as “the argument <code>1</code> was not correctly passed… This confirms that the issue is reproducible.” <strong>This inference is invalid</strong> — see finding A.</div>
+  </div></li>
+
+  <li><div class="step">
+    <div class="hdr"><span class="act">Locate super-handling code</span><span class="idx">msg 8–9</span></div>
+    <span class="cmd">search_dir "super"</span>
+    <div class="obs">60 matches: <code>pyupgrade/_plugins/legacy.py</code> (10), <code>tests/features/super_test.py</code> (41), <code>_main.py</code>, README, etc. The agent picked <code>legacy.py</code> — a reasonable choice.</div>
+  </div></li>
+
+  <li><div class="step">
+    <div class="hdr"><span class="act">Read the legacy plugin</span><span class="idx">msg 10–15</span></div>
+    <span class="cmd">open pyupgrade/_plugins/legacy.py</span> · <span class="cmd">scroll_down</span> · <span class="cmd">goto 188</span>
+    <div class="obs">Saw <code>Visitor.visit_Call</code> and the <code>visit_Module</code> callback registration, including the old-style-super template:</div>
+<pre>super_func = functools.partial(find_and_replace_call, template='super()')
+...
+for offset, func_name in visitor.old_super_offsets:
+    template = f'super().{func_name}({{rest}})'
+    callback = functools.partial(find_and_replace_call, template=template)</pre>
+    <div class="obs">This is the exact code path responsible for the reported rewrite. Notably, the imported <code>tests/features/super_test.py</code> (41 matches) was never opened to read the expected-output format.</div>
+  </div></li>
+
+  <li><div class="step">
+    <div class="hdr"><span class="act">Read the token helpers</span><span class="idx">msg 16–21</span></div>
+    <span class="cmd">open pyupgrade/_token_helpers.py</span> · <span class="cmd">search_file "def find_and_replace_call"</span> · <span class="cmd">goto 450</span>
+    <div class="obs">Saw the tail of <code>replace_call</code>, which contains the crucial <code>args[0]</code>-as-receiver assumption (<code>start_rest = args[0][1] + 1</code>, <code>rest = tokens_to_src(...)</code>, <code>src = tmpl.format(args=arg_strs, rest=rest)</code>). The agent did not act on it.</div>
+  </div></li>
+
+  <li class="bad"><div class="step">
+    <div class="hdr"><span class="act">Edit #1 — reformat a signature</span><span class="idx">msg 22–23</span></div>
+    <span class="cmd">edit 450:459 (re-indent find_and_replace_call params 8→4 spaces, <code>Tuple[int, ...]</code>)</span>
+    <div class="obs">Cosmetic re-indentation only; zero behavioural effect. Claimed rationale: “we should modify the function to include all arguments”.</div>
+  </div></li>
+
+  <li class="bad"><div class="step">
+    <div class="hdr"><span class="act">Re-run reproduction</span><span class="idx">msg 24–25</span></div>
+    <span class="cmd">python reproduce.py</span>
+    <div class="obs">Output: <code>0</code> again. Interpreted as “argument still not correctly passed”. Same invalid signal as step 2.</div>
+  </div></li>
+
+  <li class="bad"><div class="step">
+    <div class="hdr"><span class="act">Scroll ping-pong instead of targeted reading</span><span class="idx">msg 26–35</span></div>
+    <span class="cmd">scroll_up · scroll_up · scroll_down · scroll_up · scroll_down</span>
+    <div class="obs">Five navigation commands alternating over the same window of <code>_token_helpers.py</code> (lines ~204–392: <code>Block</code>, <code>remove_base_class</code>, <code>parse_call_args</code>). Repeated paragraphs of reasoning appear verbatim across messages 28–36. No new information beyond the <code>parse_call_args</code> source.</div>
+  </div></li>
+
+  <li class="bad"><div class="step">
+    <div class="hdr"><span class="act">Edit #2 — append an unreachable guard</span><span class="idx">msg 36–37</span></div>
+    <span class="cmd">edit 371:392 (insert <code># Always include the first argument</code> block into parse_call_args)</span>
+    <div class="obs">File grew 518→522 lines. The new guard tests <code>if not args</code> — but <code>parse_call_args</code> always appends the first argument at the closing brace (line 387–388), so <code>args</code> is never empty in the relevant path, and the added block lands after a <code>return</code>. Behaviour unchanged.</div>
+  </div></li>
+
+  <li class="bad"><div class="step">
+    <div class="hdr"><span class="act">Re-run reproduction</span><span class="idx">msg 38–39</span></div>
+    <span class="cmd">python reproduce.py</span>
+    <div class="obs">Output: <code>0</code>. Third identical conclusion.</div>
+  </div></li>
+
+  <li class="bad"><div class="step">
+    <div class="hdr"><span class="act">Second scroll loop</span><span class="idx">msg 40–45</span></div>
+    <span class="cmd">scroll_up · scroll_up · scroll_down</span> · then <span class="cmd">scroll_up · scroll_down</span>
+    <div class="obs">The agent re-reads <code>parse_call_args</code> it had already edited, produces the same reasoning again, and decides to re-apply the same edit.</div>
+  </div></li>
+
+  <li class="bad"><div class="step">
+    <div class="hdr"><span class="act">Edit #3 — identical repeat</span><span class="idx">msg 46–47</span></div>
+    <span class="cmd">edit 371:392 (same text as edit #2)</span>
+    <div class="obs">File 522→526 lines; a second copy of the dead guard accumulates.</div>
+  </div></li>
+
+  <li class="bad"><div class="step">
+    <div class="hdr"><span class="act">Re-run reproduction</span><span class="idx">msg 48–49</span></div>
+    <span class="cmd">python reproduce.py</span>
+    <div class="obs">Output: <code>0</code>.</div>
+  </div></li>
+
+  <li class="bad"><div class="step">
+    <div class="hdr"><span class="act">Third scroll loop, then Edit #4 (never observed)</span><span class="idx">msg 50–56</span></div>
+    <span class="cmd">scroll_up · scroll_up · scroll_down</span> · <span class="cmd">scroll_down</span> · <span class="cmd">edit 371:392</span>
+    <div class="obs">The trajectory ends with an agent message issuing the same edit a third time; there is no tool result for it. Context was exhausted here — the harness reported <span class="badge b-bad">submitted (exit_context)</span>. The generated patch nevertheless contains three copies of the inserted guard.</div>
+  </div></li>
+</ol>
+
+<h2><span class="num">05</span>What actually causes the bug (for grounding)</h2>
+<p>This is the mechanism the recorded run was supposed to find; it is reconstructed from the repository code the agent itself read, not from any external source.</p>
+<p>The rewrite path for <code>Parent.func(arg)</code> is:</p>
+<div class="flow">
+  <span class="box">legacy.py <code>visit_Call</code>: <code>base.funcname(arg0, …)</code> matches when <code>arg0</code> is the enclosing function's first parameter</span>
+  <span class="arw">→</span>
+  <span class="box">template <code>'super().{func_name}({rest})'</code></span>
+  <span class="arw">→</span>
+  <span class="box"><code>find_and_replace_call</code> → <code>parse_call_args</code></span>
+  <span class="arw">→</span>
+  <span class="box"><code>replace_call</code></span>
+</div>
+<p>In <code>replace_call</code>, the first parsed argument is treated as the <em>receiver</em> that will be dropped:</p>
+<pre>start_rest = args[0][1] + 1          <span class="c"># skip args[0] (assumed "self")</span>
+...
+rest = tokens_to_src(tokens[start_rest:end_rest])
+src  = tmpl.format(args=arg_strs, rest=rest)</pre>
+<p>For an ordinary method this is correct: <code>Parent.method(self, x)</code> → the first arg is the receiver, <code>rest</code> is <code>x</code>. For a <code>@staticmethod</code>, <code>Parent.func(arg)</code> has <em>no</em> receiver — <code>arg</code> is a real argument, yet it is still consumed as if it were the receiver, leaving <code>rest</code> empty and producing <code>super().func()</code>. Two plausible fix directions follow from this: (a) suppress the old-style rewrite when the enclosing function is a <code>@staticmethod</code> (the AST-level <code>visit_Call</code> condition is where staticmethod-ness is knowable), or (b) keep the argument in the template path. The recorded run pursued neither.</p>
+
+<h2><span class="num">06</span>Final submitted patch</h2>
+<p class="muted">Verbatim <code>generated_patch</code> from the trajectory (1368 bytes). It touches <code>_token_helpers.py</code> and adds the reproduction script.</p>
+<pre>diff --git a/pyupgrade/_token_helpers.py b/pyupgrade/_token_helpers.py
+index 44d9b57..96ac25f 100644
+--- a/pyupgrade/_token_helpers.py
++++ b/pyupgrade/_token_helpers.py
+@@ -389,6 +389,18 @@ def parse_call_args(
+
+         i += 1
+
++    # Always include the first argument
++    if not args and tokens_to_src(tokens[arg_start:i]).strip():
++        args.append((arg_start, i))
++
++    return args, i
++    if not args and tokens_to_src(tokens[arg_start:i]).strip():
++        args.append((arg_start, i))
++
++    return args, i
++    if not args and tokens_to_src(tokens[arg_start:i]).strip():
++        args.append((arg_start, i))
++
+     return args, i
+
+
+@@ -448,11 +460,11 @@ def replace_call(
+
+
+ def find_and_replace_call(
+-        i: int,
+-        tokens: List[Token],
+-        *,
+-        template: str,
+-        parens: Tuple[int, ...] = (),
++    i: int,
++    tokens: List[Token],
++    *,
++    template: str,
++    parens: Tuple[int,...] = (),
+ ) -&gt; None:
+     j = find_open_paren(tokens, i)
+     func_args, end = parse_call_args(tokens, j)
+diff --git a/reproduce.py b/reproduce.py
+new file mode 100644
+index 0000000..db59425
+--- /dev/null
++++ b/reproduce.py
+@@ -0,0 +1,11 @@
++class Parent:
++    @staticmethod
++    def func(arg):
++        return 0
++
++class Child(Parent):
++    @staticmethod
++    def func(arg):
++        return Parent.func(arg)
++
++print(Child.func(1))</pre>
+<div class="find bad">
+  <h4>Patch assessment</h4>
+  <p>The <code>parse_call_args</code> hunk contains <strong>one live insertion followed by two unreachable duplicates</strong> after <code>return args, i</code> — the residue of re-issuing the identical edit three times. The live insertion is itself a no-op: the branch it guards (<code>args</code> empty when the closing brace is reached) cannot occur, because <code>parse_call_args</code> already appends the final argument at the closing brace. The <code>find_and_replace_call</code> hunk is pure re-indentation. <strong>Nothing in the patch changes the output for the reported staticmethod case.</strong> Whether this patch passes the hidden SWE-bench test suite cannot be checked here: <code>target</code> and <code>eval_logs</code> were stripped from the case.</p>
+</div>
+
+<h2><span class="num">07</span>Failure analysis</h2>
+
+<div class="find bad">
+  <h4>A. The reproduction never exercised the bug</h4>
+  <p><code>reproduce.py</code> holds ordinary Python; running it with <code>python</code> simply executes the <em>untransformed</em> source. <code>pyupgrade</code> is a source-rewriting tool — the defect appears only in its <em>output</em>. <code>Parent.func(1)</code> returns <code>0</code> regardless of any edit to <code>_token_helpers.py</code>, so <code>print(Child.func(1)) → 0</code> was a constant, not a signal. The correct reproduction would have run the tool on a fixture (e.g. <code>pyupgrade reproduce.py</code>) or asserted the expected rewrite (the repo already ships <code>tests/features/super_test.py</code>). The agent repeated this invalid check four times and each time concluded “still broken”, which is what drove its edit loop.</p>
+</div>
+
+<div class="find bad">
+  <h4>B. Wrong subsystem diagnosed</h4>
+  <p>The agent decided the defect was in argument parsing (<code>parse_call_args</code>) and that “the first argument (<code>self</code>) might be mistakenly removed”. The agent read the decisive line — <code>start_rest = args[0][1] + 1</code> in <code>replace_call</code> — twice but never connected it to the staticmethod case, and never examined how staticmethod-ness could be detected at the AST level (<code>legacy.py</code> already distinguishes <code>FUNC_TYPES</code> / <code>NON_LAMBDA_FUNC_TYPES</code> and has decorator information available).</p>
+</div>
+
+<div class="find bad">
+  <h4>C. Edits were inert and duplicated</h4>
+  <p>All three edits to <code>_token_helpers.py</code> are either cosmetic or unreachable. The identical edit command was issued at messages 36, 46 and 56 with identical surrounding reasoning — a genuine loop. The result is dead code shipped in the final patch, which is a regression risk even though it does not change behaviour in this path.</p>
+</div>
+
+<div class="find bad">
+  <h4>D. No verification of any kind</h4>
+  <p>Zero test runs, zero invocations of the <code>pyupgrade</code> CLI, no inspection of the expected-output fixtures in <code>tests/features/super_test.py</code> despite the search result advertising 41 <code>super</code> matches there. The run ended by exhausting its context window (<code>exit_context</code>) mid-edit, not by a validated submission.</p>
+</div>
+
+<div class="find warn">
+  <h4>What went right</h4>
+  <p>Repository navigation was efficient and the right file (<code>pyupgrade/_plugins/legacy.py</code>) was found quickly; the callback registration at lines 188–195 that produces <code>'super().{func_name}({rest})'</code> was located and quoted correctly. The failure is in interpretation and verification, not in search.</p>
+</div>
+
+<h2><span class="num">08</span>Cited evidence index</h2>
+<div class="grid cols-2">
+  <div class="card kv">
+    <div><span>Task</span><span><code>task/task_statement.md</code> (3453 B)</span></div>
+    <div><span>Trajectory</span><span><code>trajectory.json</code> — keys: instance_id, model_name, trajectory, exit_status, generated_patch</span></div>
+    <div><span>Patch size</span><span>1368 B; 3 occurrences of the inserted guard</span></div>
+  </div>
+  <div class="card kv">
+    <div><span>Files read</span><span><code>pyupgrade/_plugins/legacy.py</code>, <code>pyupgrade/_token_helpers.py</code></span></div>
+    <div><span>File written</span><span><code>reproduce.py</code> (created by the agent)</span></div>
+    <div><span>Media refs</span><span>none — video/audio not applicable; no images present</span></div>
+  </div>
+</div>
+
+<footer>
+  Generated from the recorded trajectory only, under <code>/app/case</code>. Report describes the completed run; the original task was not re-attempted. No external resources, fonts, scripts or images are used — all styling is inline. Files listed under <code>references</code>/<code>stripped_fields</code> (<code>target</code>, <code>eval_logs</code>) were not available and are cited as paths only.
+</footer>
+
+</div>
+</body>
+</html>

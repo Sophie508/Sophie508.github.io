@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>03_task_8942 · Monthly Paycheck Total</title>
+<style>
+  :root {
+    --ink: #1a2421;
+    --ink-soft: #2c3a34;
+    --ledger: #f3ecdf;
+    --paper: #faf6ee;
+    --rule: #c9bba3;
+    --rule-strong: #8a7a62;
+    --forest: #1f4d3a;
+    --forest-deep: #123528;
+    --moss: #3d6b52;
+    --brass: #b08d57;
+    --brass-bright: #d4a85c;
+    --coral: #c45c3e;
+    --sky-ink: #2a4a5a;
+    --success: #2f6b4f;
+    --muted: #6e6558;
+    --chip: #e7dfd0;
+    --shadow: 0 18px 50px rgba(26, 36, 33, 0.12);
+    --radius: 14px;
+    --mono: "IBM Plex Mono", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", Helvetica, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--sans);
+    background:
+      radial-gradient(ellipse 1200px 600px at 10% -10%, rgba(176,141,87,0.18), transparent 55%),
+      radial-gradient(ellipse 900px 500px at 100% 0%, rgba(31,77,58,0.12), transparent 50%),
+      linear-gradient(180deg, #efe6d4 0%, var(--ledger) 35%, #e8e0d0 100%);
+    min-height: 100vh;
+    line-height: 1.55;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.9'/></svg>");
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: min(1180px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 2rem 0 4rem;
+  }
+
+  /* Header */
+  .masthead {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 1.5rem;
+    align-items: end;
+    margin-bottom: 2rem;
+    animation: rise 0.8s ease both;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .eyebrows {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.28rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(138,122,98,0.35);
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .chip.ok { background: rgba(47,107,79,0.12); border-color: rgba(47,107,79,0.35); color: var(--forest); }
+  .chip.hot { background: rgba(196,92,62,0.12); border-color: rgba(196,92,62,0.3); color: var(--coral); }
+  .chip.meta { background: rgba(42,74,90,0.1); border-color: rgba(42,74,90,0.25); color: var(--sky-ink); }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(2.1rem, 4.5vw, 3.35rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.75rem;
+    color: var(--forest-deep);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--brass);
+    font-weight: 500;
+  }
+
+  .lede {
+    max-width: 46ch;
+    color: var(--muted);
+    font-size: 1.02rem;
+    margin: 0;
+  }
+
+  .stat-panel {
+    background: linear-gradient(155deg, var(--forest-deep), var(--forest) 55%, #2a6349);
+    color: #f4efe4;
+    border-radius: 18px;
+    padding: 1.25rem 1.35rem;
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.12);
+    position: relative;
+    overflow: hidden;
+    animation: rise 0.8s ease 0.1s both;
+  }
+
+  .stat-panel::after {
+    content: "";
+    position: absolute;
+    right: -30px;
+    top: -40px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,168,92,0.35), transparent 70%);
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .stat dt {
+    margin: 0;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .stat dd {
+    margin: 0.15rem 0 0;
+    font-family: var(--mono);
+    font-size: 0.98rem;
+    font-weight: 500;
+  }
+
+  /* Navigation */
+  nav.toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0 0 2rem;
+    position: sticky;
+    top: 0.65rem;
+    z-index: 20;
+    padding: 0.45rem;
+    background: rgba(250,246,238,0.82);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(138,122,98,0.25);
+    border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(26,36,33,0.06);
+    animation: rise 0.8s ease 0.15s both;
+  }
+
+  nav.toc a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 650;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  nav.toc a:hover,
+  nav.toc a:focus-visible {
+    background: var(--forest);
+    color: #f7f1e4;
+    outline: none;
+  }
+
+  section {
+    margin-bottom: 1.75rem;
+    animation: rise 0.7s ease both;
+  }
+
+  section:nth-of-type(1) { animation-delay: 0.18s; }
+  section:nth-of-type(2) { animation-delay: 0.24s; }
+  section:nth-of-type(3) { animation-delay: 0.3s; }
+  section:nth-of-type(4) { animation-delay: 0.36s; }
+  section:nth-of-type(5) { animation-delay: 0.42s; }
+  section:nth-of-type(6) { animation-delay: 0.48s; }
+
+  .panel {
+    background: var(--paper);
+    border: 1px solid rgba(138,122,98,0.28);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .panel-hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 1rem 1.25rem 0.85rem;
+    border-bottom: 1px dashed var(--rule);
+    background:
+      linear-gradient(90deg, rgba(31,77,58,0.06), transparent 40%),
+      linear-gradient(180deg, rgba(255,255,255,0.55), transparent);
+  }
+
+  .panel-hd h2 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--forest-deep);
+    letter-spacing: -0.01em;
+  }
+
+  .panel-hd .tag {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  .panel-bd { padding: 1.2rem 1.25rem 1.35rem; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 1.25rem;
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  p { margin: 0 0 0.9rem; color: var(--ink-soft); }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-left: 3px solid var(--brass);
+    background: rgba(176,141,87,0.1);
+    padding: 0.85rem 1rem;
+    border-radius: 0 10px 10px 0;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+
+  .callout strong { color: var(--forest-deep); }
+
+  /* Spreadsheet-ish table */
+  .sheet-tabs {
+    display: flex;
+    gap: 0.35rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .sheet-tab {
+    border: 1px solid var(--rule);
+    background: #ebe3d4;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 650;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: 0.15s ease;
+  }
+
+  .sheet-tab.active {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: #f6f0e4;
+  }
+
+  .sheet-frame {
+    border: 1px solid var(--rule-strong);
+    border-radius: 10px;
+    overflow: auto;
+    background:
+      linear-gradient(90deg, #d7cfc0 0 36px, transparent 36px),
+      repeating-linear-gradient(
+        180deg,
+        #fffdf8 0 32px,
+        #f7f1e6 32px 64px
+      );
+    max-height: 420px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+  }
+
+  table.sheet {
+    border-collapse: collapse;
+    min-width: 100%;
+    font-size: 0.82rem;
+  }
+
+  table.sheet th,
+  table.sheet td {
+    border: 1px solid rgba(138,122,98,0.28);
+    padding: 0.4rem 0.55rem;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  table.sheet thead th {
+    position: sticky;
+    top: 0;
+    background: #dfd5c2;
+    color: var(--ink);
+    font-weight: 700;
+    z-index: 2;
+    text-align: center;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+  }
+
+  table.sheet tbody th {
+    position: sticky;
+    left: 0;
+    background: #e8e0d1;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 36px;
+    z-index: 1;
+  }
+
+  table.sheet td {
+    font-family: var(--mono);
+    color: var(--ink);
+    background: rgba(255,253,248,0.72);
+  }
+
+  table.sheet td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.sheet td.lbl { font-family: var(--sans); font-weight: 600; color: var(--forest-deep); }
+  table.sheet td.formula {
+    color: var(--sky-ink);
+    font-size: 0.72rem;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  table.sheet tr.highlight td {
+    background: rgba(176,141,87,0.18);
+  }
+  table.sheet tr.answer td {
+    background: rgba(47,107,79,0.16);
+    box-shadow: inset 0 0 0 1px rgba(47,107,79,0.35);
+  }
+  table.sheet tr.month-match td {
+    background: rgba(31,77,58,0.12);
+  }
+
+  /* Demo */
+  .demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 1.2rem;
+    align-items: start;
+  }
+
+  .control-card {
+    background: linear-gradient(180deg, #fffaf1, #f2e9d8);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 1rem;
+  }
+
+  label.field {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  select, button.primary {
+    font: inherit;
+  }
+
+  select {
+    width: 100%;
+    border: 1px solid var(--rule-strong);
+    background: #fffdf8;
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 0.7rem 0.8rem;
+    font-family: var(--mono);
+    margin-bottom: 0.9rem;
+  }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+  }
+
+  .kpi {
+    background: var(--forest-deep);
+    color: #f5efe3;
+    border-radius: 12px;
+    padding: 0.85rem;
+  }
+
+  .kpi.alt {
+    background: linear-gradient(145deg, #5b4630, #8a6840);
+  }
+
+  .kpi .k {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.72;
+  }
+
+  .kpi .v {
+    font-family: var(--mono);
+    font-size: 1.45rem;
+    margin-top: 0.25rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kpi .s {
+    font-size: 0.78rem;
+    opacity: 0.75;
+    margin-top: 0.2rem;
+  }
+
+  .bars {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: 0.35rem;
+  }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: 52px 1fr 58px;
+    gap: 0.5rem;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+  }
+
+  .bar-track {
+    height: 10px;
+    background: #e5dccb;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--moss), var(--brass-bright));
+    border-radius: inherit;
+    transition: width 0.55s cubic-bezier(.2,.7,.2,1);
+  }
+
+  .bar-row.active .bar-fill {
+    background: linear-gradient(90deg, var(--coral), var(--brass-bright));
+  }
+  .bar-row.active .bar-label { color: var(--coral); font-weight: 700; }
+
+  /* Formula block */
+  .formula-box {
+    position: relative;
+    background: #14241d;
+    color: #e8e0d0;
+    border-radius: 12px;
+    padding: 1rem 1rem 1rem 1.1rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.55;
+    overflow-x: auto;
+    box-shadow: inset 0 0 0 1px rgba(212,168,92,0.25);
+  }
+
+  .formula-box .tok-fn { color: #8fd0a8; }
+  .formula-box .tok-str { color: #e2b56a; }
+  .formula-box .tok-ref { color: #9dc4e0; }
+  .formula-box .tok-op { color: #d98870; }
+  .formula-box .tok-cmt { color: #7f8a82; }
+
+  .formula-note {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.9rem;
+  }
+
+  .note-card {
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 0.75rem;
+  }
+
+  .note-card h3 {
+    margin: 0 0 0.35rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--forest);
+    font-family: var(--sans);
+  }
+
+  .note-card p {
+    margin: 0;
+    font-size: 0.88rem;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 1.4rem;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 0.45rem;
+    top: 0.2rem;
+    bottom: 0.2rem;
+    width: 2px;
+    background: linear-gradient(180deg, var(--brass), var(--forest));
+    border-radius: 2px;
+  }
+
+  .t-item {
+    position: relative;
+    padding: 0 0 1.15rem 0.85rem;
+  }
+
+  .t-item::before {
+    content: "";
+    position: absolute;
+    left: -1.08rem;
+    top: 0.35rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--forest);
+    box-shadow: 0 0 0 3px rgba(31,77,58,0.12);
+  }
+
+  .t-item.tool::before { border-color: var(--brass); }
+  .t-item.final::before { background: var(--forest); border-color: var(--forest); }
+
+  .t-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.65rem;
+    align-items: center;
+    margin-bottom: 0.3rem;
+  }
+
+  .t-meta .when {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .t-meta .kind {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: var(--chip);
+    color: var(--ink-soft);
+  }
+
+  .t-item.tool .kind { background: rgba(176,141,87,0.2); color: #7a5b28; }
+  .t-item.final .kind { background: rgba(47,107,79,0.18); color: var(--forest); }
+
+  .t-body {
+    background: rgba(255,253,248,0.7);
+    border: 1px solid rgba(138,122,98,0.22);
+    border-radius: 10px;
+    padding: 0.75rem 0.85rem;
+    font-size: 0.92rem;
+  }
+
+  .t-body pre {
+    margin: 0.5rem 0 0;
+    padding: 0.7rem;
+    background: #1a2421;
+    color: #e7dfd0;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    line-height: 1.45;
+  }
+
+  /* Code */
+  pre.code {
+    margin: 0;
+    padding: 1rem;
+    background: #151f1b;
+    color: #e8e0d0;
+    border-radius: 12px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.55;
+  }
+  pre.code .c { color: #7f9488; }
+  pre.code .s { color: #e2b56a; }
+  pre.code .k { color: #8fd0a8; }
+  pre.code .f { color: #9dc4e0; }
+
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pill-list li {
+    background: var(--chip);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.28rem 0.65rem;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  footer.site {
+    margin-top: 2rem;
+    padding: 1rem 0 0;
+    border-top: 1px dashed var(--rule);
+    color: var(--muted);
+    font-size: 0.82rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  details.raw {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.4);
+    padding: 0.4rem 0.75rem;
+  }
+  details.raw summary {
+    cursor: pointer;
+    font-weight: 650;
+    color: var(--forest-deep);
+    padding: 0.35rem 0;
+  }
+
+  @media (max-width: 900px) {
+    .masthead, .two-col, .demo-grid, .split, .formula-note, .three-col { grid-template-columns: 1fr; }
+    nav.toc { border-radius: 14px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="masthead">
+      <div>
+        <div class="eyebrows">
+          <span class="chip meta">SpreadsheetBench</span>
+          <span class="chip">spreadsheet_office</span>
+          <span class="chip ok">exit 0 · 31.1s</span>
+          <span class="chip hot">answer · Overview!B5</span>
+        </div>
+        <h1>One date pick.<br /><em>Whole-month</em> paycheck total.</h1>
+        <p class="lede">
+          Case <strong>03_task_8942</strong> asks an agent to replace a second month selector with a single formula:
+          given the bi-weekly date in <code>A2</code>, auto-sum every paycheck in that calendar month.
+        </p>
+      </div>
+      <aside class="stat-panel" aria-label="Run metadata">
+        <dl class="stat-grid">
+          <div class="stat"><dt>Model</dt><dd>gpt-5.6-sol</dd></div>
+          <div class="stat"><dt>Backend</dt><dd>gpt-5.6-sol</dd></div>
+          <div class="stat"><dt>Duration</dt><dd>31.1 s</dd></div>
+          <div class="stat"><dt>Trajectory</dt><dd>codex-jsonl</dd></div>
+          <div class="stat"><dt>Benchmark</dt><dd>SpreadsheetBench</dd></div>
+          <div class="stat"><dt>Collected</dt><dd>2026-07-11</dd></div>
+          <div class="stat"><dt>Source</dt><dd>regen</dd></div>
+          <div class="stat"><dt>Result</dt><dd>B5 = 4800 (Jan)</dd></div>
+        </dl>
+      </aside>
+    </header>
+
+    <nav class="toc" aria-label="Sections">
+      <a href="#task">Task</a>
+      <a href="#workbook">Workbook</a>
+      <a href="#demo">Live month demo</a>
+      <a href="#solution">Formula</a>
+      <a href="#trajectory">Trajectory</a>
+      <a href="#code">solve.py</a>
+    </nav>
+
+    <section id="task">
+      <div class="panel">
+        <div class="panel-hd">
+          <h2>The payroll puzzle</h2>
+          <span class="tag">workspace/prompt.txt</span>
+        </div>
+        <div class="panel-bd two-col">
+          <div>
+            <p>
+              The workbook keeps bi-weekly pay history on <strong>Pay Dates</strong> and a thin control surface on
+              <strong>Overview</strong>. Cell <code>A2</code> is a validated pay date. <code>B2</code>/<code>C2</code>
+              already pull that day’s two paycheck amounts with <code>INDEX/MATCH</code>, and <code>B4</code> sums them
+              as the bi-weekly total.
+            </p>
+            <p>
+              The missing piece: <code>B5</code> should roll up <em>all</em> paychecks whose dates fall in the same
+              calendar month as <code>A2</code>—without forcing the user to pick the month again in a separate
+              validation cell. <code>A4</code> stays the static bi-weekly label; ideally <code>A5</code> names the month
+              being totaled. The graded answer cell is explicit: <strong>Overview!B5</strong>.
+            </p>
+            <div class="callout">
+              <strong>Example.</strong> Choose 2016-01-29 in <code>A2</code> → bi-weekly line shows 1000 + 1000,
+              while <code>B5</code> should total every January pay event = <strong>4,800</strong>.
+            </div>
+          </div>
+          <div>
+            <div class="three-col" style="grid-template-columns:1fr; gap:0.7rem;">
+              <div class="note-card">
+                <h3>Inputs already working</h3>
+                <p><code>A2</code> date list · <code>B2/C2</code> INDEX/MATCH · <code>B4 = SUM(B2:C2)</code></p>
+              </div>
+              <div class="note-card">
+                <h3>Required write</h3>
+                <p>Put a dynamic monthly total formula in <code>Overview!B5</code> driven solely by <code>$A$2</code>.</p>
+              </div>
+              <div class="note-card">
+                <h3>Data shape</h3>
+                <p>26 bi-weekly rows across 2016, two paycheck columns each (B and C).</p>
+              </div>
+            </div>
+            <ul class="pill-list">
+              <li>openpyxl write path</li>
+              <li>input.xlsx → output.xlsx</li>
+              <li>EOMONTH month bounds</li>
+              <li>dual SUMIFS</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="workbook">
+      <div class="panel">
+        <div class="panel-hd">
+          <h2>Workbook surface</h2>
+          <span class="tag">input.xlsx · 2 sheets</span>
+        </div>
+        <div class="panel-bd">
+          <div class="sheet-tabs" role="tablist">
+            <button class="sheet-tab active" type="button" data-sheet="overview" role="tab" aria-selected="true">Overview</button>
+            <button class="sheet-tab" type="button" data-sheet="pay" role="tab" aria-selected="false">Pay Dates</button>
+          </div>
+
+          <div id="sheet-overview" class="sheet-frame" role="tabpanel">
+            <table class="sheet">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>A</th>
+                  <th>B</th>
+                  <th>C</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>1</th>
+                  <td class="lbl">Date</td>
+                  <td class="lbl">Paycheck 1</td>
+                  <td class="lbl">Pay check 2</td>
+                </tr>
+                <tr class="highlight">
+                  <th>2</th>
+                  <td>2016-01-29</td>
+                  <td class="formula" title="INDEX/MATCH">=INDEX('Pay Dates'!$B:$B,MATCH(Overview!$A2,'Pay Dates'!$A:$A,0))</td>
+                  <td class="formula" title="INDEX/MATCH">=INDEX('Pay Dates'!$C:$C,MATCH(Overview!$A2,'Pay Dates'!$A:$A,0))</td>
+                </tr>
+                <tr>
+                  <th>3</th>
+                  <td></td><td></td><td></td>
+                </tr>
+                <tr>
+                  <th>4</th>
+                  <td class="lbl">Total Bi Weekly …</td>
+                  <td class="formula">=SUM(B2:C2)</td>
+                  <td></td>
+                </tr>
+                <tr class="answer">
+                  <th>5</th>
+                  <td class="lbl">Total Monthly …</td>
+                  <td class="lbl">⟵ write monthly formula here</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="sheet-pay" class="sheet-frame" role="tabpanel" hidden>
+            <table class="sheet" id="pay-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>A · Date</th>
+                  <th>B · Paycheck 1</th>
+                  <th>C · Paycheck 2</th>
+                  <th>Row total</th>
+                  <th>Month</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="panel">
+        <div class="panel-hd">
+          <h2>Month-from-date calculator</h2>
+          <span class="tag">interactive · mirrors B5 logic</span>
+        </div>
+        <div class="panel-bd demo-grid">
+          <div class="control-card">
+            <label class="field" for="date-select">Overview!A2 — pay date</label>
+            <select id="date-select"></select>
+
+            <div class="kpi-row">
+              <div class="kpi">
+                <div class="k">Bi-weekly B4</div>
+                <div class="v" id="kpi-bi">—</div>
+                <div class="s">Paycheck 1 + 2 for A2</div>
+              </div>
+              <div class="kpi alt">
+                <div class="k">Monthly B5</div>
+                <div class="v" id="kpi-mo">—</div>
+                <div class="s" id="kpi-mo-label">Sum of month containing A2</div>
+              </div>
+            </div>
+
+            <p style="margin-top:0.9rem;font-size:0.9rem;">
+              Bounds used by the formula:
+              <br /><code id="bound-text" style="font-family:var(--mono);font-size:0.78rem;color:var(--forest-deep);"></code>
+            </p>
+            <div class="callout" style="margin-top:0.75rem;">
+              Changing only the date drives both the row lookup and the month rollup—no second dropdown.
+            </div>
+          </div>
+
+          <div>
+            <label class="field">2016 monthly paycheck mass</label>
+            <div class="bars" id="month-bars" aria-label="Monthly totals chart"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="solution">
+      <div class="panel">
+        <div class="panel-hd">
+          <h2>Solution formula</h2>
+          <span class="tag">Overview!B5</span>
+        </div>
+        <div class="panel-bd">
+          <p>
+            Because Excel stores the chosen pay day as a full date, the month window can be derived with
+            <code>EOMONTH</code>: first day = <code>EOMONTH($A$2,-1)+1</code>, last day = <code>EOMONTH($A$2,0)</code>.
+            Sum paycheck columns B and C independently with <code>SUMIFS</code> over those bounds, then add.
+          </p>
+          <div class="formula-box" id="formula-display">
+            <span class="tok-op">=</span><span class="tok-fn">SUMIFS</span>(<span class="tok-ref">'Pay Dates'!$B:$B</span>,<span class="tok-ref">'Pay Dates'!$A:$A</span>,<span class="tok-str">">="</span><span class="tok-op">&</span><span class="tok-fn">EOMONTH</span>(<span class="tok-ref">$A$2</span>,<span class="tok-op">-1</span>)<span class="tok-op">+1</span>,<span class="tok-ref">'Pay Dates'!$A:$A</span>,<span class="tok-str">"<="</span><span class="tok-op">&</span><span class="tok-fn">EOMONTH</span>(<span class="tok-ref">$A$2</span>,<span class="tok-op">0</span>))
+            <span class="tok-op">+</span><span class="tok-fn">SUMIFS</span>(<span class="tok-ref">'Pay Dates'!$C:$C</span>,<span class="tok-ref">'Pay Dates'!$A:$A</span>,<span class="tok-str">">="</span><span class="tok-op">&</span><span class="tok-fn">EOMONTH</span>(<span class="tok-ref">$A$2</span>,<span class="tok-op">-1</span>)<span class="tok-op">+1</span>,<span class="tok-ref">'Pay Dates'!$A:$A</span>,<span class="tok-str">"<="</span><span class="tok-op">&</span><span class="tok-fn">EOMONTH</span>(<span class="tok-ref">$A$2</span>,<span class="tok-op">0</span>))
+          </div>
+          <div class="formula-note">
+            <div class="note-card">
+              <h3>Why EOMONTH</h3>
+              <p>Converts any in-month date into closed month boundaries without helper cells or TEXT parsing.</p>
+            </div>
+            <div class="note-card">
+              <h3>Why two SUMIFS</h3>
+              <p>Pay amounts live in two columns. Summing each column on the same date criteria preserves layout.</p>
+            </div>
+            <div class="note-card">
+              <h3>Scope note</h3>
+              <p>Agent wrote only the graded cell B5. A5 month-name labeling was described in prose but not required by the answer-cell hint.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="trajectory">
+      <div class="panel">
+        <div class="panel-hd">
+          <h2>Trajectory · short & decisive</h2>
+          <span class="tag">14 events · ~29s wall</span>
+        </div>
+        <div class="panel-bd">
+          <div class="timeline">
+            <div class="t-item">
+              <div class="t-meta">
+                <span class="kind">assistant</span>
+                <span class="when">22:11:09Z</span>
+              </div>
+              <div class="t-body">
+                Opens with a plan: inspect existing formulas/formatting, write a month-based formula into
+                <code>Overview!B5</code>, save <code>output.xlsx</code>.
+              </div>
+            </div>
+
+            <div class="t-item tool">
+              <div class="t-meta">
+                <span class="kind">exec</span>
+                <span class="when">inspect input.xlsx</span>
+              </div>
+              <div class="t-body">
+                Loads the workbook with openpyxl; prints sheet names, dimensions, and the first rows of
+                Overview and Pay Dates to confirm INDEX/MATCH wiring and the 2016-01-29 selection.
+                <details class="raw" style="margin-top:0.55rem;">
+                  <summary>Inspection intent</summary>
+                  <pre>from openpyxl import load_workbook
+wb = load_workbook('input.xlsx')
+for s in wb.sheetnames:
+    ws = wb[s]
+    print(s, ws.max_row, ws.max_column)
+    ...</pre>
+                </details>
+              </div>
+            </div>
+
+            <div class="t-item">
+              <div class="t-meta">
+                <span class="kind">assistant</span>
+                <span class="when">reasoning aloud</span>
+              </div>
+              <div class="t-body">
+                “The existing selection in <code>A2</code> is a full pay date, so <code>B5</code> can use that date’s
+                month boundaries and sum both paycheck columns for every matching date. I’ll keep <code>A4</code>
+                unchanged and make no second month selector necessary.”
+              </div>
+            </div>
+
+            <div class="t-item tool">
+              <div class="t-meta">
+                <span class="kind">apply_patch + exec</span>
+                <span class="when">22:11:23Z · 0.7s</span>
+              </div>
+              <div class="t-body">
+                Writes <code>solve.py</code>, runs it, re-opens <code>output.xlsx</code>, and verifies
+                <code>Overview!B5</code> holds the SUMIFS formula. openpyxl warns that data-validation extensions
+                are stripped on round-trip—the formula cell itself is intact.
+              </div>
+            </div>
+
+            <div class="t-item final">
+              <div class="t-meta">
+                <span class="kind">final answer</span>
+                <span class="when">22:11:32Z</span>
+              </div>
+              <div class="t-body">
+                Reports <code>output.xlsx</code> created. States that for January 29 the monthly total evaluates to
+                <strong>4800</strong>, matching the three January pay rows:
+                (800+500) + (900+600) + (1000+1000).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="code">
+      <div class="panel">
+        <div class="panel-hd">
+          <h2>solve.py artifact</h2>
+          <span class="tag">workspace/solve.py</span>
+        </div>
+        <div class="panel-bd split">
+          <pre class="code"><span class="k">from</span> openpyxl <span class="k">import</span> load_workbook
+
+input_path = <span class="s">".../input.xlsx"</span>
+output_path = <span class="s">".../output.xlsx"</span>
+
+workbook = load_workbook(input_path)
+overview = workbook[<span class="s">"Overview"</span>]
+
+<span class="c"># Sum both paycheck columns for every pay date</span>
+<span class="c"># in the month selected in A2.</span>
+overview[<span class="s">"B5"</span>] = (
+    <span class="s">"=SUMIFS('Pay Dates'!$B:$B,'Pay Dates'!$A:$A,\">=\"&EOMONTH($A$2,-1)+1,"</span>
+    <span class="s">"'Pay Dates'!$A:$A,\"<=\"&EOMONTH($A$2,0))"</span>
+    <span class="s">"+SUMIFS('Pay Dates'!$C:$C,'Pay Dates'!$A:$A,\">=\"&EOMONTH($A$2,-1)+1,"</span>
+    <span class="s">"'Pay Dates'!$A:$A,\"<=\"&EOMONTH($A$2,0))"</span>
+)
+
+workbook.save(output_path)
+<span class="f">print</span>(<span class="s">"Overview!B5 ="</span>, overview[<span class="s">"B5"</span>].value)</pre>
+          <div>
+            <div class="note-card" style="margin-bottom:0.75rem;">
+              <h3>Outcome</h3>
+              <p>
+                Clean single-cell fix. Sepulated formula string stays fully dynamic, so every future date pick on
+                the Overview sheet recomputes the month total without Python openpyxl recalculation.
+              </p>
+            </div>
+            <div class="note-card" style="margin-bottom:0.75rem;">
+              <h3>January cross-check</h3>
+              <p>
+                01-01 → 1,300 · 01-15 → 1,500 · 01-29 → 2,000 · <strong>month = 4,800</strong>
+              </p>
+            </div>
+            <div class="note-card">
+              <h3>Case meta</h3>
+              <p>
+                Domain spreadsheet_office · format codex-jsonl · sha256
+                <span style="font-family:var(--mono);font-size:0.72rem;word-break:break-all;">7d439b337db4c096…625bccd6</span>
+                · references: none
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site">
+      <span>03_task_8942 · SpreadsheetBench · ledger brief</span>
+      <span>Self-contained HTML · no external resources</span>
+    </footer>
+  </div>
+
+<script>
+const PAY = [
+  ["2016-01-01", 800, 500],
+  ["2016-01-15", 900, 600],
+  ["2016-01-29", 1000, 1000],
+  ["2016-02-12", 1500, 800],
+  ["2016-02-26", 2000, 500],
+  ["2016-03-11", 900, 1000],
+  ["2016-03-25", 800, 500],
+  ["2016-04-08", 900, 600],
+  ["2016-04-22", 1000, 1000],
+  ["2016-05-06", 1500, 800],
+  ["2016-05-20", 2000, 500],
+  ["2016-06-03", 900, 1000],
+  ["2016-06-17", 800, 500],
+  ["2016-07-01", 900, 600],
+  ["2016-07-15", 1000, 1000],
+  ["2016-07-29", 1500, 800],
+  ["2016-08-12", 2000, 500],
+  ["2016-08-26", 900, 1000],
+  ["2016-09-09", 800, 500],
+  ["2016-09-23", 900, 600],
+  ["2016-10-07", 1000, 1000],
+  ["2016-11-04", 1500, 800],
+  ["2016-11-18", 2000, 500],
+  ["2016-12-02", 900, 1000],
+  ["2016-12-16", 500, 900],
+  ["2016-12-30", 1000, 5000]
+];
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function parseISO(s) {
+  const [y,m,d] = s.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function fmt(n) {
+  return n.toLocaleString("en-US");
+}
+
+function monthKey(d) {
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+}
+
+function monthBounds(d) {
+  const start = new Date(d.getFullYear(), d.getMonth(), 1);
+  const end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  return { start, end };
+}
+
+function fmtDate(d) {
+  return d.toISOString().slice(0,10);
+}
+
+// Build pay table
+const payBody = document.querySelector("#pay-table tbody");
+PAY.forEach((row, i) => {
+  const [ds, b, c] = row;
+  const d = parseISO(ds);
+  const tr = document.createElement("tr");
+  tr.dataset.month = monthKey(d);
+  tr.innerHTML = `
+    <th>${i + 2}</th>
+    <td>${ds}</td>
+    <td class="num">${fmt(b)}</td>
+    <td class="num">${fmt(c)}</td>
+    <td class="num">${fmt(b + c)}</td>
+    <td>${MONTHS[d.getMonth()]}</td>`;
+  payBody.appendChild(tr);
+});
+
+// Monthly totals
+const monthly = {};
+PAY.forEach(([ds,b,c]) => {
+  const d = parseISO(ds);
+  const k = monthKey(d);
+  monthly[k] = (monthly[k] || 0) + b + c;
+});
+const maxMonth = Math.max(...Object.values(monthly));
+
+const bars = document.getElementById("month-bars");
+for (let m = 1; m <= 12; m++) {
+  const k = "2016-" + String(m).padStart(2,"0");
+  const val = monthly[k] || 0;
+  const row = document.createElement("div");
+  row.className = "bar-row";
+  row.dataset.month = k;
+  row.innerHTML = `
+    <span class="bar-label">${MONTHS[m-1]}</span>
+    <div class="bar-track"><div class="bar-fill" data-w="${(val/maxMonth)*100}"></div></div>
+    <span class="num">${fmt(val)}</span>`;
+  bars.appendChild(row);
+}
+
+// Animate bars after paint
+requestAnimationFrame(() => {
+  document.querySelectorAll(".bar-fill").forEach(el => {
+    el.style.width = el.dataset.w + "%";
+  });
+});
+
+// Date select
+const sel = document.getElementById("date-select");
+PAY.forEach(([ds]) => {
+  const opt = document.createElement("option");
+  opt.value = ds;
+  opt.textContent = ds;
+  if (ds === "2016-01-29") opt.selected = true;
+  sel.appendChild(opt);
+});
+
+function refresh() {
+  const ds = sel.value;
+  const d = parseISO(ds);
+  const entry = PAY.find(r => r[0] === ds);
+  const bi = entry[1] + entry[2];
+  const { start, end } = monthBounds(d);
+  const mk = monthKey(d);
+  const mo = monthly[mk] || 0;
+
+  document.getElementById("kpi-bi").textContent = fmt(bi);
+  document.getElementById("kpi-mo").textContent = fmt(mo);
+  document.getElementById("kpi-mo-label").textContent =
+    `Total ${FULL[d.getMonth()]} ${d.getFullYear()} · from A2`;
+  document.getElementById("bound-text").textContent =
+    `>= ${fmtDate(start)}  and  <= ${fmtDate(end)}   (EOMONTH bounds)`;
+
+  document.querySelectorAll("#pay-table tbody tr").forEach(tr => {
+    tr.classList.toggle("month-match", tr.dataset.month === mk);
+    if (tr.children[1] && tr.children[1].textContent === ds) {
+      tr.classList.add("highlight");
+    } else {
+      tr.classList.remove("highlight");
+    }
+  });
+
+  document.querySelectorAll(".bar-row").forEach(row => {
+    row.classList.toggle("active", row.dataset.month === mk);
+  });
+}
+
+sel.addEventListener("change", refresh);
+refresh();
+
+// Sheet tabs
+document.querySelectorAll(".sheet-tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".sheet-tab").forEach(b => {
+      b.classList.remove("active");
+      b.setAttribute("aria-selected", "false");
+    });
+    btn.classList.add("active");
+    btn.setAttribute("aria-selected", "true");
+    const which = btn.dataset.sheet;
+    document.getElementById("sheet-overview").hidden = which !== "overview";
+    document.getElementById("sheet-pay").hidden = which !== "pay";
+  });
+});
+</script>
+</body>
+</html>

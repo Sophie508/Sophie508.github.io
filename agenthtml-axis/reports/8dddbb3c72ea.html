@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case report: 03_stockindex_query1</title>
+<style>
+  :root {
+    --bg: #fafaf8;
+    --fg: #1d1d1b;
+    --muted: #5c5c57;
+    --line: #d9d9d3;
+    --card: #ffffff;
+    --ok: #1f7a4d;
+    --ok-bg: #e6f4ec;
+    --fail: #a8322b;
+    --fail-bg: #fbe9e7;
+    --warn: #8a6100;
+    --warn-bg: #fff4d6;
+    --info-bg: #e8eef7;
+    --code-bg: #f1f1ec;
+    --accent: #2b4c7e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px; line-height: 1.5; }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; line-height: 1.25; }
+  h2 { font-size: 1.25rem; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.05rem; margin: 20px 0 8px; }
+  p { margin: 0 0 12px; }
+  .sub { color: var(--muted); margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .card .k { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  .card .v { font-size: 1.05rem; font-weight: 600; margin-top: 2px; word-break: break-word; }
+  .verdict { border-left: 5px solid var(--ok); background: var(--ok-bg); padding: 14px 16px; border-radius: 6px; margin: 16px 0; }
+  .verdict strong { font-size: 1.1rem; }
+  .note { border-left: 5px solid var(--warn); background: var(--warn-bg); padding: 12px 16px; border-radius: 6px; margin: 16px 0; }
+  .info { border-left: 5px solid var(--accent); background: var(--info-bg); padding: 12px 16px; border-radius: 6px; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; background: var(--card); font-size: 0.93rem; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #efefe9; font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tablewrap { overflow-x: auto; }
+  code, pre { font-family: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; font-size: 0.86rem; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; padding: 12px; overflow-x: auto; white-space: pre; margin: 8px 0 14px; }
+  pre.wrap { white-space: pre-wrap; word-break: break-word; }
+  .badge { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .badge.ok { background: var(--ok-bg); color: var(--ok); }
+  .badge.fail { background: var(--fail-bg); color: var(--fail); }
+  .badge.neutral { background: #ecece6; color: var(--muted); }
+  .badge.warn { background: var(--warn-bg); color: var(--warn); }
+  .step { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin: 10px 0; }
+  .step summary { cursor: pointer; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; list-style: none; }
+  .step summary::-webkit-details-marker { display: none; }
+  .step summary::before { content: "\25B8"; color: var(--muted); width: 1em; }
+  .step[open] summary::before { content: "\25BE"; }
+  .step .body { padding: 0 14px 14px; border-top: 1px solid var(--line); }
+  .step .t { color: var(--muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+  .step .title { font-weight: 600; flex: 1 1 200px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
+  button { font: inherit; font-size: 0.88rem; padding: 6px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--fg); cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  ul { padding-left: 22px; margin: 0 0 12px; }
+  li { margin-bottom: 4px; }
+  .bar { height: 14px; background: var(--accent); border-radius: 3px; min-width: 2px; }
+  .barcell { width: 40%; }
+  footer { margin-top: 40px; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 12px; }
+  @media (max-width: 600px) {
+    html, body { font-size: 15px; }
+    h1 { font-size: 1.35rem; }
+    .barcell { width: 25%; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Case report: 03_stockindex_query1</h1>
+<p class="sub">DataAgentBench, data_analysis domain. Recorded agent: gpt-5.6-sol, Codex JSONL trajectory. Collected 2026-07-11. Report generated 2026-09-20 from the supplied case files only.</p>
+
+<div class="verdict">
+  <strong>Recorded outcome: the agent answered &ldquo;Shenzhen Component Index (399001.SZ)&rdquo;</strong> with an average daily intraday range of 1.8341% since 2020, computed as (High &minus; Low) / Open &times; 100 over 342 trading days. The trajectory exited with code 0. The computation succeeded on the eighth of nine shell attempts. Six attempts failed on shell quoting and sandbox limits, not on the data. This report could not independently recompute the number because no DuckDB engine is available in the reporting environment.
+</div>
+
+<div class="grid">
+  <div class="card"><div class="k">Case id</div><div class="v">03_stockindex_query1</div></div>
+  <div class="card"><div class="k">Benchmark / domain</div><div class="v">DataAgentBench / data_analysis</div></div>
+  <div class="card"><div class="k">Model / backend</div><div class="v">gpt-5.6-sol</div></div>
+  <div class="card"><div class="k">Recorded duration</div><div class="v">4248.1 s (about 70.8 min)</div></div>
+  <div class="card"><div class="k">Exit code</div><div class="v">0</div></div>
+  <div class="card"><div class="k">Trajectory</div><div class="v">36 JSONL items, 51,977 bytes</div></div>
+  <div class="card"><div class="k">Shell calls</div><div class="v">9 total: 3 succeeded, 6 failed</div></div>
+  <div class="card"><div class="k">Active work time</div><div class="v">About 1.7 min, plus one 69 min gap</div></div>
+</div>
+
+<h2>1. Objective</h2>
+<p>The task statement (workspace/prompt.txt, identical to the user message recorded in the trajectory) was:</p>
+<pre class="wrap">Answer this data analysis question. Write and run Python code that computes
+and prints the answer.
+
+Question: Which stock index in the Asia region has exhibited the highest average intraday volatility since 2020?
+
+Data files (query them with Python; engine noted per file):
+  - .../workspace/data/indexInfo_query.db (SQLite)
+  - .../workspace/data/indextrade_query.db (DuckDB)</pre>
+<p>The recorded absolute paths point to a workspace under <code>/Users/julia/Git/agentHTML/trajs_regen/...</code> on the original host. The two database files are included in this case at <code>workspace/data/</code>.</p>
+
+<h3>Recorded environment constraints</h3>
+<ul>
+  <li><strong>Read-only sandbox.</strong> The developer message set <code>sandbox_mode</code> to read-only with network restricted and approval policy &ldquo;never&rdquo;. This later blocked shell heredocs (the shell could not create a temp file).</li>
+  <li><strong>Multi-agent mode present but disabled.</strong> The agent was told it could spawn sub-agents, then told not to unless explicitly asked. It did not spawn any.</li>
+  <li><strong>Unrelated AGENTS.md content.</strong> The workspace instructions described an unrelated project state (an &ldquo;AgentHTML&rdquo; research pipeline with recovery-order steps). The agent did not act on it, which was appropriate for this task.</li>
+  <li><strong>Shell was zsh</strong>, timezone America/Indiana/Indianapolis, current date 2026-07-11.</li>
+</ul>
+
+<h2>2. Data as recorded</h2>
+<p>The agent inspected both files on its second shell attempt. The recorded schema and samples were:</p>
+
+<h3>indexInfo_query.db (SQLite)</h3>
+<p>One table, <code>index_info</code>, with two text columns: Exchange and Currency. It has 14 rows and no ticker or region column. This report verified the file directly and found the same 14 rows.</p>
+<div class="tablewrap">
+<table>
+  <tr><th>#</th><th>Exchange</th><th>Currency</th><th>#</th><th>Exchange</th><th>Currency</th></tr>
+  <tr><td>1</td><td>New York Stock Exchange</td><td>USD</td><td>8</td><td>Toronto Stock Exchange</td><td>CAD</td></tr>
+  <tr><td>2</td><td>NASDAQ</td><td>USD</td><td>9</td><td>National Stock Exchange of India</td><td>INR</td></tr>
+  <tr><td>3</td><td>Hong Kong Stock Exchange</td><td>HKD</td><td>10</td><td>Frankfurt Stock Exchange</td><td>EUR</td></tr>
+  <tr><td>4</td><td>Shanghai Stock Exchange</td><td>CNY</td><td>11</td><td>Korea Exchange</td><td>KRW</td></tr>
+  <tr><td>5</td><td>Tokyo Stock Exchange</td><td>JPY</td><td>12</td><td>SIX Swiss Exchange</td><td>CHF</td></tr>
+  <tr><td>6</td><td>Euronext</td><td>EUR</td><td>13</td><td>Taiwan Stock Exchange</td><td>TWD</td></tr>
+  <tr><td>7</td><td>Shenzhen Stock Exchange</td><td>CNY</td><td>14</td><td>Johannesburg Stock Exchange</td><td>ZAR</td></tr>
+</table>
+</div>
+
+<h3>indextrade_query.db (DuckDB)</h3>
+<p>One table, <code>index_trade</code>, with columns Index (VARCHAR), Date (VARCHAR), Open, High, Low, Close, Adj Close, CloseUSD (all DOUBLE). The Date column is a string in at least three different formats, which the agent noticed from the very first sample rows:</p>
+<pre class="wrap">('HSI', '31 Dec 1986, 00:00', 2568.300049, ...)
+('HSI', 'January 02, 1987 at 12:00 AM', 2540.100098, ...)
+('HSI', '1987-01-05 00:00:00', 2552.399902, ...)</pre>
+<p>Recorded row counts per ticker (13 tickers, all history, not just 2020 onward):</p>
+<div class="tablewrap">
+<table>
+  <tr><th>Ticker</th><th class="num">Rows</th><th>Ticker</th><th class="num">Rows</th><th>Ticker</th><th class="num">Rows</th></tr>
+  <tr><td>000001.SS</td><td class="num">5,791</td><td>HSI</td><td class="num">8,492</td><td>NSEI</td><td class="num">3,346</td></tr>
+  <tr><td>399001.SZ</td><td class="num">5,760</td><td>IXIC</td><td class="num">12,690</td><td>NYA</td><td class="num">13,947</td></tr>
+  <tr><td>GDAXI</td><td class="num">8,438</td><td>J203.JO</td><td class="num">2,346</td><td>SSMI</td><td class="num">7,671</td></tr>
+  <tr><td>GSPTSE</td><td class="num">10,526</td><td>N100</td><td class="num">5,474</td><td>TWII</td><td class="num">5,869</td></tr>
+  <tr><td colspan="2"></td><td>N225</td><td class="num">13,874</td><td colspan="2"></td></tr>
+</table>
+</div>
+<div class="info">
+  <strong>Observation on the region mapping.</strong> Neither table links tickers to exchanges or regions. The agent's message at 22:17:21 said &ldquo;the metadata identifies six traded Asia-region indexes&rdquo;, but the recorded metadata only lists exchange names. The six-ticker Asia list (HSI, 000001.SS, N225, 399001.SZ, NSEI, TWII) was hard-coded from the agent's own knowledge, not derived from the data. The mapping is plausible: Korea Exchange appears in the metadata but has no ticker in the trade table, so 13 tickers versus 14 exchanges is consistent.
+</div>
+
+<h2>3. Method chosen</h2>
+<p>The agent stated its metric explicitly before computing it: daily percentage range, (High &minus; Low) / Open &times; 100, averaged per index over rows dated 2020-01-01 or later. It justified this over raw index points, which would be distorted by index scale. The final query also filtered to Open &gt; 0 and non-null High and Low, and parsed dates with three <code>try_strptime</code> patterns combined via COALESCE. A separate count confirmed zero unparsed dates across the whole table.</p>
+<p>The final successful query, as recorded:</p>
+<pre>WITH parsed AS (
+ SELECT "Index" AS idx,
+ COALESCE(try_strptime("Date", '%Y-%m-%d %H:%M:%S'),
+          try_strptime("Date", '%d %b %Y, %H:%M'),
+          try_strptime("Date", '%B %d, %Y at %I:%M %p')) AS dt,
+ "Open" AS op, "High" AS hi, "Low" AS lo
+ FROM index_trade
+), asia(idx,name) AS (
+ VALUES ('HSI','Hang Seng Index'), ('000001.SS','Shanghai Composite'),
+ ('N225','Nikkei 225'), ('399001.SZ','Shenzhen Component'),
+ ('NSEI','Nifty 50'), ('TWII','Taiwan Weighted')
+)
+SELECT name, idx, COUNT(*) AS trading_days,
+ ROUND(AVG(100*(hi-lo)/op),4) AS avg_intraday_volatility_pct
+FROM parsed JOIN asia USING(idx)
+WHERE dt >= DATE '2020-01-01' AND op > 0 AND hi IS NOT NULL AND lo IS NOT NULL
+GROUP BY name,idx ORDER BY avg_intraday_volatility_pct DESC</pre>
+
+<h2>4. Recorded results</h2>
+<p>Output of the successful run at 23:27:27 UTC:</p>
+<div class="tablewrap">
+<table id="results">
+  <tr><th>Rank</th><th>Index</th><th>Ticker</th><th class="num">Trading days</th><th class="num">Avg intraday range (%)</th><th class="barcell">Relative</th></tr>
+  <tr><td>1</td><td>Shenzhen Component</td><td>399001.SZ</td><td class="num">342</td><td class="num">1.8341</td><td class="barcell"><div class="bar" data-v="1.8341"></div></td></tr>
+  <tr><td>2</td><td>Nifty 50</td><td>NSEI</td><td class="num">349</td><td class="num">1.7072</td><td class="barcell"><div class="bar" data-v="1.7072"></div></td></tr>
+  <tr><td>3</td><td>Hang Seng Index</td><td>HSI</td><td class="num">348</td><td class="num">1.4932</td><td class="barcell"><div class="bar" data-v="1.4932"></div></td></tr>
+  <tr><td>4</td><td>Shanghai Composite</td><td>000001.SS</td><td class="num">340</td><td class="num">1.3781</td><td class="barcell"><div class="bar" data-v="1.3781"></div></td></tr>
+  <tr><td>5</td><td>Nikkei 225</td><td>N225</td><td class="num">344</td><td class="num">1.3427</td><td class="barcell"><div class="bar" data-v="1.3427"></div></td></tr>
+  <tr><td>6</td><td>Taiwan Weighted</td><td>TWII</td><td class="num">339</td><td class="num">1.3225</td><td class="barcell"><div class="bar" data-v="1.3225"></div></td></tr>
+</table>
+</div>
+<p>Unparsed dates reported: 0. The recorded trading-day counts of roughly 340 to 349 per index since 2020 imply the data ends well before 2026, but the agent's follow-up attempt to print the min and max date failed and was never retried, so the exact date range of the data is not recorded.</p>
+
+<h3>Final answer as delivered by the agent</h3>
+<pre class="wrap">The **Shenzhen Component Index (`399001.SZ`)** had the highest average intraday volatility since 2020.
+
+Using daily percentage range:
+
+    intraday_volatility = (High - Low) / Open * 100
+
+the computed average was **1.8341% per trading day** across 342 observations.
+
+Top results:
+Shenzhen Component   1.8341%
+Nifty 50             1.7072%
+Hang Seng Index      1.4932%
+Shanghai Composite   1.3781%
+Nikkei 225           1.3427%
+Taiwan Weighted      1.3225%
+
+All date values parsed successfully.</pre>
+<p>The final answer is consistent with the recorded tool output. It does not mention that the Asia mapping was hand-supplied, nor that the date-range check failed.</p>
+
+<h2>5. Timeline of recorded work</h2>
+<p>All timestamps are UTC on 2026-07-11. Each shell call ran through the harness's <code>exec</code> tool, which wraps a JavaScript snippet that invokes <code>tools.exec_command</code>. Click a step to expand its details.</p>
+<div class="controls">
+  <button type="button" data-act="open">Expand all</button>
+  <button type="button" data-act="close">Collapse all</button>
+  <button type="button" data-act="fails">Expand failures only</button>
+</div>
+
+<details class="step">
+  <summary><span class="t">22:16:52</span><span class="title">Task received; agent states plan</span><span class="badge neutral">message</span></summary>
+  <div class="body"><p>Agent: &ldquo;I'll inspect both database schemas, identify the Asia-region indexes, and compute average intraday volatility from 2020 onward. I'll make the volatility definition explicit in the result.&rdquo;</p></div>
+</details>
+
+<details class="step" data-status="fail">
+  <summary><span class="t">22:16:59</span><span class="title">Exec 1: schema inspection via shell heredoc</span><span class="badge fail">failed</span></summary>
+  <div class="body">
+    <p>A <code>python - &lt;&lt;'PY' ... PY</code> heredoc was used to inspect both databases. The read-only sandbox blocked it.</p>
+    <pre class="wrap">zsh:1: can't create temp file for here document: operation not permitted</pre>
+    <p><strong>Recovery:</strong> the agent recognised the sandbox cause and announced a switch to direct <code>python -c</code> invocation.</p>
+  </div>
+</details>
+
+<details class="step" data-status="ok">
+  <summary><span class="t">22:17:07</span><span class="title">Exec 2: schema inspection as a python -c one-liner</span><span class="badge ok">succeeded</span></summary>
+  <div class="body">
+    <p>Returned the table names, column definitions, and three sample rows for each database. This revealed the Exchange/Currency-only metadata table and the mixed-format Date strings shown in section 2.</p>
+  </div>
+</details>
+
+<details class="step" data-status="ok">
+  <summary><span class="t">22:17:16</span><span class="title">Exec 3: row inventory</span><span class="badge ok">succeeded</span></summary>
+  <div class="body">
+    <p>Printed all 14 metadata rows, row counts for all 13 tickers, and 20 distinct sample dates confirming three date formats (ISO with time, &ldquo;dd Mon yyyy, HH:MM&rdquo;, and &ldquo;Month dd, yyyy at hh:MM AM&rdquo;).</p>
+  </div>
+</details>
+
+<details class="step">
+  <summary><span class="t">22:17:21</span><span class="title">Agent declares Asia set and metric</span><span class="badge neutral">message</span></summary>
+  <div class="body"><p>Agent: &ldquo;The metadata identifies six traded Asia-region indexes in the price table: Hang Seng, Shanghai Composite, Nikkei 225, Shenzhen Component, Nifty 50, and Taiwan Weighted. I'm using the comparable daily percentage range, (High &minus; Low) / Open &times; 100, rather than raw index points, which would be distorted by index scale.&rdquo; See section 2 for why the phrase &ldquo;metadata identifies&rdquo; overstates what the data contains.</p></div>
+</details>
+
+<details class="step" data-status="fail">
+  <summary><span class="t">22:17:31</span><span class="title">Exec 4: full volatility query as a python -c one-liner</span><span class="badge fail">failed</span></summary>
+  <div class="body">
+    <p>The SQL contained single quotes inside a single-quoted shell argument, with multiple escape layers. zsh rejected it.</p>
+    <pre class="wrap">zsh:1: parse error near `)'</pre>
+  </div>
+</details>
+
+<details class="step" data-status="warn">
+  <summary><span class="t">22:17:33 &rarr; 23:26:51</span><span class="title">Unexplained gap of about 69 minutes</span><span class="badge warn">gap</span></summary>
+  <div class="body">
+    <p>After an encrypted reasoning item at 22:17:33, the next recorded event is a tool call at 23:26:51. No message, error, or tool output explains the pause. The turn id is unchanged before and after, and the recorded duration of 4248.1 s is consistent with this gap. The cause is not recoverable from the case files.</p>
+  </div>
+</details>
+
+<details class="step" data-status="fail">
+  <summary><span class="t">23:26:51</span><span class="title">Exec 5: base64-encode the script using TextEncoder</span><span class="badge fail">failed</span></summary>
+  <div class="body">
+    <p>To sidestep shell quoting, the agent tried to base64-encode the Python script inside the JavaScript exec wrapper and run it via <code>exec(base64.b64decode(...))</code>. The wrapper runtime lacked the Web API.</p>
+    <pre class="wrap">ReferenceError: TextEncoder is not defined
+    at exec_main.mjs:35:15</pre>
+  </div>
+</details>
+
+<details class="step" data-status="fail">
+  <summary><span class="t">23:27:01</span><span class="title">Exec 6: same approach using btoa</span><span class="badge fail">failed</span></summary>
+  <div class="body">
+    <pre class="wrap">ReferenceError: btoa is not defined
+    at exec_main.mjs:35:17</pre>
+  </div>
+</details>
+
+<details class="step" data-status="fail">
+  <summary><span class="t">23:27:13</span><span class="title">Exec 7: pass script through JSON.stringify</span><span class="badge fail">failed</span></summary>
+  <div class="body">
+    <p>The JSON-escaped string reached Python with literal backslash-n sequences instead of newlines, so Python saw the entire script on one line.</p>
+    <pre class="wrap">SyntaxError: unexpected character after line continuation character</pre>
+  </div>
+</details>
+
+<details class="step" data-status="ok">
+  <summary><span class="t">23:27:26</span><span class="title">Exec 8: hand-written base64 encoder in JavaScript</span><span class="badge ok">succeeded</span></summary>
+  <div class="body">
+    <p>The agent implemented a minimal base64 encoder by hand in the wrapper, then ran <code>python -c "import base64;exec(base64.b64decode('...'))"</code>. Wall time 0.4 s. This produced the results table in section 4 and the &ldquo;unparsed dates 0&rdquo; check.</p>
+    <p><strong>Recovery assessment:</strong> effective and read-only, but it means the script the agent &ldquo;wrote and ran&rdquo; exists only as an encoded string inside the tool call, not as a file in the workspace.</p>
+  </div>
+</details>
+
+<details class="step" data-status="fail">
+  <summary><span class="t">23:27:34</span><span class="title">Exec 9: min/max date check</span><span class="badge fail">failed, not retried</span></summary>
+  <div class="body">
+    <p>The agent went back to a one-liner with nested quotes to print the earliest and latest parsed date. It hit the same zsh error as Exec 4 and was not retried. The data's date range therefore remains unrecorded.</p>
+    <pre class="wrap">zsh:1: parse error near `)'</pre>
+  </div>
+</details>
+
+<details class="step">
+  <summary><span class="t">23:27:38</span><span class="title">Final answer delivered</span><span class="badge ok">final</span></summary>
+  <div class="body"><p>See section 4 for the verbatim text. Exit code 0.</p></div>
+</details>
+
+<h2>6. Failures and recoveries at a glance</h2>
+<div class="tablewrap">
+<table>
+  <tr><th>Attempt</th><th>Technique</th><th>Failure</th><th>Root cause</th><th>Recovered?</th></tr>
+  <tr><td>1</td><td>Shell heredoc</td><td>Cannot create temp file</td><td>Read-only sandbox</td><td>Yes, switched to <code>python -c</code></td></tr>
+  <tr><td>4</td><td>Nested-quote one-liner</td><td>zsh parse error</td><td>Quote escaping across JS, zsh, Python, SQL</td><td>Yes, after a 69 min gap, via encoding</td></tr>
+  <tr><td>5</td><td>TextEncoder + btoa</td><td>ReferenceError</td><td>Wrapper runtime lacks Web APIs</td><td>Yes, next attempts</td></tr>
+  <tr><td>6</td><td>btoa only</td><td>ReferenceError</td><td>Same</td><td>Yes</td></tr>
+  <tr><td>7</td><td>JSON.stringify as argument</td><td>Python SyntaxError</td><td>Escaped newlines not decoded</td><td>Yes</td></tr>
+  <tr><td>8</td><td>Hand-rolled base64</td><td>none</td><td>&mdash;</td><td>Success</td></tr>
+  <tr><td>9</td><td>Nested-quote one-liner again</td><td>zsh parse error</td><td>Same as attempt 4</td><td>No, abandoned</td></tr>
+</table>
+</div>
+<p>The agent never modified the workspace, which was correct under the read-only policy. It also never spawned sub-agents, in line with the recorded instruction.</p>
+
+<h2>7. Assessment of the recorded answer</h2>
+<ul>
+  <li><strong>Task completion.</strong> The agent produced a single, clearly stated answer with an explicit metric, per-index figures, and observation counts. The prompt asked to &ldquo;write and run Python code that computes and prints the answer&rdquo;, and the recorded output shows the code running and printing the table.</li>
+  <li><strong>Internal consistency.</strong> The final answer matches the tool output exactly. The ranking is monotone and the counts are plausible for roughly 18 months of trading days per index.</li>
+  <li><strong>Metric choice.</strong> Daily (High &minus; Low)/Open is a standard proxy for intraday volatility. Other definitions, such as (High &minus; Low)/Close or the Parkinson estimator, could produce a different ordering. The agent disclosed its definition, which mitigates this.</li>
+  <li><strong>Undisclosed assumption.</strong> The Asia ticker list was supplied from the agent's knowledge, not from the metadata table, and the final answer presents it without that caveat.</li>
+  <li><strong>Unverified data range.</strong> The failed min/max date check means the phrase &ldquo;since 2020&rdquo; covers whatever the table contains from 2020-01-01 onward, with an unknown end date.</li>
+  <li><strong>Efficiency.</strong> Actual working time was under two minutes, but total wall time was about 71 minutes because of the unexplained gap.</li>
+</ul>
+
+<h2>8. Faithfulness note: incomplete or unavailable evidence</h2>
+<div class="note">
+  <ul>
+    <li><strong>No independent recomputation.</strong> The DuckDB file could not be opened in the reporting environment (no DuckDB Python module or CLI, and installing dependencies was not permitted). Only its 16-byte header was inspected, confirming DuckDB format. All figures above come from the recorded tool outputs. The SQLite file was opened and its 14 rows match the recording.</li>
+    <li><strong>Agent reasoning is hidden.</strong> All nine reasoning items in the trajectory are encrypted with empty summaries. Statements about why the agent chose an approach are limited to its visible commentary messages.</li>
+    <li><strong>The 69-minute gap is unexplained.</strong> Nothing in the case files indicates whether it was a harness stall, a rate limit, or something else.</li>
+    <li><strong>Date range of the data is unrecorded</strong> because the agent's check failed and was not retried.</li>
+    <li><strong>Trajectory hashes not recomputed.</strong> File sizes on disk match the manifest. The manifest's SHA-256 values were not recalculated.</li>
+    <li><strong>No images or media</strong> were included in the case, so none are embedded.</li>
+    <li><strong>case_meta.json references</strong> is an empty list. No external files were consulted.</li>
+  </ul>
+</div>
+
+<footer>
+  Source files: case_meta.json (548 bytes), trajectory.jsonl (51,977 bytes, 36 items), workspace/prompt.txt (517 bytes), workspace/data/indexInfo_query.db (8,192 bytes), workspace/data/indextrade_query.db (4,468,736 bytes). All content in this report is drawn from these files. Embedded prompts and commands from the trajectory are shown as evidence and were not executed.
+</footer>
+
+</main>
+<script>
+(function () {
+  var steps = document.querySelectorAll('details.step');
+  document.querySelectorAll('.controls button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var act = b.getAttribute('data-act');
+      steps.forEach(function (d) {
+        if (act === 'open') d.open = true;
+        else if (act === 'close') d.open = false;
+        else if (act === 'fails') d.open = (d.getAttribute('data-status') === 'fail' || d.getAttribute('data-status') === 'warn');
+      });
+    });
+  });
+  var bars = document.querySelectorAll('#results .bar');
+  var max = 0;
+  bars.forEach(function (el) { var v = parseFloat(el.getAttribute('data-v')); if (v > max) max = v; });
+  bars.forEach(function (el) {
+    var v = parseFloat(el.getAttribute('data-v'));
+    el.style.width = (max ? (v / max * 100) : 0).toFixed(1) + '%';
+    el.title = v.toFixed(4) + '%';
+  });
+})();
+</script>
+</body>
+</html>

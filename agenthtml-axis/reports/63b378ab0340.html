@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Save a Coffee Mocha Recipe · Allrecipes · Mind2Web</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --brand:        #e7002a;
+  --brand-light:  #ff3d5a;
+  --accent:       #c47b00;
+  --accent-light: #ffb700;
+  --bg:           #0b0806;
+  --bg2:          #150e07;
+  --bg3:          #1e1508;
+  --surface:      rgba(255,255,255,0.045);
+  --surface2:     rgba(255,255,255,0.08);
+  --border:       rgba(255,255,255,0.09);
+  --border2:      rgba(255,255,255,0.14);
+  --text:         #f4ede4;
+  --text-muted:   #9a8872;
+  --text-dim:     #5e4e38;
+  --done:         #22c55e;
+  --r:            16px;
+  --r-sm:         8px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1;
+}
+
+/* ─── NAV ─────────────────────────────────────────────── */
+#site-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 60px;
+  padding: 0 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background .3s, box-shadow .3s, border-color .3s;
+  border-bottom: 1px solid transparent;
+}
+#site-nav.scrolled {
+  background: rgba(11,8,6,.88);
+  backdrop-filter: blur(20px);
+  border-color: var(--border);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 1.1rem; font-weight: 800; letter-spacing: -.025em;
+  color: var(--text); text-decoration: none;
+}
+.nav-logo-icon {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: linear-gradient(135deg, #e7002a, #ff8c42);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; line-height: 1;
+}
+
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a {
+  font-size: .8rem; font-weight: 500; color: var(--text-muted);
+  text-decoration: none; transition: color .2s;
+}
+.nav-links a:hover { color: var(--text); }
+
+.nav-pill {
+  padding: 7px 18px; border-radius: 100px;
+  background: rgba(255,183,0,.12); border: 1px solid rgba(255,183,0,.25);
+  font-size: .78rem; font-weight: 700; color: var(--accent-light);
+  cursor: pointer; transition: background .2s;
+}
+.nav-pill:hover { background: rgba(255,183,0,.2); }
+
+/* ─── HERO ────────────────────────────────────────────── */
+.hero {
+  padding: 120px 48px 88px;
+  text-align: center;
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -5%, rgba(196,123,0,.18), transparent 70%),
+    radial-gradient(ellipse 55% 45% at 85% 70%, rgba(231,0,42,.09), transparent 70%);
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 14px; border-radius: 100px;
+  background: rgba(255,183,0,.1); border: 1px solid rgba(255,183,0,.25);
+  font-size: .72rem; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--accent-light);
+  margin-bottom: 28px;
+}
+
+.hero h1 {
+  font-size: clamp(2.8rem, 6.5vw, 5.5rem);
+  font-weight: 900; line-height: 1.04; letter-spacing: -.045em;
+  margin-bottom: 22px; max-width: 880px; margin-left: auto; margin-right: auto;
+}
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(130deg, #ffb700 20%, #ff6b35 80%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 1.15rem; color: var(--text-muted); line-height: 1.65;
+  max-width: 520px; margin: 0 auto 52px;
+}
+
+.hero-chips {
+  display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+}
+.hero-chip {
+  display: flex; align-items: center; gap: 7px;
+  font-size: .8rem; color: var(--text-muted);
+}
+.chip-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.cd-green  { background: var(--done); box-shadow: 0 0 6px var(--done); }
+.cd-amber  { background: var(--accent-light); box-shadow: 0 0 6px var(--accent-light); }
+.cd-red    { background: var(--brand); box-shadow: 0 0 6px var(--brand); }
+.cd-purple { background: #a78bfa; box-shadow: 0 0 6px #a78bfa; }
+
+/* ─── LAYOUT ──────────────────────────────────────────── */
+.section { padding: 80px 48px; }
+.container { max-width: 1080px; margin: 0 auto; }
+
+.section-eyebrow {
+  text-align: center;
+  font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--accent-light);
+  margin-bottom: 10px;
+}
+.section-heading {
+  text-align: center;
+  font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+  font-weight: 800; letter-spacing: -.03em;
+  margin-bottom: 14px;
+}
+.section-body {
+  text-align: center; color: var(--text-muted); line-height: 1.65;
+  max-width: 540px; margin: 0 auto 56px; font-size: .95rem;
+}
+
+/* ─── TRAJECTORY TIMELINE ─────────────────────────────── */
+.timeline {
+  position: relative;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.timeline::before {
+  content: '';
+  position: absolute; left: 26px; top: 26px; bottom: 26px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent-light), var(--brand));
+  opacity: .25; border-radius: 2px;
+}
+
+.tl-card {
+  display: flex; gap: 20px; align-items: flex-start;
+  padding: 20px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  position: relative; z-index: 1;
+  opacity: 0; transform: translateX(-18px);
+  animation: tl-in .5s ease forwards;
+  transition: transform .22s, background .22s, border-color .22s, box-shadow .22s;
+}
+.tl-card:nth-child(1) { animation-delay: .08s; }
+.tl-card:nth-child(2) { animation-delay: .16s; }
+.tl-card:nth-child(3) { animation-delay: .24s; }
+.tl-card:nth-child(4) { animation-delay: .32s; }
+.tl-card:nth-child(5) { animation-delay: .40s; }
+@keyframes tl-in { to { opacity: 1; transform: translateX(0); } }
+
+.tl-card:hover {
+  transform: translateX(5px) translateY(-1px);
+  background: var(--surface2);
+  border-color: rgba(255,183,0,.28);
+  box-shadow: 0 10px 36px rgba(0,0,0,.45);
+}
+.tl-card.is-final {
+  background: rgba(34,197,94,.05);
+  border-color: rgba(34,197,94,.22);
+}
+.tl-card.is-final:hover {
+  border-color: rgba(34,197,94,.45);
+  box-shadow: 0 10px 36px rgba(34,197,94,.12);
+}
+
+.tl-num {
+  flex-shrink: 0;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; font-weight: 800;
+}
+.tl-num.n-step  { background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: #1a0e00; }
+.tl-num.n-done  { background: linear-gradient(135deg, #16a34a, var(--done)); color: #fff; font-size: 1rem; }
+
+.tl-content { flex: 1; }
+
+.tl-badge {
+  display: inline-block; margin-bottom: 7px;
+  padding: 2px 9px; border-radius: 100px;
+  font-size: .67rem; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase;
+}
+.b-hover  { background: rgba(255,183,0,.13); color: var(--accent-light); }
+.b-click  { background: rgba(231,0,42,.13);  color: #ff7070; }
+.b-save   { background: rgba(34,197,94,.13); color: #4ade80; }
+
+.tl-title { font-size: .98rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+
+.tl-desc  { font-size: .82rem; color: var(--text-muted); line-height: 1.55; }
+
+.tl-code {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 9px;
+  padding: 3px 9px; border-radius: 5px;
+  background: rgba(255,255,255,.038); border: 1px solid var(--border);
+  font-size: .73rem; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  color: var(--text-dim);
+}
+.c-tag { color: #ffa07a; }
+.c-val { color: #90d090; }
+
+/* ─── BROWSER MOCKUP ──────────────────────────────────── */
+.mockup-wrap {
+  padding: 0 48px 80px;
+  background: linear-gradient(180deg, transparent, rgba(11,8,6,.4));
+}
+.mockup-wrap .container { max-width: 1000px; }
+
+.browser {
+  border-radius: 13px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.09);
+  box-shadow: 0 40px 100px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.04);
+}
+
+.browser-bar {
+  background: #1e1e2c;
+  padding: 11px 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.b-dots { display: flex; gap: 5px; }
+.b-dot  { width: 11px; height: 11px; border-radius: 50%; }
+.b-dot-r { background: #ff5f57; }
+.b-dot-y { background: #ffbd2e; }
+.b-dot-g { background: #28c840; }
+.b-url {
+  flex: 1; background: rgba(255,255,255,.07);
+  border-radius: 5px; padding: 5px 11px;
+  font-size: .73rem; font-family: monospace;
+  color: rgba(255,255,255,.4);
+}
+
+/* ─── ALLRECIPES INNER UI ─────────────────────────────── */
+.ar-wrap  { background: #fff; font-family: Arial, sans-serif; }
+
+.ar-topnav {
+  background: #fff; border-bottom: 1px solid #e8e8e8;
+  padding: 0 20px; height: 54px;
+  display: flex; align-items: center; gap: 20px;
+}
+.ar-logo-text {
+  font-size: 1.05rem; font-weight: 900; color: #e7002a;
+  letter-spacing: -.02em;
+  padding-right: 20px; border-right: 1px solid #e8e8e8;
+}
+.ar-top-links {
+  display: flex; gap: 14px; list-style: none;
+}
+.ar-top-links li {
+  font-size: .7rem; font-weight: 700; color: #333;
+  text-transform: uppercase; letter-spacing: .04em;
+  cursor: default;
+}
+.ar-top-links li.hl { color: #e7002a; border-bottom: 2px solid #e7002a; padding-bottom: 2px; }
+.ar-search {
+  margin-left: auto;
+  background: #f2f2f2; border: 1px solid #ddd; border-radius: 4px;
+  padding: 5px 10px; font-size: .73rem; color: #666;
+  width: 180px;
+}
+
+.ar-breadcrumb {
+  background: #fafafa; border-bottom: 1px solid #ebebeb;
+  padding: 7px 20px;
+  font-size: .68rem; color: #888;
+  display: flex; align-items: center; gap: 5px;
+}
+.ar-breadcrumb .bc-sep { color: #ccc; }
+.ar-breadcrumb .bc-active { color: #333; font-weight: 600; }
+
+.ar-cat-hero {
+  background: linear-gradient(180deg, #fdf8f2, #fff);
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid #ebebeb;
+}
+.ar-cat-title { font-size: 1.45rem; font-weight: 900; color: #111; margin-bottom: 6px; letter-spacing: -.02em; }
+.ar-cat-desc  { font-size: .78rem; color: #666; line-height: 1.5; max-width: 480px; }
+
+.ar-recipe-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+}
+
+.ar-card {
+  border: 1px solid #f0f0f0; cursor: pointer;
+  transition: box-shadow .2s;
+}
+.ar-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.12); }
+.ar-card-img {
+  position: relative; aspect-ratio: 4/3;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem;
+}
+.ci-1 { background: linear-gradient(135deg, #3b1600, #7a3e00); }
+.ci-2 { background: linear-gradient(135deg, #18284a, #2c5e91); }
+.ci-3 { background: linear-gradient(135deg, #281500, #5c3010); }
+
+.ar-save {
+  position: absolute; top: 9px; right: 9px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #fff; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: #555;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  transition: transform .18s, background .18s, box-shadow .18s;
+  line-height: 1;
+}
+.ar-save:hover { transform: scale(1.12); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.ar-save.saved { background: #e7002a; color: #fff; }
+
+.ar-card-body { padding: 11px 12px; background: #fff; }
+.ar-card-name { font-size: .82rem; font-weight: 700; color: #111; margin-bottom: 5px; }
+.ar-card-stars { font-size: .68rem; color: #888; display: flex; align-items: center; gap: 4px; }
+.ar-card-stars .stars { color: #f5a228; font-size: .75rem; }
+
+/* ─── SUCCESS BANNER ──────────────────────────────────── */
+.success-strip {
+  display: none;
+  margin-top: 22px;
+  padding: 20px 28px;
+  border-radius: var(--r);
+  background: linear-gradient(135deg, rgba(34,197,94,.09), rgba(34,197,94,.04));
+  border: 1px solid rgba(34,197,94,.28);
+  text-align: center;
+  animation: pop-in .38s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+.success-strip.on { display: block; }
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(12px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.success-strip h3 { font-size: 1.05rem; font-weight: 700; color: #4ade80; margin-bottom: 4px; }
+.success-strip p  { font-size: .82rem; color: var(--text-muted); }
+
+/* ─── META GRID ───────────────────────────────────────── */
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px; margin-top: 16px;
+}
+.meta-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r); padding: 18px 20px;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+.meta-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,183,0,.28);
+  box-shadow: 0 8px 28px rgba(0,0,0,.35);
+}
+.mc-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-dim); margin-bottom: 8px; }
+.mc-value { font-size: 1.05rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+.mc-sub   { font-size: .74rem; color: var(--text-muted); margin-top: 3px; }
+
+/* ─── FAQ ─────────────────────────────────────────────── */
+.faq-list { max-width: 700px; margin: 0 auto; }
+
+details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  margin-bottom: 9px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+details[open] { border-color: rgba(255,183,0,.3); }
+
+summary {
+  padding: 15px 18px;
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer; list-style: none; user-select: none;
+  font-size: .88rem; font-weight: 600; color: var(--text);
+  transition: background .15s;
+}
+summary::-webkit-details-marker { display: none; }
+summary:hover { background: var(--surface2); }
+summary::after {
+  content: '+'; font-size: 1.15rem; color: var(--text-muted);
+  transition: transform .2s; flex-shrink: 0;
+}
+details[open] summary::after { transform: rotate(45deg); }
+
+.faq-body {
+  padding: 0 18px 15px;
+  font-size: .83rem; color: var(--text-muted); line-height: 1.65;
+}
+.faq-body code {
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  background: rgba(255,255,255,.06); padding: 1px 5px; border-radius: 3px;
+  font-size: .8em; color: var(--text);
+}
+
+/* ─── FOOTER ──────────────────────────────────────────── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 36px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.footer-left { font-size: .9rem; font-weight: 700; color: var(--text); }
+.footer-right { font-size: .73rem; color: var(--text-dim); line-height: 1.6; text-align: right; }
+
+/* ─── SCROLL REVEAL ───────────────────────────────────── */
+.reveal {
+  opacity: 0; transform: translateY(22px);
+  transition: opacity .55s ease, transform .55s ease;
+}
+.reveal.on { opacity: 1; transform: translateY(0); }
+
+/* ─── RESPONSIVE ──────────────────────────────────────── */
+@media (max-width: 760px) {
+  #site-nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 90px 20px 60px; }
+  .section, .mockup-wrap { padding-left: 20px; padding-right: 20px; }
+  .timeline::before { left: 18px; }
+  .tl-card { flex-direction: column; gap: 12px; }
+  .tl-num  { align-self: flex-start; }
+  .ar-recipe-grid { grid-template-columns: 1fr 1fr; }
+  .ar-top-links { display: none; }
+  footer { flex-direction: column; text-align: center; }
+  .footer-right { text-align: center; }
+}
+@media (max-width: 480px) {
+  .ar-recipe-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ──────────────────────────────────────────── -->
+<nav id="site-nav">
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-icon">☕</div>
+    AgentHTML
+  </a>
+  <ul class="nav-links">
+    <li><a href="#trajectory">Trajectory</a></li>
+    <li><a href="#final-state">Final State</a></li>
+    <li><a href="#case-meta">Case Info</a></li>
+    <li><a href="#faq">Details</a></li>
+  </ul>
+  <div class="nav-pill">Mind2Web</div>
+</nav>
+
+<!-- ─── HERO ──────────────────────────────────────────── -->
+<main>
+<div class="hero">
+  <div class="badge">☕ &nbsp; Allrecipes · Web Navigation · 5 Actions</div>
+  <h1>Save a <em>Coffee Mocha</em><br>Recipe</h1>
+  <p class="hero-sub">
+    Human annotator demonstration on Allrecipes — navigating from the homepage
+    through Meals → Drinks → Coffee Drinks → Mochas, then clicking Save Recipe.
+  </p>
+  <div class="hero-chips">
+    <div class="hero-chip"><div class="chip-dot cd-green"></div>Task Completed</div>
+    <div class="hero-chip"><div class="chip-dot cd-amber"></div>5 Actions</div>
+    <div class="hero-chip"><div class="chip-dot cd-red"></div>allrecipes.com</div>
+    <div class="hero-chip"><div class="chip-dot cd-purple"></div>Human Annotator</div>
+  </div>
+</div>
+
+<!-- ─── TRAJECTORY ─────────────────────────────────────── -->
+<section id="trajectory" class="section">
+  <div class="container">
+    <p class="section-eyebrow">Navigation Trajectory</p>
+    <h2 class="section-heading">5 Steps to Save</h2>
+    <p class="section-body">
+      The annotator drills down through Allrecipes' category hierarchy from the homepage
+      to the Mochas listing, then saves a recipe in a single click.
+    </p>
+
+    <div class="timeline">
+
+      <div class="tl-card">
+        <div class="tl-num n-step">1</div>
+        <div class="tl-content">
+          <div class="tl-badge b-hover">Hover</div>
+          <div class="tl-title">Hover over MEALS in top nav</div>
+          <div class="tl-desc">
+            Opens the mega-dropdown on the Allrecipes homepage, revealing top-level
+            category groups including Meals, Ingredients, Occasions, and Cuisines.
+          </div>
+          <div class="tl-code"><span class="c-tag">&lt;a&gt;</span><span class="c-val">MEALS</span></div>
+        </div>
+      </div>
+
+      <div class="tl-card">
+        <div class="tl-num n-step">2</div>
+        <div class="tl-content">
+          <div class="tl-badge b-click">Click</div>
+          <div class="tl-title">Click "Drinks" in the dropdown</div>
+          <div class="tl-desc">
+            Selects the Drinks sub-group from the MEALS mega-menu, navigating to the
+            beverage taxonomy page (taxlevel-2) which lists Coffee Drinks, Smoothies, and more.
+          </div>
+          <div class="tl-code"><span class="c-tag">&lt;a&gt;</span><span class="c-val">Drinks</span></div>
+        </div>
+      </div>
+
+      <div class="tl-card">
+        <div class="tl-num n-step">3</div>
+        <div class="tl-content">
+          <div class="tl-badge b-click">Click</div>
+          <div class="tl-title">Click "COFFEE DRINKS" on the Drinks page</div>
+          <div class="tl-desc">
+            Drills into the Coffee Drinks subcategory (taxlevel-3), a listing of coffee-based
+            beverage recipes that includes Espresso Drinks, Lattes, Mochas, and Cold Brew.
+          </div>
+          <div class="tl-code"><span class="c-tag">&lt;a id="taxonomy-nodes__link_1-0-4"&gt;</span><span class="c-val">COFFEE DRINKS</span></div>
+        </div>
+      </div>
+
+      <div class="tl-card">
+        <div class="tl-num n-step">4</div>
+        <div class="tl-content">
+          <div class="tl-badge b-click">Click</div>
+          <div class="tl-title">Click "MOCHAS" on the Coffee Drinks page</div>
+          <div class="tl-desc">
+            Navigates to the Mochas category page (taxlevel-4). The page description reads
+            "Chocolate lovers and coffee lovers, you're in luck. Frozen, hot, or iced, these
+            mocha drink recipes will satisfy."
+          </div>
+          <div class="tl-code"><span class="c-tag">&lt;a id="taxonomy-nodes__link_1-0-1"&gt;</span><span class="c-val">MOCHAS</span></div>
+        </div>
+      </div>
+
+      <div class="tl-card is-final">
+        <div class="tl-num n-done">✓</div>
+        <div class="tl-content">
+          <div class="tl-badge b-save">Save · Task Complete</div>
+          <div class="tl-title">Click "Save Recipe" on Mexican Mocha</div>
+          <div class="tl-desc">
+            Clicks the Save Recipe button (aria-label="Save Recipe") on the first recipe card —
+            Mexican Mocha with whipped cream. The recipe is saved to the signed-in user's profile.
+          </div>
+          <div class="tl-code"><span class="c-tag">&lt;button id="mntl-save__link_1-0" aria-label="Save Recipe"&gt;</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── FINAL STATE BROWSER MOCKUP ────────────────────── -->
+<div id="final-state" class="mockup-wrap reveal">
+  <div class="container">
+    <p class="section-eyebrow" style="text-align:center">Final Page State</p>
+    <h2 class="section-heading">Mochas · allrecipes.com</h2>
+    <p class="section-body">
+      The page reached at the end of the trajectory. Click "Save Recipe" on
+      Mexican Mocha to replay the final action and complete the task.
+    </p>
+
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="b-dots">
+          <div class="b-dot b-dot-r"></div>
+          <div class="b-dot b-dot-y"></div>
+          <div class="b-dot b-dot-g"></div>
+        </div>
+        <div class="b-url">allrecipes.com / drinks / coffee-drinks / mochas</div>
+      </div>
+
+      <div class="ar-wrap">
+        <!-- Allrecipes nav -->
+        <div class="ar-topnav">
+          <div class="ar-logo-text">Allrecipes</div>
+          <ul class="ar-top-links">
+            <li>Dinners</li>
+            <li class="hl">Meals ▾</li>
+            <li>Ingredients</li>
+            <li>Occasions</li>
+            <li>Cuisines</li>
+          </ul>
+          <div class="ar-search">Search recipes…</div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="ar-breadcrumb">
+          Home <span class="bc-sep">›</span>
+          Drinks <span class="bc-sep">›</span>
+          Coffee Drinks <span class="bc-sep">›</span>
+          <span class="bc-active">Mochas</span>
+        </div>
+
+        <!-- Category hero -->
+        <div class="ar-cat-hero">
+          <div class="ar-cat-title">Mochas</div>
+          <div class="ar-cat-desc">
+            Chocolate lovers and coffee lovers, you're in luck. Frozen, hot, or iced,
+            these mocha drink recipes will satisfy.
+          </div>
+        </div>
+
+        <!-- Recipe cards -->
+        <div class="ar-recipe-grid">
+
+          <div class="ar-card" id="card-1">
+            <div class="ar-card-img ci-1">
+              ☕
+              <button class="ar-save" id="save-1" onclick="doSave(1)" title="Save Recipe" aria-label="Save Recipe">♡</button>
+            </div>
+            <div class="ar-card-body">
+              <div class="ar-card-name">Mexican Mocha</div>
+              <div class="ar-card-stars">
+                <span class="stars">★★★★★</span> 42 Ratings
+              </div>
+            </div>
+          </div>
+
+          <div class="ar-card">
+            <div class="ar-card-img ci-2">
+              🧊
+              <button class="ar-save" id="save-2" onclick="doSave(2)" title="Save Recipe" aria-label="Save Recipe">♡</button>
+            </div>
+            <div class="ar-card-body">
+              <div class="ar-card-name">Chocolate-y Iced Mocha</div>
+              <div class="ar-card-stars">
+                <span class="stars">★★★★☆</span> 23 Ratings
+              </div>
+            </div>
+          </div>
+
+          <div class="ar-card">
+            <div class="ar-card-img ci-3">
+              ⚡
+              <button class="ar-save" id="save-3" onclick="doSave(3)" title="Save Recipe" aria-label="Save Recipe">♡</button>
+            </div>
+            <div class="ar-card-body">
+              <div class="ar-card-name">3-Minute Mochaccino</div>
+              <div class="ar-card-stars">
+                <span class="stars">★★★★☆</span> 16 Ratings
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="success-strip" id="success-strip">
+      <h3>Recipe Saved!</h3>
+      <p>The mocha recipe has been saved to your Allrecipes profile — task complete.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CASE META ──────────────────────────────────────── -->
+<section id="case-meta" class="section reveal">
+  <div class="container">
+    <p class="section-eyebrow">Case Metadata</p>
+    <h2 class="section-heading">Benchmark Details</h2>
+    <p class="section-body">
+      This case is drawn from the Mind2Web benchmark of human-annotated web navigation
+      demonstrations across a diverse set of websites and tasks.
+    </p>
+
+    <div class="meta-grid">
+      <div class="meta-card">
+        <div class="mc-label">Case ID</div>
+        <div class="mc-value" style="font-size:.78rem;font-family:monospace;line-height:1.4">03_test_domain<br>_test_domain_2_85</div>
+      </div>
+      <div class="meta-card">
+        <div class="mc-label">Benchmark</div>
+        <div class="mc-value">Mind2Web</div>
+        <div class="mc-sub">Upstream · Human annotation</div>
+      </div>
+      <div class="meta-card">
+        <div class="mc-label">Website</div>
+        <div class="mc-value">Allrecipes</div>
+        <div class="mc-sub">allrecipes.com</div>
+      </div>
+      <div class="meta-card">
+        <div class="mc-label">Domain / Sub</div>
+        <div class="mc-value">Info</div>
+        <div class="mc-sub">Subdomain: Cooking</div>
+      </div>
+      <div class="meta-card">
+        <div class="mc-label">Actions</div>
+        <div class="mc-value">5</div>
+        <div class="mc-sub">1 Hover · 3 Click · 1 Save</div>
+      </div>
+      <div class="meta-card">
+        <div class="mc-label">Trajectory Type</div>
+        <div class="mc-value">Human</div>
+        <div class="mc-sub">mind2web-json format</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ / DETAILS ──────────────────────────────────── -->
+<section id="faq" class="section reveal" style="padding-top:0">
+  <div class="container">
+    <p class="section-eyebrow">Trajectory Details</p>
+    <h2 class="section-heading" style="margin-bottom:40px">Q &amp; A</h2>
+
+    <div class="faq-list">
+
+      <details open>
+        <summary>What is the confirmed task?</summary>
+        <div class="faq-body">
+          The annotated task is exactly: <em>"Save a coffee mocha recipe."</em>
+          Annotation ID: <code>547ed17c-da34-4a20-93cd-24a3603f4ccf</code>.
+        </div>
+      </details>
+
+      <details>
+        <summary>What page does the trajectory end on?</summary>
+        <div class="faq-body">
+          The trajectory ends on the <strong>Mochas</strong> category page at taxlevel-4,
+          reached via the path Drinks → Coffee Drinks → Mochas. The page class is
+          <code>comp taxlevel-4 signed-in taxonomyScTemplate</code>, meaning the
+          user was signed in throughout the session.
+        </div>
+      </details>
+
+      <details>
+        <summary>Which recipe is saved, and how is the element identified?</summary>
+        <div class="faq-body">
+          The target recipe is <strong>Mexican Mocha</strong> (image alt: "Mexican Mocha
+          with whipped cream"). The Save Recipe button is identified by
+          <code>backend_node_id="30584"</code>, bounding box
+          <code>338.66, 594, 48×48 px</code>, class
+          <code>comp mntl-save__link mntl-button</code>, and
+          <code>aria-label="Save Recipe"</code>. It is marked as both
+          <code>is_original_target</code> and <code>is_top_level_target</code>.
+        </div>
+      </details>
+
+      <details>
+        <summary>What other recipes appear on the final page?</summary>
+        <div class="faq-body">
+          Two additional mocha recipes are visible in the grid alongside Mexican Mocha:
+          <strong>Chocolate-y Iced Mocha</strong> (23 ratings) described as "a chocolate
+          iced mocha in a plastic glass with a straw", and
+          <strong>3-Minute Mochaccino</strong> (16 ratings).
+        </div>
+      </details>
+
+      <details>
+        <summary>How does the dropdown navigation work at Step 1?</summary>
+        <div class="faq-body">
+          Step 1 uses a <code>HOVER</code> operation (converted internally to
+          <code>CLICK</code> for execution) on the MEALS link at bounding box
+          <code>127, 110, 47×18 px</code>. The Allrecipes homepage lists
+          Meals, Breakfast &amp; Brunch, Lunch, Healthy, Appetizers, Salads, Side Dishes,
+          Soups, Bread, <strong>Drinks</strong>, and Desserts under the MEALS mega-menu.
+        </div>
+      </details>
+
+      <details>
+        <summary>What format is the trajectory data in?</summary>
+        <div class="faq-body">
+          The trajectory file uses the <code>mind2web-json</code> format.
+          Each action contains: <code>action_uid</code>, <code>cleaned_html</code>
+          (the DOM snapshot at the moment of action), <code>operation</code>
+          (original_op + normalized op + value), <code>pos_candidates</code>
+          (correct element targets), and <code>neg_candidates</code> (distractor elements).
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ─── FOOTER ─────────────────────────────────────────── -->
+<footer>
+  <div class="footer-left">AgentHTML · Mind2Web · Allrecipes</div>
+  <div class="footer-right">
+    Case 03_test_domain_test_domain_2_85<br>
+    Human Annotator · 5 Actions · Task: Save a coffee mocha recipe
+  </div>
+</footer>
+
+<script>
+  // Nav scroll effect
+  const nav = document.getElementById('site-nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => io.observe(el));
+
+  // Save recipe interaction
+  function doSave(n) {
+    const btn = document.getElementById('save-' + n);
+    if (btn.classList.contains('saved')) return;
+    btn.classList.add('saved');
+    btn.textContent = '♥';
+    btn.disabled = true;
+
+    const strip = document.getElementById('success-strip');
+    strip.classList.add('on');
+    setTimeout(() => {
+      strip.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 150);
+  }
+</script>
+</body>
+</html>

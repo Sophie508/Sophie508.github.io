@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case 04 · asottile/pyupgrade-545 — a run that never tested the bug</title>
+<style>
+  :root{
+    --ink:#0d1020;
+    --ink-2:#1b2140;
+    --body:#4a5170;
+    --muted:#7d84a3;
+    --line:rgba(20,26,60,.10);
+    --line-2:rgba(20,26,60,.16);
+    --bg:#f7f8fc;
+    --card:rgba(255,255,255,.72);
+    --card-solid:#ffffff;
+    --accent:#5b4bff;
+    --accent-2:#00c2b2;
+    --accent-3:#ff5c8a;
+    --warn:#e08a00;
+    --danger:#d9455f;
+    --ok:#12a37a;
+    --radius:20px;
+    --shadow-s:0 1px 2px rgba(15,20,50,.06), 0 6px 18px rgba(15,20,50,.06);
+    --shadow-l:0 18px 50px rgba(15,20,50,.14);
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:var(--sans);
+    color:var(--body);
+    background:var(--bg);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.65;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(1100px 620px at 12% -8%, rgba(91,75,255,.18), transparent 60%),
+      radial-gradient(900px 560px at 92% 4%, rgba(0,194,178,.16), transparent 62%),
+      radial-gradient(760px 620px at 50% 108%, rgba(255,92,138,.13), transparent 60%);
+  }
+  body::after{
+    content:"";
+    position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background-image:radial-gradient(rgba(13,16,32,.045) 1px, transparent 1px);
+    background-size:22px 22px;
+    mask-image:linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.12) 55%, transparent);
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:0 28px}
+  a{color:var(--accent);text-decoration:none}
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:sticky;top:0;z-index:60;
+    border-bottom:1px solid transparent;
+    transition:background .35s ease, border-color .35s ease, box-shadow .35s ease, backdrop-filter .35s ease;
+  }
+  .nav.scrolled{
+    background:rgba(255,255,255,.78);
+    backdrop-filter:saturate(180%) blur(14px);
+    -webkit-backdrop-filter:saturate(180%) blur(14px);
+    border-bottom-color:var(--line);
+    box-shadow:0 6px 24px rgba(15,20,50,.06);
+  }
+  .nav-inner{display:flex;align-items:center;gap:22px;height:70px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+  .logo .mark{
+    width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#fff;font-size:16px;box-shadow:0 8px 18px rgba(91,75,255,.35);
+  }
+  .nav-links{display:flex;gap:4px;margin-left:auto}
+  .nav-links a{
+    color:var(--body);font-size:14px;font-weight:550;padding:9px 13px;border-radius:10px;
+    transition:background .2s,color .2s;
+  }
+  .nav-links a:hover{background:rgba(91,75,255,.09);color:var(--ink)}
+  .nav-cta{
+    font-size:13px;font-weight:700;color:#fff;padding:9px 16px;border-radius:999px;
+    background:linear-gradient(135deg,var(--ink),var(--ink-2));
+    box-shadow:0 10px 22px rgba(13,16,32,.22);white-space:nowrap;
+  }
+
+  /* ---------- hero ---------- */
+  header.hero{padding:86px 0 64px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;font-size:12.5px;font-weight:700;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--accent);
+    background:rgba(91,75,255,.10);border:1px solid rgba(91,75,255,.20);
+    padding:7px 14px;border-radius:999px;
+  }
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-3);box-shadow:0 0 0 4px rgba(255,92,138,.18)}
+  h1{
+    font-size:clamp(34px,5.4vw,62px);line-height:1.06;letter-spacing:-.035em;
+    color:var(--ink);margin:24px 0 0;font-weight:830;max-width:19ch;
+  }
+  h1 em{
+    font-style:normal;
+    background:linear-gradient(120deg,var(--accent),var(--accent-3) 55%,var(--accent-2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{font-size:18.5px;max-width:62ch;margin:22px 0 0;color:var(--body)}
+  .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:52px;align-items:center}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:30px}
+  .chip{
+    font-size:12.5px;font-weight:650;color:var(--ink-2);
+    background:var(--card);border:1px solid var(--line-2);
+    padding:7px 13px;border-radius:999px;backdrop-filter:blur(8px);
+  }
+  .chip b{color:var(--accent);font-weight:750}
+  .chip.bad{color:#a41f38;background:rgba(217,69,95,.09);border-color:rgba(217,69,95,.24)}
+
+  /* glass card + terminal visual */
+  .glass{
+    background:var(--card);
+    border:1px solid var(--line-2);
+    border-radius:var(--radius);
+    backdrop-filter:saturate(160%) blur(14px);
+    -webkit-backdrop-filter:saturize(160%) blur(14px);
+    box-shadow:var(--shadow-s);
+  }
+  .visual{padding:0;overflow:hidden;box-shadow:var(--shadow-l)}
+  .visual-bar{
+    display:flex;align-items:center;gap:8px;padding:13px 16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.55));
+    border-bottom:1px solid var(--line);
+  }
+  .visual-bar i{width:10px;height:10px;border-radius:50%;background:#e3e5ef;display:block}
+  .visual-bar i:nth-child(1){background:#ff6b6b}
+  .visual-bar i:nth-child(2){background:#ffc44d}
+  .visual-bar i:nth-child(3){background:#42c98a}
+  .visual-bar span{margin-left:8px;font-size:12px;color:var(--muted);font-family:var(--mono)}
+  .visual-body{padding:18px 20px 22px;background:rgba(13,16,32,.03)}
+  .visual-body .k{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-bottom:8px}
+  .snippet{font-family:var(--mono);font-size:12.8px;line-height:1.85;white-space:pre;overflow-x:auto}
+  .snippet .del{color:#b02a3e;background:rgba(217,69,95,.10);border-radius:4px;padding:0 3px}
+  .snippet .ins{color:#0a7a5b;background:rgba(18,163,122,.12);border-radius:4px;padding:0 3px}
+  .snippet .dim{color:var(--muted)}
+  .arrow-tag{
+    margin-top:16px;font-size:12px;font-weight:700;color:#a41f38;
+    background:rgba(217,69,95,.10);border:1px dashed rgba(217,69,95,.35);
+    padding:6px 11px;border-radius:9px;display:inline-block;
+  }
+
+  /* ---------- stats ---------- */
+  .stats{padding:8px 0 70px}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .stat{padding:22px 22px 20px;border-radius:16px}
+  .stat .n{font-size:34px;font-weight:830;color:var(--ink);letter-spacing:-.03em;line-height:1}
+  .stat .n small{font-size:15px;color:var(--muted);font-weight:650;margin-left:3px}
+  .stat .l{font-size:13px;margin-top:8px;color:var(--body)}
+  .stat.warn .n{color:var(--warn)}
+  .stat.bad .n{color:var(--danger)}
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0}
+  .sec-head{max-width:70ch;margin-bottom:34px}
+  .kicker{
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;
+  }
+  h2{font-size:clamp(25px,3.2vw,36px);letter-spacing:-.028em;color:var(--ink);margin:10px 0 0;font-weight:800}
+  .sec-head p{font-size:16.5px;margin:14px 0 0}
+
+  /* reveal on scroll */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    html{scroll-behavior:auto}
+  }
+
+  /* issue panel */
+  .split{display:grid;grid-template-columns:1.02fr .98fr;gap:26px;align-items:start}
+  .panel{padding:26px 26px 24px;border-radius:18px}
+  .panel h3{margin:0 0 4px;color:var(--ink);font-size:17px;letter-spacing:-.01em}
+  .panel .sub{font-size:13px;color:var(--muted);margin-bottom:16px}
+  pre.code{
+    margin:0;font-family:var(--mono);font-size:12.7px;line-height:1.8;
+    background:#0f1330;color:#dfe3ff;border-radius:13px;padding:18px 18px;
+    overflow-x:auto;border:1px solid rgba(255,255,255,.07);
+  }
+  pre.code .c{color:#7f88c8}
+  pre.code .s{color:#7ee0c0}
+  pre.code .k{color:#ff9db8}
+  pre.code .fn{color:#ffd479}
+  pre.code .st{color:#9fe8ff}
+  .note{
+    display:flex;gap:11px;align-items:flex-start;margin-top:16px;font-size:13.5px;
+    background:rgba(224,138,0,.09);border:1px solid rgba(224,138,0,.26);
+    color:#7a4d00;padding:13px 15px;border-radius:12px;
+  }
+  .note b{color:#5f3c00}
+  .note .ic{flex:none;font-size:16px;line-height:1.4}
+
+  /* timeline */
+  .timeline{position:relative;margin-top:8px}
+  .timeline::before{
+    content:"";position:absolute;left:19px;top:6px;bottom:6px;width:2px;
+    background:linear-gradient(to bottom,rgba(91,75,255,.45),rgba(0,194,178,.35),rgba(217,69,95,.35));
+    border-radius:2px;
+  }
+  .step{position:relative;padding:0 0 20px 56px}
+  .step:last-child{padding-bottom:0}
+  .step .node{
+    position:absolute;left:10px;top:6px;width:20px;height:20px;border-radius:50%;
+    background:#fff;border:3px solid var(--accent);box-shadow:0 4px 12px rgba(15,20,50,.14);
+  }
+  .step.ok .node{border-color:var(--accent-2)}
+  .step.bad .node{border-color:var(--danger);background:#fff5f7}
+  .step.warn .node{border-color:var(--warn)}
+  .step .card{padding:17px 19px 16px;border-radius:15px;transition:transform .25s ease,box-shadow .25s ease}
+  .step .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-l)}
+  .step .top{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:9px}
+  .step .idx{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--muted)}
+  .step .title{font-weight:750;color:var(--ink);font-size:15px}
+  .step p{margin:0;font-size:13.8px}
+  .cmd{
+    display:inline-block;font-family:var(--mono);font-size:12.2px;color:var(--ink-2);
+    background:rgba(13,16,32,.055);border:1px solid var(--line);
+    padding:3px 9px;border-radius:7px;margin:9px 6px 0 0;
+  }
+  .out{
+    margin-top:10px;font-family:var(--mono);font-size:12.2px;color:#4a5170;
+    background:rgba(255,255,255,.75);border-left:3px solid var(--line-2);
+    padding:8px 12px;border-radius:0 9px 9px 0;white-space:pre-wrap;
+  }
+  .pill{
+    font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 9px;border-radius:999px;
+  }
+  .pill.g{background:rgba(18,163,122,.13);color:#0a7a5b}
+  .pill.r{background:rgba(217,69,95,.12);color:#a41f38}
+  .pill.y{background:rgba(224,138,0,.14);color:#8a5a00}
+  .pill.b{background:rgba(91,75,255,.12);color:#3f31c9}
+
+  /* feature cards */
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .fcard{padding:24px 24px 22px;border-radius:18px;transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s ease}
+  .fcard:hover{transform:translateY(-6px);box-shadow:var(--shadow-l)}
+  .fcard .ico{
+    width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;
+    background:linear-gradient(135deg,rgba(91,75,255,.15),rgba(0,194,178,.15));
+    border:1px solid var(--line-2);margin-bottom:14px;
+  }
+  .fcard h3{margin:0 0 7px;font-size:16.5px;color:var(--ink);letter-spacing:-.012em}
+  .fcard p{margin:0;font-size:14px}
+  .fcard code{font-family:var(--mono);font-size:12.4px;background:rgba(13,16,32,.06);padding:1px 5px;border-radius:5px;color:var(--ink-2)}
+
+  /* diff viewer */
+  .diff-shell{border-radius:17px;overflow:hidden;border:1px solid var(--line-2);box-shadow:var(--shadow-s);background:#0f1330}
+  .diff-head{
+    display:flex;align-items:center;gap:10px;padding:13px 18px;
+    background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+    border-bottom:1px solid rgba(255,255,255,.09);
+    font-family:var(--mono);font-size:12.2px;color:#aeb6ee;
+  }
+  .diff-body{
+    font-family:var(--mono);font-size:12.4px;line-height:1.75;
+    padding:16px 18px 20px;overflow-x:auto;color:#c9cffb;
+  }
+  .diff-body .ln{display:block;white-space:pre;padding:0 6px;border-radius:4px}
+  .diff-body .add{background:rgba(18,163,122,.16);color:#9bf0cf}
+  .diff-body .del{background:rgba(217,69,95,.16);color:#ffb3c2}
+  .diff-body .hunk{color:#8f98d8}
+  .diff-body .meta{color:#7f88c8}
+  .diff-body .dead{text-decoration:line-through;text-decoration-color:rgba(255,179,194,.5)}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:12.5px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+
+  /* verdict */
+  .verdict{padding:30px;border-radius:20px;border:1px solid rgba(217,69,95,.28);background:rgba(217,69,95,.055)}
+  .verdict h2{margin-top:6px}
+  .verdict ul{margin:18px 0 0;padding-left:0;list-style:none;display:grid;gap:11px}
+  .verdict li{display:flex;gap:11px;font-size:14.5px;align-items:flex-start}
+  .verdict li .m{flex:none;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:800;background:rgba(217,69,95,.14);color:#a41f38;margin-top:2px}
+
+  /* accordion */
+  details.acc{
+    background:var(--card);border:1px solid var(--line-2);border-radius:15px;
+    margin-bottom:12px;overflow:hidden;backdrop-filter:blur(10px);
+    transition:box-shadow .25s ease,border-color .25s ease;
+  }
+  details.acc[open]{box-shadow:var(--shadow-s);border-color:rgba(91,75,255,.28)}
+  details.acc summary{
+    cursor:pointer;list-style:none;padding:17px 20px;
+    display:flex;align-items:center;gap:12px;font-weight:700;color:var(--ink);font-size:15px;
+  }
+  details.acc summary::-webkit-details-marker{display:none}
+  details.acc summary .plus{
+    margin-left:auto;flex:none;width:24px;height:24px;border-radius:8px;
+    display:grid;place-items:center;background:rgba(91,75,255,.10);color:var(--accent);
+    font-weight:800;transition:transform .3s ease;
+  }
+  details.acc[open] summary .plus{transform:rotate(45deg)}
+  details.acc .inner{padding:0 20px 20px;font-size:14.2px}
+  details.acc .inner code{font-family:var(--mono);font-size:12.5px;background:rgba(13,16,32,.06);padding:1px 5px;border-radius:5px}
+  .kv{display:grid;grid-template-columns:190px 1fr;gap:9px 18px;font-size:13.6px}
+  .kv dt{color:var(--muted);font-weight:650}
+  .kv dd{margin:0;font-family:var(--mono);font-size:12.6px;color:var(--ink-2);word-break:break-all}
+
+  footer{
+    margin-top:40px;padding:38px 0 54px;border-top:1px solid var(--line);
+    font-size:13px;color:var(--muted);
+  }
+  footer .fr{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center}
+
+  @media (max-width:1000px){
+    .hero-grid{grid-template-columns:1fr;gap:38px}
+    .stat-grid{grid-template-columns:repeat(2,1fr)}
+    .split{grid-template-columns:1fr}
+    .cards{grid-template-columns:1fr}
+  }
+  @media (max-width:720px){
+    .wrap{padding:0 18px}
+    .nav-links{display:none}
+    header.hero{padding:56px 0 44px}
+    .stat-grid{grid-template-columns:1fr 1fr}
+    .kv{grid-template-columns:1fr}
+    section{padding:48px 0}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <div class="logo"><span class="mark">&#9096;</span> pyupgrade-545</div>
+    <div class="nav-links">
+      <a href="#issue">Issue</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#analysis">Analysis</a>
+      <a href="#patch">Patch</a>
+      <a href="#verdict">Verdict</a>
+      <a href="#meta">Metadata</a>
+    </div>
+    <span class="nav-cta">SWE-bench &middot; code_repair</span>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span> Recorded agent run &middot; upstream</span>
+      <h1>Rewriting old-style superclasses <em>removes args</em> for static methods</h1>
+      <p class="lede">
+        A SWE-agent run on <strong>asottile/pyupgrade-545</strong>. The agent never verified the
+        rewrite it was asked to fix &mdash; its repro script printed the same value whether or not
+        the bug existed, so three "verification" cycles proved nothing and the run looped on a
+        no-op edit until it was cut off.
+      </p>
+      <div class="chips">
+        <span class="chip">Model <b>swe-agent-llama-70b</b></span>
+        <span class="chip">Repo <b>/pyupgrade</b></span>
+        <span class="chip">28 commands</span>
+        <span class="chip bad">Outcome: no fix</span>
+      </div>
+    </div>
+
+    <div class="glass visual">
+      <div class="visual-bar"><i></i><i></i><i></i><span>pyupgrade --py3-plus legacy.py</span></div>
+      <div class="visual-body">
+        <div class="k">expected rewrite &nbsp;vs&nbsp; what the bug produces</div>
+        <div class="snippet"><span class="dim">class Child(Parent):</span>
+    @staticmethod
+    def func(arg):
+        return <span class="ins">super().func(arg)</span>   <span class="dim"># correct</span>
+               <span class="del">super().func()</span>      <span class="dim"># buggy</span></div>
+        <div class="arrow-tag">&#9888; the agent's check printed <code style="font-family:var(--mono)">0</code> in every case</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap stats">
+  <div class="stat-grid">
+    <div class="glass stat reveal"><div class="n">28</div><div class="l">Assistant commands recorded, no <code style="font-family:var(--mono)">submit</code> among them</div></div>
+    <div class="glass stat reveal"><div class="n">3</div><div class="l">Edits applied to source files (one cosmetic, one repeated three times)</div></div>
+    <div class="glass stat warn reveal"><div class="n">3</div><div class="l">Repro runs, all printing the same meaningless <code style="font-family:var(--mono)">0</code></div></div>
+    <div class="glass stat bad reveal"><div class="n">0<small>%</small></div><div class="l">Behavioural change in the submitted patch</div></div>
+  </div>
+</div>
+
+<section id="issue">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">The task</div>
+      <h2>Old-style <code style="font-size:.7em;font-family:var(--mono)">Parent.func(arg)</code> must keep its argument</h2>
+      <p>
+        pyupgrade rewrites the pre-<code style="font-family:var(--mono)">super()</code> calling convention
+        <code style="font-family:var(--mono)">Parent.func(arg)</code> into <code style="font-family:var(--mono)">super().func(...)</code>.
+        For instance methods the first argument is <code style="font-family:var(--mono)">self</code> and is correctly dropped;
+        for <strong>static methods</strong> the first argument is a real argument and must be preserved. The agent was
+        told to reproduce the bug first and re-run the repro after fixing it.
+      </p>
+    </div>
+
+    <div class="split">
+      <div class="glass panel reveal">
+        <h3>Reproduction script the agent wrote</h3>
+        <div class="sub">/pyupgrade/reproduce.py &mdash; created with <code style="font-family:var(--mono)">create</code>, then filled with the issue's snippet</div>
+<pre class="code"><span class="k">class</span> <span class="fn">Parent</span>:
+    <span class="st">@staticmethod</span>
+    <span class="k">def</span> <span class="fn">func</span>(arg):
+        <span class="k">return</span> <span class="s">0</span>
+
+<span class="k">class</span> <span class="fn">Child</span>(Parent):
+    <span class="st">@staticmethod</span>
+    <span class="k">def</span> <span class="fn">func</span>(arg):
+        <span class="k">return</span> Parent.func(arg)
+
+<span class="fn">print</span>(Child.func(<span class="s">1</span>))</pre>
+        <div class="note">
+          <span class="ic">&#9888;</span>
+          <span><b>This script cannot detect the bug.</b> <code style="font-family:var(--mono)">func</code> unconditionally
+          <code style="font-family:var(--mono)">return 0</code>, so the output is <code style="font-family:var(--mono)">0</code>
+          with or without the argument. It never runs pyupgrade over the file and never inspects the rewritten
+          source &mdash; the only place the defect is visible.</span>
+        </div>
+      </div>
+
+      <div class="glass panel reveal">
+        <h3>Where the rewrite is wired up</h3>
+        <div class="sub">/pyupgrade/pyupgrade/_plugins/legacy.py &mdash; <code style="font-family:var(--mono)">visit_Module</code>, observed at lines 188&ndash;195</div>
+<pre class="code">super_func = functools.partial(
+    find_and_replace_call, template=<span class="s">'super()'</span>)
+<span class="k">for</span> offset <span class="k">in</span> visitor.super_offsets:
+    <span class="k">yield</span> offset, super_func
+
+<span class="k">for</span> offset, func_name <span class="k">in</span> visitor.old_super_offsets:
+    template = <span class="s">f'super().{func_name}({{rest}})'</span>
+    callback = functools.partial(
+        find_and_replace_call, template=template)
+    <span class="k">yield</span> offset, callback</pre>
+        <p style="font-size:13.6px;margin-top:15px">
+          The old-super template is built from the attribute name and only splices in
+          <code style="font-family:var(--mono)">{rest}</code> &mdash; everything <em>after</em> the first argument.
+          The detection in <code style="font-family:var(--mono)">visit_Call</code> accepts a static-method call
+          because the first argument matches the function's first parameter, but no static-method distinction
+          is carried into the template. That is the actual bug locus; the agent edited
+          <code style="font-family:var(--mono)">_token_helpers.py</code> instead.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="timeline">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">Step-by-step &middot; 28 commands</div>
+      <h2>What the agent actually did</h2>
+      <p>Commands and observations exactly as recorded, grouped into the phases the transcript falls into.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="step ok reveal">
+        <span class="node"></span>
+        <div class="glass card">
+          <div class="top"><span class="idx">steps 1&ndash;2</span><span class="title">Reproduce (nominally)</span><span class="pill b">setup</span></div>
+          <p>Created <code style="font-family:var(--mono)">reproduce.py</code> and filled it with the issue snippet, then ran it.</p>
+          <span class="cmd">create reproduce.py</span><span class="cmd">edit 1:1</span><span class="cmd">python reproduce.py</span>
+          <div class="out">0</div>
+          <p style="margin-top:10px">The agent read this as &ldquo;the argument <code style="font-family:var(--mono)">1</code> was not correctly passed&rdquo; and declared the bug reproduced. It was not reproducible this way.</p>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <span class="node"></span>
+        <div class="glass card">
+          <div class="top"><span class="idx">steps 3&ndash;9</span><span class="title">Locate the rewrite machinery</span><span class="pill b">explore</span></div>
+          <p>Searched for <code style="font-family:var(--mono)">"super"</code> (60 matches across 6 files), opened <code style="font-family:var(--mono)">_plugins/legacy.py</code>, scrolled and jumped to the <code style="font-family:var(--mono)">visit_Module</code> callback block &mdash; correctly identifying <code style="font-family:var(--mono)">find_and_replace_call</code> as the shared helper &mdash; then opened <code style="font-family:var(--mono)">_token_helpers.py</code> and jumped to line 450.</p>
+          <span class="cmd">search_dir "super"</span><span class="cmd">open .../legacy.py</span><span class="cmd">scroll_down</span><span class="cmd">goto 188</span><span class="cmd">open .../_token_helpers.py</span><span class="cmd">search_file "def find_and_replace_call"</span><span class="cmd">goto 450</span>
+        </div>
+      </div>
+
+      <div class="step bad reveal">
+        <span class="node"></span>
+        <div class="glass card">
+          <div class="top"><span class="idx">step 10</span><span class="title">Edit A &mdash; cosmetic only</span><span class="pill r">no-op</span></div>
+          <p>Rewrote the <code style="font-family:var(--mono)">find_and_replace_call</code> signature: re-indented it from 8 to 4 spaces and changed <code style="font-family:var(--mono)">Tuple[int, ...]</code> to <code style="font-family:var(--mono)">Tuple[int,...]</code>. No logic touched, despite the agent's claim that it would &ldquo;include all arguments&rdquo;. This is still the only change to that function in the final patch.</p>
+          <span class="cmd">edit 450:459</span>
+          <div class="out">File updated. ... (signature reformatted; body unchanged)</div>
+        </div>
+      </div>
+
+      <div class="step reveal">
+        <span class="node"></span>
+        <div class="glass card">
+          <div class="top"><span class="idx">steps 11&ndash;13</span><span class="title">Re-run, then read <code style="font-family:var(--mono)">replace_call</code></span><span class="pill y">loop begins</span></div>
+          <p>Re-ran the repro, saw the same <code style="font-family:var(--mono)">0</code>, and began the scroll-up / scroll-down inspection cycle of <code style="font-family:var(--mono)">replace_call</code> and <code style="font-family:var(--mono)">parse_call_args</code>.</p>
+          <span class="cmd">python reproduce.py</span><span class="cmd">scroll_up &times;2</span><span class="cmd">scroll_down</span>
+          <div class="out">0</div>
+        </div>
+      </div>
+
+      <div class="step bad reveal">
+        <span class="node"></span>
+        <div class="glass card">
+          <div class="top"><span class="idx">steps 14&ndash;16</span><span class="title">Edit B &mdash; a branch that can never execute</span><span class="pill r">no-op</span></div>
+          <p>Replaced lines 371:392 of <code style="font-family:var(--mono)">parse_call_args</code> with the same body plus an appended guard: <code style="font-family:var(--mono)">if not args and tokens_to_src(...).strip(): args.append(...)</code>. That condition only fires when <code style="font-family:var(--mono)">args</code> is empty &mdash; but a non-empty argument list already appends its final argument in the closing-brace branch, and an empty call has nothing to append. The new branch is unreachable in both directions, so behaviour is unchanged. The run then re-ran the repro: still <code style="font-family:var(--mono)">0</code>.</p>
+          <span class="cmd">edit 371:392</span><span class="cmd">python reproduce.py</span>
+          <div class="out">File updated. ... (518 -> 522 lines)
+0</div>
+        </div>
+      </div>
+
+      <div class="step bad reveal">
+        <span class="node"></span>
+        <div class="glass card">
+          <div class="top"><span class="idx">steps 17&ndash;22</span><span class="title">The loop repeats &mdash; same edit applied twice more</span><span class="pill r">stuck</span></div>
+          <p>Identical scroll cycle, identical reasoning text, identical <code style="font-family:var(--mono)">edit 371:392</code>. Because the edit is range-based against a file that already contains the inserted block, each application stacks another copy: 518 &rarr; 522 &rarr; 526 &rarr; 530 lines, each intermediate copy sitting after a <code style="font-family:var(--mono)">return</code> and therefore dead. Every repro run in between still prints <code style="font-family:var(--mono)">0</code>.</p>
+          <span class="cmd">scroll_up &times;2 / scroll_down</span><span class="cmd">edit 371:392</span><span class="cmd">python reproduce.py</span><span class="cmd">edit 371:392</span>
+          <div class="out">0   (after the 2nd application)
+0   (after the 3rd application)
+[no observation recorded for the final edit]</div>
+        </div>
+      </div>
+
+      <div class="step warn reveal">
+        <span class="node"></span>
+        <div class="glass card">
+          <div class="top"><span class="idx">end of transcript</span><span class="title">Terminated, not submitted</span><span class="pill y">exit_context</span></div>
+          <p>The transcript ends on the third application of Edit B with no tool result. No <code style="font-family:var(--mono)">submit</code> command appears anywhere in the run; the recorded exit status string is <code style="font-family:var(--mono)">submitted (exit_context)</code>, i.e. the session was closed by the harness's exit condition while the agent was mid-loop.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="analysis">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">Why it failed</div>
+      <h2>Four compounding errors</h2>
+      <p>None of these are exotic; each one is a plausible next step that nonetheless cannot move the task forward.</p>
+    </div>
+    <div class="cards">
+      <div class="glass fcard reveal">
+        <div class="ico">&#128269;</div>
+        <h3>1 &middot; The oracle was blind</h3>
+        <p>The repro executes the <em>original</em> file and prints a constant. The defect only exists in pyupgrade's <em>output text</em>. A valid repro had to run the tool over the file and diff the rewritten source (or call the token helpers directly). Everything downstream inherited this flaw: three runs, three meaningless passes.</p>
+      </div>
+      <div class="glass fcard reveal">
+        <div class="ico">&#9997;&#65039;</div>
+        <h3>2 &middot; The edits targeted the wrong layer</h3>
+        <p>The argument is dropped because <code>legacy.py</code> builds the template <code>super().{func_name}({rest})</code> without knowing whether the method is static. The agent kept editing the generic token-parsing layer, which has no knowledge of static methods at all, so no local change there could express the fix.</p>
+      </div>
+      <div class="glass fcard reveal">
+        <div class="ico">&#128260;</div>
+        <h3>3 &middot; A no-op was mistaken for progress</h3>
+        <p>Edit A changed indentation and whitespace. Edit B added a branch that provably cannot be taken. The agent's narration describes both as functionally significant, and because the (blind) test kept returning the same value, nothing contradicted the narration.</p>
+      </div>
+      <div class="glass fcard reveal">
+        <div class="ico">&#128683;</div>
+        <h3>4 &middot; Unnoticed duplicate application</h3>
+        <p>Re-issuing an identical range edit inserted the same block again, creating three stacked copies separated by early <code>return</code>s. The line count grew 518&rarr;522&rarr;526&rarr;530 and the agent read each &ldquo;File updated&rdquo; message as success rather than checking the region it had just written.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="patch">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">Recorded output</div>
+      <h2>The submitted patch, verbatim</h2>
+      <p>Two files changed. Neither hunk alters behaviour; the token-helper hunk contains three copies of an unreachable guard.</p>
+    </div>
+
+    <div class="diff-shell reveal">
+      <div class="diff-head"><span>generated_patch</span><span style="margin-left:auto">pyupgrade/_token_helpers.py &nbsp;+ &nbsp;reproduce.py</span></div>
+      <div class="diff-body">
+<span class="ln meta">diff --git a/pyupgrade/_token_helpers.py b/pyupgrade/_token_helpers.py</span>
+<span class="ln meta">index 44d9b57..96ac25f 100644</span>
+<span class="ln hunk">@@ -389,6 +389,18 @@ def parse_call_args(</span>
+<span class="ln"> </span>
+<span class="ln">         i += 1</span>
+<span class="ln"> </span>
+<span class="ln add">+    # Always include the first argument</span>
+<span class="ln add">+    if not args and tokens_to_src(tokens[arg_start:i]).strip():</span>
+<span class="ln add">+        args.append((arg_start, i))</span>
+<span class="ln add">+</span>
+<span class="ln add">+    return args, i</span>
+<span class="ln add dead">+    if not args and tokens_to_src(tokens[arg_start:i]).strip():</span>
+<span class="ln add dead">+        args.append((arg_start, i))</span>
+<span class="ln add dead">+</span>
+<span class="ln add dead">+    return args, i</span>
+<span class="ln add dead">+    if not args and tokens_to_src(tokens[arg_start:i]).strip():</span>
+<span class="ln add dead">+        args.append((arg_start, i))</span>
+<span class="ln add dead">+</span>
+<span class="ln">     return args, i</span>
+<span class="ln"> </span>
+<span class="ln"> </span>
+<span class="ln hunk">@@ -448,11 +460,11 @@ def replace_call(</span>
+<span class="ln"> def find_and_replace_call(</span>
+<span class="ln del">-        i: int,</span>
+<span class="ln del">-        tokens: List[Token],</span>
+<span class="ln del">-        *,</span>
+<span class="ln del">-        template: str,</span>
+<span class="ln del">-        parens: Tuple[int, ...] = (),</span>
+<span class="ln add">+    i: int,</span>
+<span class="ln add">+    tokens: List[Token],</span>
+<span class="ln add">+    *,</span>
+<span class="ln add">+    template: str,</span>
+<span class="ln add">+    parens: Tuple[int,...] = (),</span>
+<span class="ln"> ) -> None:</span>
+<span class="ln">     j = find_open_paren(tokens, i)</span>
+<span class="ln">     func_args, end = parse_call_args(tokens, j)</span>
+<span class="ln meta">--</span>
+<span class="ln meta">diff --git a/reproduce.py b/reproduce.py</span>
+<span class="ln meta">new file mode 100644</span>
+<span class="ln add">+ (the 11-line repro script, added to the repo root)</span>
+      </div>
+    </div>
+
+    <div class="legend reveal">
+      <span><i style="background:rgba(18,163,122,.55)"></i>added</span>
+      <span><i style="background:rgba(217,69,95,.55)"></i>removed</span>
+      <span><i style="background:rgba(255,255,255,.35)"></i>unreachable after the first <code style="font-family:var(--mono)">return</code> (struck through)</span>
+    </div>
+  </div>
+</section>
+
+<section id="verdict">
+  <div class="wrap">
+    <div class="verdict glass reveal">
+      <div class="kicker" style="color:var(--danger)">Verdict</div>
+      <h2>Recorded outcome: the defect is untouched</h2>
+      <ul>
+        <li><span class="m">&times;</span><span>The static-method argument loss is not addressed. No file was changed where the <code style="font-family:var(--mono)">super().{func_name}({rest})</code> template is built, and the token-helper helper was only reindented.</span></li>
+        <li><span class="m">&times;</span><span>The only semantic-looking addition is dead code: the first <code style="font-family:var(--mono)">return args, i</code> exits before the second and third copies, and the guard's condition is unsatisfiable in both the empty and non-empty argument cases.</span></li>
+        <li><span class="m">&times;</span><span><code style="font-family:var(--mono)">reproduce.py</code>, a scratch file, is added to the repository root and would ship with the diff.</span></li>
+        <li><span class="m">&times;</span><span>No test was ever run &mdash; <code style="font-family:var(--mono)">tests/features/super_test.py</code> (41 <code style="font-family:var(--mono)">super</code> matches) was found by the search but never opened. The run's own failure signal was indistinguishable from success.</span></li>
+        <li><span class="m">&times;</span><span>The run ended by exit condition rather than an explicit <code style="font-family:var(--mono)">submit</code>, so the patch captured is whatever the working tree held mid-loop.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="meta">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">Details</div>
+      <h2>Case metadata &amp; open questions</h2>
+    </div>
+
+    <details class="acc reveal" open>
+      <summary>Case identity and provenance <span class="plus">+</span></summary>
+      <div class="inner">
+        <dl class="kv">
+          <dt>id</dt><dd>04_asottile__pyupgrade-545</dd>
+          <dt>benchmark / domain</dt><dd>SWE-bench &middot; code_repair &middot; upstream</dd>
+          <dt>model</dt><dd>swe-agent-llama-70b</dd>
+          <dt>trajectory format</dt><dd>swe-agent-traj</dd>
+          <dt>source path</dt><dd>trajs/code_repair/04_asottile__pyupgrade-545.traj</dd>
+          <dt>exit status</dt><dd>submitted (exit_context)</dd>
+          <dt>stripped fields</dt><dd>eval_logs, target</dd>
+          <dt>references</dt><dd>(none declared)</dd>
+        </dl>
+      </div>
+    </details>
+
+    <details class="acc reveal">
+      <summary>Why the reproduction script could not fail <span class="plus">+</span></summary>
+      <div class="inner">
+        <p>The bug is a <strong>source-to-source rewrite</strong>: pyupgrade parses <code>Parent.func(arg)</code> and emits
+        text. Executing <code>reproduce.py</code> without running pyupgrade over it therefore tests nothing. The agent's script
+        returns the literal <code>0</code> from both methods, so <code>print(Child.func(1))</code> emits <code>0</code>
+        in the buggy and fixed worlds alike. A discriminating check would run pyupgrade on the snippet and assert the
+        rewritten text contains <code>super().func(arg)</code>, or exercise <code>parse_call_args</code> /
+        <code>find_and_replace_call</code> against token streams directly. This is the single root cause of the run's
+        inability to tell progress from stagnation.</p>
+      </div>
+    </details>
+
+    <details class="acc reveal">
+      <summary>Is the parse_call_args guard truly unreachable? <span class="plus">+</span></summary>
+      <div class="inner">
+        <p>In <code>parse_call_args</code>, arguments are appended when a top-level comma is seen, and the final argument is
+        appended inside the closing-brace branch whenever the span's source is non-blank. So for <code>f(arg)</code> the list
+        is already <code>[(arg_start, i)]</code> and <code>not args</code> is false; for <code>f()</code> the appended source
+        is blank and the new guard's own <code>.strip()</code> test is also false. Either way the added block never runs.
+        That is consistent with the recorded observation: behaviour and output were unchanged after it was applied.</p>
+      </div>
+    </details>
+
+    <details class="acc reveal">
+      <summary>Uncertainty in this reconstruction <span class="plus">+</span></summary>
+      <div class="inner">
+        <p>Two things are read from the recorded artifacts rather than stated outright. First, the exit status string is
+        <code>submitted (exit_context)</code> while no <code>submit</code> command occurs in the transcript and the final
+        edit has no observing result &mdash; the run was closed by the harness's exit condition, and this report treats the
+        patch as the mid-loop working tree, not as a deliberate submission. Second, the exact upstream fix is not present
+        in the case data (<code>target</code> and <code>eval_logs</code> were stripped), so the root-cause description of the
+        <code>legacy.py</code> template is an inference from the observed source, not a comparison against a reference patch.
+        No test suite was run in the recorded trajectory, so no pass/fail numbers exist to cite.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap fr">
+    <span>Case 04 &middot; asottile__pyupgrade-545 &middot; SWE-bench code_repair &middot; trajectory sha256 4e1458c4&hellip;</span>
+    <span>Report generated from the recorded trajectory only.</span>
+  </div>
+</footer>
+
+<script>
+  // nav colour / elevation change on scroll
+  (function () {
+    var nav = document.getElementById('nav');
+    function onScroll() {
+      if (window.scrollY > 12) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    }
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+
+  // scroll-into-view reveal
+  (function () {
+    var items = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      items.forEach(function (el) { el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    items.forEach(function (el, i) {
+      el.style.transitionDelay = Math.min(i % 4, 3) * 60 + 'ms';
+      io.observe(el);
+    });
+  })();
+
+  // accordion: only one open at a time
+  (function () {
+    var accs = document.querySelectorAll('details.acc');
+    accs.forEach(function (d) {
+      d.addEventListener('toggle', function () {
+        if (!d.open) return;
+        accs.forEach(function (o) { if (o !== d) o.open = false; });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

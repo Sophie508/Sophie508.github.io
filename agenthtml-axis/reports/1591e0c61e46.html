@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mind2Web Case 02 · Walmart Careers Navigation</title>
+  <style>
+    :root {
+      --ink: #17253c;
+      --muted: #68748a;
+      --paper: #f5f2eb;
+      --card: #fffdf8;
+      --line: #d9d5ca;
+      --blue: #0d55a5;
+      --blue-2: #1f70c9;
+      --yellow: #ffc220;
+      --teal: #0c786f;
+      --shadow: 0 18px 45px rgba(23, 37, 60, .11);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 88% 3%, rgba(255,194,32,.20), transparent 22rem),
+        linear-gradient(180deg, #faf8f3 0, var(--paper) 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    button { font: inherit; }
+    .shell { width: min(1160px, calc(100% - 34px)); margin: 0 auto; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      border-bottom: 1px solid rgba(23,37,60,.13);
+      letter-spacing: .02em;
+    }
+    .eyebrow { margin: 0; color: var(--blue); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; }
+    .case-id { color: var(--muted); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.18fr .82fr;
+      gap: 58px;
+      align-items: end;
+      padding: 76px 0 58px;
+    }
+    h1 { margin: 11px 0 20px; max-width: 760px; font-size: clamp(44px, 7vw, 82px); line-height: .98; letter-spacing: -.058em; }
+    .dek { max-width: 680px; margin: 0; color: #46536a; font-size: clamp(18px, 2vw, 22px); }
+    .scorecard {
+      position: relative;
+      overflow: hidden;
+      background: var(--ink);
+      color: white;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+    .scorecard::after { content: ""; position: absolute; width: 170px; height: 170px; border: 36px solid var(--yellow); border-radius: 50%; right: -94px; bottom: -102px; opacity: .9; }
+    .scorecard .big { display: block; margin: 8px 0 2px; font-size: 60px; line-height: 1; font-weight: 850; letter-spacing: -.05em; }
+    .scorecard .label { color: #b9c4d8; font-size: 14px; }
+    .score-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 26px; }
+    .score-meta div { padding-top: 12px; border-top: 1px solid rgba(255,255,255,.18); }
+    .score-meta strong { display: block; font-size: 13px; }
+    .score-meta span { color: #b9c4d8; font-size: 12px; }
+    .section { padding: 54px 0; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 24px; }
+    h2 { margin: 6px 0 0; font-size: clamp(28px, 4vw, 44px); line-height: 1.05; letter-spacing: -.035em; }
+    .hint { color: var(--muted); font-size: 13px; }
+    .browser {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .chrome { display: flex; align-items: center; gap: 15px; padding: 14px 18px; background: #ebe8e0; border-bottom: 1px solid var(--line); }
+    .dots { display: flex; gap: 7px; }
+    .dots i { width: 10px; height: 10px; border-radius: 50%; background: #c4bfb5; }
+    .address { flex: 1; padding: 8px 14px; border: 1px solid #d2cec4; border-radius: 999px; background: #faf9f6; color: #6b7485; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .stage { display: grid; grid-template-columns: 245px 1fr; min-height: 470px; }
+    .steps { padding: 20px; background: #f2f0e9; border-right: 1px solid var(--line); }
+    .step-btn {
+      width: 100%; display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start;
+      padding: 14px 10px; border: 0; border-radius: 13px; color: var(--ink); background: transparent; text-align: left; cursor: pointer;
+    }
+    .step-btn + .step-btn { margin-top: 6px; }
+    .step-btn:hover { background: rgba(13,85,165,.07); }
+    .step-btn.active { background: white; box-shadow: 0 6px 18px rgba(23,37,60,.08); }
+    .num { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #dce5f0; color: var(--blue); font-weight: 800; }
+    .active .num { background: var(--blue); color: white; }
+    .step-btn strong { display: block; margin: 1px 0 3px; font-size: 14px; }
+    .step-btn small { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    .canvas { position: relative; padding: 29px; background: linear-gradient(145deg, #fffefb, #f7f5ee); }
+    .panel { display: none; animation: in .22s ease-out; }
+    .panel.active { display: block; }
+    @keyframes in { from { opacity: 0; transform: translateY(4px); } }
+    .mock-nav { display: flex; align-items: center; gap: 18px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 8px; margin-right: auto; color: var(--blue); font-weight: 850; }
+    .spark { color: var(--yellow); font-size: 25px; line-height: 1; }
+    .nav-pill { padding: 8px 10px; border-radius: 9px; font-size: 13px; color: #4b5669; }
+    .nav-pill.target { outline: 3px solid rgba(255,194,32,.55); background: #fff8d8; color: var(--ink); font-weight: 800; }
+    .menu { width: 310px; margin: 8px 0 0 auto; padding: 8px; border: 1px solid var(--line); border-radius: 13px; background: white; box-shadow: 0 18px 38px rgba(23,37,60,.13); }
+    .menu div { padding: 10px 12px; border-radius: 8px; font-size: 14px; }
+    .menu .target { background: var(--blue); color: white; font-weight: 750; }
+    .action-note { display: inline-flex; align-items: center; gap: 8px; margin-top: 27px; padding: 8px 11px; border-radius: 999px; color: var(--teal); background: #ddf0ec; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .action-note i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .canvas h3 { margin: 14px 0 8px; font-size: clamp(28px, 4vw, 45px); letter-spacing: -.04em; }
+    .canvas p { max-width: 700px; margin: 0; color: #556176; }
+    .resource-page { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 22px; }
+    .resource-copy { padding: 24px; border-radius: 18px; background: var(--blue); color: white; }
+    .resource-copy p { color: #e2ebf5; font-size: 14px; }
+    .logo-tile { display: grid; place-items: center; min-height: 190px; border: 3px solid var(--yellow); border-radius: 18px; background: white; text-align: center; }
+    .logo-mark { display: grid; place-items: center; width: 92px; height: 92px; margin: 0 auto 12px; border-radius: 50%; color: white; background: var(--ink); font-size: 28px; font-weight: 900; letter-spacing: -.05em; }
+    .logo-tile strong { display: block; max-width: 210px; }
+    .evidence-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 22px; }
+    .card { border: 1px solid var(--line); border-radius: 20px; background: rgba(255,253,248,.88); padding: 26px; }
+    blockquote { margin: 18px 0 0; padding: 0 0 0 22px; border-left: 4px solid var(--yellow); color: #354258; font-size: 18px; line-height: 1.55; }
+    .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 18px 0 0; }
+    .facts div { padding-top: 13px; border-top: 1px solid var(--line); }
+    .facts dt { color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
+    .facts dd { margin: 5px 0 0; font-size: 13px; overflow-wrap: anywhere; }
+    code { color: #34425a; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .quirk { margin-top: 16px; padding: 14px 16px; border-radius: 13px; background: #fff2c8; color: #5b4916; font-size: 13px; }
+    .target-box { margin-top: 18px; padding: 17px; border-radius: 14px; background: #edf3f9; }
+    .target-box span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; font-weight: 800; }
+    .target-box code { display: block; margin-top: 8px; color: var(--blue); font-size: 13px; }
+    footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 42px; padding: 28px 0 40px; border-top: 1px solid rgba(23,37,60,.13); color: var(--muted); font-size: 12px; }
+    @media (max-width: 840px) {
+      .hero, .evidence-grid { grid-template-columns: 1fr; }
+      .hero { gap: 34px; padding-top: 52px; }
+      .stage { grid-template-columns: 1fr; }
+      .steps { display: grid; grid-template-columns: repeat(3, 1fr); border-right: 0; border-bottom: 1px solid var(--line); }
+      .step-btn { grid-template-columns: 1fr; }
+      .step-btn .num { width: 26px; height: 26px; }
+      .nav-pill:not(.target) { display: none; }
+    }
+    @media (max-width: 590px) {
+      .shell { width: min(100% - 22px, 1160px); }
+      .topbar { align-items: flex-start; gap: 10px; }
+      .case-id { max-width: 170px; text-align: right; overflow-wrap: anywhere; }
+      .section { padding: 38px 0; }
+      .section-head { display: block; }
+      .hint { margin-top: 8px; }
+      .steps { grid-template-columns: 1fr; }
+      .step-btn { grid-template-columns: 30px 1fr; }
+      .canvas { padding: 20px; }
+      .resource-page, .facts { grid-template-columns: 1fr; }
+      .mock-nav { gap: 8px; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell topbar">
+    <p class="eyebrow">Mind2Web · Human demonstration</p>
+    <div class="case-id">02_test_domain_test_domain_4_57</div>
+  </header>
+
+  <main>
+    <section class="shell hero">
+      <div>
+        <p class="eyebrow">Web navigation / careers.walmart</p>
+        <h1>Finding a place for every perspective.</h1>
+        <p class="dek">A three-action route from the Walmart Careers home page to information about Associate Resource Groups within Diversity &amp; Inclusion.</p>
+      </div>
+      <aside class="scorecard" aria-label="Case summary">
+        <p class="eyebrow" style="color:#ffc220">Demonstration length</p>
+        <span class="big">03</span>
+        <span class="label">recorded actions</span>
+        <div class="score-meta">
+          <div><strong>Info</strong><span>domain</span></div>
+          <div><strong>Job</strong><span>subdomain</span></div>
+          <div><strong>Mind2Web JSON</strong><span>format</span></div>
+          <div><strong>Human annotator</strong><span>source</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="shell section" aria-labelledby="route-title">
+      <div class="section-head">
+        <div><p class="eyebrow">Interaction trace</p><h2 id="route-title">The demonstrated route</h2></div>
+        <span class="hint">Select a step to inspect it</span>
+      </div>
+      <div class="browser">
+        <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><div class="address">careers.walmart</div></div>
+        <div class="stage">
+          <nav class="steps" aria-label="Trajectory steps">
+            <button class="step-btn active" data-step="0" aria-current="step"><span class="num">1</span><span><strong>Culture</strong><small>Hover</small></span></button>
+            <button class="step-btn" data-step="1"><span class="num">2</span><span><strong>Diversity &amp; Inclusion</strong><small>Click</small></span></button>
+            <button class="step-btn" data-step="2"><span class="num">3</span><span><strong>Resource group logo</strong><small>Click</small></span></button>
+          </nav>
+          <div class="canvas">
+            <article class="panel active" data-panel="0">
+              <div class="mock-nav"><div class="brand"><span class="spark">✦</span> Careers</div><span class="nav-pill">Locations</span><span class="nav-pill target">Culture</span><span class="nav-pill">Impact</span></div>
+              <div class="menu"><div>Values</div><div>History</div><div>Diversity &amp; Inclusion</div><div>Working at Walmart</div></div>
+              <span class="action-note"><i></i>Original operation · Hover</span>
+              <h3>Reveal the Culture menu.</h3>
+              <p>The first interaction targets the top-level <strong>Culture</strong> link, exposing its four-item submenu.</p>
+            </article>
+            <article class="panel" data-panel="1">
+              <div class="mock-nav"><div class="brand"><span class="spark">✦</span> Careers</div><span class="nav-pill">Locations</span><span class="nav-pill target">Culture</span><span class="nav-pill">Impact</span></div>
+              <div class="menu"><div>Values</div><div>History</div><div class="target">Diversity &amp; Inclusion</div><div>Working at Walmart</div></div>
+              <span class="action-note"><i></i>Operation · Click</span>
+              <h3>Enter Diversity &amp; Inclusion.</h3>
+              <p>The second interaction selects the submenu link. The following state is the page headed <strong>“All walks moving as one.”</strong></p>
+            </article>
+            <article class="panel" data-panel="2">
+              <span class="action-note"><i></i>Operation · Click</span>
+              <h3>Choose a resource group.</h3>
+              <div class="resource-page">
+                <div class="logo-tile"><div><div class="logo-mark">AABRG</div><strong>African American Business Resource Group</strong></div></div>
+                <div class="resource-copy"><p class="eyebrow" style="color:#ffc220">Associate Resource Groups</p><p>The selected card describes a mission centered on inclusion, associate development, business thought leadership, and community engagement.</p></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="shell section" aria-labelledby="evidence-title">
+      <div class="section-head"><div><p class="eyebrow">Grounded evidence</p><h2 id="evidence-title">What the final observed page says</h2></div></div>
+      <div class="evidence-grid">
+        <article class="card">
+          <p class="eyebrow">Target card copy</p>
+          <blockquote>“The African American Business Resource Group's mission is to be a strategic partner to promote a culture of inclusion through our associate development, business thought leadership, and community engagement.”</blockquote>
+          <div class="target-box"><span>Original target</span><code>img[alt="African American Business Resource Group Logo"]</code></div>
+        </article>
+        <aside class="card">
+          <p class="eyebrow">Record details</p>
+          <dl class="facts">
+            <div><dt>Website</dt><dd>careers.walmart</dd></div>
+            <div><dt>Actions</dt><dd>Hover · Click · Click</dd></div>
+            <div><dt>Final target node</dt><dd><code>10724</code></dd></div>
+            <div><dt>Target bounds</dt><dd><code>143.953, 3786.5 · 206 × 181.266</code></dd></div>
+            <div><dt>Annotation</dt><dd><code>d9fead04-01dc-47f1-a0df-b51655167d3b</code></dd></div>
+            <div><dt>References</dt><dd>None</dd></div>
+          </dl>
+          <div class="quirk"><strong>Annotation notes.</strong> Step 1 retains <code>HOVER</code> as its original operation but is normalized to <code>CLICK</code>. Step 2 has no positive candidate recorded; the intended click remains explicit in the action representation and next page state.</div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">
+    <span>Case presentation generated from the assigned local trajectory only.</span>
+    <span>Trajectory SHA-256 · <code>bd44e427efe70e8d22a1161f904b5f67a1992f6d4de04fc750ff5fd58437c886</code></span>
+  </footer>
+
+  <script>
+    (() => {
+      const buttons = [...document.querySelectorAll('.step-btn')];
+      const panels = [...document.querySelectorAll('.panel')];
+      buttons.forEach((button, index) => {
+        button.addEventListener('click', () => {
+          buttons.forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
+          panels.forEach(p => p.classList.remove('active'));
+          button.classList.add('active');
+          button.setAttribute('aria-current', 'step');
+          panels[index].classList.add('active');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

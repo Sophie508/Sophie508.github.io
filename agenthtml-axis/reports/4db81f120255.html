@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Code Repair Case: Melevir/cognitive_complexity #15</title>
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --ink: #1f2933;
+      --muted: #667085;
+      --line: #d8dee8;
+      --accent: #0f766e;
+      --accent-2: #7c2d12;
+      --soft: #eef6f5;
+      --soft-2: #fff3ea;
+      --code: #101828;
+      --code-bg: #eef1f5;
+      --ok: #16794c;
+      --warn: #9a3412;
+      --shadow: 0 16px 40px rgba(31, 41, 51, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+
+    header {
+      background: #172033;
+      color: #fff;
+      padding: 34px 28px 30px;
+      border-bottom: 5px solid var(--accent);
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #b8c7d9;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 900px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 16px 0 0;
+      max-width: 850px;
+      color: #d8e2ee;
+      font-size: 17px;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    section, .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    section {
+      padding: 22px;
+      margin-bottom: 22px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 21px;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    p { margin: 0 0 12px; }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .meta div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfe;
+      min-width: 0;
+    }
+
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .value {
+      display: block;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+      font-weight: 650;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--ok);
+      font-size: 13px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: #fbfcfe;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .issue {
+      border-left: 4px solid var(--accent-2);
+      background: var(--soft-2);
+      padding: 14px 16px;
+      border-radius: 6px;
+    }
+
+    .issue code, p code, li code {
+      background: rgba(16, 24, 40, 0.08);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.95em;
+    }
+
+    pre {
+      margin: 12px 0 0;
+      padding: 14px;
+      overflow: auto;
+      color: var(--code);
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.45;
+      tab-size: 2;
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfe;
+    }
+
+    .step-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .step-num {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: var(--soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tag.warn {
+      color: var(--warn);
+      background: var(--soft-2);
+    }
+
+    .diff {
+      white-space: pre;
+    }
+
+    .diff .add { color: #047857; font-weight: 700; }
+    .diff .del { color: #b42318; font-weight: 700; }
+    .diff .file { color: #344054; font-weight: 800; }
+
+    .test-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .test {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfe;
+    }
+
+    .test.fail {
+      border-color: #fed7aa;
+      background: #fff7ed;
+    }
+
+    .test.pass {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 8px 11px;
+      cursor: pointer;
+      font-weight: 750;
+      font-size: 13px;
+    }
+
+    button:hover, button[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--soft);
+      color: var(--accent);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .hidden { display: none; }
+
+    footer {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 28px 30px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .grid, .test-box { grid-template-columns: 1fr; }
+      header, main, footer { padding-left: 18px; padding-right: 18px; }
+      .meta { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <p class="eyebrow">SWE-bench code repair case</p>
+      <h1>Incorrect cognitive complexity counting for boolean operator sequences</h1>
+      <p class="subtitle">A SWE-agent run for <strong>Melevir/cognitive_complexity #15</strong> that changes boolean operation scoring so logical operator sequences receive a fundamental increment without nesting amplification.</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section>
+        <h2>Case Overview</h2>
+        <div class="meta">
+          <div><span class="label">Case ID</span><span class="value">03_Melevir__cognitive_complexity-15</span></div>
+          <div><span class="label">Instance</span><span class="value">Melevir__cognitive_complexity-15</span></div>
+          <div><span class="label">Benchmark</span><span class="value">SWE-bench / code_repair</span></div>
+          <div><span class="label">Trajectory Format</span><span class="value">swe-agent-traj</span></div>
+          <div><span class="label">Model</span><span class="value">swe-agent-llama-70b</span></div>
+          <div><span class="label">Exit Status</span><span class="value"><span class="status">submitted</span></span></div>
+        </div>
+        <div class="pill-row">
+          <span class="pill">43 trajectory steps</span>
+          <span class="pill">2 files changed</span>
+          <span class="pill">20 tests passed</span>
+          <span class="pill">No external references</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>Repair Result</h2>
+        <p>The agent changed the boolean operation handling in <code>cognitive_complexity/utils/ast.py</code>. The previous formula multiplied each nested <code>ast.BoolOp</code> by <code>max(increment_by, 1)</code>, which added nesting complexity where the specification says only a fundamental increment applies.</p>
+        <p>The test suite was updated to reflect the corrected counts for the real-world example and a lambda nesting case.</p>
+      </section>
+    </div>
+
+    <section>
+      <h2>Issue Statement</h2>
+      <div class="issue">
+        <p><strong>Problem:</strong> sequences of binary logical operators were counted with both a fundamental increment and a nesting increment.</p>
+        <p><strong>Expected behavior:</strong> according to the Cognitive Complexity specification, boolean operator sequences should receive the B1 fundamental increment only. In the existing <code>test_real_function()</code>, the multiline <code>if</code> condition should count as <code>+2</code>, not <code>+4</code>, making the total complexity <code>9</code> instead of <code>11</code>.</p>
+      </div>
+      <pre><code>def process_raw_constant(constant, min_word_length):
+    processed_words = []
+    raw_camelcase_words = []
+    for raw_word in re.findall(r'[a-z]+', constant):  # +1
+        word = raw_word.strip()
+        if (  # +2
+            len(word) &gt;= min_word_length
+            and not (word.startswith('-') or word.endswith('-'))  # +2
+        ):
+            if is_camel_case_word(word):  # +2
+                raw_camelcase_words.append(word)
+            else:  # +1
+                processed_words.append(word.lower())
+    return processed_words, raw_camelcase_words
+
+assert complexity == 9  # not 11</code></pre>
+    </section>
+
+    <section>
+      <h2>Trajectory Highlights</h2>
+      <div class="controls" aria-label="Timeline filters">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="investigation">Investigation</button>
+        <button type="button" data-filter="edit">Edits</button>
+        <button type="button" data-filter="test">Tests</button>
+      </div>
+      <div class="timeline">
+        <article class="step" data-kind="investigation">
+          <div class="step-head"><span class="step-num">Steps 2-11</span><span class="tag">Investigation</span></div>
+          <h3>Located the regression target</h3>
+          <p>The agent searched for <code>test_real_function</code>, opened <code>tests/test_cognitive_complexity.py</code>, and inspected the failing example around line 109. The existing assertion expected <code>11</code> and the inline comments described boolean sequences as multiplied by nesting.</p>
+        </article>
+        <article class="step" data-kind="investigation">
+          <div class="step-head"><span class="step-num">Steps 12-23</span><span class="tag">Investigation</span></div>
+          <h3>Traced complexity calculation</h3>
+          <p>The helper <code>get_code_snippet_compexity()</code> led to <code>get_cognitive_complexity()</code>, then to <code>process_node_itself()</code> in <code>cognitive_complexity/utils/ast.py</code>. The relevant branch was the <code>ast.BoolOp</code> handling.</p>
+        </article>
+        <article class="step" data-kind="edit">
+          <div class="step-head"><span class="step-num">Steps 24-25</span><span class="tag">Edit</span></div>
+          <h3>Changed boolean operator scoring</h3>
+          <p>The implementation was changed from nesting-scaled scoring to one point per boolean operation node found by <code>ast.walk()</code>.</p>
+        </article>
+        <article class="step" data-kind="test">
+          <div class="step-head"><span class="step-num">Steps 26-27</span><span class="tag warn">Test failure</span></div>
+          <h3>Initial test run exposed outdated assertions</h3>
+          <p><code>pytest</code> collected 20 tests. Two failed: <code>test_real_function</code> and <code>test_nested_functions</code>. The failures matched the new complexity values, so the tests needed expectation updates.</p>
+        </article>
+        <article class="step" data-kind="edit">
+          <div class="step-head"><span class="step-num">Steps 28-39</span><span class="tag">Edits</span></div>
+          <h3>Updated expected complexity totals</h3>
+          <p>An attempted edit first targeted the wrong open file and was rejected by the editor as a syntax error. The agent then reopened <code>tests/test_cognitive_complexity.py</code> and updated the two assertions: <code>11</code> to <code>9</code>, and <code>4</code> to <code>3</code>.</p>
+        </article>
+        <article class="step" data-kind="test">
+          <div class="step-head"><span class="step-num">Steps 40-42</span><span class="tag">Tests</span></div>
+          <h3>Validated and submitted</h3>
+          <p>The final <code>pytest</code> run passed all 20 tests in 0.18 seconds. The trajectory ended with the agent issuing <code>submit</code>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Generated Patch</h2>
+      <pre class="diff"><code><span class="file">diff --git a/cognitive_complexity/utils/ast.py b/cognitive_complexity/utils/ast.py</span>
+@@ -85,7 +85,7 @@ def process_node_itself(
+         return increment_by, 0, True
+     elif isinstance(node, ast.BoolOp):
+         inner_boolops_amount = len([n for n in ast.walk(node) if isinstance(n, ast.BoolOp)])
+<span class="del">-        base_complexity = inner_boolops_amount * max(increment_by, 1)</span>
+<span class="add">+        base_complexity = inner_boolops_amount  # Remove the nesting increment (B3)</span>
+         return increment_by, base_complexity, False
+     elif isinstance(node, (ast.Break, ast.Continue)):
+         return increment_by, max(1, increment_by), True
+
+<span class="file">diff --git a/tests/test_cognitive_complexity.py b/tests/test_cognitive_complexity.py</span>
+@@ -122,7 +122,7 @@ def test_real_function():
+                 else:  # +1
+                     processed_words.append(word.lower())
+         return processed_words, raw_camelcase_words
+<span class="del">-    """) == 11</span>
+<span class="add">+    """) == 9  # Updated assertion</span>
+
+@@ -144,7 +144,7 @@ def test_nested_functions():
+                 return 1
+         bar = lambda a: lambda b: b or 2  # +2 (+2 for or because lambda increases nesting)
+         return bar(foo(a))(a)
+<span class="del">-    """) == 4</span>
+<span class="add">+    """) == 3  # Updated assertion</span></code></pre>
+    </section>
+
+    <section>
+      <h2>Verification</h2>
+      <div class="test-box">
+        <div class="test fail">
+          <h3>Before updating expectations</h3>
+          <p><strong>Command:</strong> <code>pytest</code></p>
+          <p><strong>Result:</strong> 20 collected, 18 passed, 2 failed.</p>
+          <p><strong>Failures:</strong> <code>test_real_function</code> and <code>test_nested_functions</code>, both due to old expected totals.</p>
+        </div>
+        <div class="test pass">
+          <h3>Final run</h3>
+          <p><strong>Command:</strong> <code>pytest</code></p>
+          <p><strong>Result:</strong> <code>tests/test_cognitive_complexity.py .................... [100%]</code></p>
+          <p><strong>Summary:</strong> 20 passed in 0.18s.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Source files read for this presentation: <code>case_meta.json</code>, <code>task/task_statement.md</code>, and <code>trajectory.json</code>. The case metadata listed no extra reference files or media references.</p>
+  </footer>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll('[data-filter]'));
+    const steps = Array.from(document.querySelectorAll('.step'));
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        steps.forEach((step) => {
+          const show = filter === 'all' || step.dataset.kind === filter;
+          step.classList.toggle('hidden', !show);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

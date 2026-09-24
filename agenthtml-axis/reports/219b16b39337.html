@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Houston to Fayetteville — Travel Planning Case</title>
+  <style>
+    :root{
+      --ink:#17202a;--muted:#66717d;--paper:#f7f3ea;--card:#fffdf8;
+      --line:#ddd5c7;--navy:#17324d;--blue:#2f6c8e;--coral:#d7654f;
+      --green:#2f745d;--amber:#b77824;--red:#a74338;--shadow:0 18px 55px rgba(39,42,45,.10)
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;background-image:radial-gradient(#b7aa96 .6px,transparent .6px);background-size:8px 8px}
+    .shell{position:relative;max-width:1180px;margin:auto;padding:24px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;color:var(--muted);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+    .brand{font-weight:800;color:var(--navy)}
+    .status{display:inline-flex;align-items:center;gap:7px}
+    .status:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(47,116,93,.12)}
+    header{position:relative;overflow:hidden;background:var(--navy);color:white;border-radius:24px;padding:54px 54px 46px;box-shadow:var(--shadow)}
+    header:after{content:"HOU  →  FAY";position:absolute;right:-20px;bottom:-28px;font-size:clamp(3.2rem,9vw,8rem);font-weight:900;letter-spacing:-.07em;color:rgba(255,255,255,.055);white-space:nowrap}
+    .eyebrow{display:flex;align-items:center;gap:10px;color:#b9d8e8;text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;font-weight:700}
+    .eyebrow:before{content:"";display:block;width:34px;height:2px;background:var(--coral)}
+    h1{max-width:800px;margin:14px 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:clamp(2.4rem,6vw,5.2rem);line-height:.98;letter-spacing:-.045em;font-weight:500}
+    .dek{max-width:690px;margin:20px 0 28px;color:#dce8ef;font-size:1.08rem}
+    .hero-facts{display:flex;flex-wrap:wrap;gap:10px}
+    .pill{border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:8px 13px;background:rgba(255,255,255,.06);font-size:.82rem}
+    .verdict{position:relative;margin:-18px 28px 34px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 26px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;box-shadow:0 12px 30px rgba(39,42,45,.09)}
+    .verdict strong{display:block;font:600 1.35rem/1.2 Georgia,'Times New Roman',serif;color:var(--red)}
+    .verdict p{margin:5px 0 0;color:var(--muted);font-size:.9rem}
+    .over{text-align:right}.over b{display:block;font-size:2.15rem;line-height:1;color:var(--red)}.over span{color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.09em}
+    nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 34px}
+    nav a{color:var(--navy);text-decoration:none;border:1px solid var(--line);background:rgba(255,255,255,.4);border-radius:999px;padding:8px 14px;font-size:.82rem;font-weight:700}
+    nav a:hover,nav a:focus{background:var(--navy);color:white;outline:none}
+    section{scroll-margin-top:20px;margin:48px 0}
+    .section-head{display:grid;grid-template-columns:42px 1fr;gap:14px;align-items:start;margin-bottom:20px}
+    .num{font:italic 1.3rem Georgia,serif;color:var(--coral);border-top:2px solid var(--coral);padding-top:5px}
+    h2{margin:0;font:500 clamp(1.8rem,4vw,3rem)/1 Georgia,'Times New Roman',serif;letter-spacing:-.025em;color:var(--navy)}
+    .section-note{margin:7px 0 0;color:var(--muted);max-width:740px}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 8px 24px rgba(50,43,35,.045)}
+    .metric{grid-column:span 3}.metric .label{text-transform:uppercase;letter-spacing:.1em;font-size:.68rem;color:var(--muted);font-weight:700}.metric .value{margin:6px 0 2px;font:600 2rem Georgia,serif;color:var(--navy)}.metric .sub{font-size:.8rem;color:var(--muted)}
+    .bar-card{grid-column:span 12;padding:24px 28px}.bar-line{display:flex;justify-content:space-between;gap:16px;font-size:.84rem}.bar{height:18px;background:#e6dfd3;border-radius:99px;margin:10px 0 4px;overflow:hidden;position:relative}.bar span{display:block;height:100%}.flights{width:57.5%;background:var(--navy)}.stay{width:38.7%;background:var(--blue)}.food{width:3.8%;background:var(--coral)}.bar-stack{display:flex;height:100%}.legend{display:flex;gap:20px;flex-wrap:wrap;color:var(--muted);font-size:.78rem;margin-top:12px}.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+    table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:700px}
+    th,td{padding:13px 15px;text-align:left;border-bottom:1px solid var(--line)}
+    th{background:#eee8dc;color:var(--navy);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em}
+    tr:last-child td{border-bottom:0}.chosen td{background:#eef6f2}.chosen td:first-child{border-left:4px solid var(--green)}.money{text-align:right;font-variant-numeric:tabular-nums}.tag{display:inline-block;padding:3px 8px;border-radius:99px;font-size:.7rem;font-weight:800}.yes{background:#dceee6;color:#27614e}.no{background:#f4dfda;color:#8c392f}.small{background:#f4ead6;color:#865d1e}
+    .route{display:grid;grid-template-columns:1fr 70px 1fr;align-items:center;gap:14px}.airport{border:1px solid var(--line);border-radius:14px;padding:20px;background:var(--card)}.airport b{display:block;font:600 1.6rem Georgia,serif;color:var(--navy)}.airport span{font-size:.82rem;color:var(--muted)}.arrow{text-align:center;color:var(--coral);font-size:1.8rem}.flight-id{display:inline-block;margin-top:10px;padding:4px 8px;background:var(--navy);color:white;border-radius:5px;font:700 .72rem monospace}
+    .timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.day{position:relative;padding-top:26px}.day:before{content:"";position:absolute;left:22px;top:0;width:1px;height:26px;background:var(--coral)}.date{color:var(--coral);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;font-weight:800}.day h3{font:600 1.45rem Georgia,serif;color:var(--navy);margin:5px 0 16px}.agenda{list-style:none;padding:0;margin:0}.agenda li{position:relative;padding:0 0 16px 22px;color:#34404b;font-size:.88rem}.agenda li:before{content:"";position:absolute;left:0;top:.48em;width:7px;height:7px;border-radius:50%;background:var(--blue)}.agenda b{color:var(--ink)}.meal{display:inline-block;color:var(--blue);font-weight:700}
+    .screening{display:grid;grid-template-columns:1fr 1fr;gap:18px}.screen-list{list-style:none;padding:0;margin:8px 0 0}.screen-list li{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.82rem}.screen-list li:last-child{border:0}.screen-list span:last-child{text-align:right;color:var(--muted)}
+    .callout{border-left:5px solid var(--amber);background:#fff8e9;padding:18px 20px;border-radius:4px 14px 14px 4px;color:#5e4b2f}.callout strong{color:#744d13}.callout p{margin:5px 0 0;font-size:.88rem}
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px}.step .k{font-size:.67rem;letter-spacing:.09em;text-transform:uppercase;color:var(--coral);font-weight:800}.step b{display:block;margin:4px 0;color:var(--navy)}.step span{font-size:.78rem;color:var(--muted)}
+    .revised{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.equation{background:var(--navy);color:white;border-radius:16px;padding:28px}.equation .line{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.18)}.equation .line:last-child{border:0;color:#ffb8aa;font-weight:800;font-size:1.15rem}.actions h3{margin:0 0 8px;font:600 1.25rem Georgia,serif;color:var(--navy)}.actions ol{margin:0;padding-left:20px}.actions li{padding:5px 0;font-size:.88rem}
+    footer{margin:54px 0 16px;border-top:1px solid var(--line);padding-top:20px;display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:.76rem}.mono{font-family:monospace}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:800px){header{padding:38px 25px}.verdict{margin:-12px 12px 28px;grid-template-columns:1fr}.over{text-align:left}.metric{grid-column:span 6}.timeline,.screening,.revised,.steps{grid-template-columns:1fr}.route{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}footer{display:block}.shell{padding:14px}}
+    @media(max-width:480px){.metric{grid-column:span 12}.topbar{align-items:flex-start;flex-direction:column}.verdict{padding:18px}h1{font-size:2.55rem}}
+    @media print{body:before,nav{display:none}.shell{max-width:none}.card,header,.verdict{box-shadow:none}section{break-inside:avoid}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar"><div class="brand">TravelPlanner / Case 03</div><div class="status">Trajectory complete · 56.6 seconds</div></div>
+    <header>
+      <div class="eyebrow">Family trip feasibility brief</div>
+      <h1>Houston to Fayetteville</h1>
+      <p class="dek">A three-day plan for two adults and two children under 10, reconstructed from the agent’s ordered searches and final recommendation.</p>
+      <div class="hero-facts"><span class="pill">March 20–22, 2022</span><span class="pill">Family of 4</span><span class="pill">No self-driving</span><span class="pill">Budget $1,500</span></div>
+    </header>
+
+    <div class="verdict" role="note" aria-label="Budget verdict">
+      <div><strong>No valid $1,500 plan exists in the supplied results.</strong><p>The cheapest flights plus the only qualifying two-night stay total $1,968—before food, attraction admission, or local transportation.</p></div>
+      <div class="over"><b>+$545</b><span>known plan over budget</span></div>
+    </div>
+
+    <nav aria-label="Page sections"><a href="#snapshot">Snapshot</a><a href="#transport">Flights</a><a href="#stay">Stay screening</a><a href="#itinerary">Itinerary</a><a href="#budget">Budget</a><a href="#trace">Agent trace</a></nav>
+
+    <main>
+      <section id="snapshot">
+        <div class="section-head"><div class="num">01</div><div><h2>Decision snapshot</h2><p class="section-note">The agent complied with the required search order and surfaced the hard constraint instead of hiding it.</p></div></div>
+        <div class="grid">
+          <div class="card metric"><div class="label">Cheapest flights</div><div class="value">$1,176</div><div class="sub">78.4% of total budget</div></div>
+          <div class="card metric"><div class="label">Qualifying stay</div><div class="value">$792</div><div class="sub">2 nights, assumed nightly rate</div></div>
+          <div class="card metric"><div class="label">Selected meals</div><div class="value">$77</div><div class="sub">If prices are per check</div></div>
+          <div class="card metric"><div class="label">Known total</div><div class="value">$2,045</div><div class="sub">Transit and admissions excluded</div></div>
+          <div class="card bar-card">
+            <div class="bar-line"><b>Known cost composition</b><span>$2,045</span></div>
+            <div class="bar" aria-label="57.5 percent flights, 38.7 percent lodging, 3.8 percent meals"><div class="bar-stack"><span class="flights"></span><span class="stay"></span><span class="food"></span></div></div>
+            <div class="legend"><span><i style="background:var(--navy)"></i>Flights $1,176</span><span><i style="background:var(--blue)"></i>Stay $792</span><span><i style="background:var(--coral)"></i>Meals $77</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="transport">
+        <div class="section-head"><div class="num">02</div><div><h2>Cheapest valid air itinerary</h2><p class="section-note">All outbound flights were compared. Self-driving was excluded, and the intercity taxi option was financially implausible.</p></div></div>
+        <div class="route">
+          <div class="airport"><b>Houston</b><span>Sun, Mar 20 · depart 2:30 PM</span><div class="flight-id">F3923211 · $101/person</div></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="airport"><b>Fayetteville</b><span>Arrive 4:17 PM · return Tue 7:18 PM</span><div class="flight-id">F3922249 · $193/person</div></div>
+        </div>
+        <div class="table-wrap" style="margin-top:18px">
+          <table><caption class="sr-only">Flight option comparison</caption><thead><tr><th>Leg</th><th>Flight</th><th>Time</th><th class="money">Per person</th><th class="money">Family of 4</th></tr></thead><tbody>
+            <tr class="chosen"><td>Houston → Fayetteville</td><td><b>F3923211</b></td><td>2:30–4:17 PM</td><td class="money">$101</td><td class="money"><b>$404</b></td></tr>
+            <tr><td>Outbound alternative</td><td>F3923439</td><td>9:29–11:04 AM</td><td class="money">$157</td><td class="money">$628</td></tr>
+            <tr><td>Outbound alternative</td><td>F3923206</td><td>7:39–9:11 PM</td><td class="money">$189</td><td class="money">$756</td></tr>
+            <tr class="chosen"><td>Fayetteville → Houston</td><td><b>F3922249</b></td><td>7:18–8:52 PM</td><td class="money">$193</td><td class="money"><b>$772</b></td></tr>
+          </tbody></table>
+        </div>
+        <p class="section-note">The dataset also returned a $1,871 one-way intercity taxi and no local Fayetteville fares. The itinerary therefore names taxi/rideshare or public transit locally, but cannot price it.</p>
+      </section>
+
+      <section id="stay">
+        <div class="section-head"><div class="num">03</div><div><h2>Child-policy screening</h2><p class="section-note">Only Brownstone Studio satisfied both requirements: children under 10 are not prohibited, and capacity is four.</p></div></div>
+        <div class="screening">
+          <div class="card"><h3 style="margin:0;color:var(--green);font:600 1.3rem Georgia,serif">Selected</h3><ul class="screen-list"><li><b>Brownstone Studio</b><span>$396 · entire home</span></li><li><span>Child rule</span><span class="tag yes">Allowed</span></li><li><span>Capacity</span><span>4 guests</span></li><li><span>Stated restriction</span><span>No smoking</span></li><li><b>Two-night assumption</b><b>$792</b></li></ul></div>
+          <div class="card"><h3 style="margin:0;color:var(--red);font:600 1.3rem Georgia,serif">Excluded</h3><ul class="screen-list"><li><span>Private BRoom / CoZy Home / 24 Lex</span><span class="tag no">No children</span></li><li><span>Light-filled South Slope Nest</span><span class="tag no">No children</span></li><li><span>Tranquil Haven</span><span class="tag no">No children</span></li><li><span>GREAT 1BR / Ruby Bedroom</span><span class="tag small">Capacity 1–2</span></li><li><span>Luxury Studio / 4-story / Charming / #ERROR!</span><span class="tag small">Capacity 3</span></li></ul></div>
+        </div>
+        <div class="callout" style="margin-top:18px"><strong>Data-quality warning</strong><p>Several accommodation names refer to New York or JFK, while the requested destination is Fayetteville. No addresses were returned. The agent correctly flagged that Brownstone Studio’s location must be verified before booking.</p></div>
+      </section>
+
+      <section id="itinerary">
+        <div class="section-head"><div class="num">04</div><div><h2>Three days, four cuisines</h2><p class="section-note">Kid-oriented museums, parks, and nature anchor the schedule. Restaurant labels follow the supplied dataset.</p></div></div>
+        <div class="timeline">
+          <article class="card day"><div class="date">Sunday · March 20</div><h3>Arrival &amp; downtown</h3><ul class="agenda"><li><b>2:30 PM</b> — Fly from Houston</li><li><b>4:17 PM</b> — Arrive; local transfer and check-in</li><li><b>Early evening</b> — Festival Park and downtown walk</li><li><span class="meal">American dinner</span><br><b>Chatorey Chacha</b> · $11</li></ul></article>
+          <article class="card day"><div class="date">Monday · March 21</div><h3>Museums &amp; history</h3><ul class="agenda"><li>Self-catered breakfast</li><li><b>Morning</b> — Fascinate-U Children’s Museum</li><li><span class="meal">French-listed lunch</span><br><b>Noshi – Yum Asian Delivery</b> · $27</li><li><b>Afternoon</b> — Museum of the Cape Fear, 1897 Poe House and Arsenal Park</li><li><span class="meal">Chinese-listed dinner</span><br><b>Smoke N Oven</b> · $26</li><li>Optional Veterans Park evening</li></ul></article>
+          <article class="card day"><div class="date">Tuesday · March 22</div><h3>Garden &amp; return</h3><ul class="agenda"><li>Self-catered breakfast; check out</li><li><b>Morning</b> — Cape Fear Botanical Garden</li><li><span class="meal">Mediterranean lunch</span><br><b>The Great Kabab Factory</b> · $13</li><li><b>Afternoon</b> — Transportation &amp; Local History Museum; Festival Park if time</li><li><b>7:18 PM</b> — Fly to Houston; arrive 8:52 PM</li></ul></article>
+        </div>
+      </section>
+
+      <section id="budget">
+        <div class="section-head"><div class="num">05</div><div><h2>Budget reality &amp; revision</h2><p class="section-note">Even a cut-to-the-bone revision cannot meet the stated cap using the supplied inventory.</p></div></div>
+        <div class="revised">
+          <div class="equation" aria-label="Revised minimum budget"><div class="line"><span>Flights for four</span><b>$1,176</b></div><div class="line"><span>Qualifying stay, 2 nights</span><b>$792</b></div><div class="line"><span>Meals and paid attractions cut</span><b>$0</b></div><div class="line"><span>Minimum known total</span><b>$1,968</b></div><div class="line"><span>Still over $1,500</span><b>$468</b></div></div>
+          <div class="card actions"><h3>What must change</h3><ol><li>Cut restaurant spending first and use parks or free museums.</li><li>Find a qualifying stay at <b>$324 total or less</b>—ideally lower to leave room for food and transit.</li><li>Alternatively, use free lodging or secure at least <b>$468</b> in flight/lodging discounts.</li><li>A practical budget is estimated at <b>$2,200–$2,400</b> once basic local transit and food are included.</li></ol><p class="section-note">If listed restaurant prices are per person, dining rises from $77 to $308 and the known total becomes $2,276.</p></div>
+        </div>
+      </section>
+
+      <section id="trace">
+        <div class="section-head"><div class="num">06</div><div><h2>How the agent got there</h2><p class="section-note">The 21-record Codex JSONL trajectory shows four successful tool calls in the requested order, followed by a structured final answer.</p></div></div>
+        <div class="steps"><div class="step"><div class="k">Search 1</div><b>Flights</b><span>Compared 3 outbound flights, 1 return, self-drive and taxi.</span></div><div class="step"><div class="k">Search 2</div><b>Accommodations</b><span>Checked 12 listings for child policy and capacity.</span></div><div class="step"><div class="k">Search 3</div><b>Restaurants</b><span>Selected four cuisine labels and assigned meals.</span></div><div class="step"><div class="k">Search 4</div><b>Attractions</b><span>Prioritized children’s museum, parks, garden, and history.</span></div></div>
+        <div class="callout" style="margin-top:18px"><strong>Faithfulness notes</strong><p>The answer distinguishes known prices from missing costs, labels the nightly-rate assumption, warns about geographically inconsistent lodging data, and does not claim the requested budget is achievable. No external reference files or media were listed for this case.</p></div>
+      </section>
+    </main>
+
+    <footer><span>Case: <span class="mono">03_task30_houston_to_fayetteville</span> · TravelPlanner · source: regen</span><span>Model: gpt-5.6-sol · collected July 11, 2026 · exit code 0</span></footer>
+  </div>
+</body>
+</html>

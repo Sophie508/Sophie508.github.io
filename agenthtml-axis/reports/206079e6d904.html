@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semantic Self-Consistency · Paper Reproduction</title>
+<style>
+:root{
+  --bg:#0a0b1a;
+  --bg-2:#0f1126;
+  --ink:#eef0ff;
+  --ink-dim:#a6abcce6;
+  --muted:#6f76a3;
+  --violet:#7c5cff;
+  --violet-2:#a78bff;
+  --cyan:#22d3ee;
+  --pink:#ff6acb;
+  --green:#34e3b0;
+  --amber:#ffb454;
+  --card:rgba(255,255,255,.045);
+  --card-brd:rgba(255,255,255,.09);
+  --glass:rgba(124,92,255,.08);
+  --maxw:1180px;
+  --r:18px;
+  --shadow:0 24px 60px -22px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(900px 600px at 12% -8%, rgba(124,92,255,.22), transparent 60%),
+    radial-gradient(800px 600px at 95% 4%, rgba(34,211,238,.12), transparent 55%),
+    radial-gradient(700px 700px at 70% 110%, rgba(255,106,203,.10), transparent 60%);
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;position:relative;z-index:1}
+a{color:inherit;text-decoration:none}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  transition:background .35s, border-color .35s, backdrop-filter .35s;
+  border-bottom:1px solid transparent;
+}
+nav.scrolled{
+  background:rgba(10,11,26,.72);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--card-brd);
+}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.02em}
+.logo-mark{
+  width:34px;height:34px;border-radius:10px;
+  background:conic-gradient(from 210deg,var(--violet),var(--cyan),var(--pink),var(--violet));
+  position:relative;
+  box-shadow:0 6px 18px -4px rgba(124,92,255,.7);
+}
+.logo-mark::after{content:"";position:absolute;inset:5px;border-radius:6px;background:var(--bg-2)}
+.logo-mark::before{content:"";position:absolute;inset:11px;border-radius:3px;background:linear-gradient(135deg,var(--violet-2),var(--cyan))}
+.logo b{font-size:1.04rem}
+.logo span{color:var(--muted);font-weight:500;font-size:.82rem}
+.nav-links{display:flex;gap:30px;align-items:center}
+.nav-links a{color:var(--ink-dim);font-size:.94rem;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  padding:11px 20px;border-radius:999px;font-weight:600;font-size:.92rem;
+  cursor:pointer;border:1px solid transparent;transition:transform .18s, box-shadow .25s, background .25s, border-color .25s, color .25s;
+  white-space:nowrap;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--violet),var(--violet-2));
+  color:#fff;box-shadow:0 10px 26px -10px rgba(124,92,255,.9);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 34px -10px rgba(124,92,255,1)}
+.btn-ghost{background:var(--card);border-color:var(--card-brd);color:var(--ink)}
+.btn-ghost:hover{border-color:rgba(255,255,255,.28);transform:translateY(-2px)}
+.burger{display:none;background:none;border:0;color:var(--ink);font-size:1.5rem;cursor:pointer}
+
+/* HERO */
+.hero{padding:128px 0 64px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;
+  color:var(--violet-2);letter-spacing:.12em;text-transform:uppercase;
+  padding:7px 14px;border-radius:999px;background:var(--glass);border:1px solid rgba(124,92,255,.22);
+  margin-bottom:22px;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.hero h1{
+  font-size:clamp(2.3rem,5.4vw,3.7rem);line-height:1.06;letter-spacing:-.03em;font-weight:800;
+  margin-bottom:18px;
+}
+.hero h1 .grad{
+  background:linear-gradient(120deg,var(--violet-2),var(--cyan) 55%,var(--pink));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero p.lead{font-size:1.12rem;color:var(--ink-dim);max-width:560px;margin-bottom:30px}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:34px}
+.hero-meta{display:flex;gap:30px;flex-wrap:wrap}
+.hm{font-size:.82rem}
+.hm b{display:block;font-size:1.2rem;color:var(--ink);font-weight:700;margin-bottom:2px}
+.hm span{color:var(--muted)}
+
+/* HERO VIZ */
+.viz{
+  position:relative;border-radius:22px;padding:30px 26px;
+  background:linear-gradient(180deg,rgba(124,92,255,.12),rgba(34,211,238,.05));
+  border:1px solid var(--card-brd);
+  box-shadow:var(--shadow);min-height:360px;
+  overflow:hidden;
+}
+.viz-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);margin-bottom:18px;font-weight:600}
+.pipe{display:flex;flex-direction:column;gap:12px}
+.pipe-step{
+  display:flex;align-items:center;gap:14px;padding:13px 15px;border-radius:14px;
+  background:rgba(255,255,255,.04);border:1px solid var(--card-brd);
+  transition:transform .3s, border-color .3s;
+}
+.pipe-step:hover{transform:translateX(6px);border-color:rgba(124,92,255,.4)}
+.pipe-ic{width:38px;height:38px;border-radius:11px;flex:0 0 auto;display:grid;place-items:center;font-size:1.1rem;
+  background:linear-gradient(135deg,var(--violet),var(--violet-2));box-shadow:0 6px 16px -6px rgba(124,92,255,.8)}
+.pipe-step:nth-child(2) .pipe-ic{background:linear-gradient(135deg,var(--cyan),#3aa0ff)}
+.pipe-step:nth-child(3) .pipe-ic{background:linear-gradient(135deg,var(--pink),#ff8a6a)}
+.pipe-step:nth-child(4) .pipe-ic{background:linear-gradient(135deg,var(--green),#3ad0c0)}
+.pipe-t{font-weight:600;font-size:.96rem}
+.pipe-d{font-size:.78rem;color:var(--muted)}
+.pipe-arrow{margin-left:18px;color:var(--violet-2);font-size:.9rem;opacity:.6}
+
+/* SECTIONS */
+section{padding:80px 0;position:relative}
+.sec-head{text-align:center;max-width:680px;margin:0 auto 56px}
+.sec-tag{font-size:.76rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--violet-2);margin-bottom:12px}
+.sec-head h2{font-size:clamp(1.9rem,4vw,2.6rem);font-weight:800;letter-spacing:-.025em;margin-bottom:14px;line-height:1.12}
+.sec-head p{color:var(--ink-dim);font-size:1.05rem}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{
+  background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);padding:28px;
+  transition:transform .28s, border-color .28s, box-shadow .28s, background .28s;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--violet),var(--cyan));
+  transform:scaleX(0);transform-origin:left;transition:transform .35s;
+}
+.card:hover{transform:translateY(-8px);border-color:rgba(124,92,255,.32);background:rgba(124,92,255,.06);box-shadow:var(--shadow)}
+.card:hover::before{transform:scaleX(1)}
+.card-ic{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;font-size:1.4rem;margin-bottom:18px;
+  background:linear-gradient(135deg,rgba(124,92,255,.25),rgba(34,211,238,.15));border:1px solid rgba(124,92,255,.25)}
+.card h3{font-size:1.18rem;font-weight:700;margin-bottom:9px;letter-spacing:-.01em}
+.card p{color:var(--ink-dim);font-size:.92rem}
+.card .pill{display:inline-block;margin-top:14px;font-size:.74rem;font-weight:600;padding:4px 10px;border-radius:999px;
+  background:rgba(34,211,238,.12);color:var(--cyan);border:1px solid rgba(34,211,238,.22)}
+
+/* HOW IT WORKS */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;position:relative}
+.step{position:relative;padding:28px 22px;border-radius:var(--r);background:var(--card);border:1px solid var(--card-brd)}
+.step-num{
+  width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:1.05rem;margin-bottom:16px;
+  background:conic-gradient(from 220deg,var(--violet),var(--cyan));color:#fff;box-shadow:0 8px 20px -8px rgba(124,92,255,.8)
+}
+.step h3{font-size:1.06rem;font-weight:700;margin-bottom:8px}
+.step p{font-size:.86rem;color:var(--ink-dim)}
+
+/* RESULTS */
+.tabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
+.tab{
+  padding:10px 20px;border-radius:999px;border:1px solid var(--card-brd);background:var(--card);color:var(--ink-dim);
+  font-weight:600;font-size:.9rem;cursor:pointer;transition:all .25s;
+}
+.tab:hover{color:var(--ink);border-color:rgba(255,255,255,.25)}
+.tab.active{background:linear-gradient(135deg,var(--violet),var(--violet-2));color:#fff;border-color:transparent;box-shadow:0 8px 22px -10px rgba(124,92,255,.9)}
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--card-brd);background:rgba(255,255,255,.025)}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:640px}
+th,td{padding:14px 16px;text-align:center;border-bottom:1px solid rgba(255,255,255,.06)}
+th{background:rgba(124,92,255,.1);font-weight:600;color:var(--violet-2);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
+td:first-child,th:first-child{text-align:left;font-weight:600;color:var(--ink)}
+tbody tr:hover{background:rgba(124,92,255,.06)}
+.delta{font-size:.76rem;font-weight:600;display:block;margin-top:2px}
+.pos{color:var(--green)}
+.neg{color:var(--pink)}
+.neu{color:var(--muted)}
+.legend{display:flex;gap:20px;justify-content:center;margin-top:18px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:middle}
+.tbl-note{text-align:center;margin-top:16px;font-size:.82rem;color:var(--muted)}
+
+/* TRAJECTORY / CASE REPLAY */
+.case-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.timeline{position:relative;padding-left:30px}
+.timeline::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,var(--violet),var(--cyan),var(--pink))}
+.tl-item{position:relative;margin-bottom:24px}
+.tl-item::before{
+  content:"";position:absolute;left:-30px;top:4px;width:18px;height:18px;border-radius:50%;
+  background:var(--bg-2);border:2px solid var(--violet);box-shadow:0 0 0 4px rgba(124,92,255,.12)
+}
+.tl-item.warn::before{border-color:var(--amber)}
+.tl-item.block::before{border-color:var(--pink);background:rgba(255,106,203,.15)}
+.tl-time{font-size:.74rem;color:var(--muted);font-weight:600;margin-bottom:3px}
+.tl-t{font-weight:700;font-size:.98rem;margin-bottom:4px}
+.tl-d{font-size:.86rem;color:var(--ink-dim)}
+.status-card{
+  background:linear-gradient(180deg,rgba(255,106,203,.08),rgba(124,92,255,.05));
+  border:1px solid rgba(255,106,203,.22);border-radius:var(--r);padding:28px;
+}
+.status-card h3{font-size:1.2rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:999px;font-size:.78rem;font-weight:700}
+.badge-warn{background:rgba(255,180,84,.14);color:var(--amber);border:1px solid rgba(255,180,84,.3)}
+.badge-block{background:rgba(255,106,203,.14);color:var(--pink);border:1px solid rgba(255,106,203,.3)}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.stat{background:rgba(255,255,255,.04);border:1px solid var(--card-brd);border-radius:14px;padding:16px}
+.stat b{font-size:1.6rem;font-weight:800;display:block;color:var(--ink)}
+.stat span{font-size:.78rem;color:var(--muted)}
+.planned-list{margin-top:18px;display:flex;flex-direction:column;gap:8px}
+.planned-list li{list-style:none;display:flex;align-items:center;gap:10px;font-size:.84rem;color:var(--ink-dim);padding:8px 12px;background:rgba(255,255,255,.03);border-radius:9px;border:1px solid var(--card-brd)}
+.planned-list code{font-family:ui-monospace,"SF Mono",Menlo,monospace;color:var(--cyan);font-size:.8rem}
+
+/* FAQ */
+.faq{max-width:780px;margin:0 auto}
+details{
+  background:var(--card);border:1px solid var(--card-brd);border-radius:14px;padding:0;margin-bottom:12px;overflow:hidden;
+  transition:border-color .25s;
+}
+details[open]{border-color:rgba(124,92,255,.3)}
+summary{padding:20px 22px;cursor:pointer;font-weight:600;font-size:1rem;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:14px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:1.3rem;color:var(--violet-2);transition:transform .25s;flex-shrink:0}
+details[open] summary::after{transform:rotate(45deg)}
+.faq-a{padding:0 22px 20px;color:var(--ink-dim);font-size:.92rem}
+.faq-a code{font-family:ui-monospace,monospace;color:var(--cyan);background:rgba(34,211,238,.1);padding:1px 6px;border-radius:5px;font-size:.85rem}
+
+/* FOOTER */
+footer{padding:64px 0 36px;border-top:1px solid var(--card-brd);margin-top:40px;background:rgba(10,11,26,.5)}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:36px;margin-bottom:40px}
+.foot-grid h4{font-size:.82rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:14px;font-weight:600}
+.foot-grid a{display:block;color:var(--ink-dim);font-size:.9rem;margin-bottom:9px;transition:color .2s}
+.foot-grid a:hover{color:var(--ink)}
+.foot-blurb{color:var(--ink-dim);font-size:.9rem;max-width:300px}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;padding-top:24px;border-top:1px solid var(--card-brd);font-size:.82rem;color:var(--muted)}
+
+/* ANIMATIONS */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  *{animation:none!important}
+}
+
+/* RESPONSIVE */
+@media (max-width:980px){
+  .hero-grid{grid-template-columns:1fr;gap:36px}
+  .feat-grid{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .case-grid{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+  .burger{display:block}
+}
+@media (max-width:620px){
+  .feat-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr}
+  .hero{padding-top:108px}
+  .hero-meta{gap:22px}
+  .nav-links.open{display:flex;position:absolute;top:68px;left:0;right:0;flex-direction:column;background:rgba(10,11,26,.96);padding:20px 24px;gap:18px;border-bottom:1px solid var(--card-brd);backdrop-filter:blur(16px)}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-in">
+    <a href="#top" class="logo">
+      <div class="logo-mark"></div>
+      <div><b>Semantic Self-Consistency</b><br><span>Paper Reproduction · PaperBench</span></div>
+    </a>
+    <div class="nav-links" id="navlinks">
+      <a href="#methods">Methods</a>
+      <a href="#how">Pipeline</a>
+      <a href="#results">Results</a>
+      <a href="#case">Agent Run</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="#results" class="btn btn-primary">View Results</a>
+    <button class="burger" id="burger" aria-label="Menu">&#9776;</button>
+  </div>
+</nav>
+
+<div id="top"></div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="reveal">
+      <div class="eyebrow"><span class="dot"></span> PaperBench · Reproduction Case 03</div>
+      <h1>Enhancing LLM Reasoning via <span class="grad">Semantic Weighting</span></h1>
+      <p class="lead">A reproduction study of <em>Semantic Self-Consistency</em> — augmenting majority-vote self-consistency with semantic vector embeddings over reasoning paths to rerank, weight, and filter model outputs.</p>
+      <div class="cta-row">
+        <a href="#results" class="btn btn-primary">Explore Results →</a>
+        <a href="#how" class="btn btn-ghost">How it works</a>
+      </div>
+      <div class="hero-meta">
+        <div class="hm"><b>3</b><span>Datasets</span></div>
+        <div class="hm"><b>5</b><span>Aggregation methods</span></div>
+        <div class="hm"><b>k=10</b><span>Samples per query</span></div>
+        <div class="hm"><b>2</b><span>Generator models</span></div>
+      </div>
+    </div>
+
+    <div class="viz reveal">
+      <div class="viz-title">Semantic Self-Consistency Pipeline</div>
+      <div class="pipe">
+        <div class="pipe-step">
+          <div class="pipe-ic">⟡</div>
+          <div><div class="pipe-t">Chain-of-Thought Sampling</div><div class="pipe-d">Prompt with few-shot CoT, generate k=10 rationales at temp 0.8</div></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-ic">⛨</div>
+          <div><div class="pipe-t">Embed Reasoning Paths</div><div class="pipe-d">SciBERT (math) / RoBERTa-base mean-pooled embeddings</div></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-ic">◎</div>
+          <div><div class="pipe-t">Semantic Weight / Filter</div><div class="pipe-d">CPW, cosine-similarity SCW, or outlier removal</div></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-ic">✓</div>
+          <div><div class="pipe-t">Weighted Majority Vote</div><div class="pipe-d">Aggregate weights per answer; select the consensual output</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- METHODS / FEATURES -->
+<section id="methods">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Aggregation Methods</div>
+      <h2>Five ways to decide on <em>one</em> answer</h2>
+      <p>Baseline self-consistency discards the reasoning path and keeps only the final answer. The semantic family reuses those paths as embeddings to weight, rerank, and clean the sample set.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="card reveal">
+        <div class="card-ic">◆</div>
+        <h3>Top Prob Sample</h3>
+        <p>The greedy / single-sample baseline — the most probable generation with no ensembling. The floor that every other method must beat.</p>
+        <span class="pill">Baseline</span>
+      </div>
+      <div class="card reveal">
+        <div class="card-ic">⊞</div>
+        <h3>SC Majority Vote</h3>
+        <p>Wang et al.'s self-consistency: sample k CoT rationales and take the most frequent final answer. Ignores semantic content of the paths entirely.</p>
+        <span class="pill">Baseline</span>
+      </div>
+      <div class="card reveal">
+        <div class="card-ic">◉</div>
+        <h3>Centroid Proximity Weighting</h3>
+        <p>Compute the embedding centroid, weight each rationale inversely to its normalized distance, then sum weights per unique answer. Emphasizes paths near the semantic center.</p>
+        <span class="pill">Semantic</span>
+      </div>
+      <div class="card reveal">
+        <div class="card-ic">∞</div>
+        <h3>Semantic Consensus Weighting</h3>
+        <p>Pairwise cosine similarity across all k embeddings; each response's score is the sum of similarities, aggregated by answer. Rewards reasoning paths that agree with the crowd.</p>
+        <span class="pill">Semantic</span>
+      </div>
+      <div class="card reveal">
+        <div class="card-ic">⌖</div>
+        <h3>Outlier Removal</h3>
+        <p>Three detectors prune degenerate or hallucinated paths before voting: Isolation Forest, K-Nearest Neighbors, and One-Class SVM. Reported as Best / Average over hyperparameter grids.</p>
+        <span class="pill">Filtering</span>
+      </div>
+      <div class="card reveal">
+        <div class="card-ic">⇄</div>
+        <h3>Featurizers</h3>
+        <p>SciBERT for AQuA-RAT & SVAMP (scientific/math text), RoBERTa-base (125M) for StrategyQA (commonsense). Mean-pooled encoder outputs form a single vector per entire reasoning path.</p>
+        <span class="pill">Embedding</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="background:rgba(15,17,38,.5)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">How it works</div>
+      <h2>From prompt to weighted consensus</h2>
+      <p>Four stages reproduce the paper's operational pattern end to end — generation, featurization, semantic aggregation, and evaluation.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <h3>Generate</h3>
+        <p>8-shot GSM, 4-shot AQuA, 6-shot StrategyQA CoT prompts. k=10 sampled responses plus one greedy "top prob" sample via the OpenAI API.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <h3>Parse</h3>
+        <p>Extract the answer from the string immediately after <em>"the answer is"</em> (case-insensitive), stripping whitespace, full stops, and parentheses.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <h3>Embed</h3>
+        <p>Featurize each full reasoning path into one dense vector using the dataset-appropriate BERT-family encoder with mean pooling over token embeddings.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">4</div>
+        <h3>Aggregate</h3>
+        <p>Apply CPW, SCW, or an outlier detector, then sum the resulting weights per unique answer and report accuracy against the gold label.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Results</div>
+      <h2>Accuracy across datasets & models</h2>
+      <p>Table 1 reports semantic-consistency methods (SCW generally wins). Table 2 reports outlier-detection Best/Average over hyperparameter grids. Deltas are vs. the SC baseline.</p>
+    </div>
+
+    <div class="tabs reveal">
+      <div class="tab active" data-tbl="t1">Table 1 · Semantic Consistency</div>
+      <div class="tab" data-tbl="t2">Table 2 · Outlier Detection</div>
+    </div>
+
+    <div id="t1" class="tbl-panel reveal">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Dataset · Method</th><th>GPT-3.5</th><th>GPT-4o mini</th><th>Llama 2 7B</th><th>Mistral 7B</th><th>Llama 3 8B</th></tr>
+          </thead>
+          <tbody id="t1body"></tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--green)"></i>Positive delta vs SC</span>
+        <span><i style="background:var(--pink)"></i>Negative delta vs SC</span>
+        <span><i style="background:var(--violet-2)"></i>Replication-required models highlighted first</span>
+      </div>
+      <div class="tbl-note">Embeddings: SciBERT for AQuA-RAT & SVAMP · RoBERTa for StrategyQA. Required models per addendum: gpt-3.5-turbo & gpt-4o-mini.</div>
+    </div>
+
+    <div id="t2" class="tbl-panel reveal" style="display:none">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr><th>Dataset · Method</th><th>GPT-3.5</th><th>GPT-4o mini</th><th>Llama 2 7B</th><th>Mistral 7B</th><th>Llama 3 8B</th></tr>
+          </thead>
+          <tbody id="t2body"></tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--amber)"></i>Best / Average over hyperparameter grids</span>
+        <span><i style="background:var(--violet-2)"></i>Replication-required models: gpt-3.5-turbo, gpt-4o-mini</span>
+      </div>
+      <div class="tbl-note">Detectors: Isolation Forest, K-Nearest Neighbors, One-Class SVM. Bold ≥ +1% over baseline per the original paper convention.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE / AGENT RUN -->
+<section id="case" style="background:rgba(15,17,38,.5)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Agent Run · Trajectory</div>
+      <h2>Reproducing the reproduction</h2>
+      <p>What the agent actually did during this PaperBench case — a short trajectory that read the inputs, planned the full implementation, then hit a wall on write permissions.</p>
+    </div>
+    <div class="case-grid">
+      <div class="timeline reveal">
+        <div class="tl-item">
+          <div class="tl-time">Step 1–3 · Read inputs</div>
+          <div class="tl-t">Read paper, addendum, blacklist</div>
+          <div class="tl-d">Parsed the full LaTeX paper (Table 1 & 2, appendices, prompts), the addendum scoping replication to gpt-3.5-turbo & gpt-4o-mini, and blacklist ("none").</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">Step 4 · Read appendix prompts</div>
+          <div class="tl-t">Few-shot prompt examples</div>
+          <div class="tl-d">Read GSM 8-shot, AQuA 4-shot, and StrategyQA 6-shot chain-of-thought prompts to reproduce exact prompting and single-message formatting.</div>
+        </div>
+        <div class="tl-item warn">
+          <div class="tl-time">Step 5 · Plan</div>
+          <div class="tl-t">Designed the output package</div>
+          <div class="tl-d">Scoped datasets (AQuA-RAT 254, SVAMP 1000, StrategyQA 687), k=10, temp 0.8, and a full Python package layout under <code>output/</code>.</div>
+        </div>
+        <div class="tl-item block">
+          <div class="tl-time">Step 6–9 · Write attempts</div>
+          <div class="tl-t">Blocked on write permission</div>
+          <div class="tl-d">Four consecutive <code>Write</code> calls to <code>output/requirements.txt</code> all returned a permission-pending error. The agent then asked the user to approve access.</div>
+        </div>
+        <div class="tl-item block">
+          <div class="tl-time">Final</div>
+          <div class="tl-t">Trajectory ended blocked</div>
+          <div class="tl-d">No files were written to the output directory. The run exited code 0 after 173s without producing implementation code.</div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="status-card">
+          <h3><span class="badge badge-block">● Blocked</span> Write access pending</h3>
+          <p style="color:var(--ink-dim);font-size:.92rem">The agent never received approval to write files under the output directory, so no reproduction code was generated. The planned architecture — captured from the final assistant message — is reconstructed below.</p>
+          <div class="stat-row">
+            <div class="stat"><b>173s</b><span>Run duration</span></div>
+            <div class="stat"><b>0</b><span>Files written</span></div>
+          </div>
+          <ul class="planned-list">
+            <li><span>📄</span> <code>requirements.txt</code> — numpy, sklearn, openai, torch, transformers, datasets</li>
+            <li><span>📄</span> <code>config.py</code> + <code>README.md</code></li>
+            <li><span>📦</span> <code>ssc/datasets.py</code> — HF loaders for the three datasets</li>
+            <li><span>📦</span> <code>ssc/prompts.py</code> — 8/4/6-shot CoT, single-message format, system prompt</li>
+            <li><span>📦</span> <code>ssc/parsing.py</code> — "the answer is" extraction per addendum</li>
+            <li><span>📦</span> <code>ssc/generation.py</code> — OpenAI n=10 sampled + greedy, cached JSONL</li>
+            <li><span>📦</span> <code>ssc/embeddings.py</code> — SciBERT / RoBERTa mean-pooling</li>
+            <li><span>📦</span> <code>ssc/methods.py</code> — top-prob, SC, CPW, SCW</li>
+            <li><span>📦</span> <code>ssc/outlier.py</code> — IsolationForest, KNN, One-class SVM + grids</li>
+            <li><span>📦</span> <code>ssc/evaluate.py</code> + <code>run_*.py</code> + <code>run_all.sh</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">FAQ</div>
+      <h2>Reproduction details</h2>
+      <p>Clarifications and constraints from the addendum that shape the exact replication protocol.</p>
+    </div>
+    <div class="faq reveal">
+      <details open>
+        <summary>Which models are required for replication?</summary>
+        <div class="faq-a">Only results involving <code>gpt-3.5-turbo</code> and <code>gpt-4o-mini</code> are required. Llama 2 7B, Mistral 7B, and Llama 3 8B are not required. <code>gpt-4o-mini</code> is queried via the standard OpenAI API.</div>
+      </details>
+      <details>
+        <summary>How many samples are generated per query?</summary>
+        <div class="faq-a">For self-consistency, centroid proximity weighting, and semantic consensus weighting, <code>k=10</code> responses are generated. A greedy "top prob" sample is also taken as the no-ensembling baseline.</div>
+      </details>
+      <details>
+        <summary>How is the answer parsed from generations?</summary>
+        <div class="faq-a">The answer is the string immediately following <em>"the answer is"</em> (case-insensitive), with whitespace, full stops, and parentheses removed. Example: <code>"The answer is 2."</code> → <code>2</code>; <code>"The answer is (B)"</code> → <code>B</code>. For top-prob and all AQuA-RAT methods, only generations where an answer can be extracted are considered in metric computation.</div>
+      </details>
+      <details>
+        <summary>Which featurizer embeddings are used?</summary>
+        <div class="faq-a">SciBERT for AQuA-RAT and SVAMP (mathematical reasoning); RoBERTa-base (125 million parameters) for StrategyQA (commonsense). Each entire reasoning path is mapped to a single mean-pooled vector embedding.</div>
+      </details>
+      <details>
+        <summary>How are the OpenAI models prompted?</summary>
+        <div class="faq-a">A system prompt of <em>"Follow the exact formatting as demonstrated in the examples."</em> is used for gpt-3.5-turbo and gpt-4o-mini. All few-shot examples are passed in a single message rather than as a multi-turn chat conversation.</div>
+      </details>
+      <details>
+        <summary>What datasets are used and how large are they?</summary>
+        <div class="faq-a">Three datasets across arithmetic and commonsense reasoning: <b>AQuA-RAT</b> (254 problems, arithmetic), <b>SVAMP</b> (1000 problems, algebraic/symbolic math), and <b>StrategyQA</b> (687 problems, open-domain strategic commonsense).</div>
+      </details>
+      <details>
+        <summary>Were any resources blacklisted?</summary>
+        <div class="faq-a">No. The case's <code>blacklist.txt</code> contained only the word <em>"none"</em>, placing no restrictions on which resources the agent could consult.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="#top" class="logo" style="margin-bottom:14px">
+          <div class="logo-mark"></div>
+          <div><b>Semantic Self-Consistency</b></div>
+        </a>
+        <p class="foot-blurb">A high-fidelity reproduction summary of the Algoverse AI Research paper on enhancing LLM reasoning via semantic weighting over chain-of-thought reasoning paths.</p>
+      </div>
+      <div>
+        <h4>Paper</h4>
+        <a href="#methods">Methods</a>
+        <a href="#how">Pipeline</a>
+        <a href="#results">Results</a>
+        <a href="#faq">Clarifications</a>
+      </div>
+      <div>
+        <h4>Datasets</h4>
+        <a>AQuA-RAT · 254</a>
+        <a>SVAMP · 1000</a>
+        <a>StrategyQA · 687</a>
+      </div>
+      <div>
+        <h4>Models</h4>
+        <a>gpt-3.5-turbo</a>
+        <a>gpt-4o-mini</a>
+        <a>Llama 2 / 3 · Mistral</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>Case 03_semantic-self-consistency · PaperBench · Trajectory: claude-opus-4-8 · 173.2s</span>
+      <span>Original paper: Knappe, Li, Chauhan, Chhua, Zhu, O'Brien — Algoverse AI Research</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Table 1 — Semantic Consistency (GPT-3.5, GPT-4o mini, Llama2, Mistral, Llama3)
+var t1 = [
+  ["AQuA-RAT","Top prob sample", 53.63,79.22,21.65,24.34,43.02, null],
+  ["AQuA-RAT","SC baseline",    59.40,83.07,24.80,25.60,45.28, null],
+  ["AQuA-RAT","CPW",             68.00,82.68,24.60,29.00,46.06, [8.6,-0.39,-0.2,3.4,0.78]],
+  ["AQuA-RAT","SCW",             65.40,86.18,25.00,29.80,47.48, [6.0,3.11,0.2,4.2,2.2]],
+  ["SVAMP","Top prob sample",     77.42,85.62,31.90,65.18,70.55, null],
+  ["SVAMP","SC baseline",         79.80,89.80,46.50,68.50,73.33, null],
+  ["SVAMP","CPW",                 81.00,89.60,47.40,69.80,74.67, [1.2,-0.2,0.9,1.3,1.34]],
+  ["SVAMP","SCW",                 80.30,92.38,46.90,70.20,73.00, [0.5,2.98,0.4,1.7,-0.33]],
+  ["StrategyQA","Top prob sample",63.21,75.32,46.79,64.27,60.32, null],
+  ["StrategyQA","SC baseline",    66.81,79.18,48.91,67.98,63.32, null],
+  ["StrategyQA","CPW",             65.21,73.80,55.02,60.70,63.32, [-1.6,-5.38,6.11,-7.28,0.0]],
+  ["StrategyQA","SCW",             74.70,79.68,62.44,65.35,71.47, [7.89,0.5,13.53,-2.63,8.15]]
+];
+
+var t2 = [
+  ["AQuA-RAT","SC baseline",       "59.4 / 59.4","83.07 / 83.07","24.8 / 24.8","25.6 / 25.6","45.28 / 45.28"],
+  ["AQuA-RAT","Isolation Forest",   "65.27 / 63.73","70.86 / 69.78","28.45 / 26.04","26.61 / 25.97","72.25 / 68.59"],
+  ["AQuA-RAT","K-nearest neighbors","62.81 / 60.04","71.65 / 70.81","25.40 / 25.37","25.91 / 25.66","68.10 / 66.74"],
+  ["AQuA-RAT","One-class SVM",      "59.55 / 59.26","70.87 / 69.23","26.70 / 24.25","28.45 / 26.08","68.39 / 65.91"],
+  ["SVAMP","SC baseline",          "79.8 / 79.8","89.80 / 89.80","46.5 / 46.5","68.5 / 68.5","73.33 / 73.33"],
+  ["SVAMP","Isolation Forest",     "84.65 / 84.28","84.44 / 81.76","45.94 / 45.60","68.84 / 68.34","84.44 / 81.75"],
+  ["SVAMP","K-nearest neighbors",  "84.64 / 84.42","82.57 / 81.85","45.85 / 45.71","68.84 / 68.52","82.57 / 81.85"],
+  ["SVAMP","One-class SVM",        "85.23 / 84.54","82.11 / 80.70","44.94 / 43.30","67.23 / 65.33","82.11 / 80.70"],
+  ["StrategyQA","SC baseline",     "66.81 / 66.81","79.18 / 79.18","48.91 / 48.91","67.98 / 67.98","63.32 / 63.32"],
+  ["StrategyQA","Isolation Forest","70.07 / 69.01","79.91 / 79.56","49.34 / 49.01","68.70 / 68.13","70.80 / 69.37"],
+  ["StrategyQA","K-nearest neighbors","68.65 / 68.57","80.64 / 80.28","49.49 / 49.09","69.00 / 68.61","69.43 / 69.10"],
+  ["StrategyQA","One-class SVM",   "68.73 / 68.27","81.02 / 80.65","49.85 / 48.98","69.43 / 68.81","70.45 / 69.23"]
+];
+
+function deltaClass(d){
+  if(d===null||d===undefined) return '';
+  if(d>0.001) return 'pos';
+  if(d<-0.001) return 'neg';
+  return 'neu';
+}
+function fmtDelta(d){
+  if(d===null||d===undefined) return '';
+  var s = d>0?'+':'';
+  return '<span class="delta '+deltaClass(d)+'">('+s+d.toFixed(2)+')</span>';
+}
+
+(function(){
+  var body=document.getElementById('t1body');
+  var prev='';
+  t1.forEach(function(r){
+    var ds=r[0],method=r[1],vals=[r[2],r[3],r[4],r[5],r[6]],deltas=r[7];
+    var isBase = (method==='Top prob sample'||method==='SC baseline');
+    var row=document.createElement('tr');
+    var label = (ds!==prev)?'<span style="color:var(--violet-2)">'+ds+'</span> &nbsp;':'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    row.innerHTML='<td>'+label+method+'</td>'+
+      vals.map(function(v,i){
+        var d = isBase?null:(deltas?deltas[i]:null);
+        return '<td>'+v.toFixed(2)+fmtDelta(d)+'</td>';
+      }).join('');
+    body.appendChild(row);
+    prev=ds;
+  });
+
+  var body2=document.getElementById('t2body');
+  var prev2='';
+  t2.forEach(function(r){
+    var ds=r[0],method=r[1],vals=[r[2],r[3],r[4],r[5],r[6]];
+    var row=document.createElement('tr');
+    var label=(ds!==prev2)?'<span style="color:var(--violet-2)">'+ds+'</span> &nbsp;':'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    row.innerHTML='<td>'+label+method+'</td>'+vals.map(function(v){return '<td>'+v+'</td>';}).join('');
+    body2.appendChild(row);
+    prev2=ds;
+  });
+})();
+
+// Tabs
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+    t.classList.add('active');
+    document.querySelectorAll('.tbl-panel').forEach(function(p){p.style.display='none'});
+    document.getElementById(t.dataset.tbl).style.display='block';
+  });
+});
+
+// Nav scroll
+var nav=document.getElementById('nav');
+window.addEventListener('scroll',function(){
+  if(window.scrollY>30) nav.classList.add('scrolled'); else nav.classList.remove('scrolled');
+});
+
+// Burger
+document.getElementById('burger').addEventListener('click',function(){
+  document.getElementById('navlinks').classList.toggle('open');
+});
+document.querySelectorAll('#navlinks a').forEach(function(a){
+  a.addEventListener('click',function(){document.getElementById('navlinks').classList.remove('open')});
+});
+
+// Reveal on scroll
+var io=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+</script>
+</body>
+</html>

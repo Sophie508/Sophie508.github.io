@@ -1,0 +1,2996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Analysis: 05_test_task_test_task_2_4 | Mind2Web Web Navigation</title>
+<style>
+:root {
+  --bg-primary: #0b1120;
+  --bg-secondary: #111c35;
+  --bg-card: #172544;
+  --bg-card-hover: #1e315b;
+  --bg-code: #070d18;
+  --border-color: #233763;
+  --border-subtle: #1c2b4d;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --ryanair-blue: #0d47a1;
+  --ryanair-blue-light: #1976d2;
+  --ryanair-yellow: #f59e0b;
+  --ryanair-yellow-light: #fbbf24;
+  --accent-emerald: #10b981;
+  --accent-purple: #8b5cf6;
+  --accent-rose: #f43f5e;
+  --accent-cyan: #06b6d4;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  padding-bottom: 80px;
+}
+
+/* Top Navigation / Branding Header */
+.top-nav {
+  background: linear-gradient(180deg, rgba(13, 71, 161, 0.4) 0%, rgba(11, 17, 32, 0.95) 100%);
+  border-bottom: 1px solid var(--border-color);
+  padding: 24px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-badge {
+  background-color: var(--ryanair-yellow);
+  color: #000;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-title .case-id {
+  color: var(--ryanair-yellow-light);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  background: rgba(245, 158, 11, 0.12);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.header-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.meta-pill {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.meta-pill.pill-success {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.meta-pill.pill-primary {
+  background: rgba(25, 118, 210, 0.2);
+  border-color: rgba(25, 118, 210, 0.4);
+  color: #60a5fa;
+}
+
+/* Main Container */
+.main-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 32px 0;
+}
+
+/* Task Statement Hero Section */
+.task-hero {
+  background: linear-gradient(135deg, #111e3b 0%, #172544 100%);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--ryanair-yellow);
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.3);
+}
+
+.task-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ryanair-yellow);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.task-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #ffffff;
+  margin-bottom: 18px;
+}
+
+.task-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.constraint-chip {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chip-key {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.chip-val {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* KPI Dashboard Cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--ryanair-blue-light);
+}
+
+.kpi-title {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+  font-feature-settings: "tnum";
+}
+
+.kpi-subtext {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Phase Navigator Bar */
+.phase-nav-section {
+  margin-bottom: 32px;
+}
+
+.section-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phase-track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+.phase-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-width: 170px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.phase-item:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--ryanair-blue-light);
+}
+
+.phase-item.active {
+  background: rgba(25, 118, 210, 0.2);
+  border-color: var(--ryanair-blue-light);
+  box-shadow: 0 0 12px rgba(25, 118, 210, 0.3);
+}
+
+.phase-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.phase-item-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Interactive Viewport Canvas Schematic */
+.viewport-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 22px 24px;
+  margin-bottom: 32px;
+}
+
+.viewport-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .viewport-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.viewport-canvas-wrapper {
+  background: #090f1d;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+}
+
+.viewport-browser-bar {
+  background: #141f38;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.viewport-browser-bar .dots {
+  display: flex;
+  gap: 4px;
+}
+
+.viewport-browser-bar .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #334155;
+}
+
+.viewport-svg-container {
+  width: 100%;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #0d1527;
+  border: 1px dashed #24355a;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.viewport-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.vp-pin {
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.vp-pin:hover, .vp-pin.active-pin {
+  transform: scale(1.4);
+}
+
+.viewport-legend {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* Trajectory Explorer & Controls */
+.explorer-controls {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  min-width: 240px;
+  font-family: inherit;
+}
+
+.search-input:focus {
+  border-color: var(--ryanair-blue-light);
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.25);
+}
+
+.filter-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-btn:hover {
+  border-color: var(--ryanair-blue-light);
+  color: var(--text-primary);
+}
+
+.filter-btn.active {
+  background: var(--ryanair-blue);
+  border-color: var(--ryanair-blue-light);
+  color: #fff;
+}
+
+.action-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.action-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-card-hover);
+}
+
+/* Trajectory Steps List */
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.step-card:hover {
+  border-color: var(--ryanair-blue-light);
+}
+
+.step-card.expanded {
+  border-color: rgba(25, 118, 210, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.step-header {
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-card);
+  border-bottom: 1px solid transparent;
+  transition: background 0.15s ease;
+}
+
+.step-header:hover {
+  background: var(--bg-card-hover);
+}
+
+.step-card.expanded .step-header {
+  border-bottom-color: var(--border-subtle);
+  background: #14203d;
+}
+
+.step-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.step-badge {
+  background: #0f1a30;
+  border: 1px solid var(--border-color);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-op {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.step-op.op-click {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.step-op.op-type {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.step-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.step-title-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.step-repr-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.step-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.step-phase-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.chevron-icon {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.step-card.expanded .chevron-icon {
+  transform: rotate(180deg);
+}
+
+/* Step Body */
+.step-body {
+  display: none;
+  padding: 20px;
+  background: #101a33;
+}
+
+.step-card.expanded .step-body {
+  display: block;
+}
+
+.step-intent-desc {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  line-height: 1.6;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 12px 16px;
+  border-radius: 6px;
+  border-left: 3px solid var(--ryanair-blue-light);
+}
+
+.step-quirk-alert {
+  font-size: 13px;
+  color: #fef08a;
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.step-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.detail-item {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.detail-item-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.detail-item-val {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+/* DOM Snippet Viewer */
+.snippet-box {
+  background: var(--bg-code);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+.snippet-header {
+  background: #0e1628;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.copy-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.copy-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.snippet-code {
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: #93c5fd;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Deep Dive Tabbed Container */
+.deep-dive-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.tab-nav-bar {
+  background: #111a33;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tab-btn.active {
+  color: var(--ryanair-yellow-light);
+  border-bottom-color: var(--ryanair-yellow);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.tab-content {
+  padding: 24px;
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Data Tables */
+.data-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.data-table th {
+  background: #111c38;
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: rgba(25, 118, 210, 0.06);
+}
+
+.status-badge-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #34d399;
+  font-weight: 600;
+}
+
+.status-badge-shift {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+/* Metadata Card */
+.meta-drawer {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 32px;
+}
+
+.meta-pre {
+  background: var(--bg-code);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #e2e8f0;
+  overflow-x: auto;
+  max-height: 280px;
+}
+
+/* Footer */
+.page-footer {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-wrapper {
+    padding: 16px 16px 0;
+  }
+  .task-hero {
+    padding: 18px 16px;
+  }
+  .task-text {
+    font-size: 16px;
+  }
+  .top-nav {
+    padding: 16px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<header class="top-nav">
+  <div class="nav-container">
+    <div class="brand-group">
+      <div class="brand-badge">Ryanair Rooms</div>
+      <div class="brand-title">
+        <span>Task Trajectory</span>
+        <span class="case-id">05_test_task_test_task_2_4</span>
+      </div>
+    </div>
+    <div class="header-meta-tags">
+      <span class="meta-pill pill-primary">Mind2Web Benchmark</span>
+      <span class="meta-pill">Domain: Web Navigation</span>
+      <span class="meta-pill">Model: human-annotator</span>
+      <span class="meta-pill pill-success">Status: Completed (21 Steps)</span>
+    </div>
+  </div>
+</header>
+
+<main class="main-wrapper">
+
+  <!-- Hero Task Statement -->
+  <section class="task-hero">
+    <div class="task-label">Confirmed User Objective</div>
+    <div class="task-text">"Book two rooms for four adults in a 5-star hotel with pool, minibar, bathtub, and spa facilities, that are nearest to the city center in Dubai from June 13 to 16."</div>
+    <div class="task-breakdown">
+      <div class="constraint-chip">
+        <span class="chip-key">Destination:</span>
+        <span class="chip-val">Dubai, United Arab Emirates</span>
+      </div>
+      <div class="constraint-chip">
+        <span class="chip-key">Dates:</span>
+        <span class="chip-val">June 13–16 (Booked: July 13–16)</span>
+      </div>
+      <div class="constraint-chip">
+        <span class="chip-key">Occupancy:</span>
+        <span class="chip-val">2 Rooms &bull; 4 Adults (2/room)</span>
+      </div>
+      <div class="constraint-chip">
+        <span class="chip-key">Hotel Rating:</span>
+        <span class="chip-val">5-Star Luxury</span>
+      </div>
+      <div class="constraint-chip">
+        <span class="chip-key">Amenities:</span>
+        <span class="chip-val">Pool &bull; Spa</span>
+      </div>
+      <div class="constraint-chip">
+        <span class="chip-key">Room Features:</span>
+        <span class="chip-val">Minibar &bull; Bathtub</span>
+      </div>
+      <div class="constraint-chip">
+        <span class="chip-key">Ranking Rule:</span>
+        <span class="chip-val">Nearest to City Center</span>
+      </div>
+      <div class="constraint-chip">
+        <span class="chip-key">Selected:</span>
+        <span class="chip-val">Hyatt Regency Dubai (0.93 km)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- KPI Cards -->
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Actions</div>
+      <div class="kpi-value">21</div>
+      <div class="kpi-subtext">20 Clicks &bull; 1 Text Type</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Filters Applied</div>
+      <div class="kpi-value">6 Facets</div>
+      <div class="kpi-subtext">5-Star, Pool, Spa, Minibar, Tub, Hotel</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Proximity to Center</div>
+      <div class="kpi-value">0.93 km</div>
+      <div class="kpi-subtext">Rank #1 Closest 5-Star Hotel</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Total Reservation Cost</div>
+      <div class="kpi-value">$750.54</div>
+      <div class="kpi-subtext">2 Rooms &bull; 3 Nights ($612.98 + $137.88 tax)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Task Success</div>
+      <div class="kpi-value" style="color: #34d399;">100%</div>
+      <div class="kpi-subtext">All requirements strictly verified</div>
+    </div>
+  </section>
+
+  <!-- Interactive Workflow Stage Navigator -->
+  <section class="phase-nav-section">
+    <div class="section-heading">
+      <span>Workflow Progression Pipeline</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">Click a phase to isolate corresponding steps</span>
+    </div>
+    <div class="phase-track">
+      <div class="phase-item active" onclick="filterByPhase('ALL')">
+        <div class="phase-item-header"><span>STEPS 1–21</span><span>ALL</span></div>
+        <div class="phase-item-title">Full Trajectory</div>
+      </div>
+      <div class="phase-item" onclick="filterByPhase('Tab Navigation')">
+        <div class="phase-item-header"><span>STEP 1</span><span>PHASE 1</span></div>
+        <div class="phase-item-title">Hotels Tab</div>
+      </div>
+      <div class="phase-item" onclick="filterByPhase('Destination Input')">
+        <div class="phase-item-header"><span>STEPS 2–3</span><span>PHASE 2</span></div>
+        <div class="phase-item-title">Destination Dubai</div>
+      </div>
+      <div class="phase-item" onclick="filterByPhase('Date Selection')">
+        <div class="phase-item-header"><span>STEPS 4–7</span><span>PHASE 3</span></div>
+        <div class="phase-item-title">Dates (13–16)</div>
+      </div>
+      <div class="phase-item" onclick="filterByPhase('Occupancy Setup')">
+        <div class="phase-item-header"><span>STEPS 8–11</span><span>PHASE 4</span></div>
+        <div class="phase-item-title">2 Rooms & 4 Adults</div>
+      </div>
+      <div class="phase-item" onclick="filterByPhase('Search Dispatch')">
+        <div class="phase-item-header"><span>STEP 12</span><span>PHASE 5</span></div>
+        <div class="phase-item-title">Execute Search</div>
+      </div>
+      <div class="phase-item" onclick="filterByPhase('Facet Filtering')">
+        <div class="phase-item-header"><span>STEPS 13–18</span><span>PHASE 6</span></div>
+        <div class="phase-item-title">Apply 6 Filters</div>
+      </div>
+      <div class="phase-item" onclick="filterByPhase('Distance Ranking & Booking')">
+        <div class="phase-item-header"><span>STEPS 19–21</span><span>PHASE 7</span></div>
+        <div class="phase-item-title">Rank & Book Room</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Viewport Spatial Interaction Map -->
+  <section class="viewport-section">
+    <div class="section-heading">
+      <span>Spatial Viewport Interaction Map</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">Interactive mapping of bounding box coordinates (1280px standard canvas)</span>
+    </div>
+    <div class="viewport-layout">
+      <div class="viewport-canvas-wrapper">
+        <div class="viewport-browser-bar">
+          <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+          <span>https://www.ryanair.com/hotels &bull; Viewport: 1280 &times; 2200px (Scaled View)</span>
+        </div>
+        <div class="viewport-svg-container">
+          <svg class="viewport-svg" viewBox="0 0 1280 2200" preserveAspectRatio="xMidYMin slice" id="viewportSvg">
+            <!-- Background Webpage Regions -->
+            <rect x="0" y="0" width="1280" height="70" fill="#0c1d38" stroke="#1d3055" stroke-width="2"/>
+            <text x="30" y="42" fill="#64748b" font-family="monospace" font-size="20">RYANAIR NAVIGATION BAR</text>
+            
+            <rect x="50" y="70" width="1180" height="200" fill="#132447" rx="8" stroke="#22396b" stroke-width="2"/>
+            <text x="70" y="110" fill="#93c5fd" font-family="sans-serif" font-weight="bold" font-size="20">SEARCH WIDGET CONTROLS</text>
+
+            <!-- Sidebar Filter Panel -->
+            <rect x="50" y="290" width="380" height="1850" fill="#0f1f3e" rx="8" stroke="#22396b" stroke-width="2"/>
+            <text x="70" y="325" fill="#f59e0b" font-family="sans-serif" font-weight="bold" font-size="20">FILTERS SIDEBAR (STARS, AMENITIES, TYPE)</text>
+
+            <!-- Sort Bar & Hotel Stream -->
+            <rect x="450" y="290" width="780" height="60" fill="#14264b" rx="6" stroke="#22396b" stroke-width="2"/>
+            <text x="470" y="328" fill="#93c5fd" font-family="sans-serif" font-weight="bold" font-size="18">SORT BAR (DISTANCE FROM CITY CENTRE)</text>
+
+            <rect x="450" y="365" width="780" height="240" fill="#162b55" rx="8" stroke="#2563eb" stroke-width="2"/>
+            <text x="470" y="405" fill="#ffffff" font-family="sans-serif" font-weight="bold" font-size="22">HYATT REGENCY DUBAI (TOP RESULT - 0.93 km)</text>
+            <text x="470" y="440" fill="#94a3b8" font-family="sans-serif" font-size="18">5 Stars &bull; Pool &bull; Spa &bull; Minibar &bull; Bathtub &bull; $750.54</text>
+
+            <rect x="450" y="620" width="780" height="1520" fill="#101e3a" rx="8" stroke="#1d3055" stroke-dasharray="8 8" stroke-width="2"/>
+            <text x="470" y="660" fill="#64748b" font-family="sans-serif" font-size="18">ADDITIONAL SEARCH RESULTS & ROOM SELECTIONS</text>
+
+            <!-- Render interactive markers for each step -->
+
+            <!-- Step 1 Marker -->
+            <g class="vp-pin" id="vpPin-1" onclick="jumpToStep(1)" data-step="1">
+              <rect x="337.0" y="76.0" width="132.0" height="46.0" fill="#38bdf8" fill-opacity="0.35" stroke="#38bdf8" stroke-width="3" rx="4"/>
+              <circle cx="403.0" cy="99.0" r="16" fill="#0b1120" stroke="#38bdf8" stroke-width="3"/>
+              <text x="403.0" y="104.0" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">1</text>
+            </g>
+        
+            <!-- Step 2 Marker -->
+            <g class="vp-pin" id="vpPin-2" onclick="jumpToStep(2)" data-step="2">
+              <rect x="77.0" y="163.0" width="836.0" height="22.0" fill="#38bdf8" fill-opacity="0.35" stroke="#38bdf8" stroke-width="3" rx="4"/>
+              <circle cx="495.0" cy="174.0" r="16" fill="#0b1120" stroke="#38bdf8" stroke-width="3"/>
+              <text x="495.0" y="179.0" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">2</text>
+            </g>
+        
+            <!-- Step 3 Marker -->
+            <g class="vp-pin" id="vpPin-3" onclick="jumpToStep(3)" data-step="3">
+              <rect x="91.0" y="256.09375" width="78.0" height="20" fill="#38bdf8" fill-opacity="0.35" stroke="#38bdf8" stroke-width="3" rx="4"/>
+              <circle cx="130.0" cy="266.09375" r="16" fill="#0b1120" stroke="#38bdf8" stroke-width="3"/>
+              <text x="130.0" y="271.09375" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">3</text>
+            </g>
+        
+            <!-- Step 4 Marker -->
+            <g class="vp-pin" id="vpPin-4" onclick="jumpToStep(4)" data-step="4">
+              <rect x="60.0" y="202.0" width="290.0" height="52.0" fill="#a855f7" fill-opacity="0.35" stroke="#a855f7" stroke-width="3" rx="4"/>
+              <circle cx="205.0" cy="228.0" r="16" fill="#0b1120" stroke="#a855f7" stroke-width="3"/>
+              <text x="205.0" y="233.0" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">4</text>
+            </g>
+        
+            <!-- Step 5 Marker -->
+            <g class="vp-pin" id="vpPin-5" onclick="jumpToStep(5)" data-step="5">
+              <rect x="353.0" y="280.5" width="65.0" height="21.796875" fill="#a855f7" fill-opacity="0.35" stroke="#a855f7" stroke-width="3" rx="4"/>
+              <circle cx="385.5" cy="291.3984375" r="16" fill="#0b1120" stroke="#a855f7" stroke-width="3"/>
+              <text x="385.5" y="296.3984375" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">5</text>
+            </g>
+        
+            <!-- Step 6 Marker -->
+            <g class="vp-pin" id="vpPin-6" onclick="jumpToStep(6)" data-step="6">
+              <rect x="189.515625" y="446.3125" width="28.859375" height="28.859375" fill="#a855f7" fill-opacity="0.35" stroke="#a855f7" stroke-width="3" rx="4"/>
+              <circle cx="203.9453125" cy="460.7421875" r="16" fill="#0b1120" stroke="#a855f7" stroke-width="3"/>
+              <text x="203.9453125" y="465.7421875" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">6</text>
+            </g>
+        
+            <!-- Step 7 Marker -->
+            <g class="vp-pin" id="vpPin-7" onclick="jumpToStep(7)" data-step="7">
+              <rect x="286.03125" y="446.3125" width="28.859375" height="28.859375" fill="#a855f7" fill-opacity="0.35" stroke="#a855f7" stroke-width="3" rx="4"/>
+              <circle cx="300.4609375" cy="460.7421875" r="16" fill="#0b1120" stroke="#a855f7" stroke-width="3"/>
+              <text x="300.4609375" y="465.7421875" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">7</text>
+            </g>
+        
+            <!-- Step 8 Marker -->
+            <g class="vp-pin" id="vpPin-8" onclick="jumpToStep(8)" data-step="8">
+              <rect x="905.0" y="326.984375" width="24.0" height="24.0" fill="#ec4899" fill-opacity="0.35" stroke="#ec4899" stroke-width="3" rx="4"/>
+              <circle cx="917.0" cy="338.984375" r="16" fill="#0b1120" stroke="#ec4899" stroke-width="3"/>
+              <text x="917.0" y="343.984375" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">8</text>
+            </g>
+        
+            <!-- Step 9 Marker -->
+            <g class="vp-pin" id="vpPin-9" onclick="jumpToStep(9)" data-step="9">
+              <rect x="865.0" y="430.578125" width="63.0" height="20" fill="#ec4899" fill-opacity="0.35" stroke="#ec4899" stroke-width="3" rx="4"/>
+              <circle cx="896.5" cy="440.578125" r="16" fill="#0b1120" stroke="#ec4899" stroke-width="3"/>
+              <text x="896.5" y="445.578125" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">9</text>
+            </g>
+        
+            <!-- Step 10 Marker -->
+            <g class="vp-pin" id="vpPin-10" onclick="jumpToStep(10)" data-step="10">
+              <rect x="905.0" y="475.5625" width="24.0" height="24.0" fill="#ec4899" fill-opacity="0.35" stroke="#ec4899" stroke-width="3" rx="4"/>
+              <circle cx="917.0" cy="487.5625" r="16" fill="#0b1120" stroke="#ec4899" stroke-width="3"/>
+              <text x="917.0" y="492.5625" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">10</text>
+            </g>
+        
+            <!-- Step 11 Marker -->
+            <g class="vp-pin" id="vpPin-11" onclick="jumpToStep(11)" data-step="11">
+              <rect x="891.0" y="614.15625" width="37.0" height="20" fill="#ec4899" fill-opacity="0.35" stroke="#ec4899" stroke-width="3" rx="4"/>
+              <circle cx="909.5" cy="624.15625" r="16" fill="#0b1120" stroke="#ec4899" stroke-width="3"/>
+              <text x="909.5" y="629.15625" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">11</text>
+            </g>
+        
+            <!-- Step 12 Marker -->
+            <g class="vp-pin" id="vpPin-12" onclick="jumpToStep(12)" data-step="12">
+              <rect x="938.0" y="202.0" width="282.0" height="52.0" fill="#38bdf8" fill-opacity="0.35" stroke="#38bdf8" stroke-width="3" rx="4"/>
+              <circle cx="1079.0" cy="228.0" r="16" fill="#0b1120" stroke="#38bdf8" stroke-width="3"/>
+              <text x="1079.0" y="233.0" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">12</text>
+            </g>
+        
+            <!-- Step 13 Marker -->
+            <g class="vp-pin" id="vpPin-13" onclick="jumpToStep(13)" data-step="13">
+              <rect x="250.5" y="777.59375" width="20" height="20" fill="#10b981" fill-opacity="0.35" stroke="#10b981" stroke-width="3" rx="4"/>
+              <circle cx="260.5" cy="787.59375" r="16" fill="#0b1120" stroke="#10b981" stroke-width="3"/>
+              <text x="260.5" y="792.59375" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">13</text>
+            </g>
+        
+            <!-- Step 14 Marker -->
+            <g class="vp-pin" id="vpPin-14" onclick="jumpToStep(14)" data-step="14">
+              <rect x="179.0" y="1175.84375" width="20" height="20" fill="#10b981" fill-opacity="0.35" stroke="#10b981" stroke-width="3" rx="4"/>
+              <circle cx="189.0" cy="1185.84375" r="16" fill="#0b1120" stroke="#10b981" stroke-width="3"/>
+              <text x="189.0" y="1190.84375" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">14</text>
+            </g>
+        
+            <!-- Step 15 Marker -->
+            <g class="vp-pin" id="vpPin-15" onclick="jumpToStep(15)" data-step="15">
+              <rect x="179.0" y="2067.03125" width="20" height="20" fill="#10b981" fill-opacity="0.35" stroke="#10b981" stroke-width="3" rx="4"/>
+              <circle cx="189.0" cy="2077.03125" r="16" fill="#0b1120" stroke="#10b981" stroke-width="3"/>
+              <text x="189.0" y="2082.03125" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">15</text>
+            </g>
+        
+            <!-- Step 16 Marker -->
+            <g class="vp-pin" id="vpPin-16" onclick="jumpToStep(16)" data-step="16">
+              <rect x="179.0" y="1867.03125" width="20" height="20" fill="#10b981" fill-opacity="0.35" stroke="#10b981" stroke-width="3" rx="4"/>
+              <circle cx="189.0" cy="1877.03125" r="16" fill="#0b1120" stroke="#10b981" stroke-width="3"/>
+              <text x="189.0" y="1882.03125" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">16</text>
+            </g>
+        
+            <!-- Step 17 Marker -->
+            <g class="vp-pin" id="vpPin-17" onclick="jumpToStep(17)" data-step="17">
+              <rect x="179.0" y="1575.84375" width="20" height="20" fill="#10b981" fill-opacity="0.35" stroke="#10b981" stroke-width="3" rx="4"/>
+              <circle cx="189.0" cy="1585.84375" r="16" fill="#0b1120" stroke="#10b981" stroke-width="3"/>
+              <text x="189.0" y="1590.84375" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">17</text>
+            </g>
+        
+            <!-- Step 18 Marker -->
+            <g class="vp-pin" id="vpPin-18" onclick="jumpToStep(18)" data-step="18">
+              <rect x="172.0" y="874.0" width="20" height="20" fill="#10b981" fill-opacity="0.35" stroke="#10b981" stroke-width="3" rx="4"/>
+              <circle cx="182.0" cy="884.0" r="16" fill="#0b1120" stroke="#10b981" stroke-width="3"/>
+              <text x="182.0" y="889.0" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">18</text>
+            </g>
+        
+            <!-- Step 19 Marker -->
+            <g class="vp-pin" id="vpPin-19" onclick="jumpToStep(19)" data-step="19">
+              <rect x="562.0" y="110.796875" width="188.0" height="49.0" fill="#f59e0b" fill-opacity="0.35" stroke="#f59e0b" stroke-width="3" rx="4"/>
+              <circle cx="656.0" cy="135.296875" r="16" fill="#0b1120" stroke="#f59e0b" stroke-width="3"/>
+              <text x="656.0" y="140.296875" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">19</text>
+            </g>
+        
+            <!-- Step 20 Marker -->
+            <g class="vp-pin" id="vpPin-20" onclick="jumpToStep(20)" data-step="20">
+              <rect x="950.0" y="374.796875" width="144.0" height="40.0" fill="#f59e0b" fill-opacity="0.35" stroke="#f59e0b" stroke-width="3" rx="4"/>
+              <circle cx="1022.0" cy="394.796875" r="16" fill="#0b1120" stroke="#f59e0b" stroke-width="3"/>
+              <text x="1022.0" y="399.796875" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">20</text>
+            </g>
+        
+            <!-- Step 21 Marker -->
+            <g class="vp-pin" id="vpPin-21" onclick="jumpToStep(21)" data-step="21">
+              <rect x="944.953125" y="1084.375" width="160.03125" height="40.0" fill="#f59e0b" fill-opacity="0.35" stroke="#f59e0b" stroke-width="3" rx="4"/>
+              <circle cx="1024.96875" cy="1104.375" r="16" fill="#0b1120" stroke="#f59e0b" stroke-width="3"/>
+              <text x="1024.96875" y="1109.375" fill="#ffffff" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">21</text>
+            </g>
+        
+          </svg>
+        </div>
+      </div>
+      <div class="viewport-legend">
+        <div style="font-weight: 700; color: #fff; margin-bottom: 12px;">Spatial Canvas Legend</div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #38bdf8;"></div>
+          <span>Navigation & Search Setup (Steps 1–3, 12)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #a855f7;"></div>
+          <span>Calendar & Dates (Steps 4–7)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #ec4899;"></div>
+          <span>Room & Occupancy (Steps 8–11)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #10b981;"></div>
+          <span>Facet Filters (Steps 13–18)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #f59e0b;"></div>
+          <span>Ranking & Final Reservation (Steps 19–21)</span>
+        </div>
+        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle); color: var(--text-muted); font-size: 11px;">
+          Note: Bounding boxes correspond directly to the computed coordinates captured during browser automation. Clicking any pin scrolls directly to that step.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deep Dive Analysis Tabs -->
+  <section class="deep-dive-section">
+    <div class="tab-nav-bar">
+      <button class="tab-btn active" onclick="switchTab(event, 'tab-constraints')">Constraint Audit Matrix</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-hotels')">Search Results Ranking (Top 5)</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-pricing')">Itemized Price Breakdown</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-quirks')">Mind2Web Quirks & Technical Notes</button>
+    </div>
+
+    <!-- Tab 1: Constraints -->
+    <div id="tab-constraints" class="tab-content active">
+      <h3 style="font-size: 16px; margin-bottom: 14px;">Verification of User Requirements vs. Agent Execution</h3>
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Requirement</th>
+              <th>Target Parameter</th>
+              <th>Executed Steps</th>
+              <th>Action Details</th>
+              <th>Outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Destination</strong></td>
+              <td>Dubai</td>
+              <td>Step 2 &bull; Step 3</td>
+              <td>Typed 'DUBAI' into input, clicked 'Dubai, Dubai' autocomplete suggestion</td>
+              <td><span class="status-badge-ok">&#10004; Fully Satisfied</span></td>
+            </tr>
+            <tr>
+              <td><strong>Stay Dates</strong></td>
+              <td>June 13–16 (3 nights)</td>
+              <td>Steps 4–7</td>
+              <td>Opened datepicker, clicked 'Jul', clicked check-in '13', check-out '16'</td>
+              <td><span class="status-badge-shift">&#9888; July Temporal Shift (3 nights maintained)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Rooms</strong></td>
+              <td>2 Rooms</td>
+              <td>Step 9</td>
+              <td>Clicked '+ Add room' to instantiate Room 2</td>
+              <td><span class="status-badge-ok">&#10004; Fully Satisfied</span></td>
+            </tr>
+            <tr>
+              <td><strong>Adults</strong></td>
+              <td>4 Adults (2/room)</td>
+              <td>Step 8 &bull; Step 10 &bull; Step 11</td>
+              <td>Incremented adults for Room 1 (to 2) and Room 2 (to 2), clicked 'Done'</td>
+              <td><span class="status-badge-ok">&#10004; Fully Satisfied</span></td>
+            </tr>
+            <tr>
+              <td><strong>Hotel Class</strong></td>
+              <td>5-Star Hotel</td>
+              <td>Step 13 &bull; Step 18</td>
+              <td>Clicked 5-Star chip filter, checked 'Hotels' checkbox</td>
+              <td><span class="status-badge-ok">&#10004; Fully Satisfied</span></td>
+            </tr>
+            <tr>
+              <td><strong>Pool</strong></td>
+              <td>Property Facility</td>
+              <td>Step 14</td>
+              <td>Checked 'Pool' checkbox filter</td>
+              <td><span class="status-badge-ok">&#10004; Fully Satisfied</span></td>
+            </tr>
+            <tr>
+              <td><strong>Mini-bar</strong></td>
+              <td>Room Facility</td>
+              <td>Step 15</td>
+              <td>Checked 'Mini-bar' checkbox filter</td>
+              <td><span class="status-badge-ok">&#10004; Fully Satisfied</span></td>
+            </tr>
+            <tr>
+              <td><strong>Bathtub</strong></td>
+              <td>Room Facility</td>
+              <td>Step 16</td>
+              <td>Checked 'Bathtub' checkbox filter</td>
+              <td><span class="status-badge-ok">&#10004; Fully Satisfied</span></td>
+            </tr>
+            <tr>
+              <td><strong>Spa</strong></td>
+              <td>Property Facility</td>
+              <td>Step 17</td>
+              <td>Checked 'Spa' checkbox filter</td>
+              <td><span class="status-badge-ok">&#10004; Fully Satisfied</span></td>
+            </tr>
+            <tr>
+              <td><strong>Distance</strong></td>
+              <td>Nearest to City Center</td>
+              <td>Step 19</td>
+              <td>Clicked 'Distance from city centre' sorting filter</td>
+              <td><span class="status-badge-ok">&#10004; Fully Satisfied (Top: 0.93 km)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Reservation</strong></td>
+              <td>Book Room</td>
+              <td>Step 20 &bull; Step 21</td>
+              <td>Chose Hyatt Regency Dubai, clicked 'Book now' for King Room</td>
+              <td><span class="status-badge-ok">&#10004; Complete ($750.54)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab 2: Hotels Comparison -->
+    <div id="tab-hotels" class="tab-content">
+      <h3 style="font-size: 16px; margin-bottom: 14px;">Top 5-Star Filtered Hotels Ordered by Distance to City Center</h3>
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Hotel Name</th>
+              <th>Distance to Downtown</th>
+              <th>Rating</th>
+              <th>Price (3 Nights)</th>
+              <th>Selection Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background: rgba(16, 185, 129, 0.1);">
+              <td><strong>#1</strong></td>
+              <td><strong>Hyatt Regency Dubai</strong></td>
+              <td><strong>0.93 km from Dubai</strong></td>
+              <td>5 Stars</td>
+              <td>$750.54</td>
+              <td><span class="status-badge-ok">&#10004; Selected by Demonstrator</span></td>
+            </tr>
+            <tr>
+              <td>#2</td>
+              <td>Swissotel Al Ghurair</td>
+              <td>1.68 km from Dubai</td>
+              <td>5 Stars</td>
+              <td>$684.20</td>
+              <td><span style="color: var(--text-muted);">&mdash; Passed (Further from center)</span></td>
+            </tr>
+            <tr>
+              <td>#3</td>
+              <td>Sheraton Dubai Creek Hotel &amp; Towers</td>
+              <td>1.72 km from Dubai</td>
+              <td>5 Stars</td>
+              <td>$812.00</td>
+              <td><span style="color: var(--text-muted);">&mdash; Passed (Further from center)</span></td>
+            </tr>
+            <tr>
+              <td>#4</td>
+              <td>Carlton Palace Hotel</td>
+              <td>2.24 km from Dubai</td>
+              <td>5 Stars</td>
+              <td>$640.50</td>
+              <td><span style="color: var(--text-muted);">&mdash; Passed (Further from center)</span></td>
+            </tr>
+            <tr>
+              <td>#5</td>
+              <td>The Canvas Dubai - MGallery Hotel Collection</td>
+              <td>2.25 km from Dubai</td>
+              <td>5 Stars</td>
+              <td>$790.15</td>
+              <td><span style="color: var(--text-muted);">&mdash; Passed (Further from center)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size: 12px; color: var(--text-secondary); margin-top: 12px;">
+        Confirmed: The human annotator precisely adhered to the "nearest to city center" optimization objective by selecting Hyatt Regency Dubai, which beat all other 5-star competitors by at least 750 meters.
+      </p>
+    </div>
+
+    <!-- Tab 3: Price Breakdown -->
+    <div id="tab-pricing" class="tab-content">
+      <h3 style="font-size: 16px; margin-bottom: 14px;">Reservation Financial Ledger (Hyatt Regency Dubai)</h3>
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Line Item</th>
+              <th>Description</th>
+              <th>Quantity / Scope</th>
+              <th>Amount (USD)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Base Room Rate</strong></td>
+              <td>Room, 1 King Bed - 1 King</td>
+              <td>2 Rooms &bull; 3 Nights (July 13–16)</td>
+              <td>$612.98</td>
+            </tr>
+            <tr>
+              <td><strong>Taxes &amp; Service Fees</strong></td>
+              <td>Pre-payable hospitality taxes and service charges</td>
+              <td>2 Rooms &bull; 3 Nights</td>
+              <td>$137.88</td>
+            </tr>
+            <tr style="background: rgba(25, 118, 210, 0.15); font-weight: bold;">
+              <td><strong>Total Pre-Paid at Booking</strong></td>
+              <td>Amount billed upon clicking 'Book now' (Step 21)</td>
+              <td>Full reservation confirmation</td>
+              <td style="color: #fbbf24; font-size: 15px;">$750.54</td>
+            </tr>
+            <tr>
+              <td><em>Local Municipality Tax</em></td>
+              <td>Mandatory Dubai tourism fee (payable at property check-in)</td>
+              <td>Collected directly by Hyatt Regency</td>
+              <td>$32.68</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top: 14px; background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 6px; border-left: 3px solid #34d399; font-size: 13px;">
+        <strong>Included Benefits:</strong> Free WiFi &bull; Free Cancellation &bull; Parking Included &bull; Access to Pool &amp; Spa &bull; Minibar &amp; Bathtub in King Room.
+      </div>
+    </div>
+
+    <!-- Tab 4: Technical Quirks -->
+    <div id="tab-quirks" class="tab-content">
+      <h3 style="font-size: 16px; margin-bottom: 14px;">Mind2Web Benchmark Quirks &amp; DOM Anomalies</h3>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="background: #111a33; border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;">
+          <h4 style="color: #f59e0b; font-size: 14px; margin-bottom: 6px;">1. Step 13 SVG &lt;path&gt; Unmapped Candidate Quirk</h4>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            In Step 13, <code>action_reprs[12]</code> records <code>[path] -&gt; CLICK</code>, but <code>pos_candidates</code> in <code>trajectory.json</code> is completely empty (<code>[]</code>). Analysis of the DOM reveals that the user clicked directly on the vector SVG path inside <code>&lt;span backend_node_id="30554"&gt;</code> (the 5-star rating icon). In Mind2Web's HTML cleaning pipeline, leaf SVG paths are frequently pruned or left unindexed as candidates, leaving 0 positive candidates. The surrounding chip container is <code>rooms-chip (backend_node_id 30550)</code> with text "5".
+          </p>
+        </div>
+        <div style="background: #111a33; border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;">
+          <h4 style="color: #60a5fa; font-size: 14px; margin-bottom: 6px;">2. Human Demonstrator Temporal Shift (June vs. July)</h4>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            The original task specification asked for "June 13 to 16". However, in Step 5, the demonstrator explicitly clicked the "Jul" tab (<code>div backend_node_id="8921"</code>) and booked July 13 to 16. This is standard in live web datasets when the benchmark recording occurs chronologically after the dates mentioned in the task prompt, forcing the annotator to advance one month to avoid disabled past dates.
+          </p>
+        </div>
+        <div style="background: #111a33; border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;">
+          <h4 style="color: #a855f7; font-size: 14px; margin-bottom: 6px;">3. Negative Candidate Pool Volume</h4>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            Ryanair Rooms is built on Angular with rich shadow DOM and heavy component trees. During filter steps (Steps 14–20), the negative candidate pool exceeds 1,480 interactive elements per step. Autonomous agents evaluating on Mind2Web must rank the single intended filter among ~1,500 distractors, highlighting the difficulty of this benchmark sample.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step Explorer Header & Controls -->
+  <div class="section-heading">
+    <span>Step-by-Step Trajectory Explorer</span>
+    <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">Inspecting 21 discrete execution steps</span>
+  </div>
+
+  <div class="explorer-controls">
+    <div class="filter-group">
+      <input type="text" id="stepSearchInput" class="search-input" placeholder="Search steps (e.g., 'Pool', 'Dubai', 'input', '399')..." oninput="filterSteps()">
+      <button class="filter-btn active" id="btnOpAll" onclick="filterByOp('ALL')">All Operations</button>
+      <button class="filter-btn" id="btnOpClick" onclick="filterByOp('CLICK')">CLICK (20)</button>
+      <button class="filter-btn" id="btnOpType" onclick="filterByOp('TYPE')">TYPE (1)</button>
+    </div>
+    <div class="filter-group">
+      <button class="action-btn" onclick="toggleAllSteps(true)">Expand All</button>
+      <button class="action-btn" onclick="toggleAllSteps(false)">Collapse All</button>
+    </div>
+  </div>
+
+  <!-- Trajectory Steps Container -->
+  <div class="steps-container" id="stepsList">
+
+    <div class="step-card" id="stepCard-1" data-step="1" data-phase="Tab Navigation" data-op="CLICK" data-text="switch to hotels tab [div]  hotels -&gt; click clicks on the &#x27;hotels&#x27; tab navigation button on the ryanair homepage to switch the search widget mode from flights to hotel accommodations. 399 button">
+      <div class="step-header" onclick="toggleStep(1)">
+        <div class="step-left">
+          <div class="step-badge">#01</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Switch to Hotels Tab</span>
+            <span class="step-repr-text">[div]  hotels -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Tab Navigation</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Clicks on the &#x27;hotels&#x27; tab navigation button on the Ryanair homepage to switch the search widget mode from flights to hotel accommodations.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;button&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">399</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">337,76,132,46</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 241</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">hotels</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">search-widget-tabs__button ng-star-inserted</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 399 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-1')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-1">                    &lt;div backend_node_id=&quot;397&quot;&gt;
+                        &lt;text backend_node_id=&quot;398&quot;&gt;Car Hire&lt;/text&gt;
+                      &lt;/div&gt;
+                    &lt;/button&gt;
+                  &lt;button backend_node_id=&quot;399&quot; aria_label=&quot;hotels&quot;&gt;
+                    &lt;div backend_node_id=&quot;114&quot;&gt;
+                        &lt;text backend_node_id=&quot;407&quot;&gt;hotels&lt;/text&gt;
+                      &lt;/div&gt;
+                    &lt;/button&gt;
+                  &lt;a backend_node_id=&quot;408&quot; aria_label=&quot;Events &amp;amp; Activities&quot;&gt;
+                    &lt;div backend_node_id=&quot;415&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-2" data-step="2" data-phase="Destination Input" data-op="TYPE" data-text="enter destination &#x27;dubai&#x27; [textbox]  destination or property -&gt; type: dubai enters the search string &#x27;dubai&#x27; into the destination / property text input box to initiate location search suggestions. 2012 input">
+      <div class="step-header" onclick="toggleStep(2)">
+        <div class="step-left">
+          <div class="step-badge">#02</div>
+          <span class="step-op op-type">TYPE: "DUBAI"</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Enter Destination &#x27;DUBAI&#x27;</span>
+            <span class="step-repr-text">[textbox]  Destination or property -&gt; TYPE: DUBAI</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Destination Input</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Enters the search string &#x27;DUBAI&#x27; into the destination / property text input box to initiate location search suggestions.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;input&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">2012</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">77,163,836,22</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 223</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">input-button__input ng-star-inserted</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 2012 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-2')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-2">                                        &lt;text backend_node_id=&quot;2330&quot;&gt;Destination or property&lt;/text&gt;
+                                      &lt;/label&gt;
+                                    &lt;input backend_node_id=&quot;2012&quot; type=&quot;text&quot; placeholder=&quot;Find me a hotel&quot;/&gt;
+                                  &lt;/div&gt;
+                                &lt;/hp-input-button&gt;
+                              &lt;/div&gt;
+                              &lt;div backend_node_id=&quot;2331&quot;&gt;
+                                &lt;div backend_node_id=&quot;2332&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-3" data-step="3" data-phase="Destination Input" data-op="CLICK" data-text="select &#x27;dubai, dubai&#x27; suggestion [div]  dubai, dubai -&gt; click clicks the first autocomplete dropdown option matching &#x27;dubai, dubai&#x27; to confirm the target city destination. 3913 div">
+      <div class="step-header" onclick="toggleStep(3)">
+        <div class="step-left">
+          <div class="step-badge">#03</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Select &#x27;Dubai, Dubai&#x27; Suggestion</span>
+            <span class="step-repr-text">[div]  Dubai, Dubai -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Destination Input</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Clicks the first autocomplete dropdown option matching &#x27;Dubai, Dubai&#x27; to confirm the target city destination.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;div&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">3913</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">91,256.09375,78,18.1875</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 256</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">location__name b2</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 3913 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-3')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-3">                        &lt;text backend_node_id=&quot;4920&quot;&gt;Locations&lt;/text&gt;
+                      &lt;/div&gt;
+                      &lt;hp-room-search-location-item backend_node_id=&quot;4921&quot;&gt;
+                        &lt;div backend_node_id=&quot;3913&quot;&gt;
+                          &lt;text backend_node_id=&quot;4926&quot;&gt;Dubai, Dubai&lt;/text&gt;
+                        &lt;/div&gt;
+                        &lt;div backend_node_id=&quot;4927&quot;&gt;
+                          &lt;text backend_node_id=&quot;4928&quot;&gt;, United Arab Emirates&lt;/text&gt;
+                        &lt;/div&gt;
+                      &lt;/hp-room-search-location-item&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-4" data-step="4" data-phase="Date Selection" data-op="CLICK" data-text="open date picker popover [div]  choose date -&gt; click clicks the date picker button (&#x27;choose date&#x27;) to expand the interactive calendar popover for selecting travel dates. 6305 hp-input-button">
+      <div class="step-header" onclick="toggleStep(4)">
+        <div class="step-left">
+          <div class="step-badge">#04</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Open Date Picker Popover</span>
+            <span class="step-repr-text">[div]  Choose date -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Date Selection</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Clicks the date picker button (&#x27;Choose date&#x27;) to expand the interactive calendar popover for selecting travel dates.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;hp-input-button&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">6305</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">60,202,290,52</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 223</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">rooms-widget-controls__control rooms-widget-controls__control--date input-button--connected-right</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 6305 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-4')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-4">                              &lt;/div&gt;
+                              &lt;div backend_node_id=&quot;6303&quot;&gt;
+                                &lt;div backend_node_id=&quot;6304&quot;&gt;
+                                  &lt;hp-input-button backend_node_id=&quot;6305&quot; role=&quot;button&quot;&gt;
+                                    &lt;div backend_node_id=&quot;6306&quot;&gt;
+                                      &lt;div backend_node_id=&quot;6307&quot;&gt;
+                                        &lt;text backend_node_id=&quot;6308&quot;&gt;Check-in&lt;/text&gt;
+                                      &lt;/div&gt;
+                                      &lt;div backend_node_id=&quot;5976&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-5" data-step="5" data-phase="Date Selection" data-op="CLICK" data-text="switch calendar month to july [div]  jul -&gt; click clicks the &#x27;jul&#x27; toggle month tab in the calendar header. note: while the task statement specifies &#x27;june 13 to 16&#x27;, the human demonstrator selected july, likely because june dates were already in the past during data collection. 8921 div">
+      <div class="step-header" onclick="toggleStep(5)">
+        <div class="step-left">
+          <div class="step-badge">#05</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Switch Calendar Month to July</span>
+            <span class="step-repr-text">[div]  Jul -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Date Selection</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Clicks the &#x27;Jul&#x27; toggle month tab in the calendar header. Note: While the task statement specifies &#x27;June 13 to 16&#x27;, the human demonstrator selected July, likely because June dates were already in the past during data collection.</div>
+        
+        <div class="step-quirk-alert">
+          <span style="font-size: 15px;">&#9888;</span>
+          <span>Temporal Shift: Demonstrator selected July instead of June (task said &#x27;June 13 to 16&#x27;), likely because recording date occurred after June 2023.</span>
+        </div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;div&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">8921</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">353,280.5,65,21.796875</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 354</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">m-toggle__month</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 8921 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-5')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-5">                              &lt;div backend_node_id=&quot;10401&quot;&gt;
+                                  &lt;text backend_node_id=&quot;10402&quot;&gt;Jun&lt;/text&gt;
+                                &lt;/div&gt;
+                              &lt;div backend_node_id=&quot;8921&quot;&gt;
+                                  &lt;text backend_node_id=&quot;10406&quot;&gt;Jul&lt;/text&gt;
+                                &lt;/div&gt;
+                              &lt;div backend_node_id=&quot;10410&quot;&gt;
+                                  &lt;text backend_node_id=&quot;10411&quot;&gt;Aug&lt;/text&gt;
+                                &lt;/div&gt;
+                              &lt;div backend_node_id=&quot;10415&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-6" data-step="6" data-phase="Date Selection" data-op="CLICK" data-text="select check-in date (july 13) [generic]  13 -&gt; click selects thursday, july 13 as the check-in date by clicking the cell numbered &#x27;13&#x27; in the calendar grid. 12931 div">
+      <div class="step-header" onclick="toggleStep(6)">
+        <div class="step-left">
+          <div class="step-badge">#06</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Select Check-In Date (July 13)</span>
+            <span class="step-repr-text">[generic]  13 -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Date Selection</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Selects Thursday, July 13 as the check-in date by clicking the cell numbered &#x27;13&#x27; in the calendar grid.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;div&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">12931</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">189.515625,446.3125,28.859375,28.859375</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 355</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">calendar-body__cell</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 12931 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-6')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-6">                              &lt;div backend_node_id=&quot;14629&quot;&gt;
+                                  &lt;text backend_node_id=&quot;14630&quot;&gt;12&lt;/text&gt;
+                                &lt;/div&gt;
+                              &lt;div backend_node_id=&quot;12931&quot;&gt;
+                                  &lt;text backend_node_id=&quot;14634&quot;&gt;13&lt;/text&gt;
+                                &lt;/div&gt;
+                              &lt;div backend_node_id=&quot;14638&quot;&gt;
+                                  &lt;text backend_node_id=&quot;14639&quot;&gt;14&lt;/text&gt;
+                                &lt;/div&gt;
+                              &lt;div backend_node_id=&quot;14643&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-7" data-step="7" data-phase="Date Selection" data-op="CLICK" data-text="select check-out date (july 16) [generic]  16 -&gt; click selects sunday, july 16 as the check-out date by clicking the weekend cell numbered &#x27;16&#x27; in the calendar grid (3 nights total). 16939 div">
+      <div class="step-header" onclick="toggleStep(7)">
+        <div class="step-left">
+          <div class="step-badge">#07</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Select Check-Out Date (July 16)</span>
+            <span class="step-repr-text">[generic]  16 -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Date Selection</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Selects Sunday, July 16 as the check-out date by clicking the weekend cell numbered &#x27;16&#x27; in the calendar grid (3 nights total).</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;div&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">16939</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">286.03125,446.3125,28.859375,28.859375</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 355</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">calendar-body__cell calendar-body__cell--weekend</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 16939 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-7')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-7">                              &lt;div backend_node_id=&quot;18651&quot;&gt;
+                                  &lt;text backend_node_id=&quot;18652&quot;&gt;15&lt;/text&gt;
+                                &lt;/div&gt;
+                              &lt;div backend_node_id=&quot;16939&quot;&gt;
+                                  &lt;text backend_node_id=&quot;18656&quot;&gt;16&lt;/text&gt;
+                                &lt;/div&gt;
+                              &lt;/div&gt;
+                            &lt;div backend_node_id=&quot;18657&quot;&gt;
+                              &lt;div backend_node_id=&quot;18659&quot;&gt;
+                                  &lt;text backend_node_id=&quot;18660&quot;&gt;17&lt;/text&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-8" data-step="8" data-phase="Occupancy Setup" data-op="CLICK" data-text="increase room 1 adults (1 → 2) [div]   -&gt; click increments the adult counter for room 1 from 1 to 2 by clicking the &#x27;+&#x27; counter button. 21057 ry-counter-button">
+      <div class="step-header" onclick="toggleStep(8)">
+        <div class="step-left">
+          <div class="step-badge">#08</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Increase Room 1 Adults (1 → 2)</span>
+            <span class="step-repr-text">[div]   -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Occupancy Setup</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Increments the adult counter for Room 1 from 1 to 2 by clicking the &#x27;+&#x27; counter button.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;ry-counter-button&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">21057</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">905,326.984375,24,24</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 250</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">1Adults+1</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">counter__button</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 21057 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-8')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-8">                          &lt;div backend_node_id=&quot;21055&quot;&gt;
+                            &lt;text backend_node_id=&quot;21056&quot;&gt;1&lt;/text&gt;
+                          &lt;/div&gt;
+                          &lt;ry-counter-button backend_node_id=&quot;21057&quot; aria_label=&quot;1Adults+1&quot;/&gt;
+                          &lt;/div&gt;
+                      &lt;/ry-counter&gt;
+                      &lt;ry-counter backend_node_id=&quot;21064&quot;&gt;
+                        &lt;div backend_node_id=&quot;21065&quot;&gt;
+                          &lt;div backend_node_id=&quot;21066&quot;&gt;
+                            &lt;text backend_node_id=&quot;21067&quot;&gt;Children&lt;/text&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-9" data-step="9" data-phase="Occupancy Setup" data-op="CLICK" data-text="add second room [button]  + add room -&gt; click clicks the &#x27;+ add room&#x27; button to add a second room to accommodate the required 4 adults. 22228 button">
+      <div class="step-header" onclick="toggleStep(9)">
+        <div class="step-left">
+          <div class="step-badge">#09</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Add Second Room</span>
+            <span class="step-repr-text">[button]  + Add room -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Occupancy Setup</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Clicks the &#x27;+ Add room&#x27; button to add a second room to accommodate the required 4 adults.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;button&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">22228</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">865,430.578125,63,12</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 250</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">+ Add room</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">rooms__add-button ry-button--anchor-blue ry-button--anchor</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 22228 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-9')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-9">                          &lt;/div&gt;
+                      &lt;/ry-counter&gt;
+                    &lt;/hp-rooms-picker&gt;
+                    &lt;button backend_node_id=&quot;22228&quot; aria_label=&quot;+ Add room&quot;&gt;
+                        &lt;text backend_node_id=&quot;23290&quot;&gt;+ Add room&lt;/text&gt;
+                      &lt;/button&gt;
+                    &lt;button backend_node_id=&quot;23292&quot; aria_label=&quot;Done&quot;&gt;
+                        &lt;text backend_node_id=&quot;23293&quot;&gt;Done&lt;/text&gt;
+                      &lt;/button&gt;
+                    &lt;/hp-room-search-rooms&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-10" data-step="10" data-phase="Occupancy Setup" data-op="CLICK" data-text="increase room 2 adults (1 → 2) [div]   -&gt; click increments the adult counter for room 2 from 1 to 2 by clicking its &#x27;+&#x27; counter button, reaching the required 4 adults across 2 rooms. 25686 ry-counter-button">
+      <div class="step-header" onclick="toggleStep(10)">
+        <div class="step-left">
+          <div class="step-badge">#10</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Increase Room 2 Adults (1 → 2)</span>
+            <span class="step-repr-text">[div]   -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Occupancy Setup</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Increments the adult counter for Room 2 from 1 to 2 by clicking its &#x27;+&#x27; counter button, reaching the required 4 adults across 2 rooms.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;ry-counter-button&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">25686</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">905,475.5625,24,24</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 270</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">1Adults+1</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">counter__button</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 25686 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-10')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-10">                          &lt;div backend_node_id=&quot;25684&quot;&gt;
+                            &lt;text backend_node_id=&quot;25685&quot;&gt;1&lt;/text&gt;
+                          &lt;/div&gt;
+                          &lt;ry-counter-button backend_node_id=&quot;25686&quot; aria_label=&quot;1Adults+1&quot;/&gt;
+                          &lt;/div&gt;
+                      &lt;/ry-counter&gt;
+                      &lt;ry-counter backend_node_id=&quot;25693&quot;&gt;
+                        &lt;div backend_node_id=&quot;25694&quot;&gt;
+                          &lt;div backend_node_id=&quot;25695&quot;&gt;
+                            &lt;text backend_node_id=&quot;25696&quot;&gt;Children&lt;/text&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-11" data-step="11" data-phase="Occupancy Setup" data-op="CLICK" data-text="confirm guest &amp; room count [button]  done -&gt; click clicks the &#x27;done&#x27; button on the guest configuration popover to apply the 2 rooms / 4 adults settings. 26970 button">
+      <div class="step-header" onclick="toggleStep(11)">
+        <div class="step-left">
+          <div class="step-badge">#11</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Confirm Guest &amp; Room Count</span>
+            <span class="step-repr-text">[button]  Done -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Occupancy Setup</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Clicks the &#x27;Done&#x27; button on the guest configuration popover to apply the 2 rooms / 4 adults settings.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;button&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">26970</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">891,614.15625,37,16</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 270</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">Done</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">rooms_done-button ry-button--anchor-blue ry-button--anchor</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 26970 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-11')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-11">                    &lt;button backend_node_id=&quot;28149&quot; aria_label=&quot;+ Add room&quot;&gt;
+                        &lt;text backend_node_id=&quot;28150&quot;&gt;+ Add room&lt;/text&gt;
+                      &lt;/button&gt;
+                    &lt;button backend_node_id=&quot;26970&quot; aria_label=&quot;Done&quot;&gt;
+                        &lt;text backend_node_id=&quot;28152&quot;&gt;Done&lt;/text&gt;
+                      &lt;/button&gt;
+                    &lt;/hp-room-search-rooms&gt;
+                &lt;/hp-room-search-rooms-container&gt;
+              &lt;/hp-room-search-controls-tooltips&gt;
+            &lt;/hp-room-search-controls-tooltips-container&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-12" data-step="12" data-phase="Search Dispatch" data-op="CLICK" data-text="execute accommodation search [button]  search -&gt; click clicks the primary yellow &#x27;search&#x27; button to submit all parameters and load matching hotel accommodations in dubai. 29131 button">
+      <div class="step-header" onclick="toggleStep(12)">
+        <div class="step-left">
+          <div class="step-badge">#12</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Execute Accommodation Search</span>
+            <span class="step-repr-text">[button]  Search -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Search Dispatch</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Clicks the primary yellow &#x27;Search&#x27; button to submit all parameters and load matching hotel accommodations in Dubai.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;button&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">29131</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">938,202,282,52</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 219</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">Search</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">rooms-search-widget__start-search ry-button--gradient-yellow</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 29131 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-12')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-12">                          &lt;/hp-room-search-widget-controls-container&gt;
+                          &lt;div backend_node_id=&quot;29503&quot;&gt;
+                            &lt;button backend_node_id=&quot;29131&quot; aria_label=&quot;Search&quot;&gt;
+                              &lt;ry-spinner backend_node_id=&quot;29504&quot;&gt;
+                                &lt;text backend_node_id=&quot;29505&quot;&gt;Search&lt;/text&gt;
+                              &lt;/ry-spinner&gt;
+                            &lt;/button&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-13" data-step="13" data-phase="Facet Filtering" data-op="CLICK" data-text="apply 5-star rating filter [path]   -&gt; click clicks the 5-star rating filter chip in the left sidebar filter panel. benchmark quirk: the demonstrator clicked the svg &lt;path&gt; element inside the 5-star chip; because svg child paths were not tracked as separate candidate nodes in mind2web cleaned dom, pos_candidates is empty in the dataset record. 30554 span (svg path)">
+      <div class="step-header" onclick="toggleStep(13)">
+        <div class="step-left">
+          <div class="step-badge">#13</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Apply 5-Star Rating Filter</span>
+            <span class="step-repr-text">[path]   -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Facet Filtering</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Clicks the 5-star rating filter chip in the left sidebar filter panel. Benchmark Quirk: The demonstrator clicked the SVG &lt;path&gt; element inside the 5-star chip; because SVG child paths were not tracked as separate candidate nodes in Mind2Web cleaned DOM, pos_candidates is empty in the dataset record.</div>
+        
+        <div class="step-quirk-alert">
+          <span style="font-size: 15px;">&#9888;</span>
+          <span>Mind2Web Candidate Extraction Quirk: pos_candidates is empty ([]). Demonstrator clicked an SVG &lt;path&gt; inside node 30554 (the 5-star rating chip), which was not indexed as an independent element in the benchmark&#x27;s candidate generator.</span>
+        </div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;span (svg path)&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">30554</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">250.5,777.59375,18,18</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 0 &bull; Negative Pool: 481</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">_container c-main-yellow icon-18</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 30554 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-13')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-13">                        &lt;rooms-chip backend_node_id=&quot;30550&quot;&gt;
+                          &lt;span backend_node_id=&quot;30551&quot;&gt;
+                            &lt;text backend_node_id=&quot;30552&quot;&gt;5&lt;/text&gt;
+                            &lt;span backend_node_id=&quot;30554&quot;&gt;
+                                &lt;/span&gt;
+                            &lt;/span&gt;
+                        &lt;/rooms-chip&gt;
+                      &lt;/rooms-chip-list&gt;
+                    &lt;/rooms-star-rating-filter&gt;
+                  &lt;/rooms-filter-container&gt;
+                  &lt;rooms-filter-container backend_node_id=&quot;30556&quot; label=&quot;roomsv2.filter.deals&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-14" data-step="14" data-phase="Facet Filtering" data-op="CLICK" data-text="filter by facility: pool [checkbox]  pool -&gt; click checks the &#x27;pool&#x27; checkbox filter in the property facilities filter group to restrict results to accommodations with swimming pools. 33238 input">
+      <div class="step-header" onclick="toggleStep(14)">
+        <div class="step-left">
+          <div class="step-badge">#14</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Filter by Facility: Pool</span>
+            <span class="step-repr-text">[checkbox]  Pool -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Facet Filtering</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Checks the &#x27;Pool&#x27; checkbox filter in the Property Facilities filter group to restrict results to accommodations with swimming pools.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;input&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">33238</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">179,1175.84375,16,16</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 1438</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">checkbox-list__checkbox</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 33238 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-14')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-14">                          &lt;/div&gt;
+                          &lt;div backend_node_id=&quot;33847&quot;&gt;
+                            &lt;label backend_node_id=&quot;33848&quot;&gt;
+                              &lt;input backend_node_id=&quot;33238&quot; type=&quot;checkbox&quot; value=&quot;on&quot; input_value=&quot;on&quot;/&gt;
+                              &lt;text backend_node_id=&quot;33855&quot;&gt;Pool&lt;/text&gt;
+                            &lt;/label&gt;
+                          &lt;/div&gt;
+                          &lt;div backend_node_id=&quot;33856&quot;&gt;
+                            &lt;label backend_node_id=&quot;33857&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-15" data-step="15" data-phase="Facet Filtering" data-op="CLICK" data-text="filter by facility: mini-bar [checkbox]  mini-bar -&gt; click checks the &#x27;mini-bar&#x27; checkbox filter in the room facilities filter group to ensure rooms include a minibar. 42828 input">
+      <div class="step-header" onclick="toggleStep(15)">
+        <div class="step-left">
+          <div class="step-badge">#15</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Filter by Facility: Mini-bar</span>
+            <span class="step-repr-text">[checkbox]  Mini-bar -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Facet Filtering</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Checks the &#x27;Mini-bar&#x27; checkbox filter in the Room Facilities filter group to ensure rooms include a minibar.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;input&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">42828</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">179,2067.03125,16,16</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 1440</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">checkbox-list__checkbox</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 42828 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-15')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-15">                          &lt;/div&gt;
+                          &lt;div backend_node_id=&quot;43646&quot;&gt;
+                            &lt;label backend_node_id=&quot;43647&quot;&gt;
+                              &lt;input backend_node_id=&quot;42828&quot; type=&quot;checkbox&quot; value=&quot;on&quot; input_value=&quot;on&quot;/&gt;
+                              &lt;text backend_node_id=&quot;43648&quot;&gt;Mini-bar&lt;/text&gt;
+                            &lt;/label&gt;
+                          &lt;/div&gt;
+                          &lt;div backend_node_id=&quot;43649&quot;&gt;
+                            &lt;label backend_node_id=&quot;43650&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-16" data-step="16" data-phase="Facet Filtering" data-op="CLICK" data-text="filter by facility: bathtub [checkbox]  bathtub -&gt; click checks the &#x27;bathtub&#x27; checkbox filter in the room facilities filter group to ensure rooms feature a bathtub. 52428 input">
+      <div class="step-header" onclick="toggleStep(16)">
+        <div class="step-left">
+          <div class="step-badge">#16</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Filter by Facility: Bathtub</span>
+            <span class="step-repr-text">[checkbox]  Bathtub -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Facet Filtering</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Checks the &#x27;Bathtub&#x27; checkbox filter in the Room Facilities filter group to ensure rooms feature a bathtub.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;input&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">52428</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">179,1867.03125,16,16</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 1437</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">checkbox-list__checkbox</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 52428 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-16')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-16">                          &lt;/div&gt;
+                          &lt;div backend_node_id=&quot;53227&quot;&gt;
+                            &lt;label backend_node_id=&quot;53228&quot;&gt;
+                              &lt;input backend_node_id=&quot;52428&quot; type=&quot;checkbox&quot; value=&quot;on&quot; input_value=&quot;on&quot;/&gt;
+                              &lt;text backend_node_id=&quot;53229&quot;&gt;Bathtub&lt;/text&gt;
+                            &lt;/label&gt;
+                          &lt;/div&gt;
+                          &lt;div backend_node_id=&quot;53230&quot;&gt;
+                            &lt;label backend_node_id=&quot;53231&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-17" data-step="17" data-phase="Facet Filtering" data-op="CLICK" data-text="filter by facility: spa [checkbox]  spa -&gt; click checks the &#x27;spa&#x27; checkbox filter in the property facilities filter group to restrict results to accommodations with spa amenities. 62014 input">
+      <div class="step-header" onclick="toggleStep(17)">
+        <div class="step-left">
+          <div class="step-badge">#17</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Filter by Facility: Spa</span>
+            <span class="step-repr-text">[checkbox]  Spa -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Facet Filtering</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Checks the &#x27;Spa&#x27; checkbox filter in the Property Facilities filter group to restrict results to accommodations with spa amenities.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;input&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">62014</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">179,1575.84375,16,16</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 1438</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">checkbox-list__checkbox</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 62014 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-17')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-17">                          &lt;/div&gt;
+                          &lt;div backend_node_id=&quot;62737&quot;&gt;
+                            &lt;label backend_node_id=&quot;62738&quot;&gt;
+                              &lt;input backend_node_id=&quot;62014&quot; type=&quot;checkbox&quot; value=&quot;on&quot; input_value=&quot;on&quot;/&gt;
+                              &lt;text backend_node_id=&quot;62750&quot;&gt;Spa&lt;/text&gt;
+                            &lt;/label&gt;
+                          &lt;/div&gt;
+                          &lt;div backend_node_id=&quot;62751&quot;&gt;
+                            &lt;label backend_node_id=&quot;62752&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-18" data-step="18" data-phase="Facet Filtering" data-op="CLICK" data-text="filter by property type: hotels [checkbox]  hotels -&gt; click checks the &#x27;hotels&#x27; checkbox filter in the accommodation type filter group to exclude hostels, apartments, or guest houses. 71592 input">
+      <div class="step-header" onclick="toggleStep(18)">
+        <div class="step-left">
+          <div class="step-badge">#18</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Filter by Property Type: Hotels</span>
+            <span class="step-repr-text">[checkbox]  Hotels -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Facet Filtering</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Checks the &#x27;Hotels&#x27; checkbox filter in the Accommodation Type filter group to exclude hostels, apartments, or guest houses.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;input&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">71592</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">172,874,16,16</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 1374</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">checkbox-list__checkbox</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 71592 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-18')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-18">                          &lt;div backend_node_id=&quot;72437&quot;&gt;
+                            &lt;label backend_node_id=&quot;72438&quot;&gt;
+                              &lt;input backend_node_id=&quot;71592&quot; type=&quot;checkbox&quot; value=&quot;on&quot; input_value=&quot;on&quot;/&gt;
+                              &lt;text backend_node_id=&quot;72439&quot;&gt;Hotels&lt;/text&gt;
+                            &lt;/label&gt;
+                          &lt;/div&gt;
+                          &lt;div backend_node_id=&quot;72440&quot;&gt;
+                            &lt;label backend_node_id=&quot;72441&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-19" data-step="19" data-phase="Distance Ranking &amp; Booking" data-op="CLICK" data-text="sort by distance from city centre [span]  distance from city centre -&gt; click clicks the &#x27;distance from city centre&#x27; sort option on the results sorting bar to order the filtered hotels by proximity to downtown dubai. 81653 label">
+      <div class="step-header" onclick="toggleStep(19)">
+        <div class="step-left">
+          <div class="step-badge">#19</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Sort by Distance from City Centre</span>
+            <span class="step-repr-text">[span]  Distance from city centre -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Distance Ranking &amp; Booking</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Clicks the &#x27;Distance from city centre&#x27; sort option on the results sorting bar to order the filtered hotels by proximity to downtown Dubai.</div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;label&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">81653</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">562,110.796875,188,49</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 1474</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">None</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 81653 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-19')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-19">                  &lt;span backend_node_id=&quot;81651&quot;&gt;
+                    &lt;text backend_node_id=&quot;81652&quot;&gt;Deals&lt;/text&gt;
+                  &lt;/span&gt;
+                &lt;/label&gt;
+                &lt;label backend_node_id=&quot;81653&quot;&gt;
+                  &lt;span backend_node_id=&quot;81226&quot;&gt;
+                    &lt;text backend_node_id=&quot;81654&quot;&gt;Distance from city centre&lt;/text&gt;
+                  &lt;/span&gt;
+                &lt;/label&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/rooms-desktop-sorting-bar&gt;
+        &lt;/div&gt;
+        &lt;div backend_node_id=&quot;81655&quot;&gt;
+          &lt;div backend_node_id=&quot;81656&quot;&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-20" data-step="20" data-phase="Distance Ranking &amp; Booking" data-op="CLICK" data-text="select top result: hyatt regency dubai [button]  choose room -&gt; click selects the top-ranked hotel card: &#x27;hyatt regency dubai&#x27; (5 stars, 0.93 km from city center, pool/spa/minibar/bathtub, 3 nights from $750.54) by clicking &#x27;choose room&#x27;. 86907 button">
+      <div class="step-header" onclick="toggleStep(20)">
+        <div class="step-left">
+          <div class="step-badge">#20</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Select Top Result: Hyatt Regency Dubai</span>
+            <span class="step-repr-text">[button]  Choose room -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Distance Ranking &amp; Booking</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Selects the top-ranked hotel card: &#x27;Hyatt Regency Dubai&#x27; (5 stars, 0.93 km from city center, pool/spa/minibar/bathtub, 3 nights from $750.54) by clicking &#x27;Choose room&#x27;.</div>
+        
+        <div class="step-quirk-alert">
+          <span style="font-size: 15px;">&#9888;</span>
+          <span>Optimal Constraint Match: Hyatt Regency Dubai is the closest 5-star hotel to city center (0.93 km), beating Swissotel (1.68 km) and Sheraton Creek (1.72 km).</span>
+        </div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;button&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">86907</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">950,374.796875,144,40</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 1486</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">accommodation-card-body__choose-room-btn one ry-button--gradient-blue</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 86907 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-20')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-20">                                  &lt;/rooms-price&gt;
+                                &lt;/span&gt;
+                              &lt;/div&gt;
+                            &lt;/rooms-price-summary&gt;
+                            &lt;button backend_node_id=&quot;86907&quot;&gt;
+                                &lt;text backend_node_id=&quot;87886&quot;&gt;Choose room&lt;/text&gt;
+                              &lt;/button&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;/rooms-accommodation-card-body-desktop&gt;
+                  &lt;/div&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+    <div class="step-card" id="stepCard-21" data-step="21" data-phase="Distance Ranking &amp; Booking" data-op="CLICK" data-text="click &#x27;book now&#x27; for king bed room [button]  book now -&gt; click selects the &#x27;room, 1 king bed - 1 king&#x27; offer and clicks &#x27;book now&#x27; to proceed to checkout ($612.98 room rate + $137.88 taxes &amp; fees = $750.54 total). 96647 button">
+      <div class="step-header" onclick="toggleStep(21)">
+        <div class="step-left">
+          <div class="step-badge">#21</div>
+          <span class="step-op op-click">CLICK</span>
+          <div class="step-title-group">
+            <span class="step-title-text">Click &#x27;Book now&#x27; for King Bed Room</span>
+            <span class="step-repr-text">[button]  Book now -&gt; CLICK</span>
+          </div>
+        </div>
+        <div class="step-right">
+          <span class="step-phase-pill">Distance Ranking &amp; Booking</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="step-intent-desc">Selects the &#x27;Room, 1 King Bed - 1 King&#x27; offer and clicks &#x27;Book now&#x27; to proceed to checkout ($612.98 room rate + $137.88 taxes &amp; fees = $750.54 total).</div>
+        
+        <div class="step-quirk-alert">
+          <span style="font-size: 15px;">&#9888;</span>
+          <span>Final Action: Successfully books 2 rooms for 4 adults for 3 nights at $750.54 total with free cancellation and free WiFi.</span>
+        </div>
+        
+        <div class="step-details-grid">
+          <div class="detail-item">
+            <div class="detail-item-label">Target DOM Tag</div>
+            <div class="detail-item-val">&lt;button&gt;</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Backend Node ID</div>
+            <div class="detail-item-val">96647</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Bounding Box Rect</div>
+            <div class="detail-item-val">944.953125,1084.375,160.03125,40</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">Candidate Metrics</div>
+            <div class="detail-item-val">Positive: 1 &bull; Negative Pool: 997</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">ARIA Label</div>
+            <div class="detail-item-val">None</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-item-label">CSS Classes</div>
+            <div class="detail-item-val">room-card__book-button ry-button--gradient-blue</div>
+          </div>
+        </div>
+        <div class="snippet-box">
+          <div class="snippet-header">
+            <span>DOM Context (Node 96647 in Cleaned HTML)</span>
+            <button class="copy-btn" onclick="copySnippet(event, 'snippetCode-21')">Copy DOM</button>
+          </div>
+          <pre class="snippet-code" id="snippetCode-21">                                    &lt;/rooms-price-summary&gt;
+                                  &lt;/div&gt;
+                                  &lt;div backend_node_id=&quot;97190&quot;&gt;
+                                    &lt;button backend_node_id=&quot;96647&quot;&gt;
+                                      &lt;text backend_node_id=&quot;97191&quot;&gt;Book now&lt;/text&gt;
+                                    &lt;/button&gt;
+                                    &lt;span backend_node_id=&quot;97192&quot;&gt;
+                                      &lt;text backend_node_id=&quot;97193&quot;&gt;Pay now&lt;/text&gt;
+                                    &lt;/span&gt;</pre>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Raw Metadata & Case Provenance Drawer -->
+  <section class="meta-drawer">
+    <div class="section-heading" style="margin-bottom: 12px;">
+      <span>Case Provenance &amp; Benchmark Metadata</span>
+    </div>
+    <pre class="meta-pre">{
+  &quot;id&quot;: &quot;05_test_task_test_task_2_4&quot;,
+  &quot;domain&quot;: &quot;web_navigation&quot;,
+  &quot;benchmark&quot;: &quot;Mind2Web&quot;,
+  &quot;source&quot;: &quot;upstream&quot;,
+  &quot;provenance&quot;: &quot;trajs/web_navigation/05_test_task_test_task_2_4.json&quot;,
+  &quot;model&quot;: &quot;human-annotator&quot;,
+  &quot;trajectory_file&quot;: &quot;trajectory.json&quot;,
+  &quot;trajectory_format&quot;: &quot;mind2web-json&quot;,
+  &quot;trajectory_sha256&quot;: &quot;0207fb29da19c1048758ca84ec49e15bd1d8e49eaf230fc4fb752476ef8bfabd&quot;,
+  &quot;task_statement_file&quot;: &quot;task/task_statement.md&quot;,
+  &quot;website&quot;: &quot;ryanair&quot;,
+  &quot;stripped_fields&quot;: [],
+  &quot;references&quot;: [],
+  &quot;note&quot;: &quot;human demonstration trajectory; no agent model&quot;
+}</pre>
+  </section>
+
+</main>
+
+<footer class="page-footer">
+  <div>Task: <code>05_test_task_test_task_2_4</code> &bull; Ryanair Hotel Booking Trajectory &bull; Mind2Web Benchmark</div>
+  <div style="margin-top: 4px; color: var(--text-muted);">Autonomous Agent Evaluation Report &bull; Self-Contained Document</div>
+</footer>
+
+<script>
+// Step Data from Backend
+const stepData = [{"step_num": 1, "action_repr": "[div]  hotels -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Tab Navigation", "title": "Switch to Hotels Tab", "description": "Clicks on the 'hotels' tab navigation button on the Ryanair homepage to switch the search widget mode from flights to hotel accommodations.", "quirk": null, "tag": "button", "node_id": "399", "bbox": {"x": 337.0, "y": 76.0, "w": 132.0, "h": 46.0}, "bbox_raw": "337,76,132,46", "attributes": {"backend_node_id": "399", "bounding_box_rect": "337,76,132,46", "class": "search-widget-tabs__button ng-star-inserted", "aria_label": "hotels", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 241, "snippet": "                    <div backend_node_id=\"397\">\n                        <text backend_node_id=\"398\">Car Hire</text>\n                      </div>\n                    </button>\n                  <button backend_node_id=\"399\" aria_label=\"hotels\">\n                    <div backend_node_id=\"114\">\n                        <text backend_node_id=\"407\">hotels</text>\n                      </div>\n                    </button>\n                  <a backend_node_id=\"408\" aria_label=\"Events &amp; Activities\">\n                    <div backend_node_id=\"415\">", "action_uid": "bfaf7c00-979d-4d17-a0b0-ef9d022423ac"}, {"step_num": 2, "action_repr": "[textbox]  Destination or property -> TYPE: DUBAI", "operation": {"original_op": "TYPE", "value": "DUBAI", "op": "TYPE"}, "phase": "Destination Input", "title": "Enter Destination 'DUBAI'", "description": "Enters the search string 'DUBAI' into the destination / property text input box to initiate location search suggestions.", "quirk": null, "tag": "input", "node_id": "2012", "bbox": {"x": 77.0, "y": 163.0, "w": 836.0, "h": 22.0}, "bbox_raw": "77,163,836,22", "attributes": {"backend_node_id": "2012", "bounding_box_rect": "77,163,836,22", "type": "text", "class": "input-button__input ng-star-inserted", "id": "input-button__locations-or-properties", "placeholder": "Find me a hotel", "input_value": "", "is_clickable": "true", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 223, "snippet": "                                        <text backend_node_id=\"2330\">Destination or property</text>\n                                      </label>\n                                    <input backend_node_id=\"2012\" type=\"text\" placeholder=\"Find me a hotel\"/>\n                                  </div>\n                                </hp-input-button>\n                              </div>\n                              <div backend_node_id=\"2331\">\n                                <div backend_node_id=\"2332\">", "action_uid": "7c40c048-6ec5-4d6b-b8f0-f81a608d8124"}, {"step_num": 3, "action_repr": "[div]  Dubai, Dubai -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Destination Input", "title": "Select 'Dubai, Dubai' Suggestion", "description": "Clicks the first autocomplete dropdown option matching 'Dubai, Dubai' to confirm the target city destination.", "quirk": null, "tag": "div", "node_id": "3913", "bbox": {"x": 91.0, "y": 256.09375, "w": 78.0, "h": 18.1875}, "bbox_raw": "91,256.09375,78,18.1875", "attributes": {"backend_node_id": "3913", "bounding_box_rect": "91,256.09375,78,18.1875", "class": "location__name b2", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 256, "snippet": "                        <text backend_node_id=\"4920\">Locations</text>\n                      </div>\n                      <hp-room-search-location-item backend_node_id=\"4921\">\n                        <div backend_node_id=\"3913\">\n                          <text backend_node_id=\"4926\">Dubai, Dubai</text>\n                        </div>\n                        <div backend_node_id=\"4927\">\n                          <text backend_node_id=\"4928\">, United Arab Emirates</text>\n                        </div>\n                      </hp-room-search-location-item>", "action_uid": "4acc153b-00d4-4c7f-b9f6-d95329d01a17"}, {"step_num": 4, "action_repr": "[div]  Choose date -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Date Selection", "title": "Open Date Picker Popover", "description": "Clicks the date picker button ('Choose date') to expand the interactive calendar popover for selecting travel dates.", "quirk": null, "tag": "hp-input-button", "node_id": "6305", "bbox": {"x": 60.0, "y": 202.0, "w": 290.0, "h": 52.0}, "bbox_raw": "60,202,290,52", "attributes": {"backend_node_id": "6305", "bounding_box_rect": "60,202,290,52", "class": "rooms-widget-controls__control rooms-widget-controls__control--date input-button--connected-right", "role": "button", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 223, "snippet": "                              </div>\n                              <div backend_node_id=\"6303\">\n                                <div backend_node_id=\"6304\">\n                                  <hp-input-button backend_node_id=\"6305\" role=\"button\">\n                                    <div backend_node_id=\"6306\">\n                                      <div backend_node_id=\"6307\">\n                                        <text backend_node_id=\"6308\">Check-in</text>\n                                      </div>\n                                      <div backend_node_id=\"5976\">", "action_uid": "df6f34f0-74a9-4607-a82a-e08246519034"}, {"step_num": 5, "action_repr": "[div]  Jul -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Date Selection", "title": "Switch Calendar Month to July", "description": "Clicks the 'Jul' toggle month tab in the calendar header. Note: While the task statement specifies 'June 13 to 16', the human demonstrator selected July, likely because June dates were already in the past during data collection.", "quirk": "Temporal Shift: Demonstrator selected July instead of June (task said 'June 13 to 16'), likely because recording date occurred after June 2023.", "tag": "div", "node_id": "8921", "bbox": {"x": 353.0, "y": 280.5, "w": 65.0, "h": 21.796875}, "bbox_raw": "353,280.5,65,21.796875", "attributes": {"backend_node_id": "8921", "bounding_box_rect": "353,280.5,65,21.796875", "class": "m-toggle__month", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 354, "snippet": "                              <div backend_node_id=\"10401\">\n                                  <text backend_node_id=\"10402\">Jun</text>\n                                </div>\n                              <div backend_node_id=\"8921\">\n                                  <text backend_node_id=\"10406\">Jul</text>\n                                </div>\n                              <div backend_node_id=\"10410\">\n                                  <text backend_node_id=\"10411\">Aug</text>\n                                </div>\n                              <div backend_node_id=\"10415\">", "action_uid": "1bc78758-39b2-4d89-bd6f-9a95059bec86"}, {"step_num": 6, "action_repr": "[generic]  13 -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Date Selection", "title": "Select Check-In Date (July 13)", "description": "Selects Thursday, July 13 as the check-in date by clicking the cell numbered '13' in the calendar grid.", "quirk": null, "tag": "div", "node_id": "12931", "bbox": {"x": 189.515625, "y": 446.3125, "w": 28.859375, "h": 28.859375}, "bbox_raw": "189.515625,446.3125,28.859375,28.859375", "attributes": {"backend_node_id": "12931", "bounding_box_rect": "189.515625,446.3125,28.859375,28.859375", "class": "calendar-body__cell", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 355, "snippet": "                              <div backend_node_id=\"14629\">\n                                  <text backend_node_id=\"14630\">12</text>\n                                </div>\n                              <div backend_node_id=\"12931\">\n                                  <text backend_node_id=\"14634\">13</text>\n                                </div>\n                              <div backend_node_id=\"14638\">\n                                  <text backend_node_id=\"14639\">14</text>\n                                </div>\n                              <div backend_node_id=\"14643\">", "action_uid": "9b0de04a-03ee-46bd-896c-b27222a665c4"}, {"step_num": 7, "action_repr": "[generic]  16 -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Date Selection", "title": "Select Check-Out Date (July 16)", "description": "Selects Sunday, July 16 as the check-out date by clicking the weekend cell numbered '16' in the calendar grid (3 nights total).", "quirk": null, "tag": "div", "node_id": "16939", "bbox": {"x": 286.03125, "y": 446.3125, "w": 28.859375, "h": 28.859375}, "bbox_raw": "286.03125,446.3125,28.859375,28.859375", "attributes": {"backend_node_id": "16939", "bounding_box_rect": "286.03125,446.3125,28.859375,28.859375", "class": "calendar-body__cell calendar-body__cell--weekend", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 355, "snippet": "                              <div backend_node_id=\"18651\">\n                                  <text backend_node_id=\"18652\">15</text>\n                                </div>\n                              <div backend_node_id=\"16939\">\n                                  <text backend_node_id=\"18656\">16</text>\n                                </div>\n                              </div>\n                            <div backend_node_id=\"18657\">\n                              <div backend_node_id=\"18659\">\n                                  <text backend_node_id=\"18660\">17</text>", "action_uid": "cda83417-4717-4371-9a81-a59bfe684f7c"}, {"step_num": 8, "action_repr": "[div]   -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Occupancy Setup", "title": "Increase Room 1 Adults (1 \u2192 2)", "description": "Increments the adult counter for Room 1 from 1 to 2 by clicking the '+' counter button.", "quirk": null, "tag": "ry-counter-button", "node_id": "21057", "bbox": {"x": 905.0, "y": 326.984375, "w": 24.0, "h": 24.0}, "bbox_raw": "905,326.984375,24,24", "attributes": {"backend_node_id": "21057", "bounding_box_rect": "905,326.984375,24,24", "class": "counter__button", "aria_label": "1Adults+1", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 250, "snippet": "                          <div backend_node_id=\"21055\">\n                            <text backend_node_id=\"21056\">1</text>\n                          </div>\n                          <ry-counter-button backend_node_id=\"21057\" aria_label=\"1Adults+1\"/>\n                          </div>\n                      </ry-counter>\n                      <ry-counter backend_node_id=\"21064\">\n                        <div backend_node_id=\"21065\">\n                          <div backend_node_id=\"21066\">\n                            <text backend_node_id=\"21067\">Children</text>", "action_uid": "8559ffb6-0941-4e11-8176-4c7026a5c5f9"}, {"step_num": 9, "action_repr": "[button]  + Add room -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Occupancy Setup", "title": "Add Second Room", "description": "Clicks the '+ Add room' button to add a second room to accommodate the required 4 adults.", "quirk": null, "tag": "button", "node_id": "22228", "bbox": {"x": 865.0, "y": 430.578125, "w": 63.0, "h": 12.0}, "bbox_raw": "865,430.578125,63,12", "attributes": {"backend_node_id": "22228", "bounding_box_rect": "865,430.578125,63,12", "class": "rooms__add-button ry-button--anchor-blue ry-button--anchor", "aria_label": "+ Add room", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 250, "snippet": "                          </div>\n                      </ry-counter>\n                    </hp-rooms-picker>\n                    <button backend_node_id=\"22228\" aria_label=\"+ Add room\">\n                        <text backend_node_id=\"23290\">+ Add room</text>\n                      </button>\n                    <button backend_node_id=\"23292\" aria_label=\"Done\">\n                        <text backend_node_id=\"23293\">Done</text>\n                      </button>\n                    </hp-room-search-rooms>", "action_uid": "2473d471-9cc4-4ae9-adf5-c7d340f2ddb6"}, {"step_num": 10, "action_repr": "[div]   -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Occupancy Setup", "title": "Increase Room 2 Adults (1 \u2192 2)", "description": "Increments the adult counter for Room 2 from 1 to 2 by clicking its '+' counter button, reaching the required 4 adults across 2 rooms.", "quirk": null, "tag": "ry-counter-button", "node_id": "25686", "bbox": {"x": 905.0, "y": 475.5625, "w": 24.0, "h": 24.0}, "bbox_raw": "905,475.5625,24,24", "attributes": {"backend_node_id": "25686", "bounding_box_rect": "905,475.5625,24,24", "class": "counter__button", "aria_label": "1Adults+1", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 270, "snippet": "                          <div backend_node_id=\"25684\">\n                            <text backend_node_id=\"25685\">1</text>\n                          </div>\n                          <ry-counter-button backend_node_id=\"25686\" aria_label=\"1Adults+1\"/>\n                          </div>\n                      </ry-counter>\n                      <ry-counter backend_node_id=\"25693\">\n                        <div backend_node_id=\"25694\">\n                          <div backend_node_id=\"25695\">\n                            <text backend_node_id=\"25696\">Children</text>", "action_uid": "0ff77c25-9075-4916-8073-90f4e63ab2b4"}, {"step_num": 11, "action_repr": "[button]  Done -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Occupancy Setup", "title": "Confirm Guest & Room Count", "description": "Clicks the 'Done' button on the guest configuration popover to apply the 2 rooms / 4 adults settings.", "quirk": null, "tag": "button", "node_id": "26970", "bbox": {"x": 891.0, "y": 614.15625, "w": 37.0, "h": 16.0}, "bbox_raw": "891,614.15625,37,16", "attributes": {"backend_node_id": "26970", "bounding_box_rect": "891,614.15625,37,16", "class": "rooms_done-button ry-button--anchor-blue ry-button--anchor", "aria_label": "Done", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 270, "snippet": "                    <button backend_node_id=\"28149\" aria_label=\"+ Add room\">\n                        <text backend_node_id=\"28150\">+ Add room</text>\n                      </button>\n                    <button backend_node_id=\"26970\" aria_label=\"Done\">\n                        <text backend_node_id=\"28152\">Done</text>\n                      </button>\n                    </hp-room-search-rooms>\n                </hp-room-search-rooms-container>\n              </hp-room-search-controls-tooltips>\n            </hp-room-search-controls-tooltips-container>", "action_uid": "b12fbebd-3aeb-4a3e-8ce3-e9f007bed303"}, {"step_num": 12, "action_repr": "[button]  Search -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Search Dispatch", "title": "Execute Accommodation Search", "description": "Clicks the primary yellow 'Search' button to submit all parameters and load matching hotel accommodations in Dubai.", "quirk": null, "tag": "button", "node_id": "29131", "bbox": {"x": 938.0, "y": 202.0, "w": 282.0, "h": 52.0}, "bbox_raw": "938,202,282,52", "attributes": {"backend_node_id": "29131", "bounding_box_rect": "938,202,282,52", "class": "rooms-search-widget__start-search ry-button--gradient-yellow", "aria_label": "Search", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 219, "snippet": "                          </hp-room-search-widget-controls-container>\n                          <div backend_node_id=\"29503\">\n                            <button backend_node_id=\"29131\" aria_label=\"Search\">\n                              <ry-spinner backend_node_id=\"29504\">\n                                <text backend_node_id=\"29505\">Search</text>\n                              </ry-spinner>\n                            </button>\n                          </div>\n                        </div>", "action_uid": "0f0405ae-a90b-457f-bb78-95bba789792f"}, {"step_num": 13, "action_repr": "[path]   -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Facet Filtering", "title": "Apply 5-Star Rating Filter", "description": "Clicks the 5-star rating filter chip in the left sidebar filter panel. Benchmark Quirk: The demonstrator clicked the SVG <path> element inside the 5-star chip; because SVG child paths were not tracked as separate candidate nodes in Mind2Web cleaned DOM, pos_candidates is empty in the dataset record.", "quirk": "Mind2Web Candidate Extraction Quirk: pos_candidates is empty ([]). Demonstrator clicked an SVG <path> inside node 30554 (the 5-star rating chip), which was not indexed as an independent element in the benchmark's candidate generator.", "tag": "span (svg path)", "node_id": "30554", "bbox": {"x": 250.5, "y": 777.59375, "w": 18.0, "h": 18.0}, "bbox_raw": "250.5,777.59375,18,18", "attributes": {"backend_node_id": "30554", "bounding_box_rect": "250.5,777.59375,18,18", "class": "_container c-main-yellow icon-18", "parent": "rooms-chip (backend_node_id=30550)", "label": "5-star rating filter icon"}, "pos_count": 0, "neg_count": 481, "snippet": "                        <rooms-chip backend_node_id=\"30550\">\n                          <span backend_node_id=\"30551\">\n                            <text backend_node_id=\"30552\">5</text>\n                            <span backend_node_id=\"30554\">\n                                </span>\n                            </span>\n                        </rooms-chip>\n                      </rooms-chip-list>\n                    </rooms-star-rating-filter>\n                  </rooms-filter-container>\n                  <rooms-filter-container backend_node_id=\"30556\" label=\"roomsv2.filter.deals\">", "action_uid": "dcd24c84-c2ab-4888-8018-cc9977ac93ee"}, {"step_num": 14, "action_repr": "[checkbox]  Pool -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Facet Filtering", "title": "Filter by Facility: Pool", "description": "Checks the 'Pool' checkbox filter in the Property Facilities filter group to restrict results to accommodations with swimming pools.", "quirk": null, "tag": "input", "node_id": "33238", "bbox": {"x": 179.0, "y": 1175.84375, "w": 16.0, "h": 16.0}, "bbox_raw": "179,1175.84375,16,16", "attributes": {"backend_node_id": "33238", "bounding_box_rect": "179,1175.84375,16,16", "type": "checkbox", "class": "checkbox-list__checkbox", "value": "on", "input_value": "on", "is_clickable": "true", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 1438, "snippet": "                          </div>\n                          <div backend_node_id=\"33847\">\n                            <label backend_node_id=\"33848\">\n                              <input backend_node_id=\"33238\" type=\"checkbox\" value=\"on\" input_value=\"on\"/>\n                              <text backend_node_id=\"33855\">Pool</text>\n                            </label>\n                          </div>\n                          <div backend_node_id=\"33856\">\n                            <label backend_node_id=\"33857\">", "action_uid": "7cb6169b-ff10-4887-9196-f89212f65638"}, {"step_num": 15, "action_repr": "[checkbox]  Mini-bar -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Facet Filtering", "title": "Filter by Facility: Mini-bar", "description": "Checks the 'Mini-bar' checkbox filter in the Room Facilities filter group to ensure rooms include a minibar.", "quirk": null, "tag": "input", "node_id": "42828", "bbox": {"x": 179.0, "y": 2067.03125, "w": 16.0, "h": 16.0}, "bbox_raw": "179,2067.03125,16,16", "attributes": {"backend_node_id": "42828", "bounding_box_rect": "179,2067.03125,16,16", "type": "checkbox", "class": "checkbox-list__checkbox", "value": "on", "input_value": "on", "is_clickable": "true", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 1440, "snippet": "                          </div>\n                          <div backend_node_id=\"43646\">\n                            <label backend_node_id=\"43647\">\n                              <input backend_node_id=\"42828\" type=\"checkbox\" value=\"on\" input_value=\"on\"/>\n                              <text backend_node_id=\"43648\">Mini-bar</text>\n                            </label>\n                          </div>\n                          <div backend_node_id=\"43649\">\n                            <label backend_node_id=\"43650\">", "action_uid": "920db97e-5c54-4577-b457-86419decefc5"}, {"step_num": 16, "action_repr": "[checkbox]  Bathtub -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Facet Filtering", "title": "Filter by Facility: Bathtub", "description": "Checks the 'Bathtub' checkbox filter in the Room Facilities filter group to ensure rooms feature a bathtub.", "quirk": null, "tag": "input", "node_id": "52428", "bbox": {"x": 179.0, "y": 1867.03125, "w": 16.0, "h": 16.0}, "bbox_raw": "179,1867.03125,16,16", "attributes": {"backend_node_id": "52428", "bounding_box_rect": "179,1867.03125,16,16", "type": "checkbox", "class": "checkbox-list__checkbox", "value": "on", "input_value": "on", "is_clickable": "true", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 1437, "snippet": "                          </div>\n                          <div backend_node_id=\"53227\">\n                            <label backend_node_id=\"53228\">\n                              <input backend_node_id=\"52428\" type=\"checkbox\" value=\"on\" input_value=\"on\"/>\n                              <text backend_node_id=\"53229\">Bathtub</text>\n                            </label>\n                          </div>\n                          <div backend_node_id=\"53230\">\n                            <label backend_node_id=\"53231\">", "action_uid": "7d6f7933-6836-4e2b-bf79-481589f2cf3d"}, {"step_num": 17, "action_repr": "[checkbox]  Spa -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Facet Filtering", "title": "Filter by Facility: Spa", "description": "Checks the 'Spa' checkbox filter in the Property Facilities filter group to restrict results to accommodations with spa amenities.", "quirk": null, "tag": "input", "node_id": "62014", "bbox": {"x": 179.0, "y": 1575.84375, "w": 16.0, "h": 16.0}, "bbox_raw": "179,1575.84375,16,16", "attributes": {"backend_node_id": "62014", "bounding_box_rect": "179,1575.84375,16,16", "type": "checkbox", "class": "checkbox-list__checkbox", "value": "on", "input_value": "on", "is_clickable": "true", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 1438, "snippet": "                          </div>\n                          <div backend_node_id=\"62737\">\n                            <label backend_node_id=\"62738\">\n                              <input backend_node_id=\"62014\" type=\"checkbox\" value=\"on\" input_value=\"on\"/>\n                              <text backend_node_id=\"62750\">Spa</text>\n                            </label>\n                          </div>\n                          <div backend_node_id=\"62751\">\n                            <label backend_node_id=\"62752\">", "action_uid": "60104e14-a961-4e2e-9e75-cbd4c8a84060"}, {"step_num": 18, "action_repr": "[checkbox]  Hotels -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Facet Filtering", "title": "Filter by Property Type: Hotels", "description": "Checks the 'Hotels' checkbox filter in the Accommodation Type filter group to exclude hostels, apartments, or guest houses.", "quirk": null, "tag": "input", "node_id": "71592", "bbox": {"x": 172.0, "y": 874.0, "w": 16.0, "h": 16.0}, "bbox_raw": "172,874,16,16", "attributes": {"backend_node_id": "71592", "bounding_box_rect": "172,874,16,16", "type": "checkbox", "class": "checkbox-list__checkbox", "value": "on", "input_value": "on", "is_clickable": "true", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 1374, "snippet": "                          <div backend_node_id=\"72437\">\n                            <label backend_node_id=\"72438\">\n                              <input backend_node_id=\"71592\" type=\"checkbox\" value=\"on\" input_value=\"on\"/>\n                              <text backend_node_id=\"72439\">Hotels</text>\n                            </label>\n                          </div>\n                          <div backend_node_id=\"72440\">\n                            <label backend_node_id=\"72441\">", "action_uid": "991faa8d-3370-40dc-9e77-c234ea1cc8e5"}, {"step_num": 19, "action_repr": "[span]  Distance from city centre -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Distance Ranking & Booking", "title": "Sort by Distance from City Centre", "description": "Clicks the 'Distance from city centre' sort option on the results sorting bar to order the filtered hotels by proximity to downtown Dubai.", "quirk": null, "tag": "label", "node_id": "81653", "bbox": {"x": 562.0, "y": 110.796875, "w": 188.0, "h": 49.0}, "bbox_raw": "562,110.796875,188,49", "attributes": {"backend_node_id": "81653", "bounding_box_rect": "562,110.796875,188,49", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 1474, "snippet": "                  <span backend_node_id=\"81651\">\n                    <text backend_node_id=\"81652\">Deals</text>\n                  </span>\n                </label>\n                <label backend_node_id=\"81653\">\n                  <span backend_node_id=\"81226\">\n                    <text backend_node_id=\"81654\">Distance from city centre</text>\n                  </span>\n                </label>\n              </div>\n            </div>\n          </rooms-desktop-sorting-bar>\n        </div>\n        <div backend_node_id=\"81655\">\n          <div backend_node_id=\"81656\">", "action_uid": "4e3b93de-18dd-45df-bb6b-e55b3f756d11"}, {"step_num": 20, "action_repr": "[button]  Choose room -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Distance Ranking & Booking", "title": "Select Top Result: Hyatt Regency Dubai", "description": "Selects the top-ranked hotel card: 'Hyatt Regency Dubai' (5 stars, 0.93 km from city center, pool/spa/minibar/bathtub, 3 nights from $750.54) by clicking 'Choose room'.", "quirk": "Optimal Constraint Match: Hyatt Regency Dubai is the closest 5-star hotel to city center (0.93 km), beating Swissotel (1.68 km) and Sheraton Creek (1.72 km).", "tag": "button", "node_id": "86907", "bbox": {"x": 950.0, "y": 374.796875, "w": 144.0, "h": 40.0}, "bbox_raw": "950,374.796875,144,40", "attributes": {"backend_node_id": "86907", "bounding_box_rect": "950,374.796875,144,40", "class": "accommodation-card-body__choose-room-btn one ry-button--gradient-blue", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 1486, "snippet": "                                  </rooms-price>\n                                </span>\n                              </div>\n                            </rooms-price-summary>\n                            <button backend_node_id=\"86907\">\n                                <text backend_node_id=\"87886\">Choose room</text>\n                              </button>\n                            </div>\n                        </div>\n                      </div>\n                    </rooms-accommodation-card-body-desktop>\n                  </div>", "action_uid": "31f7acfc-5a88-474c-99c8-99375b51b28b"}, {"step_num": 21, "action_repr": "[button]  Book now -> CLICK", "operation": {"original_op": "CLICK", "value": "", "op": "CLICK"}, "phase": "Distance Ranking & Booking", "title": "Click 'Book now' for King Bed Room", "description": "Selects the 'Room, 1 King Bed - 1 King' offer and clicks 'Book now' to proceed to checkout ($612.98 room rate + $137.88 taxes & fees = $750.54 total).", "quirk": "Final Action: Successfully books 2 rooms for 4 adults for 3 nights at $750.54 total with free cancellation and free WiFi.", "tag": "button", "node_id": "96647", "bbox": {"x": 944.953125, "y": 1084.375, "w": 160.03125, "h": 40.0}, "bbox_raw": "944.953125,1084.375,160.03125,40", "attributes": {"backend_node_id": "96647", "bounding_box_rect": "944.953125,1084.375,160.03125,40", "class": "room-card__book-button ry-button--gradient-blue", "data_pw_testid_buckeye_candidate": "1"}, "pos_count": 1, "neg_count": 997, "snippet": "                                    </rooms-price-summary>\n                                  </div>\n                                  <div backend_node_id=\"97190\">\n                                    <button backend_node_id=\"96647\">\n                                      <text backend_node_id=\"97191\">Book now</text>\n                                    </button>\n                                    <span backend_node_id=\"97192\">\n                                      <text backend_node_id=\"97193\">Pay now</text>\n                                    </span>", "action_uid": "56663fb1-d23d-4a93-82db-274a00b8a0b5"}];
+
+let currentPhase = 'ALL';
+let currentOp = 'ALL';
+
+function toggleStep(stepNum) {
+  const card = document.getElementById('stepCard-' + stepNum);
+  if (card) {
+    card.classList.toggle('expanded');
+  }
+}
+
+function toggleAllSteps(expand) {
+  const cards = document.querySelectorAll('.step-card');
+  cards.forEach(card => {
+    if (expand) {
+      card.classList.add('expanded');
+    } else {
+      card.classList.remove('expanded');
+    }
+  });
+}
+
+function filterByPhase(phaseName) {
+  currentPhase = phaseName;
+  
+  // Update phase nav items
+  const items = document.querySelectorAll('.phase-item');
+  items.forEach(item => item.classList.remove('active'));
+  
+  // Highlight clicked
+  event.currentTarget.classList.add('active');
+  
+  applyFilters();
+}
+
+function filterByOp(op) {
+  currentOp = op;
+  
+  document.getElementById('btnOpAll').classList.toggle('active', op === 'ALL');
+  document.getElementById('btnOpClick').classList.toggle('active', op === 'CLICK');
+  document.getElementById('btnOpType').classList.toggle('active', op === 'TYPE');
+  
+  applyFilters();
+}
+
+function filterSteps() {
+  applyFilters();
+}
+
+function applyFilters() {
+  const query = (document.getElementById('stepSearchInput').value || '').toLowerCase().trim();
+  const cards = document.querySelectorAll('.step-card');
+  
+  cards.forEach(card => {
+    const phase = card.getAttribute('data-phase');
+    const op = card.getAttribute('data-op');
+    const text = card.getAttribute('data-text') || '';
+    
+    let matchPhase = (currentPhase === 'ALL' || phase === currentPhase);
+    let matchOp = (currentOp === 'ALL' || op === currentOp);
+    let matchQuery = (!query || text.includes(query));
+    
+    if (matchPhase && matchOp && matchQuery) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+function jumpToStep(stepNum) {
+  // Reset filters if step is hidden
+  const card = document.getElementById('stepCard-' + stepNum);
+  if (card) {
+    if (card.style.display === 'none') {
+      currentPhase = 'ALL';
+      currentOp = 'ALL';
+      document.getElementById('stepSearchInput').value = '';
+      applyFilters();
+      
+      const items = document.querySelectorAll('.phase-item');
+      items.forEach((item, idx) => {
+        item.classList.toggle('active', idx === 0);
+      });
+    }
+    
+    card.classList.add('expanded');
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Highlight pin temporarily
+    const pin = document.getElementById('vpPin-' + stepNum);
+    if (pin) {
+      pin.classList.add('active-pin');
+      setTimeout(() => pin.classList.remove('active-pin'), 1200);
+    }
+  }
+}
+
+function switchTab(evt, tabId) {
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(btn => btn.classList.remove('active'));
+  
+  const contents = document.querySelectorAll('.tab-content');
+  contents.forEach(content => content.classList.remove('active'));
+  
+  evt.currentTarget.classList.add('active');
+  const target = document.getElementById(tabId);
+  if (target) {
+    target.classList.add('active');
+  }
+}
+
+function copySnippet(event, elemId) {
+  event.stopPropagation();
+  const elem = document.getElementById(elemId);
+  if (elem) {
+    navigator.clipboard.writeText(elem.innerText).then(() => {
+      const btn = event.currentTarget;
+      const orig = btn.innerText;
+      btn.innerText = 'Copied!';
+      btn.style.color = '#34d399';
+      setTimeout(() => {
+        btn.innerText = orig;
+        btn.style.color = '';
+      }, 1500);
+    }).catch(() => {});
+  }
+}
+</script>
+
+</body>
+</html>

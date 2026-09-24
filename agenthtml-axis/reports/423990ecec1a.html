@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Mind2Web Case: 01_test_domain_test_domain_5_1</title>
+<style>
+:root {
+  --bg: #0f1419;
+  --surface: #1a2332;
+  --surface2: #243044;
+  --border: #2d3a4f;
+  --text: #e7ecf3;
+  --muted: #9aa8bc;
+  --accent: #5b9fd4;
+  --accent2: #3d8bfd;
+  --good: #3ecf8e;
+  --click: #7c9cff;
+  --type: #5ad4a8;
+  --chip: #2a3548;
+  --target: #f0c674;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+header.hero {
+  background: linear-gradient(145deg, #1a2a40 0%, #152030 50%, #121a28 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 28px 22px;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+}
+.eyebrow { display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 14px; }
+.chip {
+  display:inline-flex; align-items:center; gap:6px;
+  background: var(--chip); border:1px solid var(--border);
+  color: var(--muted); font-size: 12px; padding: 4px 10px; border-radius: 999px;
+}
+.chip strong { color: var(--text); font-weight: 600; }
+h1 { font-size: 1.55rem; margin: 0 0 10px; font-weight: 700; letter-spacing: -0.02em; }
+.task-box {
+  background: rgba(61,139,253,.08);
+  border: 1px solid rgba(61,139,253,.35);
+  border-left: 4px solid var(--accent2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 14px;
+}
+.task-box .label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--accent); font-weight: 700; margin-bottom: 4px;
+}
+.task-box .task { font-size: 1.12rem; font-weight: 600; }
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+.meta-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.meta-card .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.meta-card .v { font-size: 13px; margin-top: 2px; word-break: break-word; }
+section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 18px;
+}
+section h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+.flow {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-top: 6px;
+}
+.flow .node {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-size: 12px; max-width: 170px;
+}
+.flow .node .t { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+.flow .node .d { font-weight: 600; margin-top: 2px; }
+.flow .arrow { color: var(--accent); font-weight: 700; }
+.step {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 12px;
+  margin: 0 0 14px;
+  overflow: hidden;
+}
+.step-head {
+  display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 14px;
+  padding: 14px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+}
+.step.open .step-head { border-bottom-color: var(--border); }
+.step-head:hover { filter: brightness(1.05); }
+.step-num {
+  background: #31415c; color: #fff; font-weight: 700;
+  width: 34px; height: 34px; border-radius: 10px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  font-size: 14px;
+}
+.step-main { flex: 1; min-width: 220px; }
+.repr {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13.5px; color: var(--text);
+}
+.intent { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.badges { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.badge {
+  font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  padding: 3px 8px; border-radius: 6px; text-transform: uppercase;
+}
+.badge.click { background: rgba(124,156,255,.18); color: var(--click); border:1px solid rgba(124,156,255,.35); }
+.badge.type { background: rgba(90,212,168,.15); color: var(--type); border:1px solid rgba(90,212,168,.35); }
+.badge.val {
+  background: rgba(240,198,116,.12); color: var(--target); border:1px solid rgba(240,198,116,.3);
+  text-transform: none; font-weight: 600; max-width: 280px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.chev { color: var(--muted); margin-left: auto; transition: transform .15s ease; padding-top: 6px; }
+.step.open .chev { transform: rotate(90deg); }
+.step-body { display: none; padding: 14px 16px 16px; }
+.step.open .step-body { display: block; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+.panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px;
+}
+.panel h3 {
+  margin: 0 0 8px; font-size: 12px; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted); font-weight: 700;
+}
+dl.kv { margin: 0; display: grid; grid-template-columns: 120px 1fr; gap: 4px 8px; font-size: 13px; }
+dl.kv dt { color: var(--muted); }
+dl.kv dd {
+  margin: 0; word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px;
+}
+ul.notes { margin: 0; padding-left: 18px; font-size: 13px; }
+ul.notes li { margin: 4px 0; color: var(--muted); }
+ul.notes li strong { color: var(--text); font-weight: 600; }
+.note {
+  font-size: 13px; color: var(--muted); border-left: 3px solid var(--border);
+  padding: 6px 10px; margin-top: 10px;
+}
+footer {
+  margin-top: 10px; color: var(--muted); font-size: 12px; text-align: center;
+}
+.code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+.muted { color: var(--muted); }
+table.steps-table { width:100%; border-collapse: collapse; font-size: 13px; }
+table.steps-table th, table.steps-table td {
+  text-align:left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top;
+}
+table.steps-table th {
+  color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+}
+table.steps-table tr:hover td { background: rgba(255,255,255,.02); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">
+    <span class="chip"><strong>domain</strong>&nbsp;web_navigation</span>
+    <span class="chip"><strong>benchmark</strong>&nbsp;Mind2Web</span>
+    <span class="chip"><strong>website</strong>&nbsp;thumbtack</span>
+    <span class="chip"><strong>model</strong>&nbsp;human-annotator</span>
+    <span class="chip"><strong>format</strong>&nbsp;mind2web-json</span>
+  </div>
+  <h1>Web navigation trajectory viewer</h1>
+  <p class="muted" style="margin:0 0 4px; font-size:14px;">Case ID: <span class="code">01_test_domain_test_domain_5_1</span></p>
+  <div class="task-box">
+    <div class="label">Task</div>
+    <div class="task">Find preferably female personal trainers for a client aged 37 in 07055</div>
+  </div>
+  <div class="meta-grid">
+    <div class="meta-card"><div class="k">Website / vertical</div><div class="v">thumbtack · Service / Home service</div></div>
+    <div class="meta-card"><div class="k">Annotation ID</div><div class="v code">4e8162bd-47ce-4ca2-bb9c-05cb788bbe12</div></div>
+    <div class="meta-card"><div class="k">Steps</div><div class="v">7 human demonstration actions</div></div>
+    <div class="meta-card"><div class="k">Provenance</div><div class="v">trajs/web_navigation/01_test_domain_test_domain_5_1.json</div></div>
+    <div class="meta-card"><div class="k">Note</div><div class="v">human demonstration trajectory; no agent model</div></div>
+    <div class="meta-card"><div class="k">References</div><div class="v">None (no oversized external refs)</div></div>
+  </div>
+</header>
+
+<section>
+  <h2>Overview</h2>
+  <p style="margin-top:0; color:var(--muted); font-size:14px;">
+    Human demonstration from <strong style="color:var(--text)">Mind2Web</strong> on
+    <strong style="color:var(--text)">thumbtack.com</strong>.
+    The annotator searches for personal trainers near ZIP <strong style="color:var(--text)">07055</strong>,
+    then sets request filters for a client aged <strong style="color:var(--text)">37</strong>
+    (<span class="code">31–40</span>) and <strong style="color:var(--text)">female trainer preferred</strong>.
+    No screenshots or media are present in this case directory; page context is recovered from each step’s
+    cleaned HTML and action metadata.
+  </p>
+  <div class="flow">
+    <div class="node"><div class="t">1–2 Location</div><div class="d">ZIP → 07055</div></div>
+    <div class="arrow">→</div>
+    <div class="node"><div class="t">3–4 Search</div><div class="d">personal trainers</div></div>
+    <div class="arrow">→</div>
+    <div class="node"><div class="t">5 Age filter</div><div class="d">31–40 years</div></div>
+    <div class="arrow">→</div>
+    <div class="node"><div class="t">6 Gender</div><div class="d">Female preferred</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Action sequence (compact)</h2>
+  <table class="steps-table">
+    <thead><tr><th>#</th><th>Action repr</th><th>Op</th><th>Value</th><th>Targets</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td class="code">[textbox]  Zip code -&gt; CLICK</td><td>CLICK</td><td class="code">—</td><td>1 pos / 473 neg</td></tr><tr><td>1</td><td class="code">[textbox]  Zip code -&gt; TYPE: 07055</td><td>TYPE</td><td class="code">07055</td><td>1 pos / 473 neg</td></tr><tr><td>2</td><td class="code">[textbox]  Search on Thumbtack -&gt; CLICK</td><td>CLICK</td><td class="code">—</td><td>1 pos / 473 neg</td></tr><tr><td>3</td><td class="code">[textbox]  Search on Thumbtack -&gt; TYPE: personal trainers</td><td>TYPE</td><td class="code">personal trainers</td><td>1 pos / 482 neg</td></tr><tr><td>4</td><td class="code">[b]  Personal Trainers -&gt; CLICK</td><td>CLICK</td><td class="code">—</td><td>1 pos / 481 neg</td></tr><tr><td>5</td><td class="code">[circle]   -&gt; CLICK</td><td>CLICK</td><td class="code">—</td><td>0 pos / 353 neg</td></tr><tr><td>6</td><td class="code">[circle]   -&gt; CLICK</td><td>CLICK</td><td class="code">—</td><td>0 pos / 354 neg</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Step-by-step trajectory</h2>
+  <p class="muted" style="margin-top:0;font-size:13px;">
+    Click a step header to expand target details and page context. HTML snapshots are large
+    (~100–130KB cleaned DOM each) and are summarized rather than inlined verbatim.
+  </p>
+  <div class="timeline">
+    
+    <article class="step open" id="step-0" data-step="0">
+      <div class="step-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="step-num">0</div>
+        <div class="step-main">
+          <div class="repr">[textbox]  Zip code -&gt; CLICK</div>
+          <div class="intent">Focus the Zip code field (pre-filled with 43235) to update the location.</div>
+        </div>
+        <div class="badges">
+          <span class="badge click">CLICK</span>
+          
+        </div>
+        <div class="chev">&#9656;</div>
+      </div>
+      <div class="step-body">
+        <div class="grid2">
+          <div class="panel">
+            <h3>Operation</h3>
+            <dl class="kv">
+              <dt>op</dt><dd>CLICK</dd>
+              <dt>original_op</dt><dd>CLICK</dd>
+              <dt>value</dt><dd>(empty)</dd>
+              <dt>action_uid</dt><dd>50a07e52-efe6-421b-b60e-46830335539a</dd>
+              <dt>candidates</dt><dd>1 positive · 473 negative</dd>
+              <dt>cleaned_html</dt><dd>106,569 chars (not inlined)</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3>Grounding target</h3>
+            <dl class="kv"><dt>tag</dt><dd>input</dd><dt>backend_node_id</dt><dd>98</dd><dt>is_original_target</dt><dd>True</dd><dt>is_top_level_target</dt><dd>True</dd><dt>aria_label</dt><dd>Zip code</dd><dt>name</dt><dd>zip_code</dd><dt>placeholder</dt><dd>Zip code</dd><dt>value</dt><dd>43235</dd><dt>class</dt><dd>search-bar_zipCodeInput__k2MKH black w-100 flex-1 bn b</dd><dt>bbox</dt><dd>447,605.59375,140,52</dd></dl>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:12px;">
+          <h3>Page context & interpretation</h3>
+          <ul class="notes"><li>Homepage search bar on Thumbtack</li><li>Zip currently shows 43235</li><li>Search placeholder: &quot;Whats on your to-do list?&quot;</li></ul>
+        </div>
+      </div>
+    </article>
+    <article class="step" id="step-1" data-step="1">
+      <div class="step-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="step-num">1</div>
+        <div class="step-main">
+          <div class="repr">[textbox]  Zip code -&gt; TYPE: 07055</div>
+          <div class="intent">Type target ZIP code 07055 into the Zip code field.</div>
+        </div>
+        <div class="badges">
+          <span class="badge type">TYPE</span>
+          <span class="badge val">value: 07055</span>
+        </div>
+        <div class="chev">&#9656;</div>
+      </div>
+      <div class="step-body">
+        <div class="grid2">
+          <div class="panel">
+            <h3>Operation</h3>
+            <dl class="kv">
+              <dt>op</dt><dd>TYPE</dd>
+              <dt>original_op</dt><dd>TYPE</dd>
+              <dt>value</dt><dd>07055</dd>
+              <dt>action_uid</dt><dd>f557567d-8391-45ba-9ae3-5dad53d6c21b</dd>
+              <dt>candidates</dt><dd>1 positive · 473 negative</dd>
+              <dt>cleaned_html</dt><dd>107,059 chars (not inlined)</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3>Grounding target</h3>
+            <dl class="kv"><dt>tag</dt><dd>input</dd><dt>backend_node_id</dt><dd>4357</dd><dt>is_original_target</dt><dd>True</dd><dt>is_top_level_target</dt><dd>True</dd><dt>aria_label</dt><dd>Zip code</dd><dt>name</dt><dd>zip_code</dd><dt>placeholder</dt><dd>Zip code</dd><dt>value</dt><dd>43235</dd><dt>class</dt><dd>search-bar_zipCodeInput__k2MKH black w-100 flex-1 bn b</dd><dt>bbox</dt><dd>447,605.59375,140,52</dd></dl>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:12px;">
+          <h3>Page context & interpretation</h3>
+          <ul class="notes"><li>Replace prior zip 43235 with 07055</li></ul>
+        </div>
+      </div>
+    </article>
+    <article class="step" id="step-2" data-step="2">
+      <div class="step-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="step-num">2</div>
+        <div class="step-main">
+          <div class="repr">[textbox]  Search on Thumbtack -&gt; CLICK</div>
+          <div class="intent">Focus the main search box labeled &quot;Search on Thumbtack&quot;.</div>
+        </div>
+        <div class="badges">
+          <span class="badge click">CLICK</span>
+          
+        </div>
+        <div class="chev">&#9656;</div>
+      </div>
+      <div class="step-body">
+        <div class="grid2">
+          <div class="panel">
+            <h3>Operation</h3>
+            <dl class="kv">
+              <dt>op</dt><dd>CLICK</dd>
+              <dt>original_op</dt><dd>CLICK</dd>
+              <dt>value</dt><dd>(empty)</dd>
+              <dt>action_uid</dt><dd>0721e1ff-9358-4f6a-9a4c-48b8f191cbd7</dd>
+              <dt>candidates</dt><dd>1 positive · 473 negative</dd>
+              <dt>cleaned_html</dt><dd>107,502 chars (not inlined)</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3>Grounding target</h3>
+            <dl class="kv"><dt>tag</dt><dd>input</dd><dt>backend_node_id</dt><dd>8624</dd><dt>is_original_target</dt><dd>True</dd><dt>is_top_level_target</dt><dd>True</dd><dt>aria_label</dt><dd>Search on Thumbtack</dd><dt>placeholder</dt><dd>Whats on your to-do list?</dd><dt>class</dt><dd>flex-1 bn pl3 pr2 br-left br2 truncate b</dd><dt>bbox</dt><dd>129,605.59375,318,52</dd></dl>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:12px;">
+          <h3>Page context & interpretation</h3>
+          <ul class="notes"><li>Zip code should now be 07055 for subsequent search</li></ul>
+        </div>
+      </div>
+    </article>
+    <article class="step" id="step-3" data-step="3">
+      <div class="step-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="step-num">3</div>
+        <div class="step-main">
+          <div class="repr">[textbox]  Search on Thumbtack -&gt; TYPE: personal trainers</div>
+          <div class="intent">Type query &quot;personal trainers&quot; into the search box.</div>
+        </div>
+        <div class="badges">
+          <span class="badge type">TYPE</span>
+          <span class="badge val">value: personal trainers</span>
+        </div>
+        <div class="chev">&#9656;</div>
+      </div>
+      <div class="step-body">
+        <div class="grid2">
+          <div class="panel">
+            <h3>Operation</h3>
+            <dl class="kv">
+              <dt>op</dt><dd>TYPE</dd>
+              <dt>original_op</dt><dd>TYPE</dd>
+              <dt>value</dt><dd>personal trainers</dd>
+              <dt>action_uid</dt><dd>d59f7754-2800-4c33-93be-6b99343d85d0</dd>
+              <dt>candidates</dt><dd>1 positive · 482 negative</dd>
+              <dt>cleaned_html</dt><dd>110,368 chars (not inlined)</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3>Grounding target</h3>
+            <dl class="kv"><dt>tag</dt><dd>input</dd><dt>backend_node_id</dt><dd>12904</dd><dt>is_original_target</dt><dd>True</dd><dt>is_top_level_target</dt><dd>True</dd><dt>aria_label</dt><dd>Search on Thumbtack</dd><dt>placeholder</dt><dd>Whats on your to-do list?</dd><dt>class</dt><dd>flex-1 bn pl3 pr2 br-left br2 truncate b</dd><dt>bbox</dt><dd>129,605.59375,318,52</dd></dl>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:12px;">
+          <h3>Page context & interpretation</h3>
+          <ul class="notes"><li>Triggers autocomplete / category dropdown</li></ul>
+        </div>
+      </div>
+    </article>
+    <article class="step" id="step-4" data-step="4">
+      <div class="step-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="step-num">4</div>
+        <div class="step-main">
+          <div class="repr">[b]  Personal Trainers -&gt; CLICK</div>
+          <div class="intent">Select &quot;Personal Trainers&quot; from the search autocomplete dropdown.</div>
+        </div>
+        <div class="badges">
+          <span class="badge click">CLICK</span>
+          
+        </div>
+        <div class="chev">&#9656;</div>
+      </div>
+      <div class="step-body">
+        <div class="grid2">
+          <div class="panel">
+            <h3>Operation</h3>
+            <dl class="kv">
+              <dt>op</dt><dd>CLICK</dd>
+              <dt>original_op</dt><dd>CLICK</dd>
+              <dt>value</dt><dd>(empty)</dd>
+              <dt>action_uid</dt><dd>252de7b5-bd42-4c51-80a6-f2cfc18059c5</dd>
+              <dt>candidates</dt><dd>1 positive · 481 negative</dd>
+              <dt>cleaned_html</dt><dd>110,516 chars (not inlined)</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3>Grounding target</h3>
+            <dl class="kv"><dt>tag</dt><dd>li</dd><dt>backend_node_id</dt><dd>17465</dd><dt>is_original_target</dt><dd>False</dd><dt>is_top_level_target</dt><dd>True</dd><dt>class</dt><dd>api-search-dropdown-entry_root__E4TAC api-search-dropdown-entry_bgBlue100__tZw5f</dd><dt>bbox</dt><dd>129,658.59375,316,40</dd></dl>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:12px;">
+          <h3>Page context & interpretation</h3>
+          <ul class="notes"><li>Dropdown after typing &quot;personal trainers&quot;</li><li>Top suggestion is bold text &quot;Personal Trainers&quot; inside an &lt;li&gt;</li><li>Other suggestions include In Home Personal Trainers, Personal Fitness Trainers, Online Personal Trainer</li></ul>
+        </div>
+      </div>
+    </article>
+    <article class="step open" id="step-5" data-step="5">
+      <div class="step-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="step-num">5</div>
+        <div class="step-main">
+          <div class="repr">[circle]   -&gt; CLICK</div>
+          <div class="intent">Select client age option &quot;31 - 40 years old&quot; (covers client aged 37). Represented as [circle] radio control; no positive candidate annotated.</div>
+        </div>
+        <div class="badges">
+          <span class="badge click">CLICK</span>
+          
+        </div>
+        <div class="chev">&#9656;</div>
+      </div>
+      <div class="step-body">
+        <div class="grid2">
+          <div class="panel">
+            <h3>Operation</h3>
+            <dl class="kv">
+              <dt>op</dt><dd>CLICK</dd>
+              <dt>original_op</dt><dd>CLICK</dd>
+              <dt>value</dt><dd>(empty)</dd>
+              <dt>action_uid</dt><dd>5142dd2f-8388-427b-a71a-7e9e7a284057</dd>
+              <dt>candidates</dt><dd>0 positive · 353 negative</dd>
+              <dt>cleaned_html</dt><dd>126,802 chars (not inlined)</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3>Grounding target</h3>
+            <p class="muted" style="margin:0;font-size:13px;">No <span class="code">pos_candidates</span> annotated for this step (common for SVG/circle radios in this dump). Intent inferred from task + DOM checked-state diffs.</p>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:12px;">
+          <h3>Page context & interpretation</h3>
+          <ul class="notes"><li>Personal Trainers results / request form for ZIP 07055</li><li>Form section &quot;Client age&quot; with radio options: Younger than 18; 18-22; 23-30; 31-40; 41-50; ...</li><li>Nearby section &quot;Gender preference&quot;: No gender preference / Female trainer preferred / Male trainer preferred</li><li>Sample pros listed: SVETNESS Personal Training, online coaches, Lacefit Functional Training, Apex Personal Training, etc.</li></ul>
+        </div>
+      </div>
+    </article>
+    <article class="step open" id="step-6" data-step="6">
+      <div class="step-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="step-num">6</div>
+        <div class="step-main">
+          <div class="repr">[circle]   -&gt; CLICK</div>
+          <div class="intent">Select gender preference &quot;Female trainer preferred&quot;. Represented as [circle] radio control; no positive candidate annotated.</div>
+        </div>
+        <div class="badges">
+          <span class="badge click">CLICK</span>
+          
+        </div>
+        <div class="chev">&#9656;</div>
+      </div>
+      <div class="step-body">
+        <div class="grid2">
+          <div class="panel">
+            <h3>Operation</h3>
+            <dl class="kv">
+              <dt>op</dt><dd>CLICK</dd>
+              <dt>original_op</dt><dd>CLICK</dd>
+              <dt>value</dt><dd>(empty)</dd>
+              <dt>action_uid</dt><dd>d2ac0f03-f812-4fa2-996d-ca508cb0add4</dd>
+              <dt>candidates</dt><dd>0 positive · 354 negative</dd>
+              <dt>cleaned_html</dt><dd>128,275 chars (not inlined)</dd>
+            </dl>
+          </div>
+          <div class="panel">
+            <h3>Grounding target</h3>
+            <p class="muted" style="margin:0;font-size:13px;">No <span class="code">pos_candidates</span> annotated for this step (common for SVG/circle radios in this dump). Intent inferred from task + DOM checked-state diffs.</p>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:12px;">
+          <h3>Page context & interpretation</h3>
+          <ul class="notes"><li>After previous step, &quot;31 - 40 years old&quot; is checked (input_checked=true in this snapshot)</li><li>Gender preference radios still unset before this click</li><li>Task requirements (age 37 + preferably female) addressed by these two filter selections</li></ul>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2>Task completion mapping</h2>
+  <table class="steps-table">
+    <thead><tr><th>Requirement</th><th>How the demonstration satisfies it</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Personal trainers</td>
+        <td>Steps 2–4: search “personal trainers” and click the <span class="code">Personal Trainers</span> category suggestion.</td>
+      </tr>
+      <tr>
+        <td>Location 07055</td>
+        <td>Steps 0–1: click zip field and type <span class="code">07055</span> (replacing default 43235).</td>
+      </tr>
+      <tr>
+        <td>Client aged 37</td>
+        <td>Step 5: radio <span class="code">31 - 40 years old</span> under “Client age” (becomes <span class="code">input_checked=true</span> by step 6).</td>
+      </tr>
+      <tr>
+        <td>Preferably female</td>
+        <td>Step 6: radio <span class="code">Female trainer preferred</span> under “Gender preference”.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">
+    The trajectory ends after the two filter radio clicks; there is no further “submit request” action
+    in this annotation. Evaluation should treat the demonstrated filter configuration as the goal state
+    captured by Mind2Web for this task.
+  </p>
+</section>
+
+<section>
+  <h2>Case files</h2>
+  <ul class="notes">
+    <li><strong>case_meta.json</strong> — case identity, Mind2Web format, human-annotator model note</li>
+    <li><strong>trajectory.json</strong> — full trajectory (<span class="code">action_reprs</span> + <span class="code">actions[]</span> with cleaned_html / candidates)</li>
+    <li><strong>task/task_statement.md</strong> — natural-language goal</li>
+    <li><strong>raw_text.jsonl</strong> — flattened key/value dump (oversized action records omitted with excerpts)</li>
+  </ul>
+  <p class="muted" style="font-size:12px;margin-bottom:0;">
+    No local screenshots/, frames/, or images/ directories were present. Media were not embedded.
+    No external CDNs, fonts, or scripts were used. Bash fallback was used to read/parse files under the case directory
+    (trajectory.json is large) and to write this HTML output.
+  </p>
+</section>
+
+<footer>
+  Rendered for case <span class="code">01_test_domain_test_domain_5_1</span> · Mind2Web · thumbtack · self-contained HTML
+</footer>
+</div>
+<script>
+document.querySelectorAll('.step-head').forEach(function(h){
+  h.setAttribute('tabindex','0');
+  h.addEventListener('keydown', function(e){
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); h.click(); }
+  });
+});
+</script>
+</body>
+</html>

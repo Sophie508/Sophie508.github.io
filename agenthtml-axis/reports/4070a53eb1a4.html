@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case 01_sonnet-35-new-retail_249 — AgentHTML</title>
+<style>
+:root {
+  --bg:       #07090D;
+  --s1:       #0C0F15;
+  --s2:       #121620;
+  --s3:       #181E2A;
+  --bd:       #222A38;
+  --bd2:      #2E3A4E;
+  --amber:    #F5A623;
+  --amber-lo: rgba(245,166,35,0.12);
+  --green:    #2DD4A0;
+  --green-lo: rgba(45,212,160,0.10);
+  --red:      #F05252;
+  --red-lo:   rgba(240,82,82,0.10);
+  --blue:     #63B3ED;
+  --blue-lo:  rgba(99,179,237,0.10);
+  --purple:   #B07FEA;
+  --text:     #DDE3EE;
+  --muted:    #5A6882;
+  --dim:      #8A97AC;
+  --mono:     'Courier New', Courier, monospace;
+  --serif:    Georgia, 'Times New Roman', serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.65;
+  min-height:100vh;
+}
+
+/* ── HEADER ───────────────────────────────────── */
+.site-header{
+  position:sticky;top:0;z-index:200;
+  background:var(--bg);
+  border-bottom:1px solid var(--bd);
+  padding:0 32px;
+  display:flex;align-items:stretch;
+  min-height:52px;
+}
+.hdr-left{
+  display:flex;align-items:center;gap:20px;
+  padding:12px 0;
+  border-right:1px solid var(--bd);
+  padding-right:24px;
+}
+.hdr-domain{
+  font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);
+}
+.hdr-title{
+  font-family:var(--serif);
+  font-size:15px;font-weight:bold;
+  color:var(--text);
+}
+.hdr-right{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;padding-left:24px;
+}
+.chip{
+  font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 10px;border-radius:2px;
+  border:1px solid currentColor;
+}
+.chip-model{color:var(--blue);}
+.chip-bench{color:var(--purple);}
+.chip-trial{color:var(--muted);}
+
+/* ── STATUS BAR ───────────────────────────────── */
+.status-bar{
+  background:var(--s1);
+  border-bottom:1px solid var(--bd);
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+}
+.stat-cell{
+  padding:12px 24px;
+  border-right:1px solid var(--bd);
+  display:flex;flex-direction:column;gap:3px;
+}
+.stat-cell:last-child{border-right:none;}
+.stat-lbl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+.stat-val{font-size:20px;font-weight:bold;letter-spacing:-.01em;}
+.sv-neutral{color:var(--text);}
+.sv-ok{color:var(--green);}
+.sv-err{color:var(--red);}
+.sv-warn{color:var(--amber);}
+
+/* ── LAYOUT ───────────────────────────────────── */
+.page{
+  display:grid;
+  grid-template-columns:1fr 300px;
+  gap:0;
+  max-width:1300px;
+  margin:0 auto;
+  padding:28px 32px;
+  gap:24px;
+  align-items:start;
+}
+.timeline-col{display:flex;flex-direction:column;gap:12px;}
+.sidebar{display:flex;flex-direction:column;gap:14px;position:sticky;top:64px;}
+
+/* ── SYSTEM POLICY ────────────────────────────── */
+.policy-block{
+  border:1px solid var(--bd);
+  border-radius:3px;
+  overflow:hidden;
+  background:var(--s1);
+}
+.policy-hdr{
+  padding:9px 14px;
+  background:var(--s2);
+  border-bottom:1px solid var(--bd);
+  display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;user-select:none;
+}
+.policy-hdr:hover{background:var(--s3);}
+.policy-tag{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.policy-toggle{font-size:11px;color:var(--amber);background:none;border:none;cursor:pointer;}
+.policy-body{
+  max-height:0;overflow:hidden;
+  transition:max-height .35s ease;
+}
+.policy-body.open{max-height:420px;overflow-y:auto;}
+.policy-text{
+  padding:14px;
+  font-size:11px;color:var(--dim);
+  white-space:pre-wrap;
+}
+
+/* ── CONVERSATION ENTRIES ─────────────────────── */
+.entry{
+  opacity:0;transform:translateY(6px);
+  animation:fadeUp .4s ease forwards;
+}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+
+.msg-wrap{
+  display:grid;
+  grid-template-columns:68px 1fr;
+  gap:14px;
+  padding:12px 0;
+  border-bottom:1px solid rgba(34,42,56,.6);
+}
+.msg-role{
+  text-align:right;
+  padding-top:2px;
+  font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  line-height:1.9;
+}
+.role-user{color:var(--blue);}
+.role-assistant{color:var(--green);}
+.msg-body{color:var(--text);font-size:13px;}
+
+/* ── TOOL CALL GROUP ──────────────────────────── */
+.tool-group{
+  border:1px solid var(--bd);
+  border-radius:3px;
+  overflow:hidden;
+  background:var(--s1);
+  margin:4px 0;
+}
+.tool-group.is-error{border-color:rgba(240,82,82,.5);}
+.tool-group.is-success{border-color:rgba(45,212,160,.25);}
+
+.tool-hdr{
+  padding:8px 14px;
+  background:var(--s2);
+  border-bottom:1px solid var(--bd);
+  display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;user-select:none;
+  gap:12px;
+}
+.tool-hdr:hover{background:var(--s3);}
+.tool-fn{font-size:11px;color:var(--amber);letter-spacing:.04em;flex:1;}
+.tool-badges{display:flex;gap:8px;align-items:center;}
+.tbadge{
+  font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 8px;border-radius:2px;
+}
+.tbadge-ok{background:var(--green-lo);color:var(--green);border:1px solid rgba(45,212,160,.3);}
+.tbadge-err{background:var(--red-lo);color:var(--red);border:1px solid rgba(240,82,82,.3);}
+.tbadge-call{background:var(--amber-lo);color:var(--amber);border:1px solid rgba(245,166,35,.3);}
+.tcaret{font-size:10px;color:var(--muted);}
+
+.tool-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.tool-body.open{max-height:600px;overflow-y:auto;}
+.tool-section{padding:10px 14px;border-top:1px solid var(--bd);}
+.tsec-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.tsec-code{
+  font-size:11px;color:var(--dim);
+  white-space:pre-wrap;word-break:break-all;
+}
+.tsec-output{font-size:11px;color:var(--text);white-space:pre-wrap;word-break:break-word;}
+.tsec-error{font-size:12px;color:var(--red);font-weight:bold;}
+
+/* ── ERROR CALLOUT ────────────────────────────── */
+.error-callout{
+  background:var(--red-lo);
+  border:1px solid rgba(240,82,82,.4);
+  border-radius:3px;
+  padding:13px 16px;
+  margin:6px 0;
+}
+.ec-title{
+  font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--red);margin-bottom:6px;
+}
+.ec-body{font-size:12px;color:var(--dim);line-height:1.6;}
+.ec-body strong{color:var(--red);}
+
+/* ── SIDEBAR CARDS ────────────────────────────── */
+.scard{
+  background:var(--s1);
+  border:1px solid var(--bd);
+  border-radius:3px;
+  overflow:hidden;
+}
+.scard-hdr{
+  padding:8px 14px;
+  background:var(--s2);
+  border-bottom:1px solid var(--bd);
+  font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);
+}
+.scard-body{padding:14px;}
+
+.irow{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:5px 0;
+  border-bottom:1px solid rgba(34,42,56,.5);
+  font-size:11px;gap:8px;
+}
+.irow:last-child{border-bottom:none;}
+.ik{color:var(--muted);flex-shrink:0;}
+.iv{color:var(--text);text-align:right;}
+.iv.ok{color:var(--green);}
+.iv.err{color:var(--red);}
+.iv.warn{color:var(--amber);}
+
+/* order item card */
+.oi{padding:8px 0;border-bottom:1px solid rgba(34,42,56,.4);}
+.oi:last-child{border-bottom:none;}
+.oi-name{font-size:12px;color:var(--text);}
+.oi-price{font-size:11px;color:var(--amber);}
+.oi-opts{font-size:10px;color:var(--muted);margin-top:1px;}
+.oi-tag{
+  display:inline-block;font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:2px;margin-top:4px;
+}
+.ot-return{background:var(--red-lo);color:var(--red);border:1px solid rgba(240,82,82,.3);}
+.ot-exchange-fail{background:var(--amber-lo);color:var(--amber);border:1px solid rgba(245,166,35,.3);}
+.ot-none{background:rgba(90,104,130,.08);color:var(--muted);border:1px solid rgba(90,104,130,.2);}
+
+/* savings table */
+.srow{
+  display:flex;justify-content:space-between;
+  padding:5px 0;border-bottom:1px solid rgba(34,42,56,.4);
+  font-size:11px;
+}
+.srow:last-child{border-bottom:none;}
+.srow.total{
+  font-weight:bold;font-size:12px;
+  color:var(--green);padding-top:8px;
+  border-bottom:none;
+}
+.srow.blocked{color:var(--muted);text-decoration:line-through;}
+
+/* ── OUTCOME BANNER ───────────────────────────── */
+.outcome-banner{
+  border-radius:3px;
+  padding:13px 14px;
+  font-size:12px;line-height:1.5;
+}
+.ob-partial{
+  background:var(--amber-lo);
+  border:1px solid rgba(245,166,35,.35);
+  color:var(--dim);
+}
+.ob-partial strong{color:var(--amber);}
+
+/* ── SEQUENCE DIAGRAM ─────────────────────────── */
+.seq-diagram{
+  padding:14px;
+  font-size:11px;
+}
+.seq-row{display:flex;align-items:center;gap:0;margin:4px 0;}
+.seq-box{
+  padding:4px 10px;border-radius:2px;
+  font-size:10px;white-space:nowrap;
+}
+.seq-agent{background:var(--green-lo);color:var(--green);border:1px solid rgba(45,212,160,.3);}
+.seq-order{background:var(--blue-lo);color:var(--blue);border:1px solid rgba(99,179,237,.3);}
+.seq-err{background:var(--red-lo);color:var(--red);border:1px solid rgba(240,82,82,.3);}
+.seq-arrow{color:var(--muted);padding:0 6px;font-size:12px;}
+.seq-note{font-size:9px;color:var(--muted);margin-left:8px;}
+
+/* ── ANIMATION DELAYS ─────────────────────────── */
+.entry:nth-child(1){animation-delay:.04s;}
+.entry:nth-child(2){animation-delay:.09s;}
+.entry:nth-child(3){animation-delay:.14s;}
+.entry:nth-child(4){animation-delay:.18s;}
+.entry:nth-child(5){animation-delay:.22s;}
+.entry:nth-child(6){animation-delay:.26s;}
+.entry:nth-child(7){animation-delay:.30s;}
+.entry:nth-child(8){animation-delay:.33s;}
+.entry:nth-child(9){animation-delay:.36s;}
+.entry:nth-child(10){animation-delay:.39s;}
+.entry:nth-child(11){animation-delay:.42s;}
+.entry:nth-child(12){animation-delay:.45s;}
+.entry:nth-child(13){animation-delay:.48s;}
+.entry:nth-child(14){animation-delay:.51s;}
+.entry:nth-child(15){animation-delay:.54s;}
+.entry:nth-child(16){animation-delay:.57s;}
+.entry:nth-child(17){animation-delay:.60s;}
+.entry:nth-child(18){animation-delay:.63s;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="hdr-left">
+    <div>
+      <div class="hdr-domain">tool_use_customer_service</div>
+      <div class="hdr-title">Case 01 — Retail Return &amp; Exchange</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span class="chip chip-model">sonnet-35-new</span>
+    <span class="chip chip-bench">tau-bench</span>
+    <span class="chip chip-trial">trial 2</span>
+  </div>
+</header>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="stat-cell">
+    <span class="stat-lbl">Tool Calls</span>
+    <span class="stat-val sv-neutral">8</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-lbl">Errors</span>
+    <span class="stat-val sv-err">1</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-lbl">Return</span>
+    <span class="stat-val sv-ok">✓</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-lbl">Exchange</span>
+    <span class="stat-val sv-err">✗</span>
+  </div>
+  <div class="stat-cell">
+    <span class="stat-lbl">Outcome</span>
+    <span class="stat-val sv-warn">Partial</span>
+  </div>
+</div>
+
+<div class="page">
+  <!-- ── TIMELINE COLUMN ── -->
+  <div class="timeline-col">
+
+    <!-- System Policy -->
+    <div class="policy-block entry">
+      <div class="policy-hdr" onclick="toggleEl(this.nextElementSibling)">
+        <span class="policy-tag">System Policy — Retail Agent</span>
+        <button class="policy-toggle">[ expand ]</button>
+      </div>
+      <div class="policy-body">
+        <pre class="policy-text">As a retail agent, you can help users cancel or modify pending orders,
+return or exchange delivered orders, modify their default user address,
+or provide information about their own profile, orders, and related products.
+
+- Authenticate the user identity via email, or via name + zip code.
+- Only help one user per conversation.
+- Before consequential actions, list the action detail and obtain explicit
+  user confirmation (yes) to proceed.
+- Exchange/modify order tools can only be called once.
+- Returns: order status must be 'delivered'. Refund goes to original payment
+  method or an existing gift card.
+- Exchanges: order status must be 'delivered'. Can only swap same product type.</pre>
+      </div>
+    </div>
+
+    <!-- Turn 1: USER opener -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-user">user</div>
+        <div class="msg-body">Hi... I need to return this water bottle and was hoping to get cheaper versions of some other items I bought.</div>
+      </div>
+    </div>
+
+    <!-- Turn 2: ASSISTANT greeting + auth request -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">I'll help you with your return request. First, I need to authenticate your identity to access your order information. Could you please provide your email address? Alternatively, I can look up your information using your first name, last name, and zip code.</div>
+      </div>
+    </div>
+
+    <!-- Turn 3: USER provides identity -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-user">user</div>
+        <div class="msg-body">I'm Mei Davis, zip code 80217. Don't remember my order number... just having a rough day.</div>
+      </div>
+    </div>
+
+    <!-- Turn 4: Tool – find_user_id_by_name_zip -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">
+          I'll help you look up your information using your name and zip code.
+          <div class="tool-group is-success" style="margin-top:8px;">
+            <div class="tool-hdr" onclick="toggleTool(this)">
+              <span class="tool-fn">find_user_id_by_name_zip</span>
+              <div class="tool-badges">
+                <span class="tbadge tbadge-ok">ok</span>
+                <span class="tcaret">▼</span>
+              </div>
+            </div>
+            <div class="tool-body">
+              <div class="tool-section">
+                <div class="tsec-label">Input</div>
+                <pre class="tsec-code">{
+  "first_name": "Mei",
+  "last_name":  "Davis",
+  "zip":        "80217"
+}</pre>
+              </div>
+              <div class="tool-section">
+                <div class="tsec-label">Output</div>
+                <pre class="tsec-output">mei_davis_8935</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 5: Tool – get_user_details -->
+    <div class="entry">
+      <div class="tool-group is-success">
+        <div class="tool-hdr" onclick="toggleTool(this)">
+          <span class="tool-fn">get_user_details</span>
+          <div class="tool-badges">
+            <span class="tbadge tbadge-ok">ok</span>
+            <span class="tcaret">▼</span>
+          </div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-section">
+            <div class="tsec-label">Input</div>
+            <pre class="tsec-code">{ "user_id": "mei_davis_8935" }</pre>
+          </div>
+          <div class="tool-section">
+            <div class="tsec-label">Output</div>
+            <pre class="tsec-output">{
+  "name":    { "first_name": "Mei", "last_name": "Davis" },
+  "address": { "address1": "698 Maple Drive", "address2": "Suite 465",
+               "city": "Denver", "state": "CO", "zip": "80217" },
+  "email":   "mei.davis6811@example.com",
+  "payment_methods": {
+    "credit_card_1061405": {
+      "source": "credit_card", "brand": "mastercard", "last_four": "1037"
+    }
+  },
+  "orders": ["#W2890441", "#W1267569"]
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 6: Tool – get_order_details W2890441 -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">
+          Let me check your recent orders.
+          <div class="tool-group is-success" style="margin-top:8px;">
+            <div class="tool-hdr" onclick="toggleTool(this)">
+              <span class="tool-fn">get_order_details — #W2890441</span>
+              <div class="tool-badges">
+                <span class="tbadge tbadge-ok">delivered</span>
+                <span class="tcaret">▼</span>
+              </div>
+            </div>
+            <div class="tool-body">
+              <div class="tool-section">
+                <div class="tsec-label">Input</div>
+                <pre class="tsec-code">{ "order_id": "#W2890441" }</pre>
+              </div>
+              <div class="tool-section">
+                <div class="tsec-label">Output (status: delivered)</div>
+                <pre class="tsec-output">Items:
+  • Water Bottle   — $54.04  (1000ml, stainless steel, blue)
+  • Pet Bed        — $195.11 (large, memory foam, grey)
+  • Office Chair   — $499.28 (leather, blue, no armrest, high-back)
+  • Skateboard     — $182.03 (plastic, 31 inch, plain)
+
+Total: $930.46  |  Payment: Mastercard ****1037
+Tracking: 642796688644</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 7: Tool – get_order_details W1267569 -->
+    <div class="entry">
+      <div class="tool-group is-success">
+        <div class="tool-hdr" onclick="toggleTool(this)">
+          <span class="tool-fn">get_order_details — #W1267569</span>
+          <div class="tool-badges">
+            <span class="tbadge tbadge-call">pending</span>
+            <span class="tcaret">▼</span>
+          </div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-section">
+            <div class="tsec-label">Input</div>
+            <pre class="tsec-code">{ "order_id": "#W1267569" }</pre>
+          </div>
+          <div class="tool-section">
+            <div class="tsec-label">Output (status: pending)</div>
+            <pre class="tsec-output">Items:
+  • Gaming Mouse       — $138.47  (white, laser, wireless)
+  • Headphones         — $346.97  (over-ear, wireless, black)
+  • Air Purifier       — $492.65  (medium, HEPA, night mode)
+  • Smart Thermostat   — $247.00  (Amazon Alexa, stainless steel)
+  • Wireless Earbuds   — $267.90  (black, 6h battery, IPX7)
+
+Total: $1,492.99  |  Payment: Mastercard ****1037</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 8: ASSISTANT order summary -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">I can see your orders. You have a delivered order (#W2890441) with a Water Bottle, Pet Bed, Office Chair, and Skateboard — and a pending order (#W1267569) with electronics. For delivered orders we can process returns or exchanges. Which items would you like to handle and how would you like to proceed?</div>
+      </div>
+    </div>
+
+    <!-- Turn 9: USER asks for price comparison -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-user">user</div>
+        <div class="msg-body">How much money could I save by getting the cheapest pet bed and office chair? And yes, I want to return that water bottle.</div>
+      </div>
+    </div>
+
+    <!-- Turn 10: Tool – get_product_details pet bed -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">
+          Let me check the product details to find the cheapest options for the pet bed and office chair.
+          <div class="tool-group is-success" style="margin-top:8px;">
+            <div class="tool-hdr" onclick="toggleTool(this)">
+              <span class="tool-fn">get_product_details — Pet Bed (2747247837)</span>
+              <div class="tool-badges">
+                <span class="tbadge tbadge-ok">ok</span>
+                <span class="tcaret">▼</span>
+              </div>
+            </div>
+            <div class="tool-body">
+              <div class="tool-section">
+                <div class="tsec-label">Available variants (selected)</div>
+                <pre class="tsec-output">Current:   large, memory foam, grey    — $195.11
+─────────────────────────────────────────────────
+Cheapest available variants:
+  $180.93  large, memory foam, beige   ← cheapest available  ✓
+  $182.48  small, fleece, grey
+  $184.25  large, polyester, grey
+  $191.21  medium, polyester, beige
+  $193.00  large, polyester, brown
+  ...
+(some variants unavailable/out of stock)</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 11: Tool – get_product_details office chair -->
+    <div class="entry">
+      <div class="tool-group is-success">
+        <div class="tool-hdr" onclick="toggleTool(this)">
+          <span class="tool-fn">get_product_details — Office Chair (4794339885)</span>
+          <div class="tool-badges">
+            <span class="tbadge tbadge-ok">ok</span>
+            <span class="tcaret">▼</span>
+          </div>
+        </div>
+        <div class="tool-body">
+          <div class="tool-section">
+            <div class="tsec-label">Available variants (selected)</div>
+            <pre class="tsec-output">Current:   leather, blue, no armrest, high-back  — $499.28
+──────────────────────────────────────────────────────────
+Cheapest available variants:
+  $471.82  leather, blue, no armrest, standard   ← cheapest available  ✓
+  $483.95  leather, gray, fixed armrest, high-back
+  $487.60  leather, blue, fixed armrest, standard
+  $487.67  mesh, blue, fixed armrest, standard
+  $488.81  fabric, black, fixed armrest, standard
+  ...
+(red leather high-back: out of stock)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 12: ASSISTANT savings breakdown -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">
+          Here's the potential savings breakdown:<br><br>
+          <strong style="color:var(--amber)">Pet Bed</strong><br>
+          &nbsp;&nbsp;Current: large, grey, memory foam — $195.11<br>
+          &nbsp;&nbsp;Cheapest: large, beige, memory foam — $180.93<br>
+          &nbsp;&nbsp;Savings: <span style="color:var(--green)">$14.18</span><br><br>
+          <strong style="color:var(--amber)">Office Chair</strong><br>
+          &nbsp;&nbsp;Current: blue leather, no armrests, high-back — $499.28<br>
+          &nbsp;&nbsp;Cheapest: blue leather, no armrests, standard — $471.82<br>
+          &nbsp;&nbsp;Savings: <span style="color:var(--green)">$27.46</span><br><br>
+          <strong>Total potential savings if exchanging both: <span style="color:var(--green)">$41.64</span></strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 13: USER confirms -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-user">user</div>
+        <div class="msg-body">I'll do both — return the bottle and exchange both items for the cheaper versions. I really need the savings right now.</div>
+      </div>
+    </div>
+
+    <!-- Turn 14: ASSISTANT confirmation summary -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">
+          Here's what will happen — please confirm:<br><br>
+          1. <strong>Return</strong> Water Bottle → $54.04 refund to Mastercard ****1037<br>
+          2. <strong>Exchange</strong> Pet Bed (grey → beige, large memory foam) → save $14.18<br>
+          3. <strong>Exchange</strong> Office Chair (high-back → standard) → save $27.46<br><br>
+          Total savings: <span style="color:var(--green)">$95.68</span> ($54.04 return + $41.64 exchanges)<br><br>
+          Please confirm by saying "yes" to proceed.
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 15: USER yes -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-user">user</div>
+        <div class="msg-body">Yes, please process everything. Thank you for helping me save money.</div>
+      </div>
+    </div>
+
+    <!-- Turn 16: Tool – return_delivered_order_items (SUCCESS) -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">
+          I'll process the return and exchanges now. First, the water bottle return:
+          <div class="tool-group is-success" style="margin-top:8px;">
+            <div class="tool-hdr" onclick="toggleTool(this)">
+              <span class="tool-fn">return_delivered_order_items</span>
+              <div class="tool-badges">
+                <span class="tbadge tbadge-ok">success</span>
+                <span class="tcaret">▼</span>
+              </div>
+            </div>
+            <div class="tool-body">
+              <div class="tool-section">
+                <div class="tsec-label">Input</div>
+                <pre class="tsec-code">{
+  "order_id":         "#W2890441",
+  "item_ids":         ["2366567022"],   // Water Bottle
+  "payment_method_id": "credit_card_1061405"
+}</pre>
+              </div>
+              <div class="tool-section">
+                <div class="tsec-label">Output</div>
+                <pre class="tsec-output">Order #W2890441
+  status:         return requested  ⟵ changed from "delivered"
+  return_items:   ["2366567022"]
+  refund method:  credit_card_1061405</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 17: Tool – exchange_delivered_order_items (FAILURE) -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">
+          Now, let's process the exchanges for the pet bed and office chair:
+          <div class="tool-group is-error" style="margin-top:8px;">
+            <div class="tool-hdr" onclick="toggleTool(this)">
+              <span class="tool-fn">exchange_delivered_order_items</span>
+              <div class="tool-badges">
+                <span class="tbadge tbadge-err">error</span>
+                <span class="tcaret">▼</span>
+              </div>
+            </div>
+            <div class="tool-body">
+              <div class="tool-section">
+                <div class="tsec-label">Input</div>
+                <pre class="tsec-code">{
+  "order_id":    "#W2890441",
+  "item_ids":    ["2751999929", "8069050545"],    // Pet Bed, Office Chair
+  "new_item_ids":["6942241102", "4168944673"],    // cheaper variants
+  "payment_method_id": "credit_card_1061405"
+}</pre>
+              </div>
+              <div class="tool-section">
+                <div class="tsec-label">Error Response</div>
+                <div class="tsec-error">Error: non-delivered order cannot be exchanged</div>
+              </div>
+            </div>
+          </div>
+          <div class="error-callout" style="margin-top:8px;">
+            <div class="ec-title">Root Cause — Sequencing Failure</div>
+            <div class="ec-body">
+              Processing the <strong>return first</strong> changed order #W2890441 status from
+              <strong>"delivered"</strong> to <strong>"return requested"</strong>.
+              The exchange tool requires status <strong>"delivered"</strong>, so it immediately
+              rejected the call. The agent should have processed the exchange before the return,
+              or recognized these operations cannot be applied to the same order simultaneously.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 18: ASSISTANT apology -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">I apologize for an error in processing. Since the return was processed first, we'll need to wait until the return is completed before we can process the exchanges. You'll receive an email with instructions for returning the water bottle. Once that's done, please contact us again to process the exchanges for the pet bed and office chair.</div>
+      </div>
+    </div>
+
+    <!-- Turn 19: USER frustration -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-user">user</div>
+        <div class="msg-body">That's frustrating... but I understand. I'll contact you again about the exchanges after returning the bottle.</div>
+      </div>
+    </div>
+
+    <!-- Turn 20: ASSISTANT detailed apology -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">
+          I sincerely apologize for the confusion. I should have known we couldn't process both simultaneously and explained that upfront.<br><br>
+          <strong style="color:var(--amber)">What's been done:</strong><br>
+          &nbsp;&nbsp;✓ Water Bottle return initiated — $54.04 refund to Mastercard ****1037<br><br>
+          <strong style="color:var(--amber)">Still pending (contact us again after return):</strong><br>
+          &nbsp;&nbsp;• Exchange Pet Bed → large beige memory foam (save $14.18)<br>
+          &nbsp;&nbsp;• Exchange Office Chair → blue leather standard backrest (save $27.46)<br><br>
+          Keep order #W2890441 handy for future reference.
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn 21: USER done -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-user">user</div>
+        <div class="msg-body">No, that's all. Thanks for explaining everything.</div>
+      </div>
+    </div>
+
+    <!-- Turn 22: ASSISTANT goodbye -->
+    <div class="entry">
+      <div class="msg-wrap">
+        <div class="msg-role role-assistant">agent</div>
+        <div class="msg-body">You're welcome! Good luck with the return process, and I hope we can help you with those exchanges soon to get you those additional savings. Have a good rest of your day!</div>
+      </div>
+    </div>
+
+  </div><!-- /timeline-col -->
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+
+    <!-- Case Info -->
+    <div class="scard">
+      <div class="scard-hdr">Case Info</div>
+      <div class="scard-body">
+        <div class="irow"><span class="ik">ID</span><span class="iv" style="font-size:10px;">01_sonnet-35-new-retail_249</span></div>
+        <div class="irow"><span class="ik">Benchmark</span><span class="iv">tau-bench</span></div>
+        <div class="irow"><span class="ik">Model</span><span class="iv">sonnet-35-new</span></div>
+        <div class="irow"><span class="ik">Domain</span><span class="iv">customer_service</span></div>
+        <div class="irow"><span class="ik">Trial</span><span class="iv">2</span></div>
+        <div class="irow"><span class="ik">Task ID</span><span class="iv">19</span></div>
+      </div>
+    </div>
+
+    <!-- Customer -->
+    <div class="scard">
+      <div class="scard-hdr">Customer</div>
+      <div class="scard-body">
+        <div class="irow"><span class="ik">Name</span><span class="iv">Mei Davis</span></div>
+        <div class="irow"><span class="ik">User ID</span><span class="iv">mei_davis_8935</span></div>
+        <div class="irow"><span class="ik">City</span><span class="iv">Denver, CO 80217</span></div>
+        <div class="irow"><span class="ik">Payment</span><span class="iv">Mastercard ****1037</span></div>
+      </div>
+    </div>
+
+    <!-- Order #W2890441 -->
+    <div class="scard">
+      <div class="scard-hdr">Order #W2890441 — Delivered</div>
+      <div class="scard-body">
+        <div class="oi">
+          <div class="oi-name">Water Bottle</div>
+          <div class="oi-price">$54.04</div>
+          <div class="oi-opts">1000ml · stainless steel · blue</div>
+          <span class="oi-tag ot-return">returned</span>
+        </div>
+        <div class="oi">
+          <div class="oi-name">Pet Bed</div>
+          <div class="oi-price">$195.11</div>
+          <div class="oi-opts">large · memory foam · grey</div>
+          <span class="oi-tag ot-exchange-fail">exchange failed</span>
+        </div>
+        <div class="oi">
+          <div class="oi-name">Office Chair</div>
+          <div class="oi-price">$499.28</div>
+          <div class="oi-opts">leather · blue · no armrest · high-back</div>
+          <span class="oi-tag ot-exchange-fail">exchange failed</span>
+        </div>
+        <div class="oi">
+          <div class="oi-name">Skateboard</div>
+          <div class="oi-price">$182.03</div>
+          <div class="oi-opts">plastic · 31 inch · plain</div>
+          <span class="oi-tag ot-none">no action</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Savings Summary -->
+    <div class="scard">
+      <div class="scard-hdr">Potential Savings</div>
+      <div class="scard-body">
+        <div class="srow">
+          <span style="color:var(--dim)">Water Bottle return</span>
+          <span style="color:var(--green)">+$54.04</span>
+        </div>
+        <div class="srow blocked">
+          <span>Pet Bed exchange</span>
+          <span>+$14.18</span>
+        </div>
+        <div class="srow blocked">
+          <span>Chair exchange</span>
+          <span>+$27.46</span>
+        </div>
+        <div class="srow total">
+          <span>Realized</span>
+          <span>$54.04 / $95.68</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Failure Sequence -->
+    <div class="scard">
+      <div class="scard-hdr">Failure Sequence</div>
+      <div class="seq-diagram">
+        <div class="seq-row">
+          <span class="seq-box seq-agent">Agent</span>
+          <span class="seq-arrow">→</span>
+          <span class="seq-box seq-order">return()</span>
+          <span class="seq-note">#W2890441</span>
+        </div>
+        <div class="seq-row" style="margin-left:10px;font-size:10px;color:var(--muted);padding:4px 0;">
+          ↓ status: <span style="color:var(--red)">return requested</span>
+        </div>
+        <div class="seq-row">
+          <span class="seq-box seq-agent">Agent</span>
+          <span class="seq-arrow">→</span>
+          <span class="seq-box seq-err">exchange() ✗</span>
+        </div>
+        <div class="seq-row" style="margin-left:10px;font-size:10px;color:var(--muted);padding:4px 0;">
+          ↓ requires: <span style="color:var(--amber)">delivered</span>
+        </div>
+        <div style="font-size:10px;color:var(--dim);margin-top:6px;line-height:1.5;">
+          Should have called <span style="color:var(--amber)">exchange()</span> first,
+          or handled both in a single action plan before committing either.
+        </div>
+      </div>
+    </div>
+
+    <!-- Outcome -->
+    <div class="outcome-banner ob-partial">
+      <strong>Partial Success</strong><br>
+      Return processed ($54.04 refund initiated). Exchanges for Pet Bed and Office Chair blocked by self-induced status change. Customer must call back to complete $41.64 in additional savings.
+    </div>
+
+  </aside>
+</div>
+
+<script>
+function toggleEl(el) {
+  el.classList.toggle('open');
+  const btn = el.previousElementSibling.querySelector('.policy-toggle');
+  if (btn) btn.textContent = el.classList.contains('open') ? '[ collapse ]' : '[ expand ]';
+}
+
+function toggleTool(hdr) {
+  const body = hdr.nextElementSibling;
+  body.classList.toggle('open');
+  const caret = hdr.querySelector('.tcaret');
+  if (caret) caret.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+</script>
+</body>
+</html>

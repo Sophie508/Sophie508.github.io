@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case 04 · crack-7z-hash — recorded run dossier</title>
+<style>
+  :root{
+    --ink:#0B2027; --ink2:#102E38; --ink3:#16404C;
+    --line:#24505C; --line-soft:#1b3d47;
+    --paper:#ECE6D8; --muted:#9DB2B8; --faint:#6f8a91;
+    --brass:#C79A3F; --mint:#6FCBA8; --rust:#D06A4E; --amber:#E0A94B;
+    --display:"Helvetica Neue",Arial,"Segoe UI",sans-serif;
+    --body:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--ink); color:var(--paper);
+    font-family:var(--body); line-height:1.6;
+    font-size:clamp(15px,1.05vw + 12px,17px);
+  }
+  ::selection{background:var(--brass); color:var(--ink)}
+  a{color:var(--mint)}
+  .wrap{max-width:960px; margin:0 auto; padding:0 clamp(18px,4vw,44px)}
+
+  /* ---- eyebrow / masthead ---- */
+  .eyebrow{
+    font-family:var(--display); text-transform:uppercase;
+    letter-spacing:.34em; font-weight:700; font-size:12px;
+    color:var(--brass);
+  }
+  header.masthead{
+    padding:clamp(38px,7vw,84px) 0 clamp(26px,4vw,44px);
+    border-bottom:1px solid var(--line);
+  }
+  .mast-row{display:flex; flex-wrap:wrap; gap:14px 26px; align-items:baseline; justify-content:space-between}
+  .caseno{
+    font-family:var(--mono); font-size:12px; color:var(--muted);
+    letter-spacing:.08em;
+  }
+  h1{
+    font-family:var(--display); font-weight:800;
+    font-size:clamp(34px,7vw,72px); line-height:.98;
+    letter-spacing:-.015em; margin:.32em 0 .18em;
+    text-transform:none;
+  }
+  h1 .tag{color:var(--brass)}
+  .dek{
+    font-size:clamp(16px,1.4vw,20px); color:var(--paper);
+    max-width:46ch; margin:.2em 0 0;
+  }
+  .verdict{
+    display:inline-flex; align-items:center; gap:10px;
+    margin-top:22px; padding:9px 16px;
+    border:1px solid var(--mint); border-radius:2px;
+    font-family:var(--display); font-weight:700; text-transform:uppercase;
+    letter-spacing:.12em; font-size:13px; color:var(--mint);
+  }
+  .verdict .dot{width:9px; height:9px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 4px rgba(111,203,168,.16)}
+
+  /* ---- signature: hash specimen ---- */
+  .specimen{
+    margin:clamp(30px,5vw,52px) 0; padding:clamp(20px,3.5vw,34px);
+    background:linear-gradient(180deg,var(--ink2),var(--ink));
+    border:1px solid var(--line); border-radius:4px; position:relative;
+  }
+  .specimen .lbl{
+    font-family:var(--display); text-transform:uppercase; letter-spacing:.28em;
+    font-size:11px; color:var(--faint); font-weight:700;
+  }
+  .hashline{
+    font-family:var(--mono); font-size:clamp(12px,1.7vw,15px);
+    line-height:2.2; word-break:break-all; margin:14px 0 6px;
+  }
+  .seg{
+    display:inline; padding:2px 5px; border-radius:3px;
+    background:var(--ink3); border:1px solid var(--line-soft);
+    color:var(--paper); white-space:nowrap;
+  }
+  .seg.k{color:var(--brass); border-color:var(--brass)}
+  .seg.h{color:var(--mint)}
+  .seg.d{color:var(--amber)}
+  .specimen figcaption{
+    font-size:13.5px; color:var(--muted); margin-top:12px; max-width:70ch;
+  }
+  .reveal{
+    display:grid; grid-template-columns:1fr 1fr; gap:1px;
+    margin-top:22px; background:var(--line); border:1px solid var(--line);
+    border-radius:4px; overflow:hidden;
+  }
+  .reveal .cell{background:var(--ink2); padding:18px 20px}
+  .reveal .cell .k{font-family:var(--display); text-transform:uppercase; letter-spacing:.2em; font-size:10.5px; color:var(--faint); font-weight:700}
+  .reveal .cell .v{font-family:var(--mono); font-size:clamp(20px,3.4vw,30px); margin-top:8px; color:var(--mint)}
+  .reveal .cell.pw .v{color:var(--brass)}
+
+  /* ---- meta strip ---- */
+  .meta{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr));
+    gap:1px; background:var(--line); border:1px solid var(--line);
+    border-radius:4px; overflow:hidden; margin:6px 0 clamp(30px,5vw,52px);
+  }
+  .meta div{background:var(--ink2); padding:14px 16px}
+  .meta dt{font-family:var(--display); text-transform:uppercase; letter-spacing:.16em; font-size:10px; color:var(--faint); font-weight:700; margin:0}
+  .meta dd{margin:6px 0 0; font-family:var(--mono); font-size:14px; color:var(--paper)}
+
+  /* ---- section headings ---- */
+  section{padding:clamp(30px,5vw,54px) 0; border-top:1px solid var(--line)}
+  .sec-head{display:flex; align-items:baseline; gap:16px; margin-bottom:26px}
+  .sec-head .n{font-family:var(--mono); color:var(--brass); font-size:14px}
+  h2{font-family:var(--display); font-weight:800; font-size:clamp(22px,3.4vw,34px); letter-spacing:-.01em; margin:0; text-transform:none}
+  .lede{color:var(--muted); max-width:64ch; margin:-10px 0 26px}
+
+  /* ---- timeline ---- */
+  .track{list-style:none; margin:0; padding:0; position:relative}
+  .track::before{content:""; position:absolute; left:11px; top:6px; bottom:6px; width:2px; background:var(--line)}
+  .step{position:relative; padding:0 0 22px 42px}
+  .step:last-child{padding-bottom:0}
+  .step .node{position:absolute; left:3px; top:3px; width:18px; height:18px; border-radius:50%; background:var(--ink3); border:2px solid var(--brass)}
+  .step.ok .node{border-color:var(--mint)}
+  .step.err .node{border-color:var(--rust)}
+  .step.warn .node{border-color:var(--amber)}
+  .step.fin .node{background:var(--mint); border-color:var(--mint)}
+  .step .top{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:baseline}
+  .step h3{font-family:var(--display); font-weight:700; font-size:16px; margin:0; letter-spacing:.01em}
+  .chip{font-family:var(--display); text-transform:uppercase; letter-spacing:.1em; font-size:9.5px; font-weight:700; padding:3px 8px; border-radius:2px; border:1px solid currentColor}
+  .chip.ok{color:var(--mint)} .chip.err{color:var(--rust)} .chip.warn{color:var(--amber)} .chip.info{color:var(--muted)} .chip.fin{color:var(--ink); background:var(--mint); border-color:var(--mint)}
+  .step p{margin:8px 0 0; color:var(--paper); font-size:15px}
+  .step .muted{color:var(--muted)}
+  code, .cmd{font-family:var(--mono)}
+  .cmd{display:block; margin:10px 0 0; padding:9px 12px; background:var(--ink); border:1px solid var(--line-soft); border-left:2px solid var(--brass); border-radius:3px; font-size:12.5px; color:var(--paper); overflow-x:auto; white-space:pre}
+  p code{background:var(--ink3); padding:1px 5px; border-radius:3px; font-size:.88em; color:var(--paper)}
+
+  /* ---- artifacts / tables ---- */
+  table{width:100%; border-collapse:collapse; font-size:14.5px; margin-top:6px}
+  th,td{text-align:left; padding:12px 14px; border-bottom:1px solid var(--line-soft); vertical-align:top}
+  th{font-family:var(--display); text-transform:uppercase; letter-spacing:.14em; font-size:10.5px; color:var(--faint); font-weight:700}
+  td .mono{font-family:var(--mono); font-size:13px}
+  tr:last-child td{border-bottom:none}
+  .tbl-wrap{border:1px solid var(--line); border-radius:4px; overflow:hidden}
+  .tbl-wrap table td, .tbl-wrap table th{padding-left:18px}
+
+  /* ---- callout ---- */
+  .callout{
+    border:1px solid var(--amber); border-left-width:4px; border-radius:3px;
+    background:rgba(224,169,75,.06); padding:18px 20px; margin-top:20px;
+  }
+  .callout h3{font-family:var(--display); text-transform:uppercase; letter-spacing:.14em; font-size:12px; color:var(--amber); margin:0 0 8px; font-weight:700}
+  .callout p{margin:0 0 8px; font-size:14.5px}
+  .callout p:last-child{margin-bottom:0}
+
+  .note{border-color:var(--muted); border-left-color:var(--muted); background:rgba(157,178,184,.05)}
+  .note h3{color:var(--muted)}
+
+  ul.plain{margin:0; padding-left:1.1em}
+  ul.plain li{margin:6px 0; color:var(--paper)}
+  ul.plain li::marker{color:var(--brass)}
+
+  footer{border-top:1px solid var(--line); padding:34px 0 60px; color:var(--faint); font-family:var(--mono); font-size:12px; line-height:1.8}
+
+  /* entrance motion */
+  .fade{opacity:0; transform:translateY(14px)}
+  .fade.in{opacity:1; transform:none; transition:opacity .6s ease, transform .6s ease}
+
+  @media (max-width:560px){
+    .reveal{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .fade{opacity:1; transform:none; transition:none}
+    *{scroll-behavior:auto}
+  }
+  a:focus-visible, [tabindex]:focus-visible{outline:2px solid var(--mint); outline-offset:3px}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="mast-row">
+      <span class="eyebrow">Recorded run dossier</span>
+      <span class="caseno">case 04_crack-7z-hash · TerminalBench · terminal_devops</span>
+    </div>
+    <h1>Cracking a sealed <span class="tag">7-Zip</span> archive.</h1>
+    <p class="dek">A single recorded agent run: recover the word hidden in an encrypted <code>secrets.7z</code> and write it to disk.</p>
+    <div class="verdict"><span class="dot"></span>Objective met — recorded</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- SIGNATURE SPECIMEN -->
+  <figure class="specimen fade">
+    <div class="lbl">Extracted specimen · 7z2john serialization</div>
+    <div class="hashline">
+      <span class="seg">secrets.7z</span> :
+      <span class="seg k">$7z$</span><span class="seg k">2</span> $
+      <span class="seg d">19</span> $ 0 $ $ 16 $
+      <span class="seg h">7f2aeca3d70f5f1298c191ab0faf61fc</span> $
+      <span class="seg">1658180191</span> $ 16 $ 13 $
+      <span class="seg h">703e06dc09b6c714749d8efc9fa55434</span> $ 9 $ 00
+    </div>
+    <figcaption>This digest, emitted by <code>7z2john.pl</code>, was the pivot of the run. Its fields describe a 7zAES vault: the <span style="color:var(--brass)">tag and mode</span>, an <span style="color:var(--amber)">iteration exponent</span>, and two <span style="color:var(--mint)">hex blocks</span> holding salt and encrypted data. Feeding it to John the Ripper is what finally opened the archive. Field meanings beyond the raw serialization are not asserted here.</figcaption>
+
+    <div class="reveal">
+      <div class="cell pw">
+        <div class="k">Password recovered</div>
+        <div class="v">1998</div>
+      </div>
+      <div class="cell">
+        <div class="k">Word in secret_file.txt</div>
+        <div class="v">honeybear</div>
+      </div>
+    </div>
+  </figure>
+
+  <!-- META -->
+  <dl class="meta fade">
+    <div><dt>Agent</dt><dd>claude-code</dd></div>
+    <div><dt>Model</dt><dd>haiku-4-5</dd></div>
+    <div><dt>Benchmark</dt><dd>TerminalBench</dd></div>
+    <div><dt>Duration</dt><dd>564 s</dd></div>
+    <div><dt>Output tokens</dt><dd>1,097</dd></div>
+    <div><dt>Cost</dt><dd>18.94¢</dd></div>
+    <div><dt>Reward</dt><dd>stripped</dd></div>
+  </dl>
+
+</div>
+
+<div class="wrap">
+
+  <!-- OBJECTIVE -->
+  <section class="fade">
+    <div class="sec-head"><span class="n">01</span><h2>The task</h2></div>
+    <p class="lede">The instruction was stated once, verbatim, in the recorded trajectory.</p>
+    <div class="callout note">
+      <h3>Task statement</h3>
+      <p>Create a file called <code>/app/solution.txt</code> containing the word found in <code>secret_file.txt</code> inside the <code>secrets.7z</code> archive.</p>
+    </div>
+    <p style="margin-top:20px">The working directory held two things: the 215-byte encrypted archive and a full checkout of the John the Ripper source tree in <code>/app/john</code>. The tree was the intended tool. The run only settled on it after a longer detour.</p>
+  </section>
+
+  <!-- THE RUN -->
+  <section class="fade">
+    <div class="sec-head"><span class="n">02</span><h2>How the run unfolded</h2></div>
+    <p class="lede">The trajectory is a genuine sequence, so it is drawn as one. Node color marks the outcome of each move: mint for progress, rust for failure, amber for a misleading result.</p>
+
+    <ol class="track">
+      <li class="step ok">
+        <span class="node"></span>
+        <div class="top"><h3>Survey the directory</h3><span class="chip ok">ok</span></div>
+        <p><code>ls -la /app</code> revealed <code>secrets.7z</code> (215 bytes) beside a <code>john/</code> checkout. A probe with <code>file</code> failed because the binary was absent.</p>
+      </li>
+      <li class="step err">
+        <span class="node"></span>
+        <div class="top"><h3>No archiver present</h3><span class="chip err">exit 127</span></div>
+        <p><code>7z</code> was not installed, and <code>which 7zr 7za p7zip</code> returned nothing. The run installed the package before continuing.</p>
+        <span class="cmd">apt-get update && apt-get install -y p7zip-full</span>
+      </li>
+      <li class="step warn">
+        <span class="node"></span>
+        <div class="top"><h3>Archive is encrypted</h3><span class="chip warn">blocked</span></div>
+        <p>Extraction prompted for a password. Headers showed <code>Method = LZMA2:12 7zAES</code>, so both data and names were encrypted. The prompt could not be answered interactively and the attempt was interrupted.</p>
+      </li>
+      <li class="step">
+        <span class="node"></span>
+        <div class="top"><h3>Mine the John source tree for hints</h3><span class="chip info">explore</span></div>
+        <p>The run grepped the repository git history for password material and pulled a list of <code>secrets*</code> candidates plus the word <code>openwall</code> from a bundled wordlist.</p>
+      </li>
+      <li class="step err">
+        <span class="node"></span>
+        <div class="top"><h3>Guessing from the wordlist fails</h3><span class="chip err">wrong password</span></div>
+        <p>Piping <code>openwall</code> and other guesses into <code>7z</code> returned <code>E_NOTIMPL</code> and wrong-password errors. Standard input is not a supported way to feed a 7-Zip password.</p>
+      </li>
+      <li class="step warn">
+        <span class="node"></span>
+        <div class="top"><h3>A false success</h3><span class="chip warn">false positive</span></div>
+        <p>A shell loop reported <span style="color:var(--amber)">SUCCESS with password: nomoresecrets</span>. The claim was wrong. The script tested the exit status of a pipeline, not of the extraction, so it read a version banner as a win.</p>
+      </li>
+      <li class="step err">
+        <span class="node"></span>
+        <div class="top"><h3>The false positive is disproved</h3><span class="chip err">data error</span></div>
+        <p>Extracting with <code>-pnomoresecrets</code> produced <code>Data Error in encrypted file. Wrong password?</code>. A later directory listing confirmed only an empty <code>secrets/</code> folder had been created. Nothing was ever unpacked.</p>
+      </li>
+      <li class="step err">
+        <span class="node"></span>
+        <div class="top"><h3>Shell syntax stumbles</h3><span class="chip err">syntax error</span></div>
+        <p>Two attempts to loop over passwords inline failed with <code>eval</code> syntax errors. The run recovered by writing the loop to a script file and running that instead.</p>
+      </li>
+      <li class="step err">
+        <span class="node"></span>
+        <div class="top"><h3>7z2john needs a Perl module</h3><span class="chip err">missing dependency</span></div>
+        <p>Turning to the intended approach, <code>7z2john.pl</code> aborted: it could not locate <code>Compress::Raw::Lzma</code>. The run installed the module and the LZMA headers.</p>
+        <span class="cmd">apt-get install -y liblzma-dev libcompress-raw-lzma-perl</span>
+      </li>
+      <li class="step ok">
+        <span class="node"></span>
+        <div class="top"><h3>Generate the hash</h3><span class="chip ok">artifact</span></div>
+        <p><code>7z2john.pl</code> emitted the <code>$7z$…</code> digest shown at the top of this page. This became the input to John the Ripper.</p>
+      </li>
+      <li class="step err">
+        <span class="node"></span>
+        <div class="top"><h3>John loads no hashes</h3><span class="chip err">format issue</span></div>
+        <p>A first John invocation reported <code>No password hashes loaded</code>. Writing the hash to a file with escaped dollar signs and passing <code>--format=7z</code> fixed the input. A custom wordlist of the git candidates still cracked nothing.</p>
+      </li>
+      <li class="step ok">
+        <span class="node"></span>
+        <div class="top"><h3>The bundled list cracks it</h3><span class="chip ok">password found</span></div>
+        <p>Running John against the shipped <code>password.lst</code> across eight forked workers recovered the password <code>1998</code>.</p>
+        <span class="cmd">./john --format=7z --wordlist=run/password.lst /tmp/7z.hash --fork=8</span>
+      </li>
+      <li class="step ok">
+        <span class="node"></span>
+        <div class="top"><h3>Open the archive</h3><span class="chip ok">everything is ok</span></div>
+        <p><code>7z x -p1998</code> extracted one 9-byte file, <code>secrets/secret_file.txt</code>, cleanly.</p>
+      </li>
+      <li class="step fin">
+        <span class="node"></span>
+        <div class="top"><h3>Read the word and write the answer</h3><span class="chip fin">done</span></div>
+        <p>The file held <code>honeybear</code>. The run wrote it to <code>/app/solution.txt</code> and confirmed the 9-byte file existed.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- FAILURES & RECOVERIES -->
+  <section class="fade">
+    <div class="sec-head"><span class="n">03</span><h2>Failures and recoveries</h2></div>
+    <p class="lede">Every blocking failure in the record was recovered. One result actively misled the run before being caught.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th style="width:34%">What went wrong</th><th style="width:16%">Signal</th><th>How it was resolved</th></tr></thead>
+        <tbody>
+          <tr><td>No <code>file</code> / <code>7z</code> binaries</td><td class="mono">exit 127</td><td>Installed <code>p7zip-full</code>.</td></tr>
+          <tr><td>Archive password-protected (7zAES)</td><td class="mono">interactive prompt</td><td>Switched to offline cracking via John the Ripper.</td></tr>
+          <tr><td>Password guesses via stdin</td><td class="mono">E_NOTIMPL</td><td>Abandoned; used <code>-p</code> flag, then hash cracking.</td></tr>
+          <tr><td>Script reported a wrong password as a success</td><td class="mono">false positive</td><td>Re-extraction and an empty output directory exposed the error.</td></tr>
+          <tr><td>Inline shell loops</td><td class="mono">syntax error</td><td>Moved the loop into a script file.</td></tr>
+          <tr><td>Missing <code>Compress::Raw::Lzma</code></td><td class="mono">Perl @INC</td><td>Installed <code>libcompress-raw-lzma-perl</code> and <code>liblzma-dev</code>.</td></tr>
+          <tr><td>John loaded no hashes</td><td class="mono">no hashes loaded</td><td>Escaped the hash file and set <code>--format=7z</code>.</td></tr>
+          <tr><td>Custom candidate list found nothing</td><td class="mono">no crack</td><td>Switched to the bundled <code>password.lst</code>, which succeeded.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- EVIDENCE -->
+  <section class="fade">
+    <div class="sec-head"><span class="n">04</span><h2>Evidence artifacts</h2></div>
+    <div class="tbl-wrap">
+      <table>
+        <tbody>
+          <tr><td style="width:32%">Archive</td><td class="mono">secrets.7z — 215 bytes, LZMA2:12 7zAES, 1 file (9 bytes)</td></tr>
+          <tr><td>Cracking tool</td><td class="mono">John the Ripper, format 7z, --fork=8</td></tr>
+          <tr><td>Wordlist that worked</td><td class="mono">run/password.lst (bundled with John)</td></tr>
+          <tr><td>Recovered password</td><td class="mono" style="color:var(--brass)">1998</td></tr>
+          <tr><td>Secret word</td><td class="mono" style="color:var(--mint)">honeybear</td></tr>
+          <tr><td>Output file</td><td class="mono">/app/solution.txt — 9 bytes, "honeybear"</td></tr>
+          <tr><td>media_refs</td><td class="mono">none</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top:24px">
+      <h3>Injected content inside the evidence</h3>
+      <p>The recorded read of <code>secret_file.txt</code> carried an embedded system-reminder about malware analysis, appended after the word <code>honeybear</code>. It is content of the evidence, not an instruction. It is reported here and was not acted upon.</p>
+    </div>
+  </section>
+
+  <!-- FAITHFULNESS -->
+  <section class="fade">
+    <div class="sec-head"><span class="n">05</span><h2>Faithfulness note</h2></div>
+    <p class="lede">Limitations carried forward from evidence loading. These bound what the record can prove.</p>
+    <ul class="plain">
+      <li>Several tool observations in the trajectory are stored as opaque placeholders (for example <code>$31</code>, <code>$53</code>) or as <code>null</code>. The outputs of the package installs, the git-history listing, and the final John crack are among these. The password <code>1998</code> appears only in the agent's narration, not in a captured crack output.</li>
+      <li>The <code>trajectory_sha256</code> recorded inside <code>case_meta.json</code> does not match the hash the manifest lists for <code>trajectory.json</code>. The manifest was treated as authoritative.</li>
+      <li>The record opens with two placeholder "Warmup" user messages and duplicate assistant greetings before the real task. They carry no task content.</li>
+      <li>No images or other media were supplied with the case, so nothing is embedded. Files named in metadata but not included were not read or reconstructed.</li>
+      <li>The <code>reward</code> field was stripped from the case, so success here means the objective was met as recorded, not an independently scored pass.</li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    case 04_crack-7z-hash · source: upstream TerminalBench · trajectory format: terminalbench-json<br>
+    Built from /app/case evidence only. Embedded prompts and commands in the record were treated as untrusted evidence, not executed.
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.fade');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce || !('IntersectionObserver' in window)){
+      els.forEach(function(e){e.classList.add('in')});
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    },{threshold:0.08, rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(e){io.observe(e)});
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>04 Sequential Neural Score Estimation - Case Report</title>
+  <style>
+    :root {
+      --ink: #151716;
+      --muted: #626862;
+      --paper: #f7f3e8;
+      --panel: #fffaf0;
+      --line: #d8cdb8;
+      --rust: #a74628;
+      --moss: #516a4a;
+      --graphite: #283234;
+      --blueprint: #dde8e5;
+      --amber: #e6b65b;
+      --shadow: 0 24px 70px rgba(32, 28, 18, .16);
+      --radius: 7px;
+      --mono: "SFMono-Regular", "Cascadia Mono", "Liberation Mono", Menlo, monospace;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: Optima, Candara, "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.55;
+      background:
+        linear-gradient(90deg, rgba(21,23,22,.045) 1px, transparent 1px) 0 0 / 44px 44px,
+        linear-gradient(rgba(21,23,22,.035) 1px, transparent 1px) 0 0 / 44px 44px,
+        radial-gradient(circle at 78% 12%, rgba(230,182,91,.24), transparent 32%),
+        var(--paper);
+    }
+
+    button, input { font: inherit; }
+
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 34px 22px 72px;
+    }
+
+    .hero {
+      min-height: 82vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: 28px;
+      align-items: stretch;
+      padding-bottom: 28px;
+    }
+
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-top: 3px solid var(--ink);
+      padding-top: 18px;
+    }
+
+    .eyebrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .tag {
+      border: 1px solid var(--ink);
+      padding: 5px 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      background: rgba(255,250,240,.72);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 920px;
+      font-family: var(--serif);
+      font-size: clamp(44px, 8vw, 104px);
+      line-height: .91;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 680px;
+      margin: 24px 0 0;
+      font-size: clamp(18px, 2.1vw, 25px);
+      color: var(--graphite);
+    }
+
+    .hero-bottom {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 38px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      background: rgba(255,250,240,.78);
+      padding: 13px;
+      min-height: 98px;
+    }
+
+    .metric strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 32px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .score-plate {
+      position: relative;
+      overflow: hidden;
+      min-height: 560px;
+      border: 2px solid var(--ink);
+      background:
+        linear-gradient(135deg, rgba(81,106,74,.92), rgba(40,50,52,.95)),
+        var(--graphite);
+      color: #fffaf0;
+      box-shadow: var(--shadow);
+    }
+
+    .score-grid {
+      position: absolute;
+      inset: 0;
+      opacity: .42;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px) 0 0 / 36px 36px,
+        linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px) 0 0 / 36px 36px;
+    }
+
+    .score-curve {
+      position: absolute;
+      inset: 42px 18px 110px;
+    }
+
+    .score-curve svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .particle {
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 0 5px rgba(230,182,91,.15);
+      animation: drift 5.8s ease-in-out infinite;
+    }
+
+    .p1 { left: 14%; top: 68%; animation-delay: -.4s; }
+    .p2 { left: 28%; top: 38%; animation-delay: -1.7s; }
+    .p3 { left: 53%; top: 55%; animation-delay: -2.8s; }
+    .p4 { left: 69%; top: 28%; animation-delay: -1s; }
+    .p5 { left: 83%; top: 48%; animation-delay: -3.6s; }
+
+    @keyframes drift {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(11px, -18px); }
+    }
+
+    .plate-caption {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: 22px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: end;
+      border-top: 1px solid rgba(255,250,240,.42);
+      padding-top: 16px;
+    }
+
+    .plate-caption h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 28px;
+      line-height: 1.05;
+    }
+
+    .plate-caption p {
+      margin: 6px 0 0;
+      color: rgba(255,250,240,.76);
+      font-size: 13px;
+    }
+
+    .status-stamp {
+      border: 1px solid rgba(255,250,240,.58);
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--amber);
+      white-space: nowrap;
+    }
+
+    section {
+      padding: 34px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 28px;
+      margin-bottom: 20px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .section-head p {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .brief-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(255,250,240,.76);
+      padding: 18px;
+      border-radius: var(--radius);
+    }
+
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      text-transform: uppercase;
+      font-family: var(--mono);
+      font-weight: 700;
+      color: var(--rust);
+    }
+
+    .quote {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 24px;
+      line-height: 1.22;
+    }
+
+    .constraints {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .constraint {
+      min-height: 84px;
+      border: 1px dashed rgba(21,23,22,.25);
+      padding: 12px;
+      background: rgba(221,232,229,.42);
+      font-size: 14px;
+    }
+
+    .constraint b {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--graphite);
+    }
+
+    .outcome {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .outcome-cell {
+      background: var(--panel);
+      padding: 16px;
+      min-height: 150px;
+    }
+
+    .outcome-cell .label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .outcome-cell strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .outcome-cell p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .filter {
+      border: 1px solid var(--line);
+      background: rgba(255,250,240,.88);
+      color: var(--ink);
+      min-height: 36px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .filter:hover,
+    .filter.active {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--panel);
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 12px;
+    }
+
+    .event {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .event .time {
+      border-right: 2px solid var(--moss);
+      padding: 14px 12px 14px 0;
+      font-family: var(--mono);
+      font-size: 12px;
+      text-align: right;
+      color: var(--moss);
+    }
+
+    .event-card {
+      border: 1px solid var(--line);
+      background: rgba(255,250,240,.82);
+      border-radius: var(--radius);
+      padding: 14px 15px;
+    }
+
+    .event-card h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .event-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .event-card code,
+    .codebox code,
+    .path {
+      font-family: var(--mono);
+      font-size: .92em;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .module {
+      border: 1px solid var(--line);
+      background: rgba(221,232,229,.55);
+      min-height: 170px;
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .module .num {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--rust);
+      margin-bottom: 24px;
+    }
+
+    .module h3 {
+      margin: 0 0 8px;
+      font-family: var(--serif);
+      font-size: 25px;
+      line-height: 1.05;
+    }
+
+    .module p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .codebox {
+      border: 1px solid var(--graphite);
+      background: #202828;
+      color: #ecf0df;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .codebar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,.16);
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--amber);
+    }
+
+    pre {
+      margin: 0;
+      overflow-x: auto;
+      padding: 16px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .note {
+      border-left: 4px solid var(--rust);
+      background: rgba(255,250,240,.8);
+      padding: 14px 16px;
+    }
+
+    .note h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+
+    .note p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      padding-top: 28px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .particle { animation: none; }
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .brief-grid,
+      .section-head,
+      .outcome,
+      .matrix,
+      .notes {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .score-plate {
+        min-height: 430px;
+      }
+
+      .hero-bottom,
+      .constraints {
+        grid-template-columns: 1fr;
+      }
+
+      .event {
+        grid-template-columns: 78px 1fr;
+      }
+
+      .event .time {
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .shell { padding: 20px 14px 48px; }
+      h1 { font-size: 42px; }
+      .plate-caption { grid-template-columns: 1fr; }
+      .status-stamp { white-space: normal; }
+      .section-head h2 { font-size: 28px; }
+      .quote { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero" aria-labelledby="title">
+      <div class="hero-copy">
+        <div>
+          <div class="eyebrow" aria-label="case metadata">
+            <span class="tag">PaperBench</span>
+            <span class="tag">claude-jsonl</span>
+            <span class="tag">collected 2026-07-11</span>
+            <span class="tag">opus backend</span>
+          </div>
+          <h1 id="title">Sequential Neural Score Estimation</h1>
+          <p class="subtitle">A case report for a paper reproduction attempt: score-based SBI, sequential posterior truncation, and a run that reached a concrete implementation plan before write permission stopped it.</p>
+        </div>
+        <div class="hero-bottom" aria-label="summary metrics">
+          <div class="metric">
+            <strong>69</strong>
+            <span>trajectory records parsed from <span class="path">trajectory.jsonl</span></span>
+          </div>
+          <div class="metric">
+            <strong>147s</strong>
+            <span>recorded duration in <span class="path">case_meta.json</span></span>
+          </div>
+          <div class="metric">
+            <strong>0</strong>
+            <span>implementation files successfully saved in this trajectory</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-plate" aria-label="score-field visual">
+        <div class="score-grid"></div>
+        <div class="score-curve" aria-hidden="true">
+          <svg viewBox="0 0 600 430" role="img">
+            <defs>
+              <linearGradient id="curve" x1="0" x2="1">
+                <stop offset="0" stop-color="#e6b65b"/>
+                <stop offset="0.54" stop-color="#fffaf0"/>
+                <stop offset="1" stop-color="#d47a50"/>
+              </linearGradient>
+            </defs>
+            <path d="M36 350 C112 150 188 314 252 164 C318 10 386 286 456 124 C498 28 544 92 574 52" fill="none" stroke="url(#curve)" stroke-width="5" stroke-linecap="round"/>
+            <path d="M40 350 C120 236 180 326 252 164 C330 42 392 292 456 124 C500 60 542 100 574 52" fill="none" stroke="#fffaf0" stroke-opacity=".18" stroke-width="34" stroke-linecap="round"/>
+            <g stroke="#fffaf0" stroke-opacity=".34" stroke-width="1">
+              <path d="M80 340 L125 292"/><path d="M151 268 L196 210"/><path d="M251 164 L292 105"/><path d="M376 252 L420 178"/><path d="M490 88 L538 66"/>
+            </g>
+          </svg>
+        </div>
+        <span class="particle p1"></span>
+        <span class="particle p2"></span>
+        <span class="particle p3"></span>
+        <span class="particle p4"></span>
+        <span class="particle p5"></span>
+        <div class="plate-caption">
+          <div>
+            <h2>Posterior score field, reconstructed as a reading surface.</h2>
+            <p>The visual language borrows from diffusion trajectories and simulator traces: a dense field, a learned path, and particles moving toward high-posterior regions.</p>
+          </div>
+          <div class="status-stamp">final state: permission blocked</div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="brief">
+      <div class="section-head">
+        <h2 id="brief">Assignment</h2>
+        <p>The requested work was to reproduce the ICML 2024 paper "Sequential Neural Score Estimation: Likelihood-Free Inference with Conditional Score Based Diffusion Models" and save complete runnable code under the case workspace output directory.</p>
+      </div>
+      <div class="brief-grid">
+        <div class="panel">
+          <h3>Task statement</h3>
+          <p class="quote">"Write the complete, runnable implementation code needed to reproduce the paper's results."</p>
+          <div class="constraints">
+            <div class="constraint"><b>Target methods</b>NPSE, TSNPSE, NLSE, and the SNPSE-A/B/C variants described in the paper appendices.</div>
+            <div class="constraint"><b>Evaluation</b>Benchmark tasks and C2ST comparisons were expected, with sbibm called out for NPE, SNPE, and C2ST.</div>
+            <div class="constraint"><b>Neuroscience case</b>The addendum required using the Mackelab TSNPE repository for the Section 5.3 neuroscience problem.</div>
+            <div class="constraint"><b>Blacklist</b>The repository <span class="path">https://github.com/jacksimons15327/snpse_icml</span> was disallowed.</div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Case metadata</h3>
+          <div class="codebox">
+            <div class="codebar"><span>case_meta.json</span><span>selected fields</span></div>
+            <pre><code>{
+  "id": "04_sequential-neural-score-estimation",
+  "domain": "paper_reproduction",
+  "model": "claude-opus-4-8",
+  "duration_s": 147.0,
+  "exit_code": 0,
+  "references": []
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="trajectory">
+      <div class="section-head">
+        <h2 id="trajectory">Trajectory</h2>
+        <p>Filter the case events by phase. The sequence shows an efficient read-and-plan pattern, followed by repeated failed attempts to write the first package file.</p>
+      </div>
+      <div class="toolbar" role="toolbar" aria-label="timeline filters">
+        <button class="filter active" type="button" data-filter="all">All</button>
+        <button class="filter" type="button" data-filter="read">Read</button>
+        <button class="filter" type="button" data-filter="plan">Plan</button>
+        <button class="filter" type="button" data-filter="env">Environment</button>
+        <button class="filter" type="button" data-filter="blocked">Blocked</button>
+      </div>
+      <div class="timeline">
+        <article class="event" data-kind="read">
+          <div class="time">L1-L8</div>
+          <div class="event-card">
+            <h3>Paper, addendum, and blacklist read first</h3>
+            <p>The assistant opened the paper, addendum, and blacklist. The addendum introduced the sbibm, TSNPE, sigma_max, and neuroscience-specific requirements.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="read">
+          <div class="time">L11-L27</div>
+          <div class="event-card">
+            <h3>Implementation sections targeted</h3>
+            <p>It searched section headers, then focused on Appendix E implementation details, Appendix B NLSE, Appendix C sequential variants, and the neuroscience section.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="env">
+          <div class="time">L30-L37</div>
+          <div class="event-card">
+            <h3>Workspace and Python stack checked</h3>
+            <p>The output directory existed but was empty. Python 3.13.9 was available. Torch 2.6.0, NumPy 2.3.4, and SciPy 1.17.1 were installed; <code>sbibm</code> and <code>sbi</code> were missing.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="plan">
+          <div class="time">L39-L56</div>
+          <div class="event-card">
+            <h3>Six implementation tracks created</h3>
+            <p>The plan covered SDEs, score networks, DSM training, probability-flow ODE sampling, NPSE/TSNPSE, NLSE, SNPSE variants, task wrappers, metrics, baselines, docs, and smoke tests.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="blocked">
+          <div class="time">L58-L68</div>
+          <div class="event-card">
+            <h3>First write never landed</h3>
+            <p>Three attempts to write <code>output/snpse/__init__.py</code> all returned permission requests. A directory creation command was also blocked by the same missing write approval.</p>
+          </div>
+        </article>
+        <article class="event" data-kind="blocked">
+          <div class="time">L69</div>
+          <div class="event-card">
+            <h3>Final assistant message requested approval</h3>
+            <p>The trajectory ended with a permission request and a list of intended files. No runnable package, scripts, configs, tests, or README were saved.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="implementation">
+      <div class="section-head">
+        <h2 id="implementation">Intended Build</h2>
+        <p>The implementation architecture was never materialized, but the planned surface was explicit enough to evaluate scope and likely completeness.</p>
+      </div>
+      <div class="matrix">
+        <div class="module">
+          <span class="num">01 / core</span>
+          <h3>SDE and network</h3>
+          <p>VE/VP SDEs, sigma_max via Technique 1, a conditional score network with theta and x embeddings, sinusoidal t-embedding, and SiLU activations.</p>
+        </div>
+        <div class="module">
+          <span class="num">02 / training</span>
+          <h3>DSM objective</h3>
+          <p>Denoising score matching, standardization, early stopping, and support for training the posterior score from simulator pairs.</p>
+        </div>
+        <div class="module">
+          <span class="num">03 / inference</span>
+          <h3>ODE sampling</h3>
+          <p>Probability-flow ODE sampling with RK45 and an instantaneous change-of-variables path for log-density estimates.</p>
+        </div>
+        <div class="module">
+          <span class="num">04 / sequential</span>
+          <h3>TSNPSE</h3>
+          <p>The preferred sequential method using HPR epsilon truncation and rejection sampling over a truncated prior proposal.</p>
+        </div>
+        <div class="module">
+          <span class="num">05 / variants</span>
+          <h3>Appendix methods</h3>
+          <p>NLSE plus SNPSE-A, SNPSE-B, and SNPSE-C, including proposal-prior scores or importance weights where required.</p>
+        </div>
+        <div class="module">
+          <span class="num">06 / reproducibility</span>
+          <h3>Tasks and metrics</h3>
+          <p>sbibm tasks, C2ST wrappers, NPE/SNPE-C/TSNPE baselines, benchmark runners, figure scripts, tests, and documentation.</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="outcome">
+      <div class="section-head">
+        <h2 id="outcome">Outcome</h2>
+        <p>The recorded exit code is zero, but the functional result is incomplete because every write attempt required approval that was not granted inside the captured trajectory.</p>
+      </div>
+      <div class="outcome">
+        <div class="outcome-cell">
+          <div class="label">Saved artifacts</div>
+          <strong>None observed</strong>
+          <p>The case directory contains only input files; the trajectory reports an empty output directory before write attempts.</p>
+        </div>
+        <div class="outcome-cell">
+          <div class="label">Blocking point</div>
+          <strong>Write permission</strong>
+          <p>The attempted path was <span class="path">workspace/output/snpse/__init__.py</span>, followed by repeated approval prompts.</p>
+        </div>
+        <div class="outcome-cell">
+          <div class="label">Residual risk</div>
+          <strong>No code to verify</strong>
+          <p>Because the package was not written, no imports, smoke tests, benchmark scripts, or reproduction outputs could be validated.</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="evidence">
+      <div class="section-head">
+        <h2 id="evidence">Evidence Notes</h2>
+        <p>These details came directly from the allowed case files. External repository paths are cited as plain text only; no external content was loaded.</p>
+      </div>
+      <div class="notes">
+        <div class="note">
+          <h3>Addendum constraints</h3>
+          <p>Use <span class="path">sbibm</span> for NPE, SNPE, and C2ST; use <span class="path">https://github.com/mackelab/tsnpe_neurips</span> for TSNPE; take TSNPE and SNVI neuroscience results from their respective papers; compute sequential VESDE <span class="path">sigma_max</span> from first-round training data only.</p>
+        </div>
+        <div class="note">
+          <h3>Case references</h3>
+          <p><span class="path">case_meta.json</span> lists no large omitted reference files. The paper file itself references image assets by relative paths inside its markdown, but no local media directory is present in this case.</p>
+        </div>
+        <div class="note">
+          <h3>Process anomaly</h3>
+          <p>The captured assistant read two memory files outside the reproduction workspace. This report did not follow those paths; it only used the path mentions and snippets already present in the trajectory file.</p>
+        </div>
+        <div class="note">
+          <h3>Bash fallback in this report</h3>
+          <p>Bash/Python parsing was used to read and summarize the specified guidance file and case inputs, including <span class="path">trajectory.jsonl</span>, because the available interface for this task is shell-based.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <span>Generated as a single self-contained HTML case report.</span>
+      <span>04_sequential-neural-score-estimation</span>
+    </div>
+  </main>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll(".filter"));
+    const events = Array.from(document.querySelectorAll(".event"));
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.filter;
+        buttons.forEach((item) => item.classList.toggle("active", item === button));
+        events.forEach((event) => {
+          const show = filter === "all" || event.dataset.kind === filter;
+          event.style.display = show ? "grid" : "none";
+        });
+      });
+    });
+  </script>
+</body>
+</html>

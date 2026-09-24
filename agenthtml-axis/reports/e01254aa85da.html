@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case 05 · Office Chair Return→Exchange · tau-bench retail</title>
+<style>
+  :root{
+    --ink:#0d1020;
+    --ink-2:#3d4358;
+    --ink-3:#6b7280;
+    --line:rgba(15,18,40,.10);
+    --bg:#f5f6fb;
+    --card:#ffffff;
+    --brand:#5b4bff;
+    --brand-2:#8b5cf6;
+    --cyan:#12b8c9;
+    --amber:#f59e0b;
+    --rose:#e5484d;
+    --green:#0f9d63;
+    --radius:20px;
+    --shadow:0 1px 2px rgba(15,18,40,.05),0 12px 32px -14px rgba(15,18,40,.22);
+    --shadow-lg:0 2px 4px rgba(15,18,40,.06),0 30px 60px -24px rgba(15,18,40,.32);
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);
+    -webkit-font-smoothing:antialiased;line-height:1.6;
+  }
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3,h4{line-height:1.12;letter-spacing:-.022em;margin:0}
+  .wrap{width:min(1160px,92vw);margin-inline:auto}
+
+  /* ---------- nav ---------- */
+  nav{
+    position:sticky;top:0;z-index:50;transition:background .35s ease,box-shadow .35s ease,border-color .35s;
+    border-bottom:1px solid transparent;backdrop-filter:blur(0px);
+  }
+  nav.scrolled{
+    background:rgba(255,255,255,.78);backdrop-filter:saturate(180%) blur(14px);
+    border-bottom-color:var(--line);box-shadow:0 8px 30px -20px rgba(15,18,40,.5);
+  }
+  .nav-in{display:flex;align-items:center;gap:28px;padding:14px 0}
+  .logo{display:flex;align-items:center;gap:11px;font-weight:750;letter-spacing:-.02em;font-size:15px}
+  .logo .mark{
+    width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:15px;
+    background:linear-gradient(135deg,var(--brand),var(--cyan));box-shadow:0 6px 16px -6px rgba(91,75,255,.8)
+  }
+  .nav-links{display:flex;gap:26px;margin-left:auto;font-size:14px;font-weight:550;color:var(--ink-2)}
+  .nav-links a{position:relative;padding:6px 0;transition:color .2s}
+  .nav-links a:hover{color:var(--brand)}
+  .nav-links a::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:2px;
+    background:linear-gradient(90deg,var(--brand),var(--cyan));transform:scaleX(0);transform-origin:left;
+    transition:transform .25s ease;
+  }
+  .nav-links a:hover::after{transform:scaleX(1)}
+  .nav-cta{
+    font-size:13.5px;font-weight:650;padding:9px 16px;border-radius:999px;color:#fff;
+    background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    box-shadow:0 10px 24px -12px rgba(91,75,255,.9);transition:transform .2s,box-shadow .2s
+  }
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 16px 30px -12px rgba(91,75,255,.95)}
+
+  /* ---------- hero ---------- */
+  header.hero{
+    position:relative;overflow:hidden;color:#eef0ff;
+    background:
+      radial-gradient(900px 480px at 12% -10%,rgba(91,75,255,.55),transparent 60%),
+      radial-gradient(760px 460px at 92% 8%,rgba(18,184,201,.38),transparent 62%),
+      radial-gradient(700px 520px at 60% 120%,rgba(139,92,246,.35),transparent 60%),
+      linear-gradient(160deg,#0a0d1e 0%,#101436 52%,#0b0f26 100%);
+    padding:92px 0 96px;
+  }
+  header.hero::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+    background-size:56px 56px;mask-image:radial-gradient(circle at 50% 30%,#000 0%,transparent 78%)
+  }
+  .hero-in{position:relative;z-index:2}
+  .badges{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:26px}
+  .badge{
+    font-size:12.5px;font-weight:600;letter-spacing:.02em;padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:#dfe3ff;
+    backdrop-filter:blur(8px)
+  }
+  .badge.solid{background:rgba(255,255,255,.95);color:#241f5c;border-color:transparent}
+  h1.title{
+    font-size:clamp(2.15rem,5.4vw,4rem);font-weight:800;letter-spacing:-.035em;
+    max-width:19ch;margin-bottom:20px
+  }
+  h1.title .grad{
+    background:linear-gradient(100deg,#9db4ff,#d7c6ff 45%,#8ef0f5);
+    -webkit-background-clip:text;background-clip:text;color:transparent
+  }
+  .lede{max-width:62ch;font-size:clamp(1rem,1.6vw,1.18rem);color:#c3c8ee;margin-bottom:34px}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:52px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;font-weight:650;font-size:14.5px;
+    padding:13px 22px;border-radius:999px;transition:transform .22s,box-shadow .22s,background .22s
+  }
+  .btn.primary{background:#fff;color:#1a1745;box-shadow:0 18px 40px -18px rgba(255,255,255,.7)}
+  .btn.primary:hover{transform:translateY(-2px)}
+  .btn.ghost{background:rgba(255,255,255,.08);color:#e9ebff;border:1px solid rgba(255,255,255,.22)}
+  .btn.ghost:hover{background:rgba(255,255,255,.16);transform:translateY(-2px)}
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:800px}
+  .stat{
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:16px;
+    padding:16px 18px;backdrop-filter:blur(10px)
+  }
+  .stat b{display:block;font-size:clamp(1.35rem,2.6vw,1.9rem);font-weight:780;letter-spacing:-.03em;color:#fff}
+  .stat span{font-size:12.5px;color:#b9bfe8;letter-spacing:.02em}
+
+  /* ---------- sections ---------- */
+  section{padding:84px 0}
+  .sec-head{max-width:70ch;margin-bottom:44px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--brand);margin-bottom:14px
+  }
+  .eyebrow::before{content:"";width:22px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--brand),var(--cyan))}
+  h2{font-size:clamp(1.6rem,3.2vw,2.35rem);font-weight:760;margin-bottom:14px}
+  .sec-head p{color:var(--ink-2);font-size:16px;margin:0}
+
+  .grid{display:grid;gap:18px}
+  .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px;box-shadow:var(--shadow);transition:transform .28s cubic-bezier(.2,.7,.3,1),box-shadow .28s
+  }
+  .card.hover:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+  .card .k{font-size:11.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+  .card .v{font-size:16px;font-weight:640;color:var(--ink);word-break:break-word}
+  .card .sub{font-size:13.5px;color:var(--ink-3);margin-top:7px}
+
+  .icon{
+    width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:18px;margin-bottom:15px;
+    background:linear-gradient(135deg,rgba(91,75,255,.14),rgba(18,184,201,.14));color:var(--brand)
+  }
+  .card h3{font-size:16.5px;font-weight:700;margin-bottom:8px}
+  .card p{margin:0;font-size:14.2px;color:var(--ink-2)}
+
+  /* ---------- timeline ---------- */
+  .tl{position:relative;padding-left:34px}
+  .tl::before{content:"";position:absolute;left:11px;top:8px;bottom:8px;width:2px;border-radius:2px;
+    background:linear-gradient(180deg,var(--brand),var(--cyan),rgba(18,184,201,0))}
+  .turn{position:relative;margin-bottom:16px}
+  .turn::before{
+    content:"";position:absolute;left:-29px;top:19px;width:12px;height:12px;border-radius:50%;
+    background:#fff;border:2.5px solid var(--ink-3)
+  }
+  .turn.user::before{border-color:var(--brand)}
+  .turn.agent::before{border-color:var(--cyan)}
+  .turn.tool::before{border-color:var(--amber)}
+  .bubble{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;
+    box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s
+  }
+  .bubble:hover{transform:translateX(3px)}
+  .bubble .meta{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .who{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+  .user .who{color:var(--brand)}
+  .agent .who{color:var(--cyan)}
+  .tool .who{color:var(--amber)}
+  .tnum{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+  .bubble p{margin:0;font-size:14.3px;color:var(--ink-2)}
+  .call{
+    font-family:var(--mono);font-size:12.2px;background:#0d1124;color:#c9d2ff;border-radius:10px;
+    padding:10px 12px;margin-top:10px;overflow-x:auto;white-space:pre;border:1px solid rgba(255,255,255,.08)
+  }
+  .chip{
+    display:inline-block;font-family:var(--mono);font-size:11.5px;padding:3px 9px;border-radius:999px;
+    background:rgba(91,75,255,.1);color:#4b3ede;border:1px solid rgba(91,75,255,.2)
+  }
+
+  /* ---------- verdict / policy ---------- */
+  .verdict{
+    border-radius:var(--radius);padding:30px;border:1px solid var(--line);background:var(--card);box-shadow:var(--shadow);
+    border-left:5px solid var(--amber)
+  }
+  .verdict h3{font-size:19px;margin-bottom:10px}
+  .verdict p{color:var(--ink-2);font-size:14.6px;margin:0 0 8px}
+  .flag{
+    display:flex;gap:14px;padding:16px 18px;border-radius:14px;border:1px solid var(--line);background:var(--card);
+    box-shadow:var(--shadow);margin-bottom:12px
+  }
+  .flag .dot{flex:0 0 auto;width:10px;height:10px;border-radius:50%;margin-top:8px}
+  .flag.ok .dot{background:var(--green)}
+  .flag.warn .dot{background:var(--amber)}
+  .flag.bad .dot{background:var(--rose)}
+  .flag h4{font-size:14.6px;margin-bottom:5px}
+  .flag p{margin:0;font-size:13.8px;color:var(--ink-2)}
+  .flag code{font-family:var(--mono);font-size:12.4px;background:rgba(13,17,36,.06);padding:1px 6px;border-radius:6px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;background:var(--card);border-radius:var(--radius);
+    overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line)}
+  th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);background:rgba(15,18,40,.025)}
+  tr:last-child td{border-bottom:none}
+  td.mono{font-family:var(--mono);font-size:12.5px}
+
+  pre{
+    margin:0;background:#0b0f22;color:#cdd6ff;border-radius:16px;padding:20px;overflow-x:auto;
+    font-family:var(--mono);font-size:12.6px;line-height:1.62;border:1px solid rgba(255,255,255,.08);
+    box-shadow:var(--shadow-lg)
+  }
+  pre .cmt{color:#7d88b8}
+  pre .hl{color:#ffd28a}
+  pre .bad{color:#ff9ea1;font-weight:600}
+  pre .good{color:#8ef0c0}
+
+  details{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;padding:0;margin-bottom:12px;
+    box-shadow:var(--shadow);overflow:hidden
+  }
+  details summary{
+    cursor:pointer;list-style:none;padding:18px 22px;font-weight:660;font-size:15.2px;
+    display:flex;align-items:center;gap:12px;transition:background .2s
+  }
+  details summary::-webkit-details-marker{display:none}
+  details summary:hover{background:rgba(91,75,255,.045)}
+  details summary .arw{
+    margin-left:auto;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;
+    background:rgba(91,75,255,.1);color:var(--brand);transition:transform .3s
+  }
+  details[open] summary .arw{transform:rotate(180deg)}
+  details .body{padding:0 22px 20px;color:var(--ink-2);font-size:14.2px}
+  details .body p{margin:0 0 10px}
+
+  .note{
+    border-radius:16px;padding:18px 20px;background:linear-gradient(135deg,rgba(245,158,11,.09),rgba(229,72,77,.07));
+    border:1px solid rgba(245,158,11,.28);font-size:14px;color:#5a4413
+  }
+  .note b{color:#3d2c05}
+
+  footer{border-top:1px solid var(--line);padding:44px 0 60px;color:var(--ink-3);font-size:13.4px}
+  .foot-in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    html{scroll-behavior:auto}
+  }
+
+  @media (max-width:980px){
+    .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .g3{grid-template-columns:repeat(1,minmax(0,1fr))}
+    .nav-links{display:none}
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:620px){
+    section{padding:60px 0}
+    .g4,.g2{grid-template-columns:1fr}
+    header.hero{padding:64px 0 70px}
+    .timeline{padding-left:26px}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-in">
+    <div class="logo"><span class="mark">τ</span> Case 05 · tau-bench retail</div>
+    <div class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#tools">Tool calls</a>
+      <a href="#policy">Policy check</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#faq">Findings</a>
+    </div>
+    <a class="nav-cta" href="#faq">Verdict ↓</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <div class="badges">
+      <span class="badge solid">tau-bench</span>
+      <span class="badge">tool_use_customer_service</span>
+      <span class="badge">model · gpt-4o</span>
+      <span class="badge">task_id 18 · trial 3</span>
+    </div>
+    <h1 class="title">A damaged office chair, and an exchange that <span class="grad">changed nothing</span>.</h1>
+    <p class="lede">
+      Mei Davis asked to <em>return</em> an office chair that arrived with broken pieces. Across seven
+      customer turns the request quietly became an <em>exchange for the same model</em> — and the agent
+      filed an exchange whose new item id was identical to the original. This report reconstructs the
+      recorded run from the trajectory alone.
+    </p>
+    <div class="hero-cta">
+      <a class="btn primary" href="#timeline">Walk the conversation →</a>
+      <a class="btn ghost" href="#policy">See the policy check</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>7</b><span>customer turns</span></div>
+      <div class="stat"><b>10</b><span>agent messages</span></div>
+      <div class="stat"><b>4</b><span>tool calls</span></div>
+      <div class="stat"><b>1</b><span>DB write</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">At a glance</span>
+      <h2>The case file</h2>
+      <p>A single benchmark episode: an authenticated retail customer, a delivered order containing four
+      items, and one agent that reached a transaction-changing tool call.</p>
+    </div>
+    <div class="grid g4">
+      <div class="card hover reveal">
+        <div class="k">Benchmark</div>
+        <div class="v">tau-bench</div>
+        <div class="sub">Tool-use customer service, retail domain</div>
+      </div>
+      <div class="card hover reveal">
+        <div class="k">Model under test</div>
+        <div class="v">gpt-4o</div>
+        <div class="sub">Recorded run · trajectory_format <code>tau-bench-json</code></div>
+      </div>
+      <div class="card hover reveal">
+        <div class="k">Customer</div>
+        <div class="v">Mei Davis</div>
+        <div class="sub">mei_davis_8935 · Denver, CO 80217</div>
+      </div>
+      <div class="card hover reveal">
+        <div class="k">Order</div>
+        <div class="v">#W2890441</div>
+        <div class="sub">delivered → exchange requested</div>
+      </div>
+    </div>
+
+    <div class="grid g3" style="margin-top:18px">
+      <div class="card hover reveal">
+        <div class="icon">📦</div>
+        <h3>Opening request</h3>
+        <p>“I'd like to return an office chair I purchased. It arrived with some broken pieces.” A
+        <strong>damaged-goods return</strong>, with no order id supplied.</p>
+      </div>
+      <div class="card hover reveal">
+        <div class="icon">🔁</div>
+        <h3>What actually happened</h3>
+        <p>After seeing the order, the customer reconsidered and asked to <strong>exchange</strong> instead.
+        The agent filed the exchange for the <em>identical</em> item variant.</p>
+      </div>
+      <div class="card hover reveal">
+        <div class="icon">⚠️</div>
+        <h3>Headline concern</h3>
+        <p>The exchange swaps item <code>8069050545</code> for item <code>8069050545</code> — same product,
+        same options, zero price difference. No broken part is replaced.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="timeline" style="background:linear-gradient(180deg,rgba(91,75,255,.035),rgba(18,184,201,.03))">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Reconstruction</span>
+      <h2>Turn-by-turn trajectory</h2>
+      <p>All 22 recorded entries (1 system policy, 7 user, 10 assistant, 4 tool results), condensed to the
+      conversation as it unfolded.</p>
+    </div>
+
+    <div class="tl">
+      <div class="turn user reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Customer</span><span class="tnum">turn 1</span></div>
+          <p>“Hi, I'd like to return an office chair I purchased. It arrived with some broken pieces.”</p>
+        </div>
+      </div>
+
+      <div class="turn agent reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Agent</span><span class="tnum">turn 2</span></div>
+          <p>Offers to assist, asks for email or name + zip to authenticate identity — consistent with the
+          policy that authentication precedes any account action.</p>
+        </div>
+      </div>
+
+      <div class="turn user reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Customer</span><span class="tnum">turn 3</span></div>
+          <p>“Sure, I'm Mei Davis, and my zip code is 80217.”</p>
+        </div>
+      </div>
+
+      <div class="turn tool reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Tool</span><span class="tnum">call 1</span><span class="chip">find_user_id_by_name_zip</span></div>
+          <div class="call">{"first_name":"Mei","last_name":"Davis","zip":"80217"}   →   <span style="color:#8ef0c0">"mei_davis_8935"</span></div>
+        </div>
+      </div>
+
+      <div class="turn agent reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Agent</span><span class="tnum">turn 4</span></div>
+          <p>Confirms authentication and asks for the order id.</p>
+        </div>
+      </div>
+
+      <div class="turn user reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Customer</span><span class="tnum">turn 5</span></div>
+          <p>“I'm sorry, I don't have the order ID with me right now.”</p>
+        </div>
+      </div>
+
+      <div class="turn tool reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Tool</span><span class="tnum">call 2</span><span class="chip">get_user_details</span></div>
+          <div class="call">{"user_id":"mei_davis_8935"}
+  → payment_methods: credit_card_1061405 (mastercard ••1037)
+  → orders: ["#W2890441", "#W1267569"]</div>
+        </div>
+      </div>
+
+      <div class="turn tool reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Tool</span><span class="tnum">call 3</span><span class="chip">get_order_details</span></div>
+          <div class="call">{"order_id": "#W2890441"}
+  → 4 items: Water Bottle $54.04 · Pet Bed $195.11 ·
+             <span style="color:#ffd28a">Office Chair $499.28</span> · Skateboard $182.03
+  → status: <span style="color:#8ef0c0">delivered</span>   payment: $930.46 on credit_card_1061405</div>
+        </div>
+      </div>
+
+      <div class="turn agent reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Agent</span><span class="tnum">turn 6</span></div>
+          <p>Presents the office chair details (leather, blue, no armrest, high-back) and proposes a
+          <strong>return</strong> to the original Mastercard ••1037, asking for explicit “yes/no”.</p>
+        </div>
+      </div>
+
+      <div class="turn user reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Customer</span><span class="tnum">turn 7</span></div>
+          <p>“Hmm, could I think about it for a bit?” → agent: “Of course, take your time.”</p>
+        </div>
+      </div>
+
+      <div class="turn user reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Customer</span><span class="tnum">turn 8</span></div>
+          <p>“Actually, I've changed my mind. Can I exchange it for the same model instead?”</p>
+        </div>
+      </div>
+
+      <div class="turn agent reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Agent</span><span class="tnum">turn 9</span></div>
+          <p>Confirms: order #W2890441, item Office Chair, “Exchange for: Same model (Leather, Blue,
+          High-back)”, payment method Mastercard ••1037 — then requests a “yes”.</p>
+        </div>
+      </div>
+
+      <div class="turn user reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Customer</span><span class="tnum">turn 10</span></div>
+          <p>“Yes, let's go ahead with the exchange.”</p>
+        </div>
+      </div>
+
+      <div class="turn tool reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Tool</span><span class="tnum">call 4 · DB write</span><span class="chip">exchange_delivered_order_items</span></div>
+          <div class="call">{"order_id":"#W2890441",
+ "item_ids":["8069050545"],
+ "new_item_ids":["<span class="bad">8069050545</span>"],   <span style="color:#7d88b8">// identical to the original item</span>
+ "payment_method_id":"credit_card_1061405"}
+  → status: "exchange requested"
+  → exchange_price_difference: <span style="color:#ffd28a">0.0</span></div>
+        </div>
+      </div>
+
+      <div class="turn agent reveal">
+        <div class="bubble">
+          <div class="meta"><span class="who">Agent</span><span class="tnum">turn 11</span></div>
+          <p>Reports success, says an email with return instructions will follow and that there is no price
+          difference. Customer closes the episode with <code>###STOP###</code>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tools">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Tool surface</span>
+      <h2>Four calls, one write</h2>
+      <p>Every call in the run was made one-at-a-time, matching the policy constraint of at most one tool
+      call per assistant message.</p>
+    </div>
+    <table class="reveal">
+      <thead><tr><th>#</th><th>Tool</th><th>Arguments</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="mono">find_user_id_by_name_zip</td><td class="mono">Mei / Davis / 80217</td><td>Read · resolves <code>mei_davis_8935</code></td></tr>
+        <tr><td>2</td><td class="mono">get_user_details</td><td class="mono">mei_davis_8935</td><td>Read · yields 2 orders, 1 card</td></tr>
+        <tr><td>3</td><td class="mono">get_order_details</td><td class="mono">#W2890441</td><td>Read · delivered, 4 items</td></tr>
+        <tr><td>4</td><td class="mono">exchange_delivered_order_items</td><td class="mono">item 8069050545 → 8069050545</td><td><strong>Write</strong> · delivered → <em>exchange requested</em></td></tr>
+      </tbody>
+    </table>
+    <div class="note reveal" style="margin-top:18px">
+      <b>Not used:</b> no product-catalogue lookup (e.g. a product-details tool) was called to find an
+      available alternative variant. The exchange was chosen directly from the user's literal phrasing
+      “same model”.
+    </div>
+  </div>
+</section>
+
+<section id="policy" style="background:linear-gradient(180deg,rgba(18,184,201,.04),rgba(91,75,255,.035))">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Rule-by-rule</span>
+      <h2>Policy compliance check</h2>
+      <p>Measured against the retail agent policy carried in the system message of this very trajectory.</p>
+    </div>
+
+    <div class="grid g2">
+      <div>
+        <div class="flag ok reveal"><span class="dot"></span><div>
+          <h4>Identity authentication first</h4>
+          <p>Identity was resolved before any account information was disclosed, via name + zip.</p>
+        </div></div>
+        <div class="flag ok reveal"><span class="dot"></span><div>
+          <h4>Order status verified</h4>
+          <p>Return/exchange requires <code>delivered</code>; the order was confirmed delivered before
+          proposing action.</p>
+        </div></div>
+        <div class="flag ok reveal"><span class="dot"></span><div>
+          <h4>One tool call at a time</h4>
+          <p>Each assistant tool call stands alone; no message mixed a reply with a call.</p>
+        </div></div>
+        <div class="flag ok reveal"><span class="dot"></span><div>
+          <h4>Explicit confirmation obtained</h4>
+          <p>The agent listed order id, item, target variant and payment method, then received “yes” before
+          the write.</p>
+        </div></div>
+      </div>
+      <div>
+        <div class="flag warn reveal"><span class="dot"></span><div>
+          <h4>“Different product option” not honoured</h4>
+          <p>Policy: an item may be exchanged “to an available new item of the same product but of
+          <strong>different product option</strong>”. The chosen target variant is byte-identical to the
+          original, so no option change occurred.</p>
+        </div></div>
+        <div class="flag warn reveal"><span class="dot"></span><div>
+          <h4>Availability never checked</h4>
+          <p>No catalogue lookup was performed, so “available new item” was never established for any
+          replacement.</p>
+        </div></div>
+        <div class="flag warn reveal"><span class="dot"></span><div>
+          <h4>Original complaint drifted</h4>
+          <p>The stated defect — “broken pieces” — went unaddressed; a same-variant exchange leaves the
+          damage unremedied, and no alternative was offered.</p>
+        </div></div>
+        <div class="flag bad reveal"><span class="dot"></span><div>
+          <h4>Irreversible write consumed</h4>
+          <p>Item modification may be called only once and locks further modify/cancel. That one shot was
+          spent on a no-op swap, leaving the order at <code>exchange requested</code>.</p>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="verdict reveal" style="margin-top:26px">
+      <h3>Assessment</h3>
+      <p>The process scaffolding was largely correct — authentication, status check, one-at-a-time calls,
+      and an explicit confirmation — but the substance of the exchange is self-defeating: the new item id
+      equals the old one, price difference is <code>0.0</code>, and the customer's damaged chair is not
+      being replaced with anything different.</p>
+      <p style="margin-top:8px">The write itself technically executed and the order moved to
+      <em>exchange requested</em>; whether the benchmark graded this as success is <strong>not knowable
+      from this file</strong> — see the uncertainty note below.</p>
+    </div>
+  </div>
+</section>
+
+<section id="evidence">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Primary source</span>
+      <h2>Excerpts from the write</h2>
+      <p>The decisive tool result, quoted from the trajectory (fields trimmed for length, values
+      unchanged).</p>
+    </div>
+    <div class="grid g2">
+      <pre class="reveal">{
+  <span class="cmt">// get_order_details · before</span>
+  "order_id": "#W2890441",
+  "status": <span class="good">"delivered"</span>,
+  "items": [
+    { "name": <span class="hl">"Office Chair"</span>,
+      "product_id": "4794339885",
+      "item_id": <span class="hl">"8069050545"</span>,
+      "price": 499.28,
+      "options": { "material": "leather",
+                   "color": "blue",
+                   "armrest": "none",
+                   "backrest height": "high-back" } }
+  ],
+  "payment_history": [
+    { "transaction_type": "payment",
+      "amount": 930.46,
+      "payment_method_id": "credit_card_1061405" }
+  ]
+}</pre>
+      <pre class="reveal">{
+  <span class="cmt">// exchange_delivered_order_items · after</span>
+  "order_id": "#W2890441",
+  "status": <span class="good">"exchange requested"</span>,
+  "exchange_items":     [<span class="hl">"8069050545"</span>],
+  "exchange_new_items": [<span class="bad">"8069050545"</span>],
+  "exchange_payment_method_id": "credit_card_1061405",
+  "exchange_price_difference": <span class="bad">0.0</span>
+
+  <span class="cmt">// new == old: the swap changes no option
+  // and settles no price difference.</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="background:linear-gradient(180deg,rgba(91,75,255,.035),rgba(229,72,77,.03))">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Read with care</span>
+      <h2>Findings &amp; uncertainty</h2>
+      <p>What the trajectory supports, what it does not, and where the record is silent.</p>
+    </div>
+
+    <details class="reveal" open>
+      <summary><span>Was this run a success or a failure? <span class="chip">unknown</span></span><span class="arw">▾</span></summary>
+      <div class="body">
+        <p><code>case_meta.json</code> marks <code>reward</code> and <code>info</code> as stripped fields,
+        and the trajectory JSON contains neither. No pass/fail score can be read from the material in this
+        case directory, so this report deliberately stops short of asserting an outcome.</p>
+      </div>
+    </details>
+
+    <details class="reveal">
+      <summary><span>What can be concluded with confidence?</span><span class="arw">▾</span></summary>
+      <div class="body">
+        <p>That the recorded write passed <code>item_ids = ["8069050545"]</code> and
+        <code>new_item_ids = ["8069050545"]</code>, that it returned
+        <code>exchange_price_difference: 0.0</code>, and that the order status became
+        <code>exchange requested</code>. Those are literal values in the file.</p>
+        <p>It also shows the agent never called a product/catalogue tool, so no alternative variant was
+        ever evaluated.</p>
+      </div>
+    </details>
+
+    <details class="reveal">
+      <summary><span>Could the identical item id be legitimate?</span><span class="arw">▾</span></summary>
+      <div class="body">
+        <p>Within this policy's wording, no: exchange is defined as moving to “a different product option”
+        of the same product, and the target here shares every option with the source. A same-variant
+        replacement is at best a quality/warranty action, which is outside the exchange tool's stated
+        semantics. It is possible the upstream environment accepted the call regardless — it did return a
+        success-shaped payload — but acceptance by the tool is not evidence of policy-conformity.</p>
+      </div>
+    </details>
+
+    <details class="reveal">
+      <summary><span>Was the customer's original intent served?</span><span class="arw">▾</span></summary>
+      <div class="body">
+        <p>The customer opened with a damaged-goods return, then asked for an exchange “for the same
+        model”. Read literally, “same model” means the same product; the agent interpreted it as the same
+        <em>variant</em>. The stronger reading — replace the broken chair with a functional one, possibly
+        a different option — is what the policy is built for. The agent did not clarify this ambiguity.</p>
+      </div>
+    </details>
+
+    <details class="reveal">
+      <summary><span>Provenance &amp; media</span><span class="arw">▾</span></summary>
+      <div class="body">
+        <p>Source path recorded in metadata: <code>trajs/tool_use_customer_service/05_gpt-4o-retail_363.json</code>
+        (upstream). Trajectory SHA-256: <code>41386ee5…f661815</code>. No screenshots, frames, or other
+        media are present in this case; <code>references</code> is empty, so nothing is cited as a loaded
+        resource.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <div>Case 05 · gpt-4o retail · tau-bench · task_id 18, trial 3</div>
+    <div>Reconstructed from <code>trajectory.json</code> · 22 entries · reward &amp; info stripped upstream</div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var nav = document.getElementById('nav');
+    var onScroll = function(){
+      if (window.scrollY > 24) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, {passive:true});
+
+    var els = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+      }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+      els.forEach(function(el, i){
+        el.style.transitionDelay = Math.min(i % 6 * 55, 280) + 'ms';
+        io.observe(el);
+      });
+    } else {
+      els.forEach(function(el){ el.classList.add('in'); });
+    }
+  })();
+</script>
+</body>
+</html>
