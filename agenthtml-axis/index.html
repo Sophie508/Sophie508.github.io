@@ -53,9 +53,10 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;
 const VISUAL = ['表格溢出或被截断','图片 / 图表空白、没加载或被截断','文字重叠、被遮挡或截断','字太小、颜色太淡看不清','排版错乱（错位、大块空白、元素挤在一起）','交互控件点了没反应'];
 const QUESTIONS = ['这份报告讲的是什么任务？最后成功了吗？','如果失败：卡在哪一步、为什么？如果成功：关键结果是什么？','报告里有没有证据让你相信这个结论（截图、数据、步骤记录等）？'];
 const FIND = [['fast','30 秒内找到'],['slow','找到了，但超过 30 秒'],['no','没找到']];
+const CLEAR = ['专有名词、术语','图和表（包括标题、坐标轴、图例）','文字表述'];   // hm, 2026-09-24: say what "understandable" means
 let S = null, timers = {}, tStart = {};   // tStart survives re-renders so a running countdown keeps going
-const store = () => { try{ localStorage.setItem('agenthtml-axis-proto:'+S.annotator, JSON.stringify(S)); }catch(e){} };
-const load = n => { try{ const v = localStorage.getItem('agenthtml-axis-proto:'+n); return v ? JSON.parse(v) : null; }catch(e){ return null; } };
+const store = () => { try{ localStorage.setItem('agenthtml-axis-proto2:'+S.annotator, JSON.stringify(S)); }catch(e){} };
+const load = n => { try{ const v = localStorage.getItem('agenthtml-axis-proto2:'+n); return v ? JSON.parse(v) : null; }catch(e){ return null; } };
 const blank = q => ({step:0, visual:{}, find:{}, easiest:null, unclear:{}, missing:'', note:''});
 
 function start(){
@@ -65,7 +66,7 @@ function start(){
    <div class="card axis">
      <b>① 视觉</b><span>把每份报告从上往下滑一遍，只看显示有没有问题：表格、图片、文字有没有溢出、空白、重叠、看不清。不评价好不好看。</span>
      <b>② 信息获取</b><span>带着三个固定问题去找答案，每份报告限时 30 秒左右，记录能不能找到；最后选出最容易找到答案的一份。</span>
-     <b>③ 内容</b><span>只在部分题出现：有没有看不懂的地方，有没有你想知道但报告没写的。事实对错由我们另外核对，不用你查。</span>
+     <b>③ 内容</b><span>只在部分题出现：分三项看能不能看懂——专有名词和术语、图和表（含标题）、文字表述；再写下你想知道但报告没写的。事实对错由我们另外核对，不用你查。</span>
    </div>
    <div class="card"><label class="hint" for="who">标注者编号</label><input type="text" id="who" placeholder="例如 hm"><div style="height:10px"></div><button class="primary" id="go">开始（共 ${DATA.questions.length} 题，原型）</button></div></div>`;
   $('#go').onclick = () => { const n = $('#who').value.trim(); if(!n) return $('#who').focus();
@@ -77,7 +78,7 @@ function stepDone(q, a, k){
   const L = q.outputs.map(o => o.label);
   if(k===0) return L.every(l => a.visual[l] && a.visual[l].length);
   if(k===1) return L.every(l => QUESTIONS.every((_,j) => a.find[l] && a.find[l][j])) && !!a.easiest;
-  return L.every(l => a.unclear[l] !== undefined);
+  return L.every(l => CLEAR.every((_,j) => a.unclear[l] && a.unclear[l][j]));
 }
 function render(){
   Object.values(timers).forEach(clearInterval); timers = {};
@@ -99,7 +100,10 @@ function render(){
 function guide(k){
   if(k===0) return `<div class="guide"><b>① 视觉：</b>把每份报告从上到下完整滑一遍（可以点「放大」），在下面勾出看到的显示问题；没有问题就点「没发现问题」。只看有没有显示错误，不看好不好看。<ul>${VISUAL.map(v=>`<li>${v}</li>`).join('')}</ul></div>`;
   if(k===1) return `<div class="guide"><b>② 信息获取：</b>对每份报告点「开始计时」，然后去找下面三个问题的答案，30 秒左右为限，不用读完全文。每个问题选「30 秒内找到 / 找到但超过 30 秒 / 没找到」。三份都做完后，选出最容易找到答案的一份。<ul>${QUESTIONS.map((t,j)=>`<li>Q${j+1}　${t}</li>`).join('')}</ul></div>`;
-  return `<div class="guide"><b>③ 内容：</b>这一步只在部分题出现。不需要核对事实对错（我们会另外核对），只回答：这份报告有没有你看不懂的地方？有的话简单写一下是哪里。</div>`;
+  return `<div class="guide"><b>③ 内容：</b>这一步只在部分题出现。不需要核对事实对错（我们会另外核对），只看一个没参与这个任务的人能不能看懂，分三项判断：<ul>
+    <li><b>专有名词、术语</b>：出现的专业词、缩写、代号（比如 reward、done、trajectory、字段名）有没有解释，或者看上下文能不能懂</li>
+    <li><b>图和表</b>：图表和表格的标题、坐标轴、图例、列名说清楚了没有，看得出它想说明什么吗</li>
+    <li><b>文字表述</b>：句子本身读得懂吗，有没有大段原始日志、代码没配说明，或者前后矛盾</li></ul>看不懂的地方可以在备注里写一下是哪里。</div>`;
 }
 function panel(k, q, a, l){
   if(k===0){ const v = a.visual[l] || [];
@@ -107,9 +111,9 @@ function panel(k, q, a, l){
   if(k===1){ const f = a.find[l] || {};
     return `<div style="display:flex;align-items:center;gap:8px"><button class="tick" data-l="${l}">开始计时</button><span class="timer" id="t-${l}">0:30</span></div>` +
       QUESTIONS.map((t,j)=>`<div class="qrow"><span class="qt">Q${j+1}</span><div class="chips">${FIND.map(([v,lab])=>`<button class="fnd ${f[j]===v?'on':''} ${v==='no'?'badc':(v==='fast'?'okc':'')}" data-l="${l}" data-j="${j}" data-v="${v}">${lab}</button>`).join('')}</div></div>`).join(''); }
-  const u = a.unclear[l];
-  return `<div class="hint">有看不懂的地方吗？</div><div class="chips"><button class="unc okc ${u&&u.v==='no'?'on':''}" data-l="${l}" data-v="no">没有</button><button class="unc badc ${u&&u.v==='yes'?'on':''}" data-l="${l}" data-v="yes">有</button></div>
-    <textarea class="uncnote" data-l="${l}" placeholder="看不懂的是哪里（可选）">${esc(u&&u.note)}</textarea>`;
+  const u = a.unclear[l] || {};
+  return CLEAR.map((t,j)=>`<div class="qrow"><span class="qt">${t}</span><div class="chips"><button class="unc okc ${u[j]==='ok'?'on':''}" data-l="${l}" data-j="${j}" data-v="ok">看得懂</button><button class="unc ${u[j]==='part'?'on':''}" data-l="${l}" data-j="${j}" data-v="part">部分看不懂</button><button class="unc badc ${u[j]==='no'?'on':''}" data-l="${l}" data-j="${j}" data-v="no">看不懂</button><button class="unc ${u[j]==='na'?'on':''}" data-l="${l}" data-j="${j}" data-v="na">报告里没有</button></div></div>`).join('') +
+    `<textarea class="uncnote" data-l="${l}" placeholder="看不懂的是哪里（可选）">${esc(u.note)}</textarea>`;
 }
 function bind(q, a, k, steps){
   document.querySelectorAll('.steps button').forEach(b => b.onclick = () => { a.step = +b.dataset.s; store(); render(); });
@@ -123,7 +127,7 @@ function bind(q, a, k, steps){
     tick(); timers[l] = setInterval(tick, 250); };
   document.querySelectorAll('.tick').forEach(b => b.onclick = () => { tStart[q.id+'|'+b.dataset.l] = Date.now(); runTimer(b.dataset.l); });
   if(k===1) q.outputs.forEach(o => { if(tStart[q.id+'|'+o.label]) runTimer(o.label); });
-  document.querySelectorAll('.unc').forEach(b => b.onclick = () => { const l=b.dataset.l; a.unclear[l] = {...(a.unclear[l]||{}), v:b.dataset.v}; store(); render(); });
+  document.querySelectorAll('.unc').forEach(b => b.onclick = () => { const l=b.dataset.l; a.unclear[l] = {...(a.unclear[l]||{}), [b.dataset.j]:b.dataset.v}; store(); render(); });
   document.querySelectorAll('.uncnote').forEach(t => t.oninput = () => { const l=t.dataset.l; a.unclear[l] = {...(a.unclear[l]||{}), note:t.value}; store(); });
   const m = $('#missing'); if(m) m.oninput = () => { a.missing = m.value; store(); };
   $('#prev').onclick = () => { if(k>0){ a.step=k-1; } else { S.i--; const p=A(); p.step=stepsOf(DATA.questions[S.i]).length-1; } store(); render(); };
