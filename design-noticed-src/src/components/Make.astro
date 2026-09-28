@@ -1,0 +1,141 @@
+---
+import { href } from '../links';
+
+interface Props {
+  sighting: string;
+  exercise: string;
+  rule: string;
+  next: { name: string; path: string; phrase: string };
+}
+
+const { sighting, exercise, rule, next } = Astro.props;
+---
+
+<div class="make">
+  <h2 class="headline">Now go and find one.</h2>
+  <ol class="make__list">
+    <li>
+      <span class="label">Design Sighting</span>
+      <p>{sighting}</p>
+    </li>
+    <li>
+      <span class="label">Ten minutes</span>
+      <p>{exercise}</p>
+    </li>
+    <li class="make__rule">
+      <span class="label">My rule</span>
+      <p>{rule}</p>
+    </li>
+  </ol>
+  <a class="make__next" href={href(next.path)}>
+    <span class="label">Next</span>
+    <span class="make__name">{next.name}</span>
+    <span class="make__phrase">{next.phrase}</span>
+    <span class="make__arrow" aria-hidden="true">→</span>
+  </a>
+</div>
+
+<style>
+  .make__list {
+    margin-top: clamp(28px, 4vw, 48px);
+    border-top: 1.5px solid var(--ink);
+  }
+
+  .make__list li {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
+    gap: 6px var(--column-gap);
+    align-items: baseline;
+    padding-block: clamp(18px, 2.4vw, 28px);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .make__list .label,
+  .make__next .label {
+    color: var(--pen);
+  }
+
+  .make__list p {
+    max-width: 34rem;
+    font-size: 1.12em;
+  }
+
+  .make__rule p {
+    font-family: var(--display);
+    font-style: italic;
+    font-variation-settings: 'opsz' 72;
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
+  .make__next {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 7fr) auto;
+    column-gap: var(--column-gap);
+    align-items: baseline;
+    margin-top: clamp(48px, 7vw, 96px);
+    padding-block: clamp(18px, 2.4vw, 28px);
+    border-block: 1.5px solid var(--ink);
+  }
+
+  .make__name {
+    font-family: var(--display);
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144;
+    font-size: clamp(2rem, 5vw, 4.2rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+  }
+
+  .make__phrase {
+    grid-column: 2;
+    margin-top: 0.4em;
+    font-family: var(--display);
+    font-style: italic;
+    font-variation-settings: 'opsz' 36;
+    font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+    color: var(--ink-soft);
+  }
+
+  .make__arrow {
+    grid-column: 3;
+    grid-row: 1;
+    font-size: clamp(1.6rem, 3vw, 2.6rem);
+    transition: transform 0.2s ease;
+  }
+
+  .make__next:hover .make__name {
+    color: var(--pen);
+  }
+
+  .make__next:hover .make__arrow {
+    transform: translateX(6px);
+  }
+
+  @media (max-width: 760px) {
+    .make__list li {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .make__next {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .make__next .label {
+      grid-column: 1 / -1;
+      margin-bottom: 8px;
+    }
+
+    .make__phrase {
+      grid-column: 1;
+    }
+
+    .make__arrow {
+      grid-column: 2;
+      grid-row: 2;
+    }
+  }
+</style>

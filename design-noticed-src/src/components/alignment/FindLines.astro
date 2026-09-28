@@ -1,0 +1,470 @@
+<div class="finder" data-finder>
+  <div class="finder__head">
+    <h2 class="headline">How many invisible lines can you find?</h2>
+    <p class="finder__rule">
+      Nothing on this poster was placed by accident. Click anywhere you think two or more things
+      line up. There are seven lines hiding in it.
+    </p>
+  </div>
+
+  <div class="finder__stage">
+    <div class="poster" data-poster>
+      <div class="poster__pic" data-el="pic"></div>
+      <div class="poster__side">
+        <span class="poster__stamp" data-el="stamp"></span>
+        <div class="poster__bars"><i></i><i></i><i></i></div>
+      </div>
+      <div class="poster__row poster__row--title">
+        <p class="poster__title"><b data-el="titlebase"></b>Slow<br />Sunday</p>
+        <p class="poster__small">No. 3</p>
+      </div>
+      <div class="poster__bars poster__body"><i></i><i></i><i></i><i></i></div>
+      <div class="poster__row poster__row--foot">
+        <p class="poster__date"><b data-el="footbase"></b>12 April</p>
+        <p class="poster__small">Tiong Bahru</p>
+      </div>
+      <div class="poster__guides" data-guides aria-hidden="true"></div>
+    </div>
+
+    <div class="finder__panel">
+      <p class="finder__count"><span data-count>0</span><small> of 7</small></p>
+      <p class="finder__status" data-status role="status">Click where you think things line up.</p>
+      <ol class="finder__found" data-found></ol>
+      <div class="finder__actions">
+        <button class="button" type="button" data-hint>Give me one</button>
+        <button class="button" type="button" data-all>Show alignment</button>
+        <button class="button" type="button" data-hide>Hide the lines</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  type Guide = {
+    axis: 'x' | 'y';
+    el: string;
+    side: 'left' | 'right' | 'top' | 'bottom';
+    kind: string;
+    note: string;
+  };
+
+  const GUIDES: Guide[] = [
+    {
+      axis: 'x',
+      el: 'pic',
+      side: 'left',
+      kind: 'Vertical edge',
+      note: 'Picture, title, text and date all start here. The picture and the date are a whole poster apart and still clearly together.',
+    },
+    {
+      axis: 'x',
+      el: 'pic',
+      side: 'right',
+      kind: 'Image boundary',
+      note: 'The text column stops exactly where the picture stops.',
+    },
+    { axis: 'x', el: 'stamp', side: 'left', kind: 'Vertical edge', note: 'A second edge, for the small things.' },
+    { axis: 'y', el: 'pic', side: 'top', kind: 'Image boundary', note: 'The red stamp starts where the picture starts.' },
+    { axis: 'y', el: 'pic', side: 'bottom', kind: 'Image boundary', note: 'The side notes end where the picture ends.' },
+    {
+      axis: 'y',
+      el: 'titlebase',
+      side: 'top',
+      kind: 'Baseline',
+      note: 'A huge title and a tiny number, standing on the same floor.',
+    },
+    {
+      axis: 'y',
+      el: 'footbase',
+      side: 'top',
+      kind: 'Baseline',
+      note: 'Same again at the bottom: big date, small place, one floor.',
+    },
+  ];
+  const REACH = 16;
+
+  document.querySelectorAll<HTMLElement>('[data-finder]').forEach((root) => {
+    const poster = root.querySelector<HTMLElement>('[data-poster]')!;
+    const layer = root.querySelector<HTMLElement>('[data-guides]')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const count = root.querySelector<HTMLElement>('[data-count]')!;
+    const list = root.querySelector<HTMLElement>('[data-found]')!;
+    const found = new Set<number>();
+
+    const lines = GUIDES.map((guide) => {
+      const line = document.createElement('div');
+      line.className = `guide guide--${guide.axis} guide--${guide.kind === 'Baseline' ? 'pen' : 'pencil'}`;
+      layer.append(line);
+      return line;
+    });
+
+    const positions = () => {
+      const frame = poster.getBoundingClientRect();
+      return GUIDES.map((guide) => {
+        const r = poster.querySelector<HTMLElement>(`[data-el="${guide.el}"]`)!.getBoundingClientRect();
+        return guide.axis === 'x' ? r[guide.side] - frame.left : r[guide.side] - frame.top;
+      });
+    };
+
+    const layout = () => {
+      const frame = poster.getBoundingClientRect();
+      positions().forEach((at, i) => {
+        if (GUIDES[i].axis === 'x') lines[i].style.left = `${(at / frame.width) * 100}%`;
+        else lines[i].style.top = `${(at / frame.height) * 100}%`;
+      });
+    };
+
+    const say = (text: string) => {
+      if (status.textContent !== text) status.textContent = text;
+    };
+
+    const render = () => {
+      lines.forEach((line, i) => line.classList.toggle('is-found', found.has(i)));
+      count.textContent = String(found.size);
+      list.replaceChildren(
+        ...[...found].map((i) => {
+          const item = document.createElement('li');
+          item.className = GUIDES[i].kind === 'Baseline' ? 'is-pen' : '';
+          const kind = document.createElement('span');
+          kind.className = 'label';
+          kind.textContent = GUIDES[i].kind;
+          const note = document.createElement('span');
+          note.textContent = GUIDES[i].note;
+          item.append(kind, note);
+          return item;
+        })
+      );
+      root.toggleAttribute('data-complete', found.size === GUIDES.length);
+    };
+
+    const reveal = (i: number) => {
+      found.add(i);
+      render();
+      say(
+        found.size === GUIDES.length
+          ? 'All seven. None of them are printed on the poster. The edges draw them.'
+          : `Found one. ${GUIDES.length - found.size} still hiding.`
+      );
+    };
+
+    poster.addEventListener('click', (e) => {
+      const frame = poster.getBoundingClientRect();
+      const at = { x: e.clientX - frame.left, y: e.clientY - frame.top };
+      let best = -1;
+      let bestGap = REACH;
+      positions().forEach((pos, i) => {
+        const gap = Math.abs(at[GUIDES[i].axis] - pos);
+        if (!found.has(i) && gap <= bestGap) {
+          best = i;
+          bestGap = gap;
+        }
+      });
+      if (best >= 0) return reveal(best);
+
+      const miss = document.createElement('span');
+      miss.className = 'miss';
+      miss.style.left = `${at.x}px`;
+      miss.style.top = `${at.y}px`;
+      layer.append(miss);
+      miss.addEventListener('animationend', () => miss.remove());
+      if (found.size < GUIDES.length) say('Nothing lines up there. Try the edge of something.');
+    });
+
+    root.querySelector('[data-hint]')!.addEventListener('click', () => {
+      const next = GUIDES.findIndex((_, i) => !found.has(i));
+      if (next >= 0) reveal(next);
+    });
+
+    root.querySelector('[data-all]')!.addEventListener('click', () => {
+      GUIDES.forEach((_, i) => found.add(i));
+      render();
+      say('Seven lines, and none of them are printed on the poster. The edges draw them.');
+    });
+
+    root.querySelector('[data-hide]')!.addEventListener('click', () => {
+      found.clear();
+      render();
+      say('Click where you think things line up.');
+    });
+
+    new ResizeObserver(layout).observe(poster);
+    document.fonts.ready.then(layout);
+  });
+</script>
+
+<style>
+  .finder__head {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: 20px clamp(32px, 6vw, 96px);
+    align-items: end;
+  }
+
+  .finder__rule {
+    max-width: 30rem;
+    color: var(--ink-soft);
+  }
+
+  .finder__stage {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: 32px clamp(32px, 6vw, 96px);
+    align-items: start;
+    margin-top: clamp(28px, 4vw, 48px);
+  }
+
+  .poster {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background: var(--sheet);
+    border: 1.5px solid var(--ink);
+    container-type: inline-size;
+    cursor: crosshair;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .poster > * {
+    position: absolute;
+  }
+
+  .poster p {
+    line-height: 0.9;
+  }
+
+  .poster__pic {
+    left: 10%;
+    top: 8%;
+    width: 50%;
+    height: 36%;
+    background: #9fb0a3;
+  }
+
+  .poster__side {
+    left: 66%;
+    top: 8%;
+    width: 24%;
+    height: 36%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .poster__stamp {
+    width: 42%;
+    aspect-ratio: 1;
+    background: var(--pen);
+  }
+
+  .poster__bars {
+    display: grid;
+    gap: 2.2cqi;
+  }
+
+  .poster__bars i {
+    display: block;
+    height: 1.2cqi;
+    background: var(--ink);
+    opacity: 0.28;
+  }
+
+  .poster__bars i:last-child {
+    width: 62%;
+  }
+
+  .poster__body {
+    left: 10%;
+    top: 71%;
+    width: 50%;
+  }
+
+  .poster__row {
+    left: 10%;
+    right: 10%;
+    display: grid;
+    grid-template-columns: 70% 30%;
+    align-items: baseline;
+  }
+
+  .poster__row--title {
+    top: 49%;
+  }
+
+  .poster__row--foot {
+    bottom: 7%;
+  }
+
+  .poster__row b {
+    display: inline-block;
+    width: 0;
+    height: 0;
+  }
+
+  .poster__title {
+    font-family: var(--display);
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144;
+    font-size: 12cqi;
+    letter-spacing: -0.035em;
+  }
+
+  .poster__date {
+    font-family: var(--display);
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144;
+    font-size: 7.4cqi;
+    letter-spacing: -0.03em;
+  }
+
+  .poster__small {
+    font-family: var(--mono);
+    font-size: 2.7cqi;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .poster__guides {
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .poster__guides :global(.guide) {
+    position: absolute;
+    opacity: 0;
+    transition:
+      opacity 0.3s ease,
+      transform 0.5s cubic-bezier(0.6, 0, 0.2, 1);
+  }
+
+  .poster__guides :global(.guide--x) {
+    top: -18px;
+    bottom: -18px;
+    border-left: 1.5px dashed;
+    transform: scaleY(0);
+  }
+
+  .poster__guides :global(.guide--y) {
+    left: -18px;
+    right: -18px;
+    border-top: 1.5px dashed;
+    transform: scaleX(0);
+  }
+
+  .poster__guides :global(.guide--pencil) {
+    color: var(--pencil);
+  }
+
+  .poster__guides :global(.guide--pen) {
+    color: var(--pen);
+  }
+
+  .poster__guides :global(.guide.is-found) {
+    opacity: 1;
+    transform: none;
+  }
+
+  .poster__guides :global(.miss) {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 50%;
+    animation: miss 0.6s ease-out forwards;
+  }
+
+  @keyframes miss {
+    from {
+      opacity: 0.8;
+      transform: scale(0.4);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
+
+  .finder__count {
+    font-family: var(--display);
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144;
+    font-size: clamp(4rem, 9vw, 7.5rem);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+  }
+
+  .finder__count small {
+    margin-left: 0.2em;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 0.34em;
+    letter-spacing: -0.01em;
+  }
+
+  [data-complete] .finder__count span {
+    color: var(--pen);
+  }
+
+  .finder__status {
+    min-height: 2.6em;
+    margin-top: 14px;
+    font-family: var(--display);
+    font-style: italic;
+    font-variation-settings: 'opsz' 36;
+    font-size: clamp(1.15rem, 1.9vw, 1.5rem);
+    line-height: 1.2;
+  }
+
+  .finder__found {
+    margin-top: 14px;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .finder__found :global(li) {
+    display: grid;
+    gap: 2px;
+    padding: 10px 0 10px 16px;
+    border-bottom: 1px solid var(--hairline);
+    border-left: 2px dashed var(--pencil);
+    color: var(--ink-soft);
+    font-size: 0.95em;
+  }
+
+  .finder__found :global(li.is-pen) {
+    border-left-color: var(--pen);
+  }
+
+  .finder__found :global(.label) {
+    color: var(--ink);
+  }
+
+  .finder__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  @media (max-width: 760px) {
+    .finder__head,
+    .finder__stage {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .finder__panel {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 20px;
+      align-items: end;
+    }
+
+    .finder__status {
+      margin-top: 0;
+    }
+
+    .finder__found,
+    .finder__actions {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

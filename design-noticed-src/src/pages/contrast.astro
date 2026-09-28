@@ -1,0 +1,106 @@
+---
+import Base from '../layouts/Base.astro';
+import PrincipleHeader from '../components/PrincipleHeader.astro';
+import Step from '../components/Step.astro';
+import Named from '../components/Named.astro';
+import Make from '../components/Make.astro';
+import Squint from '../components/contrast/Squint.astro';
+import Machine from '../components/contrast/Machine.astro';
+import Spotted from '../components/contrast/Spotted.astro';
+import { sightingsPage } from '../links';
+
+const ideas = [
+  { kind: 'same', say: 'The same', mean: 'Calm. These two are equals.' },
+  { kind: 'almost', say: 'Almost the same', mean: 'Is that on purpose? I can’t tell.' },
+  { kind: 'different', say: 'Really different', mean: 'A decision. Now one of them leads.' },
+];
+---
+
+<Base
+  title="Contrast"
+  description="Different is not enough. Make it different enough to matter. Notes, a contrast machine and real-world examples of the contrast principle."
+>
+  <PrincipleHeader name="Contrast" />
+
+  <Step n="01" label="See">
+    <Squint />
+  </Step>
+
+  <Step n="02" label="Name">
+    <Named
+      word="Contrast"
+      size={18.6}
+      gloss="con·trast, n. a difference you can’t miss."
+      idea="Different is not enough. Make it different enough to matter."
+    />
+  </Step>
+
+  <Step n="03" label="Understand">
+    <div class="ideas">
+      {
+        ideas.map((idea) => (
+          <div class="idea">
+            <div class={`idea__fig duo duo--${idea.kind}`} aria-hidden="true">
+              <i />
+              <i />
+            </div>
+            <p class="label">{idea.say}</p>
+            <p class="idea__mean">{idea.mean}</p>
+          </div>
+        ))
+      }
+    </div>
+    <div class="prose understand">
+      <p>
+        Contrast is how a page says “start here”. If everything is the same size, the same weight
+        and the same colour, then nothing is more important than anything else, and the reader has
+        to do the sorting for me.
+      </p>
+      <p>
+        The trap is the middle. Text at 14 next to text at 16 isn’t contrast. It’s different enough
+        to notice and not different enough to mean anything, so it looks like I slipped.
+      </p>
+      <p>
+        So when two things aren’t the same, I make them really not the same. Big against small,
+        heavy against light, dark against pale, crowded against empty.
+      </p>
+    </div>
+  </Step>
+
+  <Step n="04" label="Play">
+    <Machine />
+  </Step>
+
+  <Step n="05" label="Notice">
+    <Spotted />
+  </Step>
+
+  <Step n="06" label="Make">
+    <Make
+      sighting="Find a page or a sign where the most important thing is not the most visible thing. Photograph it."
+      exercise="Take one slide. Pick the single line that matters most and make it at least three times bigger than anything else. Make everything else quieter."
+      rule="If it isn’t the same, don’t make it almost the same."
+      next={sightingsPage}
+    />
+  </Step>
+</Base>
+
+<style>
+  .duo i {
+    top: 50%;
+    left: var(--x);
+    width: var(--d);
+    height: var(--d);
+    margin: calc(var(--d) / -2) 0 0 calc(var(--d) / -2);
+    border-radius: 50%;
+  }
+
+  .duo i:nth-child(1) { --x: 38%; }
+  .duo i:nth-child(2) { --x: 62%; }
+
+  .duo--same i { --d: 34px; }
+  .duo--almost i:nth-child(1) { --d: 30px; }
+  .duo--almost i:nth-child(2) { --d: 37px; }
+  .duo--different i:nth-child(1) { --d: 10px; }
+  .duo--different i:nth-child(2) { --d: 70px; background: var(--pen); }
+</style>

@@ -1,0 +1,176 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import SightingCard from '../../components/SightingCard.astro';
+
+const sightings = (await getCollection('sightings')).sort((a, b) => b.data.number - a.data.number);
+const principles = [...new Set(sightings.flatMap((s) => s.data.principles))];
+const count = sightings.length;
+---
+
+<Base
+  title="Design Sightings"
+  description="Real things I noticed out in the world, what I think is going on in each, and the rule I took away."
+>
+  <header class="index wrap">
+    <p class="label index__kicker">Observe</p>
+    <h1 class="index__title display">Design<br />Sightings</h1>
+    <div class="index__foot">
+      <p class="index__lede">
+        Things I noticed out in the world, what I think is going on in each one, and the rule I
+        took home.
+      </p>
+      <p class="index__count">
+        <strong>{count}</strong>
+        {count === 1 ? 'thing' : 'things'} noticed
+      </p>
+    </div>
+  </header>
+
+  <section class="wrap" data-sightings>
+    <div class="filter label" role="group" aria-label="Filter by principle">
+      <button type="button" aria-pressed="true" data-filter="">All</button>
+      {
+        principles.map((principle) => (
+          <button type="button" aria-pressed="false" data-filter={principle}>
+            #{principle}
+          </button>
+        ))
+      }
+    </div>
+
+    <ol class="index__list">
+      {
+        sightings.map((sighting) => (
+          <li data-principles={sighting.data.principles.join(' ')}>
+            <SightingCard sighting={sighting} />
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-sightings]').forEach((root) => {
+    const filters = root.querySelectorAll<HTMLButtonElement>('[data-filter]');
+    const items = root.querySelectorAll<HTMLElement>('[data-principles]');
+    filters.forEach((filter) =>
+      filter.addEventListener('click', () => {
+        const want = filter.dataset.filter!;
+        filters.forEach((f) => f.setAttribute('aria-pressed', String(f === filter)));
+        items.forEach((item) => (item.hidden = !!want && !item.dataset.principles!.split(' ').includes(want)));
+      })
+    );
+  });
+</script>
+
+<style>
+  .index {
+    padding-top: clamp(28px, 5vw, 64px);
+  }
+
+  .index__kicker {
+    color: var(--ink-soft);
+  }
+
+  .index__title {
+    margin-top: clamp(16px, 2.4vw, 32px);
+    margin-left: -0.014em;
+    font-size: clamp(3.2rem, 13vw, 12rem);
+  }
+
+  .index__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px 40px;
+    margin-top: clamp(28px, 4vw, 56px);
+  }
+
+  .index__lede {
+    max-width: 24em;
+    font-family: var(--display);
+    font-style: italic;
+    font-variation-settings: 'opsz' 72;
+    font-size: clamp(1.3rem, 2.4vw, 2rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .index__count {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .index__count strong {
+    display: block;
+    font-family: var(--display);
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144;
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: var(--pen);
+  }
+
+  .filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    margin-top: clamp(48px, 7vw, 96px);
+    padding-block: 16px;
+    border-block: 1.5px solid var(--ink);
+  }
+
+  .filter button {
+    padding-bottom: 3px;
+    border-bottom: 1.5px solid transparent;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: var(--ink-soft);
+  }
+
+  .filter button:hover {
+    color: var(--ink);
+  }
+
+  .filter button[aria-pressed='true'] {
+    color: var(--ink);
+    border-bottom-color: var(--pen);
+  }
+
+  .index__list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(40px, 6vw, 88px) var(--column-gap);
+    margin-top: clamp(28px, 4vw, 52px);
+  }
+
+  .index__list li:nth-child(3n + 2) {
+    margin-top: clamp(32px, 5vw, 80px);
+  }
+
+  .index__list li[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 900px) {
+    .index__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .index__list li:nth-child(3n + 2) {
+      margin-top: 0;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .index__list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

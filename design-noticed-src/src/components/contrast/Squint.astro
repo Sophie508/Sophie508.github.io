@@ -1,0 +1,182 @@
+---
+const flyers = ['weak', 'strong'];
+---
+
+<div class="squint" data-squint>
+  <div class="squint__ask">
+    <h2 class="headline">Squint at these. What’s left?</h2>
+    <p class="squint__hint hand">Really, do it. Or let the button squint for you.</p>
+
+    <div class="squint__answer" aria-live="polite">
+      <p data-off>Two flyers for the same night market. Same words, same information.</p>
+      <p data-on hidden>
+        On the left, everything melts into <strong>the same grey</strong>. On the right I can still
+        tell what matters, even though I can’t read a word of it.
+      </p>
+    </div>
+
+    <button class="button" type="button" aria-pressed="false" data-squint-toggle>
+      <span data-off>Squint</span>
+      <span data-on hidden>Open your eyes</span>
+    </button>
+  </div>
+
+  <div class="squint__flyers">
+    {
+      flyers.map((kind) => (
+        <div class={`flyer flyer--${kind}`}>
+          <div class="flyer__in">
+            <p class="flyer__title">Night Market</p>
+            <p class="flyer__date">Fri 21 Nov</p>
+            <p class="flyer__line">6 pm till late</p>
+            <p class="flyer__line">Carpark B, Block 12</p>
+            <p class="flyer__line flyer__free">Free entry</p>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-squint]').forEach((root) => {
+    const toggle = root.querySelector<HTMLButtonElement>('[data-squint-toggle]')!;
+    toggle.addEventListener('click', () => {
+      const on = root.toggleAttribute('data-squinting');
+      toggle.setAttribute('aria-pressed', String(on));
+      root.querySelectorAll<HTMLElement>('[data-on]').forEach((el) => (el.hidden = !on));
+      root.querySelectorAll<HTMLElement>('[data-off]').forEach((el) => (el.hidden = on));
+    });
+  });
+</script>
+
+<style>
+  .squint {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: start;
+  }
+
+  .squint__hint {
+    margin-top: 0.9em;
+    font-size: 1.7rem;
+  }
+
+  .squint__answer {
+    max-width: 30rem;
+    min-height: 6em;
+    margin-top: clamp(28px, 4vw, 48px);
+    font-size: 1.12em;
+  }
+
+  .squint__answer strong {
+    font-weight: 700;
+    background: linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%);
+  }
+
+  .squint .button {
+    margin-top: 20px;
+  }
+
+  .squint__flyers {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--column-gap);
+  }
+
+  .flyer {
+    aspect-ratio: 3 / 4;
+    background: var(--sheet);
+    border: 1.5px solid var(--ink);
+    container-type: inline-size;
+    overflow: hidden;
+  }
+
+  .flyer__in {
+    height: 100%;
+    padding: 11cqi 10cqi;
+    transition: filter 0.6s ease;
+  }
+
+  [data-squinting] .flyer__in {
+    filter: blur(2.6cqi);
+  }
+
+  .flyer p {
+    line-height: 1.15;
+  }
+
+  .flyer--weak p {
+    margin-top: 3.4cqi;
+    font-size: 6cqi;
+    color: #4a463f;
+  }
+
+  .flyer--weak .flyer__title {
+    margin-top: 0;
+    font-size: 7cqi;
+    font-weight: 600;
+  }
+
+  .flyer--strong .flyer__title {
+    font-family: var(--display);
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144;
+    font-size: 17.5cqi;
+    line-height: 0.86;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+  }
+
+  .flyer--strong .flyer__date {
+    width: fit-content;
+    margin-top: 9cqi;
+    padding: 2cqi 4cqi;
+    background: var(--pen);
+    color: var(--sheet);
+    font-size: 8cqi;
+    font-weight: 700;
+  }
+
+  .flyer--strong .flyer__line {
+    margin-top: 2.4cqi;
+    font-size: 4.2cqi;
+    color: var(--ink-soft);
+  }
+
+  .flyer--strong .flyer__date + .flyer__line {
+    margin-top: 9cqi;
+  }
+
+  @media (max-width: 760px) {
+    .squint {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .squint__ask {
+      display: contents;
+    }
+
+    .squint__hint {
+      margin-top: -8px;
+    }
+
+    .squint__flyers {
+      order: 1;
+    }
+
+    .squint__answer {
+      order: 2;
+      min-height: 0;
+      margin-top: 0;
+    }
+
+    .squint .button {
+      order: 3;
+      justify-self: start;
+      margin-top: 0;
+    }
+  }
+</style>

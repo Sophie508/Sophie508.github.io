@@ -1,0 +1,65 @@
+---
+import { pages } from '../links';
+
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+const position = pages.findIndex((page) => page.name === name) + 1;
+const steps = ['See', 'Name', 'Understand', 'Play', 'Notice', 'Make'];
+---
+
+<header class="top wrap">
+  <h1 class="visually-hidden">{name}</h1>
+  <p class="label top__kicker">A way of looking <span>/</span> {position} of {pages.length}</p>
+  <ol class="top__steps label">
+    {
+      steps.map((step, i) => (
+        <li>
+          <a href={`#${step.toLowerCase()}`}>
+            <span>0{i + 1}</span> {step}
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</header>
+
+<style>
+  .top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px 40px;
+    padding-top: clamp(28px, 5vw, 64px);
+  }
+
+  .top + :global(.step) {
+    margin-top: clamp(36px, 5vw, 72px);
+  }
+
+  .top__kicker {
+    color: var(--ink-soft);
+  }
+
+  .top__kicker span {
+    color: var(--pen);
+    margin-inline: 0.5em;
+  }
+
+  .top__steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px clamp(14px, 2vw, 28px);
+  }
+
+  .top__steps span {
+    color: var(--ink-soft);
+  }
+
+  .top__steps a:hover {
+    color: var(--pen);
+  }
+</style>

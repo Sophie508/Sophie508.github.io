@@ -10,11 +10,10 @@ import { href, pages } from '../../links';
   <ol class="ways__list">
     {
       pages.map((page, i) => {
-        const Tag = page.live ? 'a' : 'div';
         const glyph = page.name.toLowerCase();
         return (
           <li>
-            <Tag class="way" href={page.live ? href(page.path) : undefined} data-way>
+            <a class="way" href={href(page.path)} data-way>
               <span class="way__n label">0{i + 1}</span>
               <span class="way__words">
                 <span class="way__name">{page.name}</span>
@@ -27,10 +26,8 @@ import { href, pages } from '../../links';
                   )
                 )}
               </span>
-              <span class="way__go label">
-                {page.live ? 'Open →' : <span class="hand">soon</span>}
-              </span>
-            </Tag>
+              <span class="way__go label">Open →</span>
+            </a>
           </li>
         );
       })
@@ -97,7 +94,7 @@ import { href, pages } from '../../links';
     transition: color 0.2s ease;
   }
 
-  a.way:hover .way__name {
+  .way:hover .way__name {
     color: var(--pen);
   }
 
@@ -115,12 +112,6 @@ import { href, pages } from '../../links';
   .way__go {
     justify-self: end;
     white-space: nowrap;
-  }
-
-  .way__go .hand {
-    font-size: 1.5rem;
-    letter-spacing: 0;
-    text-transform: none;
   }
 
   .glyph {

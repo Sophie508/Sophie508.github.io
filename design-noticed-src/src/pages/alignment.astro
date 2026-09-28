@@ -1,0 +1,128 @@
+---
+import Base from '../layouts/Base.astro';
+import PrincipleHeader from '../components/PrincipleHeader.astro';
+import Step from '../components/Step.astro';
+import Named from '../components/Named.astro';
+import Make from '../components/Make.astro';
+import TwoSheets from '../components/alignment/TwoSheets.astro';
+import FindLines from '../components/alignment/FindLines.astro';
+import Spotted from '../components/alignment/Spotted.astro';
+import { pages } from '../links';
+
+const ideas = [
+  { kind: 'edge', say: 'A shared edge', mean: 'One line ties all of these together.' },
+  { kind: 'far', say: 'Far apart', mean: 'Still connected, because they share an edge.' },
+  { kind: 'almost', say: 'Almost aligned', mean: 'This just looks like a mistake.' },
+];
+---
+
+<Base
+  title="Alignment"
+  description="Every thing lines up with some other thing. Notes, a find-the-invisible-line game and real-world examples of the alignment principle."
+>
+  <PrincipleHeader name="Alignment" />
+
+  <Step n="01" label="See">
+    <TwoSheets />
+  </Step>
+
+  <Step n="02" label="Name">
+    <Named
+      word="Alignment"
+      size={16.4}
+      gloss="a·lign·ment, n. being in line."
+      idea="Every thing lines up with some other thing."
+    />
+  </Step>
+
+  <Step n="03" label="Understand">
+    <div class="ideas">
+      {
+        ideas.map((idea) => (
+          <div class="idea">
+            <div class={`idea__fig bars bars--${idea.kind}`} aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+            </div>
+            <p class="label">{idea.say}</p>
+            <p class="idea__mean">{idea.mean}</p>
+          </div>
+        ))
+      }
+    </div>
+    <div class="prose understand">
+      <p>
+        When I drop things onto a page wherever there’s room, the page looks like things were
+        dropped onto it. When each thing lines up with something else, a line appears that nobody
+        drew, and my eye follows it.
+      </p>
+      <p>
+        Centring everything is the safe choice, which is why it so often looks timid. A centred
+        block has soft, ragged sides. A hard left or right edge gives the eye something to hold.
+      </p>
+      <p>
+        Alignment can also do something proximity can’t. It connects things that are far apart.
+        A date at the bottom of a poster still belongs to the picture at the top, if they start
+        on the same line.
+      </p>
+    </div>
+  </Step>
+
+  <Step n="04" label="Play">
+    <FindLines />
+  </Step>
+
+  <Step n="05" label="Notice">
+    <Spotted />
+  </Step>
+
+  <Step n="06" label="Make">
+    <Make
+      sighting="Find something in public where one invisible line runs through at least three things. Photograph it, then draw the line on the photo."
+      exercise="Take a slide where everything is centred. Pick one hard edge, left or right, and hang every single thing on it."
+      rule="Nothing is placed at random."
+      next={pages[2]}
+    />
+  </Step>
+</Base>
+
+<style>
+  .bars i {
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    height: 8px;
+  }
+
+  .bars::after {
+    content: '';
+    position: absolute;
+    left: 22%;
+    top: 8%;
+    bottom: 8%;
+    border-left: 1.5px dashed var(--pencil);
+  }
+
+  .bars--edge i:nth-child(1) { --x: 22%; --y: 26%; --w: 40%; }
+  .bars--edge i:nth-child(2) { --x: 22%; --y: 40%; --w: 56%; }
+  .bars--edge i:nth-child(3) { --x: 22%; --y: 54%; --w: 30%; }
+  .bars--edge i:nth-child(4) { --x: 22%; --y: 68%; --w: 48%; }
+
+  .bars--far i:nth-child(1) { --x: 22%; --y: 16%; --w: 34%; }
+  .bars--far i:nth-child(2) { --x: 22%; --y: 78%; --w: 22%; }
+  .bars--far i:nth-child(3),
+  .bars--far i:nth-child(4) {
+    display: none;
+  }
+
+  .bars--almost::after {
+    display: none;
+  }
+
+  .bars--almost i:nth-child(1) { --x: 22%; --y: 26%; --w: 40%; }
+  .bars--almost i:nth-child(2) { --x: 25%; --y: 40%; --w: 56%; }
+  .bars--almost i:nth-child(3) { --x: 20.500%; --y: 54%; --w: 30%; }
+  .bars--almost i:nth-child(4) { --x: 23.500%; --y: 68%; --w: 48%; }
+</style>

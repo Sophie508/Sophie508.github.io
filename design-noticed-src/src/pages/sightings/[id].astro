@@ -1,0 +1,235 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { href, sightingPath, sightingsPage } from '../../links';
+import { sketches } from '../../sketches';
+
+export async function getStaticPaths() {
+  const sightings = (await getCollection('sightings')).sort((a, b) => a.data.number - b.data.number);
+  return sightings.map((sighting, i) => ({
+    params: { id: sighting.id },
+    props: { sighting, older: sightings[i - 1], newer: sightings[i + 1] },
+  }));
+}
+
+const { sighting, older, newer } = Astro.props;
+const { data } = sighting;
+const Sketch = data.sketch ? sketches[data.sketch] : undefined;
+const number = String(data.number).padStart(3, '0');
+const notes = [
+  { label: 'What I noticed', text: data.noticed },
+  { label: 'Why it works, or doesn’t', text: data.why },
+  { label: 'What I would change', text: data.change },
+].filter((note) => note.text);
+---
+
+<Base title={`${data.title}, Design Sighting #${number}`} description={data.noticed ?? data.rule}>
+  <article class="one wrap grid">
+    <figure class="one__pic">
+      {data.photo ? <Image src={data.photo} alt={`Photograph: ${data.title}`} widths={[640, 960, 1400]} sizes="(max-width: 900px) 100vw, 45vw" /> : Sketch && <Sketch />}
+      {!data.photo && <figcaption class="label">A sketch for now. Photograph to follow.</figcaption>}
+    </figure>
+
+    <div class="one__words">
+      <p class="label one__n">Design Sighting #{number}</p>
+      <h1 class="headline">{data.title}</h1>
+      <p class="label one__meta">
+        {data.context && <span class="one__where">{data.context}</span>}
+        {data.principles.map((principle) => <span class="one__tag">#{principle}</span>)}
+      </p>
+
+      <dl class="one__notes">
+        {
+          notes.map((note) => (
+            <div>
+              <dt class="label">{note.label}</dt>
+              <dd>{note.text}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      {
+        data.rule && (
+          <div class="one__rule">
+            <p class="label">My rule</p>
+            <p class="one__line">
+              <span class="marked">{data.rule}</span>
+            </p>
+          </div>
+        )
+      }
+    </div>
+  </article>
+
+  <nav class="wrap" aria-label="More sightings">
+    <div class="turn">
+    {
+      older ? (
+        <a href={href(sightingPath(older.id))}>
+          <span class="label">← Earlier</span>
+          <span class="turn__title">{older.data.title}</span>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    <a class="turn__all label" href={href(sightingsPage.path)}>All sightings</a>
+    {
+      newer ? (
+        <a class="turn__next" href={href(sightingPath(newer.id))}>
+          <span class="label">Later →</span>
+          <span class="turn__title">{newer.data.title}</span>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    </div>
+  </nav>
+</Base>
+
+<style>
+  .one {
+    padding-top: clamp(28px, 5vw, 64px);
+    row-gap: 32px;
+    align-items: start;
+  }
+
+  .one__pic {
+    grid-column: 1 / span 5;
+    position: sticky;
+    top: 24px;
+  }
+
+  .one__pic :global(svg),
+  .one__pic :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .one__pic figcaption {
+    margin-top: 10px;
+    color: var(--ink-soft);
+  }
+
+  .one__words {
+    grid-column: 7 / -1;
+  }
+
+  .one__n {
+    margin-bottom: 14px;
+    color: var(--pen);
+  }
+
+  .one__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin-top: 20px;
+  }
+
+  .one__where {
+    color: var(--ink-soft);
+  }
+
+  .one__tag {
+    padding-bottom: 2px;
+    border-bottom: 1.5px solid var(--pen);
+  }
+
+  .one__notes {
+    margin: clamp(32px, 5vw, 64px) 0 0;
+    border-top: 1.5px solid var(--ink);
+  }
+
+  .one__notes div {
+    padding-block: clamp(18px, 2.4vw, 28px);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .one__notes dt {
+    color: var(--pen);
+  }
+
+  .one__notes dd {
+    max-width: 34rem;
+    margin: 8px 0 0;
+    font-size: 1.12em;
+  }
+
+  .one__rule {
+    margin-top: clamp(28px, 4vw, 48px);
+  }
+
+  .one__rule .label {
+    color: var(--pen);
+  }
+
+  .one__line {
+    margin-top: 10px;
+    font-family: var(--display);
+    font-weight: 600;
+    font-variation-settings: 'opsz' 72;
+    font-size: clamp(1.7rem, 3.4vw, 2.9rem);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+  }
+
+  .turn {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: end;
+    gap: 24px;
+    margin-top: var(--section-space);
+    padding-top: 22px;
+    border-top: 1.5px solid var(--ink);
+  }
+
+  .turn a {
+    display: grid;
+    gap: 6px;
+  }
+
+  .turn .label {
+    color: var(--ink-soft);
+  }
+
+  .turn__title {
+    font-family: var(--display);
+    font-weight: 600;
+    font-variation-settings: 'opsz' 36;
+    font-size: clamp(1.15rem, 2vw, 1.6rem);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+  }
+
+  .turn a:hover .turn__title,
+  .turn__all:hover {
+    color: var(--pen);
+  }
+
+  .turn__all {
+    padding-bottom: 3px;
+    border-bottom: 1.5px solid currentColor;
+    color: var(--ink) !important;
+  }
+
+  .turn__next {
+    text-align: right;
+  }
+
+  @media (max-width: 900px) {
+    .one__pic {
+      grid-column: 1 / -1;
+      position: static;
+      max-width: 520px;
+    }
+
+    .one__words {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

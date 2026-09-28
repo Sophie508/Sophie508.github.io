@@ -1,0 +1,152 @@
+---
+interface Props {
+  off: string;
+  on: string;
+  aside: string;
+}
+
+const { off, on, aside } = Astro.props;
+---
+
+<div class="spot" data-spot>
+  <h2 class="headline spot__title">Once I knew the name, it was everywhere.</h2>
+  <div class="spot__switch" role="group" aria-label="Show each example">
+    <button class="button" type="button" aria-pressed="true" data-spot-state="found">{off}</button>
+    <button class="button" type="button" aria-pressed="false" data-spot-state="fixed">{on}</button>
+  </div>
+
+  <ul class="spot__grid">
+    <slot />
+    <li class="spot__aside">
+      <svg viewBox="0 0 120 70" aria-hidden="true">
+        <path d="M10 62c40 4 80-14 96-50m8 16-8-18-16 10"></path>
+      </svg>
+      <p class="hand">flip the switch.<br />{aside}</p>
+    </li>
+  </ul>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-spot]').forEach((root) => {
+    const buttons = root.querySelectorAll<HTMLButtonElement>('[data-spot-state]');
+    buttons.forEach((button) =>
+      button.addEventListener('click', () => {
+        root.toggleAttribute('data-fixed', button.dataset.spotState === 'fixed');
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+      })
+    );
+  });
+</script>
+
+<style is:global>
+  .spot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 24px 40px;
+  }
+
+  .spot__title {
+    max-width: 15em;
+  }
+
+  .spot__switch {
+    display: flex;
+  }
+
+  .spot__switch .button + .button {
+    margin-left: -1.5px;
+  }
+
+  .spot__grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(36px, 5vw, 64px) var(--column-gap);
+    margin-top: clamp(4px, 2vw, 28px);
+  }
+
+  .spot__item .label {
+    margin-top: 14px;
+    color: var(--pen);
+  }
+
+  .spot__note {
+    max-width: 24rem;
+    margin-top: 4px;
+    color: var(--ink-soft);
+    font-size: 0.95em;
+  }
+
+  .spot__aside {
+    align-self: center;
+    padding: 0 8%;
+  }
+
+  .spot__aside svg {
+    width: 96px;
+    fill: none;
+    stroke: var(--pen);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .spot__aside .hand {
+    margin-top: 10px;
+    font-size: 1.7rem;
+    transform: rotate(-2deg);
+  }
+
+  .art {
+    display: grid;
+    place-items: center;
+    height: 330px;
+    padding: 24px;
+    background: var(--paper-deep);
+    font-size: 13px;
+    line-height: 1.25;
+    overflow: hidden;
+  }
+
+  .art * {
+    transition: all 0.7s cubic-bezier(0.6, 0, 0.2, 1);
+  }
+
+  .art--desk {
+    padding: 16px;
+  }
+
+  .art--dark {
+    background: #1b1d21;
+    color: var(--paper);
+  }
+
+  @media (max-width: 900px) {
+    .spot__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .spot {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .spot__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .spot__switch {
+      position: sticky;
+      top: 12px;
+      z-index: 3;
+      justify-self: start;
+      background: var(--paper);
+    }
+
+    .spot__aside {
+      display: none;
+    }
+  }
+</style>

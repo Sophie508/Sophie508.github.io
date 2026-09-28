@@ -1,0 +1,91 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import { href, sightingPath } from '../links';
+import { sketches } from '../sketches';
+
+interface Props {
+  sighting: CollectionEntry<'sightings'>;
+}
+
+const { id, data } = Astro.props.sighting;
+const Sketch = data.sketch ? sketches[data.sketch] : undefined;
+---
+
+<a class="sighting" href={href(sightingPath(id))}>
+  <figure>
+    <div class="sighting__pic">
+      {
+        data.photo ? (
+          <Image src={data.photo} alt="" widths={[320, 640, 960]} sizes="(max-width: 900px) 50vw, 25vw" />
+        ) : (
+          Sketch && <Sketch />
+        )
+      }
+    </div>
+    <figcaption>
+      <span class="label sighting__n">Design Sighting #{String(data.number).padStart(3, '0')}</span>
+      <span class="sighting__title">{data.title}</span>
+      <span class="label sighting__tags">
+        {data.principles.map((principle) => <span>{principle}</span>)}
+      </span>
+    </figcaption>
+  </figure>
+</a>
+
+<style>
+  .sighting {
+    display: block;
+  }
+
+  .sighting__pic {
+    overflow: hidden;
+  }
+
+  .sighting__pic > :global(*) {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 0.5s cubic-bezier(0.6, 0, 0.2, 1);
+  }
+
+  .sighting:hover .sighting__pic > :global(*) {
+    transform: scale(1.03);
+  }
+
+  .sighting figcaption {
+    display: grid;
+    gap: 5px;
+    margin-top: 14px;
+  }
+
+  .sighting__n {
+    color: var(--ink-soft);
+  }
+
+  .sighting__title {
+    font-family: var(--display);
+    font-weight: 600;
+    font-variation-settings: 'opsz' 36;
+    font-size: 1.4rem;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    transition: color 0.2s ease;
+  }
+
+  .sighting:hover .sighting__title {
+    color: var(--pen);
+  }
+
+  .sighting__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+
+  .sighting__tags span {
+    margin-top: 4px;
+    padding-bottom: 2px;
+    border-bottom: 1.5px solid var(--pen);
+  }
+</style>

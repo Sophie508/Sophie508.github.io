@@ -1,0 +1,106 @@
+---
+import Base from '../layouts/Base.astro';
+import PrincipleHeader from '../components/PrincipleHeader.astro';
+import Step from '../components/Step.astro';
+import Named from '../components/Named.astro';
+import Make from '../components/Make.astro';
+import OddOne from '../components/repetition/OddOne.astro';
+import SystemBuilder from '../components/repetition/SystemBuilder.astro';
+import Spotted from '../components/repetition/Spotted.astro';
+import { pages } from '../links';
+
+const ideas = [
+  { marks: [2], say: 'Once', mean: 'An accident.' },
+  { marks: [2, 4], say: 'Twice', mean: 'A coincidence.' },
+  { marks: [1, 3, 5], say: 'Three times', mean: 'A decision. Now it’s a system.' },
+];
+---
+
+<Base
+  title="Repetition"
+  description="Repetition creates a system. Notes, a build-your-own design system experiment and real-world examples of the repetition principle."
+>
+  <PrincipleHeader name="Repetition" />
+
+  <Step n="01" label="See">
+    <OddOne />
+  </Step>
+
+  <Step n="02" label="Name">
+    <Named
+      word="Repetition"
+      size={15.2}
+      gloss="rep·e·ti·tion, n. doing it again, on purpose."
+      idea="Repetition creates a system."
+    />
+  </Step>
+
+  <Step n="03" label="Understand">
+    <div class="ideas">
+      {
+        ideas.map((idea) => (
+          <div class="idea">
+            <div class="idea__fig row" aria-hidden="true">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <i class={idea.marks.includes(n) ? 'is-mark' : ''} style={`--n:${n}`} />
+              ))}
+            </div>
+            <p class="label">{idea.say}</p>
+            <p class="idea__mean">{idea.mean}</p>
+          </div>
+        ))
+      }
+    </div>
+    <div class="prose understand">
+      <p>
+        Repetition means making a few decisions and then making them again, everywhere. The same
+        typeface for every heading. The same red for every important thing. The same gap between
+        every block.
+      </p>
+      <p>
+        It doesn’t mean stamping one graphic on everything. What repeats can be very quiet: a type
+        size, a spacing, a corner, the way pictures are cropped, an edge that everything lines up
+        to.
+      </p>
+      <p>
+        When enough of these repeat, separate pieces start to feel like one family, even when one
+        is a business card and the other is a poster.
+      </p>
+    </div>
+  </Step>
+
+  <Step n="04" label="Play">
+    <SystemBuilder />
+  </Step>
+
+  <Step n="05" label="Notice">
+    <Spotted />
+  </Step>
+
+  <Step n="06" label="Make">
+    <Make
+      sighting="Find a shop, a brand or a building where the same decision shows up at least three times: a colour, a shape, a type style. Photograph all three."
+      exercise="Take a document with several headings. Make every heading identical: same size, same weight, same space above it. Touch nothing else."
+      rule="Repetition creates a system."
+      next={pages[3]}
+    />
+  </Step>
+</Base>
+
+<style>
+  .row i {
+    top: 50%;
+    left: calc(var(--n) * 16.666%);
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+  }
+
+  .row i.is-mark {
+    width: 26px;
+    height: 26px;
+    margin: -13px 0 0 -13px;
+    border-radius: 50%;
+    background: var(--pen);
+  }
+</style>

@@ -1,0 +1,205 @@
+---
+const tins = [
+  { name: 'Oolong', odd: false },
+  { name: 'Jasmine', odd: false },
+  { name: 'Genmaicha', odd: true },
+  { name: 'Sencha', odd: false },
+];
+---
+
+<div class="odd" data-odd>
+  <div class="odd__ask">
+    <h2 class="headline">Which one doesn’t belong?</h2>
+    <p class="odd__hint hand">You’ll know before you can say why.</p>
+
+    <div class="odd__answer" aria-live="polite">
+      <p data-said="right" hidden>
+        <strong>That one.</strong> It took about a second, and I doubt you compared them detail by
+        detail. Three of these share a typeface, a red band and a circle. The fourth shares nothing,
+        so it reads as a stranger.
+      </p>
+      <p data-said="wrong" hidden>
+        <strong>Look again.</strong> That one has family here. Three of these share a typeface, a
+        red band and a circle.
+      </p>
+    </div>
+  </div>
+
+  <div class="odd__shelf">
+    {
+      tins.map((tin) => (
+        <button class:list={['tin', { 'tin--odd': tin.odd }]} type="button" data-tin={tin.odd ? 'right' : 'wrong'}>
+          <span class="tin__mark" />
+          <span class="tin__name">{tin.name}</span>
+          <span class="tin__small">Loose leaf, 50 g</span>
+          <span class="tin__band" />
+        </button>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-odd]').forEach((root) => {
+    root.querySelectorAll<HTMLButtonElement>('[data-tin]').forEach((tin) =>
+      tin.addEventListener('click', () => {
+        const said = tin.dataset.tin!;
+        root.toggleAttribute('data-solved', said === 'right');
+        root.querySelectorAll<HTMLElement>('[data-said]').forEach((el) => (el.hidden = el.dataset.said !== said));
+      })
+    );
+  });
+</script>
+
+<style>
+  .odd {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+  }
+
+  .odd__hint {
+    margin-top: 0.9em;
+    font-size: 1.7rem;
+  }
+
+  .odd__answer {
+    min-height: 9.5em;
+    margin-top: clamp(28px, 4vw, 48px);
+    font-size: 1.12em;
+  }
+
+  .odd__answer strong {
+    font-weight: 700;
+    background: linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%);
+  }
+
+  .odd__shelf {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--column-gap);
+    padding-bottom: 14px;
+    border-bottom: 1.5px solid var(--ink);
+  }
+
+  .tin {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 4.4;
+    padding: 12% 10% 0;
+    background: var(--sheet);
+    border: 1.5px solid var(--ink);
+    text-align: left;
+    container-type: inline-size;
+    transition: transform 0.25s ease;
+  }
+
+  .tin:hover {
+    transform: translateY(-6px);
+  }
+
+  .tin span {
+    display: block;
+  }
+
+  .tin__mark {
+    width: 30%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--pen);
+  }
+
+  .tin__name {
+    margin-top: 16cqi;
+    font-family: var(--display);
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144;
+    font-size: 15cqi;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .tin__small {
+    margin-top: 5cqi;
+    font-family: var(--mono);
+    font-size: 5.4cqi;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .tin__band {
+    position: absolute;
+    inset: auto 0 0;
+    height: 13%;
+    background: var(--pen);
+  }
+
+  .tin--odd {
+    background: var(--paper-deep);
+  }
+
+  .tin--odd .tin__mark {
+    margin-left: auto;
+    border-radius: 0;
+    background: none;
+    border: 1.5px solid var(--pencil);
+  }
+
+  .tin--odd .tin__name {
+    font-family: var(--mono);
+    font-weight: 400;
+    font-size: 10.5cqi;
+    letter-spacing: 0;
+    text-transform: lowercase;
+    text-align: right;
+    color: var(--pencil);
+  }
+
+  .tin--odd .tin__small {
+    text-align: right;
+  }
+
+  .tin--odd .tin__band {
+    display: none;
+  }
+
+  [data-solved] .tin--odd {
+    outline: 2px solid var(--pen);
+    outline-offset: 6px;
+  }
+
+  @media (max-width: 900px) {
+    .odd {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .odd__ask {
+      display: contents;
+    }
+
+    .odd__hint {
+      margin-top: -8px;
+    }
+
+    .odd__shelf {
+      order: 1;
+    }
+
+    .odd__answer {
+      order: 2;
+      min-height: 0;
+      margin-top: 0;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .odd__shelf {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 16px;
+    }
+  }
+</style>

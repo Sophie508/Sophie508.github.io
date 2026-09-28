@@ -1,0 +1,200 @@
+---
+const lines = [
+  { kind: 'pic' },
+  { kind: 'title', text: 'Supper Club' },
+  { kind: 'line', text: 'Every last Friday' },
+  { kind: 'line', text: 'Bring one dish' },
+  { kind: 'foot', text: 'RSVP by Wednesday' },
+];
+const sheets = [
+  { id: 'a', name: 'The left one' },
+  { id: 'b', name: 'The right one' },
+];
+---
+
+<div class="pick" data-pick>
+  <div class="pick__ask">
+    <h2 class="headline">One of these feels finished. Which one?</h2>
+    <p class="pick__hint hand">Go with your gut. Click it.</p>
+
+    <div class="pick__answer" aria-live="polite">
+      <p data-said="b" hidden>
+        <strong>Same here.</strong> And nothing about the content is different: same words, same
+        sizes, same picture. In this one, every item starts on the same line as every other item.
+      </p>
+      <p data-said="a" hidden>
+        <strong>Fair.</strong> Now look at the other one. Same words, same sizes, same picture, but
+        every item starts on the same line. In the one you picked, nothing lines up with anything.
+      </p>
+    </div>
+  </div>
+
+  <div class="pick__sheets">
+    {
+      sheets.map((sheet) => (
+        <button class={`sheet sheet--${sheet.id}`} type="button" data-choice={sheet.id} aria-label={sheet.name}>
+          {lines.map((line) =>
+            line.kind === 'pic' ? <span class="sheet__pic" /> : <span class={`sheet__${line.kind}`}>{line.text}</span>
+          )}
+        </button>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-pick]').forEach((root) => {
+    root.querySelectorAll<HTMLButtonElement>('[data-choice]').forEach((sheet) =>
+      sheet.addEventListener('click', () => {
+        root.setAttribute('data-picked', sheet.dataset.choice!);
+        root
+          .querySelectorAll<HTMLElement>('[data-said]')
+          .forEach((el) => (el.hidden = el.dataset.said !== sheet.dataset.choice));
+      })
+    );
+  });
+</script>
+
+<style>
+  .pick {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: start;
+  }
+
+  .pick__hint {
+    margin-top: 0.9em;
+    font-size: 1.7rem;
+  }
+
+  .pick__answer {
+    max-width: 30rem;
+    min-height: 8.5em;
+    margin-top: clamp(28px, 4vw, 48px);
+    font-size: 1.12em;
+  }
+
+  .pick__answer strong {
+    font-weight: 700;
+    background: linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%);
+  }
+
+  .pick__sheets {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--column-gap);
+  }
+
+  .sheet {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 4;
+    padding: 12% 0 0;
+    background: var(--sheet);
+    border: 1.5px solid var(--ink);
+    text-align: left;
+    container-type: inline-size;
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  .sheet:hover {
+    transform: translateY(-4px);
+    box-shadow: 6px 8px 0 rgba(20, 18, 15, 0.12);
+  }
+
+  .sheet span {
+    display: block;
+    width: fit-content;
+    margin-left: var(--from);
+    white-space: nowrap;
+    transition: box-shadow 0.4s ease;
+  }
+
+  .sheet__pic {
+    width: 52% !important;
+    height: 0;
+    padding-bottom: 38%;
+    background: #9fb0a3;
+  }
+
+  .sheet__title {
+    margin-top: 9cqi;
+    font-family: var(--display);
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144;
+    font-size: 10.5cqi;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .sheet__line {
+    margin-top: 3cqi;
+    font-size: 5cqi;
+    line-height: 1.2;
+  }
+
+  .sheet__foot {
+    margin-top: 9cqi;
+    font-family: var(--mono);
+    font-size: 3.3cqi;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .sheet--a span:nth-child(1) { --from: 24%; }
+  .sheet--a span:nth-child(2) { --from: 9%; }
+  .sheet--a span:nth-child(3) { --from: 30%; }
+  .sheet--a span:nth-child(4) { --from: 16%; }
+  .sheet--a span:nth-child(5) { --from: 38%; }
+
+  .sheet--b span {
+    --from: 12%;
+  }
+
+  [data-picked] .sheet--a span {
+    box-shadow: -2px 0 0 var(--pen);
+  }
+
+  .sheet--b::after {
+    content: '';
+    position: absolute;
+    left: 12%;
+    top: -14px;
+    bottom: -14px;
+    border-left: 1.5px dashed var(--pencil);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  [data-picked] .sheet--b::after {
+    opacity: 1;
+  }
+
+  @media (max-width: 760px) {
+    .pick {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .pick__ask {
+      display: contents;
+    }
+
+    .pick__hint {
+      margin-top: -8px;
+    }
+
+    .pick__sheets {
+      order: 1;
+    }
+
+    .pick__answer {
+      order: 2;
+      min-height: 0;
+      margin-top: 0;
+    }
+  }
+</style>

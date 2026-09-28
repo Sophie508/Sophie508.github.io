@@ -1,0 +1,269 @@
+---
+import Gallery from '../Gallery.astro';
+
+const menu = [
+  ['Noodles', ['Laksa', 'Mee goreng']],
+  ['Rice', ['Chicken rice', 'Nasi lemak']],
+] as const;
+const signs = ['Toilets', 'Lift', 'Exit', 'Lockers'];
+---
+
+<Gallery off="As I found it" on="Turned up" aside="same words. one of them finally gets to lead.">
+  <li class="spot__item">
+    <div class="art">
+      <div class="menu">
+        {
+          menu.map(([heading, dishes]) => (
+            <>
+              <p class="menu__h">{heading}</p>
+              {dishes.map((dish) => (
+                <p class="menu__d">{dish}</p>
+              ))}
+            </>
+          ))
+        }
+      </div>
+    </div>
+    <p class="label">Menus</p>
+    <p class="spot__note">
+      The headings are one size up from the dishes. I can’t find where a section starts.
+    </p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art">
+      <div class="slide">
+        <p class="slide__t">Sales grew 40%</p>
+        <p class="slide__b">Mostly from returning customers</p>
+        <p class="slide__b">Two new markets opened</p>
+        <p class="slide__b">Costs stayed flat</p>
+      </div>
+    </div>
+    <p class="label">Slides</p>
+    <p class="spot__note">
+      The one thing I should remember is the same size as the three I can forget.
+    </p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art">
+      <div class="bill">
+        <p class="bill__t">Open Studio</p>
+        <p class="bill__w">Sat 14 Nov, 7 pm</p>
+        <p>Room 2.04, Building 3</p>
+        <p>Free entry</p>
+      </div>
+    </div>
+    <p class="label">Posters</p>
+    <p class="spot__note">When is it? The date hides in a list of equally quiet lines.</p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art">
+      <div class="pair">
+        <span class="pair__yes">Pay now</span>
+        <span class="pair__no">Cancel</span>
+      </div>
+    </div>
+    <p class="label">Websites</p>
+    <p class="spot__note">Two buttons, nearly twins. I have to read both to avoid the wrong one.</p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art art--dark">
+      <div class="ways">
+        {signs.map((sign) => <p class={sign === 'Exit' ? 'ways__key' : ''}>{sign}</p>)}
+      </div>
+    </div>
+    <p class="label">Public signs</p>
+    <p class="spot__note">In a hurry, the exit matters most. Here it’s just one of four.</p>
+  </li>
+</Gallery>
+
+<style>
+  /* Menu: headings stop whispering */
+  .menu {
+    width: min(100%, 210px);
+    height: 282px;
+    padding: 20px 24px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+  }
+
+  .menu p {
+    height: 1.9em;
+    line-height: 1.9em;
+    white-space: nowrap;
+  }
+
+  .menu__h {
+    margin-top: 16px;
+    font-size: 1.1em;
+    font-weight: 500;
+  }
+
+  .menu__h:first-child {
+    margin-top: 0;
+  }
+
+  :global([data-fixed]) .menu__h {
+    font-family: var(--display);
+    font-size: 2.1em;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    height: 1.2em;
+    line-height: 1.2em;
+  }
+
+  :global([data-fixed]) .menu__d {
+    font-size: 0.9em;
+    color: var(--ink-soft);
+  }
+
+  /* Slide: the headline becomes a headline */
+  .slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: min(100%, 300px);
+    aspect-ratio: 16 / 10;
+    padding: 0 9%;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+  }
+
+  .slide p {
+    margin-top: 5px;
+    white-space: nowrap;
+  }
+
+  .slide__t {
+    font-size: 1.15em;
+    font-weight: 500;
+  }
+
+  :global([data-fixed]) .slide__t {
+    margin-bottom: 10px;
+    font-family: var(--display);
+    font-size: 2.35em;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  :global([data-fixed]) .slide__b {
+    font-size: 0.85em;
+    color: var(--ink-soft);
+  }
+
+  /* Poster: the date steps forward */
+  .bill {
+    width: min(100%, 210px);
+    height: 270px;
+    padding: 28px 22px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+  }
+
+  .bill p {
+    width: fit-content;
+    margin-top: 8px;
+    white-space: nowrap;
+  }
+
+  .bill__t {
+    font-size: 1.25em;
+    font-weight: 600;
+  }
+
+  .bill__w {
+    padding: 0;
+    background: transparent;
+  }
+
+  :global([data-fixed]) .bill__t {
+    font-family: var(--display);
+    font-size: 2.2em;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  :global([data-fixed]) .bill__w {
+    margin-block: 22px 18px;
+    padding: 5px 9px;
+    background: var(--pen);
+    color: var(--sheet);
+    font-size: 1.25em;
+    font-weight: 700;
+  }
+
+  :global([data-fixed]) .bill p:not(.bill__t):not(.bill__w) {
+    font-size: 0.85em;
+    color: var(--ink-soft);
+  }
+
+  /* Buttons: one to press, one to ignore */
+  .pair {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pair span {
+    padding: 10px 18px;
+    border: 1.5px solid var(--ink-soft);
+    background: var(--sheet);
+    font-weight: 500;
+  }
+
+  .pair__no {
+    border-color: #8d887e !important;
+  }
+
+  :global([data-fixed]) .pair__yes {
+    padding: 14px 28px;
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--sheet);
+    font-size: 1.2em;
+    font-weight: 700;
+  }
+
+  :global([data-fixed]) .pair__no {
+    padding-inline: 4px;
+    border-color: transparent !important;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 0.9em;
+  }
+
+  /* Sign: the exit gets to shout */
+  .ways {
+    width: min(100%, 240px);
+    font-size: 1.3em;
+    font-weight: 500;
+  }
+
+  .ways p {
+    height: 1.7em;
+    line-height: 1.7em;
+  }
+
+  :global([data-fixed]) .ways p {
+    font-size: 0.78em;
+    opacity: 0.7;
+  }
+
+  :global([data-fixed]) .ways .ways__key {
+    height: 1.25em;
+    margin-block: 6px;
+    font-size: 3em;
+    font-weight: 700;
+    line-height: 1.25em;
+    letter-spacing: -0.02em;
+    color: var(--marker);
+    opacity: 1;
+  }
+</style>

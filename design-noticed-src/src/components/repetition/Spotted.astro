@@ -1,0 +1,352 @@
+---
+import Gallery from '../Gallery.astro';
+
+const headings = ['Getting there', 'What to bring', 'House rules'];
+const buttons = ['Book', 'Menu', 'Call'];
+const tags = ['3.50', '5.00', '2.80'];
+const signs = [
+  ['A', 'Exit'],
+  ['B', 'Exit'],
+  ['C', 'Exit'],
+];
+---
+
+<Gallery off="As I found it" on="As a system" aside="same pieces. they just agree with each other now.">
+  <li class="spot__item">
+    <div class="art">
+      <div class="deck">
+        <div class="deck__slide"><b></b><i></i><i></i></div>
+        <div class="deck__slide"><b></b><i></i><i></i></div>
+        <div class="deck__slide"><b></b><i></i><i></i></div>
+      </div>
+    </div>
+    <p class="label">Slides</p>
+    <p class="spot__note">
+      Three slides from one talk. The title moves, shrinks and changes colour on every one.
+    </p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art">
+      <div class="doc">
+        {
+          headings.map((heading) => (
+            <>
+              <p class="doc__h">{heading}</p>
+              <i />
+              <i />
+            </>
+          ))
+        }
+      </div>
+    </div>
+    <p class="label">Documents</p>
+    <p class="spot__note">
+      Three headings of equal rank, dressed three ways. I can’t tell they’re equals.
+    </p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art">
+      <div class="keys">
+        {buttons.map((button) => <span>{button}</span>)}
+      </div>
+    </div>
+    <p class="label">Websites</p>
+    <p class="spot__note">Three buttons on one page, each with its own corners and colour.</p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art">
+      <div class="tags">
+        {tags.map((tag) => <span>{tag}</span>)}
+      </div>
+    </div>
+    <p class="label">Price tags</p>
+    <p class="spot__note">
+      One shelf, three kinds of tag. It looks like three different shops.
+    </p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art art--dark">
+      <div class="exits">
+        {
+          signs.map(([badge, place]) => (
+            <p>
+              <b>{badge}</b>
+              <span>{place}</span>
+            </p>
+          ))
+        }
+      </div>
+    </div>
+    <p class="label">Public signs</p>
+    <p class="spot__note">
+      Three exits, three badge styles. I have to learn what a badge looks like each time.
+    </p>
+  </li>
+</Gallery>
+
+<style>
+  /* Deck: the title stops wandering and takes one place, one size, one colour */
+  .deck {
+    display: grid;
+    gap: 10px;
+    width: min(100%, 190px);
+  }
+
+  .deck__slide {
+    position: relative;
+    height: 84px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+  }
+
+  .deck__slide > * {
+    position: absolute;
+    display: block;
+  }
+
+  .deck b {
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    height: var(--h);
+    background: var(--c);
+  }
+
+  .deck i {
+    left: 10%;
+    width: 56%;
+    height: 4px;
+    top: var(--t, 56%);
+    background: var(--ink);
+    opacity: 0.28;
+  }
+
+  .deck i + i {
+    --t: 72%;
+    width: 40%;
+  }
+
+  .deck__slide:nth-child(1) b { --x: 10%; --y: 16%; --w: 62%; --h: 14px; --c: var(--ink); }
+  .deck__slide:nth-child(2) b { --x: 34%; --y: 30%; --w: 32%; --h: 7px; --c: var(--pen); }
+  .deck__slide:nth-child(3) b { --x: 46%; --y: 12%; --w: 44%; --h: 10px; --c: var(--pencil); }
+  .deck__slide:nth-child(2) i { left: 22%; }
+  .deck__slide:nth-child(3) i { left: 34%; }
+
+  :global([data-fixed]) .deck b {
+    --x: 10%;
+    --y: 16%;
+    --w: 50%;
+    --h: 11px;
+    --c: var(--ink);
+  }
+
+  :global([data-fixed]) .deck i {
+    left: 10%;
+  }
+
+  /* Document: three headings agree on one outfit */
+  .doc {
+    width: min(100%, 210px);
+    height: 282px;
+    padding: 18px 22px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+  }
+
+  .doc__h {
+    margin-top: 20px;
+    height: 1.5em;
+    line-height: 1.5em;
+    white-space: nowrap;
+  }
+
+  .doc__h:first-child {
+    margin-top: 0;
+  }
+
+  .doc__h:nth-of-type(1) {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 1.5em;
+  }
+
+  .doc__h:nth-of-type(2) {
+    font-family: var(--mono);
+    font-size: 0.8em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pen);
+  }
+
+  .doc__h:nth-of-type(3) {
+    font-style: italic;
+    font-size: 1.15em;
+    text-decoration: underline;
+  }
+
+  .doc i {
+    display: block;
+    height: 4px;
+    margin-top: 9px;
+    background: var(--ink);
+    opacity: 0.28;
+  }
+
+  .doc i + i {
+    width: 66%;
+  }
+
+  :global([data-fixed]) .doc .doc__h {
+    font-family: var(--display);
+    font-weight: 900;
+    font-style: normal;
+    font-size: 1.3em;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  /* Buttons: three sets of corners become one */
+  .keys {
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+    width: min(100%, 170px);
+  }
+
+  .keys span {
+    border: 1.5px solid var(--ink);
+    font-weight: 600;
+  }
+
+  .keys span:nth-child(1) {
+    padding: 12px 34px;
+    background: var(--ink);
+    color: var(--sheet);
+    border-radius: 0;
+  }
+
+  .keys span:nth-child(2) {
+    padding: 7px 16px;
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  .keys span:nth-child(3) {
+    padding: 10px 22px;
+    background: var(--pen);
+    border-color: var(--pen);
+    color: var(--sheet);
+    border-radius: 7px;
+  }
+
+  :global([data-fixed]) .keys span {
+    padding: 10px 26px;
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--sheet);
+    border-radius: 999px;
+  }
+
+  /* Price tags: one shelf, one kind of tag */
+  .tags {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    width: 100%;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .tags span {
+    display: grid;
+    place-items: center;
+    width: 62px;
+    height: 62px;
+    border: 1.5px solid var(--ink);
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 1.3em;
+  }
+
+  .tags span:nth-child(1) {
+    border-radius: 50%;
+    background: var(--marker);
+  }
+
+  .tags span:nth-child(2) {
+    height: 38px;
+    width: 78px;
+    background: var(--sheet);
+  }
+
+  .tags span:nth-child(3) {
+    background: var(--pen);
+    border-color: var(--pen);
+    color: var(--sheet);
+    transform: rotate(-12deg);
+  }
+
+  :global([data-fixed]) .tags span {
+    width: 66px;
+    height: 46px;
+    border-radius: 6px;
+    border-color: var(--ink);
+    background: var(--marker);
+    color: var(--ink);
+    transform: none;
+  }
+
+  /* Exits: every badge becomes the same badge */
+  .exits {
+    width: min(100%, 200px);
+    font-size: 1.35em;
+    font-weight: 600;
+  }
+
+  .exits p {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .exits b {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 2px solid transparent;
+    font-size: 0.85em;
+  }
+
+  .exits p:nth-child(1) b {
+    border-radius: 50%;
+    background: var(--marker);
+    color: var(--ink);
+  }
+
+  .exits p:nth-child(2) b {
+    border-radius: 0;
+    border-color: var(--paper);
+    background: transparent;
+  }
+
+  .exits p:nth-child(3) b {
+    border-radius: 8px;
+    background: var(--pen);
+  }
+
+  :global([data-fixed]) .exits p b {
+    border-radius: 50%;
+    border-color: transparent;
+    background: var(--marker);
+    color: var(--ink);
+  }
+</style>

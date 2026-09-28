@@ -1,0 +1,294 @@
+---
+import Gallery from '../Gallery.astro';
+
+const prices = [
+  ['Kopi', '1.40'],
+  ['Teh tarik', '1.80'],
+  ['Milo dinosaur', '12.80'],
+  ['Toast set', '4.50'],
+];
+const signs = [
+  ['A', 'Exit to bus stop'],
+  ['B', 'Exit to car park'],
+  ['1', 'Platform'],
+  ['L', 'Lift'],
+];
+---
+
+<Gallery off="As I found it" on="Lined up" aside="nothing changes size. things only find an edge.">
+  <li class="spot__item">
+    <div class="art">
+      <div class="slide">
+        <span class="slide__title">Quarterly update</span>
+        <i></i><i></i><i></i>
+        <b></b>
+      </div>
+    </div>
+    <p class="label">Slides</p>
+    <p class="spot__note">
+      Centred title, bullets that each start somewhere new, a logo parked in the corner.
+    </p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art">
+      <div class="flyer">
+        <span class="flyer__big">Spring</span>
+        <span>open studio</span>
+        <span>Sat 14 Nov, 7 pm</span>
+        <span>Room 2.04</span>
+      </div>
+    </div>
+    <p class="label">Posters</p>
+    <p class="spot__note">
+      Everything is centred, so no line has an edge to share with any other line.
+    </p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art">
+      <div class="prices">
+        {
+          prices.map(([name, price]) => (
+            <p>
+              <span>{name}</span>
+              <em>{price}</em>
+            </p>
+          ))
+        }
+      </div>
+    </div>
+    <p class="label">Price lists</p>
+    <p class="spot__note">Each price starts wherever its name happens to end.</p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art">
+      <div class="page">
+        <span class="page__img"></span>
+        <p class="page__h">Small batches</p>
+        <i></i><i></i>
+        <span class="page__btn">Visit</span>
+      </div>
+    </div>
+    <p class="label">Websites</p>
+    <p class="spot__note">
+      Picture, heading, text and button each start in a slightly different place.
+    </p>
+  </li>
+
+  <li class="spot__item">
+    <div class="art art--dark">
+      <div class="way">
+        {
+          signs.map(([badge, place]) => (
+            <p>
+              <b>{badge}</b>
+              <span>{place}</span>
+            </p>
+          ))
+        }
+      </div>
+    </div>
+    <p class="label">Public signs</p>
+    <p class="spot__note">Every row starts in its own place, so I hunt for each one separately.</p>
+  </li>
+</Gallery>
+
+<style>
+  /* Slide: everything lets go of its own spot and takes the same left edge */
+  .slide {
+    position: relative;
+    width: min(100%, 300px);
+    aspect-ratio: 16 / 10;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+  }
+
+  .slide > * {
+    position: absolute;
+    display: block;
+  }
+
+  .slide__title {
+    left: 50%;
+    top: 12%;
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 1.35em;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    transform: translateX(-50%);
+  }
+
+  .slide i {
+    height: 5px;
+    background: var(--ink);
+    opacity: 0.3;
+  }
+
+  .slide i:nth-of-type(1) { top: 40%; left: 16%; width: 52%; }
+  .slide i:nth-of-type(2) { top: 52%; left: 25%; width: 44%; }
+  .slide i:nth-of-type(3) { top: 64%; left: 11%; width: 58%; }
+
+  .slide b {
+    left: 80%;
+    top: 78%;
+    width: 9%;
+    aspect-ratio: 1;
+    background: var(--pen);
+  }
+
+  :global([data-fixed]) .slide > * {
+    left: 9%;
+    transform: none;
+  }
+
+  /* Flyer: centred lines slide over to one hard edge */
+  .flyer {
+    width: min(100%, 210px);
+    height: 270px;
+    padding: 34px 22px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+  }
+
+  .flyer span {
+    position: relative;
+    left: 50%;
+    display: block;
+    width: fit-content;
+    margin-top: 8px;
+    white-space: nowrap;
+    transform: translateX(-50%);
+  }
+
+  .flyer__big {
+    margin-bottom: 18px;
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 2.9em;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  :global([data-fixed]) .flyer span {
+    left: 0;
+    transform: none;
+  }
+
+  /* Price list: ragged prices fall into one column on the right */
+  .prices {
+    width: min(100%, 220px);
+    padding: 20px 22px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+  }
+
+  .prices p {
+    display: flex;
+    padding-block: 7px;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .prices span {
+    flex-grow: 0;
+    margin-right: 12px;
+  }
+
+  .prices em {
+    font-style: normal;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :global([data-fixed]) .prices span {
+    flex-grow: 1;
+  }
+
+  /* Web page: four different starts become one */
+  .page {
+    width: min(100%, 210px);
+  }
+
+  .page__img {
+    display: block;
+    height: 96px;
+    background: #d3a58c;
+  }
+
+  .page__h {
+    margin: 14px 0 10px 9%;
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 1.5em;
+    letter-spacing: -0.02em;
+  }
+
+  .page i {
+    display: block;
+    height: 5px;
+    margin: 8px 0 0 4%;
+    width: 84%;
+    background: var(--ink);
+    opacity: 0.3;
+  }
+
+  .page i + i {
+    margin-left: 0;
+    width: 60%;
+  }
+
+  .page__btn {
+    display: block;
+    width: fit-content;
+    margin: 18px 0 0 18%;
+    padding: 7px 16px;
+    background: var(--ink);
+    color: var(--sheet);
+    font-family: var(--mono);
+    font-size: 0.8em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  :global([data-fixed]) .page__h,
+  :global([data-fixed]) .page i,
+  :global([data-fixed]) .page__btn {
+    margin-left: 0;
+  }
+
+  /* Sign: badges form one column, words form another */
+  .way {
+    width: min(100%, 250px);
+    font-size: 1.2em;
+    font-weight: 600;
+  }
+
+  .way p {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .way p:nth-child(1) { padding-left: 22px; }
+  .way p:nth-child(2) { padding-left: 0; }
+  .way p:nth-child(3) { padding-left: 38px; }
+  .way p:nth-child(4) { padding-left: 10px; }
+
+  .way b {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--marker);
+    color: var(--ink);
+    font-size: 0.85em;
+  }
+
+  :global([data-fixed]) .way p {
+    padding-left: 0;
+  }
+</style>

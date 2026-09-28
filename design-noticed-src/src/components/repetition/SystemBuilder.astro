@@ -1,0 +1,552 @@
+---
+const controls = [
+  {
+    key: 'font',
+    name: 'Typeface',
+    options: [
+      { value: 'serif', label: 'Serif' },
+      { value: 'sans', label: 'Sans' },
+      { value: 'mono', label: 'Mono' },
+    ],
+  },
+  {
+    key: 'accent',
+    name: 'Accent colour',
+    options: [
+      { value: 'red', label: 'Red' },
+      { value: 'blue', label: 'Blue' },
+      { value: 'moss', label: 'Moss' },
+      { value: 'ink', label: 'Ink' },
+    ],
+  },
+  {
+    key: 'space',
+    name: 'Spacing',
+    options: [
+      { value: 'tight', label: 'Tight' },
+      { value: 'roomy', label: 'Roomy' },
+    ],
+  },
+  {
+    key: 'border',
+    name: 'Border',
+    options: [
+      { value: 'none', label: 'None' },
+      { value: 'hair', label: 'Hairline' },
+      { value: 'heavy', label: 'Heavy' },
+    ],
+  },
+  {
+    key: 'image',
+    name: 'Image style',
+    options: [
+      { value: 'flat', label: 'Flat' },
+      { value: 'stripes', label: 'Stripes' },
+      { value: 'outline', label: 'Outline' },
+    ],
+  },
+  {
+    key: 'shape',
+    name: 'Recurring shape',
+    options: [
+      { value: 'circle', label: 'Circle' },
+      { value: 'square', label: 'Square' },
+      { value: 'arch', label: 'Arch' },
+    ],
+  },
+];
+const defaults = { font: 'serif', accent: 'red', space: 'roomy', border: 'hair', image: 'flat', shape: 'circle' };
+---
+
+<div
+  class="builder"
+  data-builder
+  data-font={defaults.font}
+  data-accent={defaults.accent}
+  data-space={defaults.space}
+  data-border={defaults.border}
+  data-image={defaults.image}
+  data-shape={defaults.shape}
+>
+  <div class="builder__head">
+    <h2 class="headline">Build a tiny design system.</h2>
+    <p class="builder__rule">
+      Five things for the same potter, each made on a different day in a different mood. Make six
+      decisions, then repeat them everywhere.
+    </p>
+  </div>
+
+  <div class="builder__controls">
+    {
+      controls.map((control) => (
+        <div class="control" role="group" aria-label={control.name}>
+          <p class="label">{control.name}</p>
+          <div class="control__options">
+            {control.options.map((option) => (
+              <button
+                class:list={['control__option', { 'control__swatch': control.key === 'accent' }]}
+                type="button"
+                data-set={control.key}
+                data-value={option.value}
+                aria-pressed={String(defaults[control.key as keyof typeof defaults] === option.value)}
+              >
+                {control.key === 'accent' ? <span class="visually-hidden">{option.label}</span> : option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="builder__go">
+    <button class="button button--solid" type="button" aria-pressed="false" data-make>
+      <span data-off>Create a system</span>
+      <span data-on hidden>Break it apart</span>
+    </button>
+    <p class="builder__status" data-status role="status">
+      Five pieces, five different ideas about type, colour and shape.
+    </p>
+  </div>
+
+  <div class="pieces">
+    <article class="piece piece--poster">
+      <p class="label piece__kind">Poster</p>
+      <div class="piece__sheet">
+        <h3 class="piece__title">Open Studio</h3>
+        <div class="piece__img"><span class="piece__shape"></span></div>
+        <p class="piece__accent">Sat 14 Nov, 7 pm</p>
+      </div>
+    </article>
+
+    <article class="piece piece--card">
+      <p class="label piece__kind">Business card</p>
+      <div class="piece__sheet">
+        <span class="piece__shape"></span>
+        <h3 class="piece__title">Mei Tan</h3>
+        <p>Ceramics, small batches</p>
+        <p class="piece__accent">mei@kilnlane.example</p>
+      </div>
+    </article>
+
+    <article class="piece piece--social">
+      <p class="label piece__kind">Social post</p>
+      <div class="piece__sheet">
+        <div class="piece__img"><span class="piece__shape"></span></div>
+        <h3 class="piece__title">New glaze, first test.</h3>
+      </div>
+    </article>
+
+    <article class="piece piece--web">
+      <p class="label piece__kind">Website card</p>
+      <div class="piece__sheet">
+        <div class="piece__img"><span class="piece__shape"></span></div>
+        <h3 class="piece__title">Fired slowly</h3>
+        <i></i><i></i>
+        <span class="piece__button">Visit</span>
+      </div>
+    </article>
+
+    <article class="piece piece--resume">
+      <p class="label piece__kind">Résumé</p>
+      <div class="piece__sheet">
+        <h3 class="piece__title">Mei Tan</h3>
+        <p class="piece__accent"><span class="piece__shape"></span>Experience</p>
+        <i></i><i></i><i></i>
+        <p class="piece__accent"><span class="piece__shape"></span>Education</p>
+        <i></i><i></i>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-builder]').forEach((root) => {
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const make = root.querySelector<HTMLButtonElement>('[data-make]')!;
+
+    root.querySelectorAll<HTMLButtonElement>('[data-set]').forEach((option) =>
+      option.addEventListener('click', () => {
+        const key = option.dataset.set!;
+        root.dataset[key] = option.dataset.value;
+        root
+          .querySelectorAll<HTMLButtonElement>(`[data-set="${key}"]`)
+          .forEach((o) => o.setAttribute('aria-pressed', String(o === option)));
+      })
+    );
+
+    make.addEventListener('click', () => {
+      const on = root.toggleAttribute('data-system');
+      make.setAttribute('aria-pressed', String(on));
+      make.querySelector<HTMLElement>('[data-on]')!.hidden = !on;
+      make.querySelector<HTMLElement>('[data-off]')!.hidden = on;
+      status.textContent = on
+        ? 'One family. Nothing was copied. Six decisions were repeated. Try changing one now.'
+        : 'Five pieces, five different ideas about type, colour and shape.';
+    });
+  });
+</script>
+
+<style>
+  .builder {
+    --red: var(--pen);
+    --blue: var(--pencil);
+    --moss: #3f7d5a;
+    --amber: #d99a1c;
+  }
+
+  .builder[data-font='serif'] { --sys-font: var(--display); }
+  .builder[data-font='sans'] { --sys-font: var(--text); }
+  .builder[data-font='mono'] { --sys-font: var(--mono); }
+
+  .builder[data-accent='red'] { --sys-accent: var(--red); }
+  .builder[data-accent='blue'] { --sys-accent: var(--blue); }
+  .builder[data-accent='moss'] { --sys-accent: var(--moss); }
+  .builder[data-accent='ink'] { --sys-accent: var(--ink); }
+
+  .builder[data-space='tight'] { --sys-pad: 6cqi; }
+  .builder[data-space='roomy'] { --sys-pad: 12cqi; }
+
+  .builder[data-border='none'] { --sys-border: 0px solid transparent; }
+  .builder[data-border='hair'] { --sys-border: 1px solid var(--ink); }
+  .builder[data-border='heavy'] { --sys-border: 4px solid var(--ink); }
+
+  .builder[data-image='flat'] {
+    --sys-fill: var(--sys-accent);
+    --sys-ring: 0 0 0 0 transparent;
+  }
+  .builder[data-image='stripes'] {
+    --sys-fill: repeating-linear-gradient(135deg, var(--sys-accent) 0 4px, transparent 4px 9px);
+    --sys-ring: inset 0 0 0 1.5px var(--sys-accent);
+  }
+  .builder[data-image='outline'] {
+    --sys-fill: transparent;
+    --sys-ring: inset 0 0 0 2px var(--sys-accent);
+  }
+
+  .builder[data-shape='circle'] { --sys-shape: 50%; }
+  .builder[data-shape='square'] { --sys-shape: 0px; }
+  .builder[data-shape='arch'] { --sys-shape: 999px 999px 0 0; }
+
+  .builder__head {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: 20px clamp(32px, 6vw, 96px);
+    align-items: end;
+  }
+
+  .builder__rule {
+    max-width: 30rem;
+    color: var(--ink-soft);
+  }
+
+  .builder__controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px var(--column-gap);
+    margin-top: clamp(28px, 4vw, 48px);
+    padding-block: 22px;
+    border-block: 1.5px solid var(--ink);
+  }
+
+  .control .label {
+    color: var(--ink-soft);
+  }
+
+  .control__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .control__option {
+    padding: 6px 12px 7px;
+    border: 1px solid var(--hairline);
+    font-size: 0.92rem;
+    line-height: 1.2;
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .control__option:hover {
+    border-color: var(--ink);
+  }
+
+  .control__option[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+
+  .control__swatch {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    border: 0;
+    background: var(--swatch) !important;
+    outline: 1.5px solid transparent;
+    outline-offset: 3px;
+  }
+
+  .control__swatch[aria-pressed='true'] {
+    outline-color: var(--ink);
+  }
+
+  .control__swatch[data-value='red'] { --swatch: var(--red); }
+  .control__swatch[data-value='blue'] { --swatch: var(--blue); }
+  .control__swatch[data-value='moss'] { --swatch: var(--moss); }
+  .control__swatch[data-value='ink'] { --swatch: var(--ink); }
+
+  .builder__go {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 28px;
+    margin-top: 22px;
+  }
+
+  .builder__status {
+    flex: 1 1 18rem;
+    font-family: var(--display);
+    font-style: italic;
+    font-variation-settings: 'opsz' 36;
+    font-size: clamp(1.15rem, 1.9vw, 1.5rem);
+    line-height: 1.2;
+  }
+
+  .pieces {
+    columns: 4 190px;
+    column-gap: var(--column-gap);
+    margin-top: clamp(28px, 4vw, 48px);
+  }
+
+  .piece {
+    break-inside: avoid;
+    margin-bottom: 28px;
+    container-type: inline-size;
+  }
+
+  .piece__kind {
+    margin-bottom: 8px;
+    color: var(--ink-soft);
+  }
+
+  .piece__sheet {
+    position: relative;
+    padding: var(--pad);
+    background: var(--sheet);
+    border: var(--border);
+    font-family: var(--font);
+    font-size: 5cqi;
+    line-height: 1.25;
+    overflow: hidden;
+    transition:
+      padding 0.6s cubic-bezier(0.6, 0, 0.2, 1),
+      border-width 0.6s ease;
+  }
+
+  .piece__sheet * {
+    transition:
+      color 0.5s ease,
+      background-color 0.5s ease,
+      border-radius 0.6s cubic-bezier(0.6, 0, 0.2, 1),
+      margin 0.6s cubic-bezier(0.6, 0, 0.2, 1);
+  }
+
+  .piece__title {
+    margin: 0;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 10cqi;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .piece__accent {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .piece__shape {
+    display: block;
+    width: 16cqi;
+    aspect-ratio: 1;
+    background-color: var(--accent);
+    border-radius: var(--shape);
+  }
+
+  .piece__img {
+    position: relative;
+    background: var(--fill);
+    box-shadow: var(--ring);
+  }
+
+  .piece__img .piece__shape {
+    position: absolute;
+    left: 8cqi;
+    bottom: 8cqi;
+    background-color: var(--sheet);
+    box-shadow: 0 0 0 1.5px var(--accent);
+  }
+
+  .piece__sheet i {
+    display: block;
+    height: 1.4cqi;
+    margin-top: 3.2cqi;
+    background: var(--ink);
+    opacity: 0.26;
+  }
+
+  .piece__sheet i:last-of-type {
+    width: 64%;
+  }
+
+  .piece__button {
+    display: block;
+    width: fit-content;
+    margin-top: 7cqi;
+    padding: 2.4cqi 6cqi;
+    background-color: var(--accent);
+    border-radius: var(--shape);
+    color: var(--sheet);
+    font-weight: 600;
+  }
+
+  /* Each piece starts with its own ideas */
+  .piece--poster {
+    --font: var(--display);
+    --accent: var(--red);
+    --pad: 5cqi;
+    --border: 1px solid var(--ink);
+    --shape: 999px 999px 0 0;
+    --fill: transparent;
+    --ring: inset 0 0 0 2px var(--red);
+  }
+
+  .piece--card {
+    --font: var(--mono);
+    --accent: var(--moss);
+    --pad: 7cqi;
+    --border: 0px solid transparent;
+    --shape: 0px;
+  }
+
+  .piece--social {
+    --font: var(--mono);
+    --accent: var(--amber);
+    --pad: 10cqi;
+    --border: 0px solid transparent;
+    --shape: 0px;
+    --fill: var(--amber);
+    --ring: 0 0 0 0 transparent;
+  }
+
+  .piece--web {
+    --font: var(--text);
+    --accent: var(--blue);
+    --pad: 12cqi;
+    --border: 4px solid var(--ink);
+    --shape: 50%;
+    --fill: repeating-linear-gradient(135deg, var(--blue) 0 4px, transparent 4px 9px);
+    --ring: inset 0 0 0 1.5px var(--blue);
+  }
+
+  .piece--resume {
+    --font: var(--text);
+    --accent: var(--ink);
+    --pad: 8cqi;
+    --border: 1px solid var(--ink);
+    --shape: 50%;
+  }
+
+  [data-system] .piece {
+    --font: var(--sys-font);
+    --accent: var(--sys-accent);
+    --pad: var(--sys-pad);
+    --border: var(--sys-border);
+    --shape: var(--sys-shape);
+    --fill: var(--sys-fill);
+    --ring: var(--sys-ring);
+  }
+
+  /* Layout of each piece, which never changes */
+  .piece--poster .piece__title {
+    font-size: 19cqi;
+    line-height: 0.92;
+  }
+
+  .piece--poster .piece__img {
+    height: 62cqi;
+    margin-block: 7cqi;
+  }
+
+  .piece--poster .piece__accent {
+    font-size: 6cqi;
+  }
+
+  .piece--card .piece__sheet {
+    min-height: 58cqi;
+  }
+
+  .piece--card .piece__shape {
+    margin-bottom: 5cqi;
+  }
+
+  .piece--card .piece__accent {
+    margin-top: 3cqi;
+    font-size: 4.4cqi;
+  }
+
+  .piece--social .piece__img {
+    aspect-ratio: 1;
+  }
+
+  .piece--social .piece__title {
+    margin-top: 6cqi;
+    font-size: 8cqi;
+  }
+
+  .piece--web .piece__img {
+    aspect-ratio: 16 / 10;
+  }
+
+  .piece--web .piece__title {
+    margin-top: 6cqi;
+  }
+
+  .piece--resume .piece__title {
+    font-size: 12cqi;
+  }
+
+  .piece--resume .piece__accent {
+    display: flex;
+    align-items: center;
+    gap: 3cqi;
+    margin-top: 9cqi;
+    font-size: 4.4cqi;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .piece--resume .piece__shape {
+    width: 5cqi;
+  }
+
+  @media (max-width: 760px) {
+    .builder__head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .builder__controls {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pieces {
+      columns: 2 140px;
+    }
+  }
+</style>
