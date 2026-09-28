@@ -1,0 +1,76 @@
+---
+interface Props {
+  n: string;
+  label: string;
+}
+
+const { n, label } = Astro.props;
+---
+
+<section class="step wrap grid" id={label.toLowerCase()}>
+  <header class="step__head">
+    <span class="step__n">{n}</span>
+    <span class="step__label label">{label}</span>
+  </header>
+  <div class="step__body">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .step {
+    margin-top: var(--section-space);
+    align-items: start;
+    scroll-margin-top: 24px;
+  }
+
+  .step__head {
+    grid-column: 1 / span 2;
+    position: sticky;
+    top: 24px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1.5px solid var(--ink);
+  }
+
+  .step__n {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 300;
+    font-variation-settings: 'opsz' 144;
+    font-size: clamp(2rem, 3.4vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .step__label {
+    color: var(--pen);
+  }
+
+  .step__body {
+    grid-column: 3 / -1;
+    min-width: 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--hairline);
+    container-type: inline-size;
+  }
+
+  @media (max-width: 900px) {
+    .step {
+      row-gap: 28px;
+    }
+
+    .step__head {
+      grid-column: 1 / -1;
+      position: static;
+    }
+
+    .step__body {
+      grid-column: 1 / -1;
+      border-top: 0;
+      padding-top: 0;
+    }
+  }
+</style>

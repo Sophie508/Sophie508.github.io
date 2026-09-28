@@ -1,0 +1,169 @@
+---
+const notices = [
+  ['Film night', 'Saturday, 8 pm', 'Rooftop, Block 4'],
+  ['Morning run', 'Sunday, 7 am', 'East Coast Park'],
+  ['Book swap', 'Every Thursday', 'Level 2 lounge'],
+];
+---
+
+<div class="see" data-see>
+  <div class="see__ask">
+    <h2 class="headline">How many things is this notice telling you?</h2>
+    <p class="see__hint">Don’t read it yet. Just look.</p>
+
+    <div class="see__answer" aria-live="polite">
+      <p data-off>
+        Nine lines, all the same distance apart. It looks like a list of nine things, so I have to
+        read every one to find out what’s going on.
+      </p>
+      <p data-on hidden>
+        <strong>Three.</strong> I can count them before I read a single word. No new fonts, no colour,
+        no lines. Only the distance changed.
+      </p>
+    </div>
+
+    <button class="button" type="button" aria-pressed="false" data-see-toggle>
+      <span data-off>Move related lines closer</span>
+      <span data-on hidden>Put it back</span>
+    </button>
+  </div>
+
+  <div class="see__board" aria-label="A notice pinned to a board">
+    <span class="see__pin" aria-hidden="true"></span>
+    <p class="label see__heading">This week</p>
+    <div class="see__lines">
+      {notices.map((group) => group.map((line, i) => <p class={i === 0 ? 'is-first' : ''}>{line}</p>))}
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-see]').forEach((root) => {
+    const toggle = root.querySelector<HTMLButtonElement>('[data-see-toggle]')!;
+    toggle.addEventListener('click', () => {
+      const on = root.toggleAttribute('data-grouped');
+      toggle.setAttribute('aria-pressed', String(on));
+      root.querySelectorAll<HTMLElement>('[data-on]').forEach((el) => (el.hidden = !on));
+      root.querySelectorAll<HTMLElement>('[data-off]').forEach((el) => (el.hidden = on));
+    });
+  });
+</script>
+
+<style>
+  .see {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: start;
+  }
+
+
+  .see__hint {
+    margin-top: 0.9em;
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.7rem;
+    line-height: 1;
+    color: var(--pen);
+  }
+
+  .see__answer {
+    max-width: 30rem;
+    min-height: 7.5em;
+    margin-top: clamp(28px, 4vw, 48px);
+    font-size: 1.12em;
+  }
+
+  .see__answer strong {
+    font-weight: 700;
+    background: linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 94%, transparent 94%);
+  }
+
+  .see .button {
+    margin-top: 20px;
+  }
+
+  .see__board {
+    position: relative;
+    justify-self: end;
+    width: 100%;
+    max-width: 360px;
+    padding: 46px 34px 40px;
+    background: var(--sheet);
+    border: 1.5px solid var(--ink);
+    transform: rotate(1.2deg);
+  }
+
+  .see__pin {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    margin-left: -7px;
+    border-radius: 50%;
+    background: var(--pen);
+    box-shadow: 0 2px 0 rgba(20, 18, 15, 0.25);
+  }
+
+  .see__heading {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ink);
+    color: var(--ink-soft);
+  }
+
+  .see__lines {
+    padding-top: 6px;
+    font-size: 1.06rem;
+    line-height: 1.3;
+  }
+
+  .see__lines p {
+    margin-top: 17px;
+    transition: margin 0.7s cubic-bezier(0.6, 0, 0.2, 1);
+  }
+
+  [data-grouped] .see__lines p {
+    margin-top: 2px;
+  }
+
+  [data-grouped] .see__lines p.is-first {
+    margin-top: 62px;
+  }
+
+  [data-grouped] .see__lines p:first-child {
+    margin-top: 17px;
+  }
+
+  @media (max-width: 760px) {
+    .see {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .see__hint {
+      margin-top: -8px;
+    }
+
+    .see__ask {
+      display: contents;
+    }
+
+    .see__board {
+      justify-self: center;
+      order: 1;
+    }
+
+    .see__answer {
+      order: 2;
+      min-height: 0;
+      margin-top: 0;
+    }
+
+    .see .button {
+      order: 3;
+      justify-self: start;
+      margin-top: 0;
+    }
+  }
+</style>

@@ -1,0 +1,320 @@
+---
+import Base from '../layouts/Base.astro';
+import Step from '../components/Step.astro';
+import NoticeBoard from '../components/proximity/NoticeBoard.astro';
+import GroupingGame from '../components/proximity/GroupingGame.astro';
+import Spotted from '../components/proximity/Spotted.astro';
+
+const steps = ['See', 'Name', 'Understand', 'Play', 'Notice', 'Make'];
+const ideas = [
+  { kind: 'close', say: 'Close together', mean: 'These belong to each other.' },
+  { kind: 'far', say: 'Far apart', mean: 'These are strangers.' },
+  { kind: 'even', say: 'Evenly spaced', mean: 'The space is saying nothing at all.' },
+];
+---
+
+<Base
+  title="Proximity"
+  description="Distance communicates relationship. Notes, a drag-and-group experiment and real-world examples of the proximity principle."
+>
+  <header class="top wrap">
+    <h1 class="visually-hidden">Proximity</h1>
+    <p class="label top__kicker">A way of looking <span>/</span> 1 of 4</p>
+    <ol class="top__steps label">
+      {
+        steps.map((step, i) => (
+          <li>
+            <a href={`#${step.toLowerCase()}`}>
+              <span>0{i + 1}</span> {step}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </header>
+
+  <Step n="01" label="See">
+    <NoticeBoard />
+  </Step>
+
+  <Step n="02" label="Name">
+    <div class="named">
+      <p class="named__lead">There’s a name for what just happened.</p>
+      <h2 class="named__word display">Proximity</h2>
+      <div class="named__foot">
+        <p class="hand">prox·im·i·ty, n. nearness.</p>
+        <p class="named__idea"><span class="marked">Distance communicates relationship.</span></p>
+      </div>
+    </div>
+  </Step>
+
+  <Step n="03" label="Understand">
+    <div class="ideas">
+      {
+        ideas.map((idea) => (
+          <div class="idea">
+            <div class={`idea__dots idea__dots--${idea.kind}`} aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+            </div>
+            <p class="label">{idea.say}</p>
+            <p class="idea__mean">{idea.mean}</p>
+          </div>
+        ))
+      }
+    </div>
+    <div class="prose understand">
+      <p>
+        When two things sit near each other, I assume they’re related. When they sit far apart, I
+        assume they aren’t. I do this before I read anything, and so does everybody else.
+      </p>
+      <p>
+        That means the space between things is never empty. It’s information. If a heading sits
+        closer to the paragraph above it than to its own, I’ve told the reader something false
+        without typing a word.
+      </p>
+      <p>
+        So the job is simple to say: put related things close, push unrelated things apart, and make
+        the two distances obviously different.
+      </p>
+    </div>
+  </Step>
+
+  <Step n="04" label="Play">
+    <GroupingGame />
+  </Step>
+
+  <Step n="05" label="Notice">
+    <Spotted />
+  </Step>
+
+  <Step n="06" label="Make">
+    <div class="make">
+      <h2 class="headline">Now go and find one.</h2>
+      <ol class="make__list">
+        <li>
+          <span class="label">Design Sighting</span>
+          <p>
+            Find something where related information is visually too far apart. Photograph it before
+            you fix it in your head.
+          </p>
+        </li>
+        <li>
+          <span class="label">Ten minutes</span>
+          <p>
+            Open an old slide and improve it using spacing only. No new fonts. No new colours.
+          </p>
+        </li>
+        <li class="make__rule">
+          <span class="label">My rule</span>
+          <p>Distance communicates relationship.</p>
+        </li>
+      </ol>
+      <p class="make__next label">
+        Next <span>/</span> Alignment, things belong somewhere <span class="hand">soon</span>
+      </p>
+    </div>
+  </Step>
+</Base>
+
+<style>
+  .top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px 40px;
+    padding-top: clamp(28px, 5vw, 64px);
+  }
+
+  .top + :global(.step) {
+    margin-top: clamp(36px, 5vw, 72px);
+  }
+
+  .top__kicker {
+    color: var(--ink-soft);
+  }
+
+  .top__kicker span,
+  .make__next > span:not(.hand) {
+    color: var(--pen);
+    margin-inline: 0.5em;
+  }
+
+  .top__steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px clamp(14px, 2vw, 28px);
+  }
+
+  .top__steps span {
+    color: var(--ink-soft);
+  }
+
+  .top__steps a:hover {
+    color: var(--pen);
+  }
+
+  .named__lead {
+    font-family: var(--display);
+    font-style: italic;
+    font-variation-settings: 'opsz' 72;
+    font-size: clamp(1.3rem, 2.4vw, 2rem);
+    line-height: 1.15;
+  }
+
+  .named__word {
+    margin-top: 0.12em;
+    margin-left: -0.03em;
+    font-size: 15vw;
+    font-size: 17.4cqi;
+    white-space: nowrap;
+  }
+
+  .named__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px 40px;
+    margin-top: clamp(20px, 3vw, 36px);
+  }
+
+  .named__foot .hand {
+    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+    transform: rotate(-2deg);
+  }
+
+  .named__idea {
+    font-family: var(--display);
+    font-weight: 600;
+    font-variation-settings: 'opsz' 72;
+    font-size: clamp(1.5rem, 3.2vw, 2.7rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .ideas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 32px var(--column-gap);
+  }
+
+  .idea__dots {
+    position: relative;
+    height: 120px;
+    margin-bottom: 16px;
+    background: var(--paper-deep);
+  }
+
+  .idea__dots i {
+    position: absolute;
+    top: 50%;
+    left: var(--at);
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+
+  .idea__dots--close i:nth-child(1) { --at: 41%; }
+  .idea__dots--close i:nth-child(2) { --at: 47%; }
+  .idea__dots--close i:nth-child(3) { --at: 53%; }
+  .idea__dots--close i:nth-child(4) { --at: 59%; }
+
+  .idea__dots--far i:nth-child(1) { --at: 12%; }
+  .idea__dots--far i:nth-child(2) { --at: 18%; }
+  .idea__dots--far i:nth-child(3) { --at: 82%; }
+  .idea__dots--far i:nth-child(4) { --at: 88%; }
+
+  .idea__dots--even i:nth-child(1) { --at: 20%; }
+  .idea__dots--even i:nth-child(2) { --at: 40%; }
+  .idea__dots--even i:nth-child(3) { --at: 60%; }
+  .idea__dots--even i:nth-child(4) { --at: 80%; }
+
+  .idea .label {
+    color: var(--pen);
+  }
+
+  .idea__mean {
+    margin-top: 4px;
+    font-family: var(--display);
+    font-weight: 600;
+    font-variation-settings: 'opsz' 36;
+    font-size: clamp(1.2rem, 1.9vw, 1.55rem);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+  }
+
+  .understand {
+    margin-top: clamp(36px, 5vw, 64px);
+    margin-left: calc((100% + var(--column-gap)) / 10 * 3);
+    font-size: 1.12em;
+  }
+
+
+  .make__list {
+    margin-top: clamp(28px, 4vw, 48px);
+    border-top: 1.5px solid var(--ink);
+  }
+
+  .make__list li {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
+    gap: 6px var(--column-gap);
+    align-items: baseline;
+    padding-block: clamp(18px, 2.4vw, 28px);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .make__list .label {
+    color: var(--pen);
+  }
+
+  .make__list p {
+    max-width: 34rem;
+    font-size: 1.12em;
+  }
+
+  .make__rule p {
+    font-family: var(--display);
+    font-style: italic;
+    font-variation-settings: 'opsz' 72;
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
+  .make__next {
+    margin-top: clamp(36px, 5vw, 64px);
+    color: var(--ink-soft);
+  }
+
+  .make__next .hand {
+    margin-left: 0.4em;
+    font-size: 1.5rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  @media (max-width: 760px) {
+    .ideas {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .idea__dots {
+      height: 84px;
+    }
+
+    .understand {
+      margin-left: 0;
+    }
+
+    .make__list li {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

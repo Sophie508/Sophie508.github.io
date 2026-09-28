@@ -1,0 +1,425 @@
+---
+const names = [
+  { name: 'Proximity', note: 'Each label sits right on top of its own answer.' },
+  { name: 'Alignment', note: 'Everything hangs from two invisible lines.' },
+  { name: 'Repetition', note: 'Every label is dressed the same, so I learn the pattern once.' },
+  { name: 'Contrast', note: 'The route is huge because it’s what I need first.' },
+];
+
+const fields = [
+  { label: 'Passenger', value: 'Qin / S', x: 78, y: 236 },
+  { label: 'Date', value: '14 Nov', x: 250, y: 236 },
+  { label: 'Flight', value: 'SW 508', x: 78, y: 292 },
+  { label: 'Seat', value: '23A', x: 250, y: 292 },
+  { label: 'Boarding', value: '07:40', x: 78, y: 348 },
+  { label: 'Gate', value: 'B12', x: 250, y: 348 },
+];
+
+const bars = [3, 1, 2, 1, 4, 1, 1, 3, 2, 1, 1, 4, 2, 1, 3, 1, 2, 2, 1, 4, 1, 3, 1, 1, 2, 4, 1, 2, 1, 3, 1, 1, 2, 3, 1, 4, 1, 2];
+const unit = 264 / bars.reduce((sum, w) => sum + w, 0);
+let cursor = 78;
+const barcode = bars.map((w, i) => {
+  const bar = { x: cursor, w: w * unit, on: i % 2 === 0 };
+  cursor += w * unit;
+  return bar;
+});
+---
+
+<section class="name wrap grid" id="name-it" data-name-it>
+  <div class="name__say">
+    <h2 class="name__title display">
+      <span>Once you can</span>
+      <span><em class="marked">name it,</em></span>
+      <span class="name__gap">you begin</span>
+      <span
+        >to <em class="name__see"
+          >see it.<svg viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+            <path
+              d="M2 9c30-5 62-6 98-4 34 2 66 1 98-3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3.5"
+              stroke-linecap="round"
+              vector-effect="non-scaling-stroke"></path>
+          </svg></em
+        ></span
+      >
+    </h2>
+  </div>
+
+  <figure class="name__figure">
+    <svg class="pass" viewBox="0 0 420 548" role="img" aria-labelledby="pass-title">
+      <title id="pass-title">
+        A boarding pass from Singapore to Tokyo. When named, four marks show proximity, alignment,
+        repetition and contrast at work.
+      </title>
+
+      <rect class="pass__card" x="50" y="28" width="320" height="500" rx="16"></rect>
+      <circle class="pass__notch" cx="50" cy="400" r="11"></circle>
+      <circle class="pass__notch" cx="370" cy="400" r="11"></circle>
+      <line class="pass__tear" x1="70" y1="400" x2="350" y2="400"></line>
+
+      <text class="pass__air" x="78" y="76">somewhere air</text>
+      <text class="pass__label" x="342" y="75" text-anchor="end">Boarding pass</text>
+
+      <text class="pass__code" x="78" y="158">SIN</text>
+      <path class="pass__arrow" d="M182 138h30m-9-8 9 8-9 8"></path>
+      <text class="pass__code" x="342" y="158" text-anchor="end">NRT</text>
+      <text class="pass__city" x="78" y="182">Singapore</text>
+      <text class="pass__city" x="342" y="182" text-anchor="end">Tokyo Narita</text>
+
+      {
+        fields.map((f) => (
+          <g>
+            <text class="pass__label" x={f.x} y={f.y}>
+              {f.label}
+            </text>
+            <text class="pass__value" x={f.x} y={f.y + 24}>
+              {f.value}
+            </text>
+          </g>
+        ))
+      }
+
+      <g class="pass__bars">
+        {barcode.filter((b) => b.on).map((b) => <rect x={b.x} y="428" width={b.w} height="58" />)}
+      </g>
+      <text class="pass__label" x="78" y="508">SW508 · 23A · SIN–NRT</text>
+
+      <g class="marks" aria-hidden="true">
+        <g class="mark" style="--i:0">
+          <path
+            class="mark__pen"
+            d="M240 278c30-5 64-5 84-1 9 2 11 8 11 21 0 14-1 22-10 24-24 4-62 4-84 0-7-2-8-9-8-22 0-13 0-20 7-22z"
+          ></path>
+          <path class="mark__pen" d="M336 300h44"></path>
+          <g transform="translate(394 300)"><circle r="13"></circle><text y="4.5">1</text></g>
+        </g>
+
+        <g class="mark" style="--i:1">
+          <line class="mark__pencil" x1="78" y1="40" x2="78" y2="516"></line>
+          <line class="mark__pencil" x1="250" y1="212" x2="250" y2="384"></line>
+          <g transform="translate(78 16)"><circle r="13"></circle><text y="4.5">2</text></g>
+        </g>
+
+        <g class="mark" style="--i:2">
+          {
+            fields.map((f) => (
+              <path
+                class="mark__pen"
+                d={`M${f.x} ${f.y + 5}q${f.label.length * 1.9} -3 ${f.label.length * 3.8} 0t${f.label.length * 3.8} 0`}
+              />
+            ))
+          }
+          <path class="mark__pen" d="M40 346h34"></path>
+          <g transform="translate(26 346)"><circle r="13"></circle><text y="4.5">3</text></g>
+        </g>
+
+        <g class="mark" style="--i:3">
+          <path
+            class="mark__pen"
+            d="M214 100c-70-4-150 8-152 40-2 30 66 46 146 46 84 0 152-14 152-44 0-30-72-46-160-40-10 1-20 2-28 4"
+          ></path>
+          <path class="mark__pen" d="M360 130l22-18"></path>
+          <g transform="translate(394 102)"><circle r="13"></circle><text y="4.5">4</text></g>
+        </g>
+      </g>
+    </svg>
+
+    <figcaption class="name__caption">
+      <button class="button" type="button" aria-pressed="false" data-name-toggle>
+        <span data-off>Name what’s here</span>
+        <span data-on hidden>Forget the names</span>
+      </button>
+      <p class="hand" data-off>a boarding pass. nothing to see?</p>
+      <p class="hand" data-on hidden>same pass. four things to see.</p>
+    </figcaption>
+  </figure>
+
+  <div class="name__notes">
+    <p class="name__lede">
+      Before I had the words, a boarding pass was just a boarding pass. The design was always
+      there. I just had nothing to hang it on.
+    </p>
+    <ol class="name__legend">
+      {
+        names.map((n, i) => (
+          <li style={`--i:${i}`}>
+            <span class="name__tag">{i + 1}</span>
+            <span class="label">{n.name}</span>
+            <span class="name__why">{n.note}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-name-it]').forEach((root) => {
+    const toggle = root.querySelector<HTMLButtonElement>('[data-name-toggle]')!;
+    toggle.addEventListener('click', () => {
+      const named = root.toggleAttribute('data-named');
+      toggle.setAttribute('aria-pressed', String(named));
+      root.querySelectorAll<HTMLElement>('[data-on]').forEach((el) => (el.hidden = !named));
+      root.querySelectorAll<HTMLElement>('[data-off]').forEach((el) => (el.hidden = named));
+    });
+  });
+</script>
+
+<style>
+  .name {
+    margin-top: var(--section-space);
+    row-gap: clamp(36px, 5vw, 64px);
+    grid-template-areas:
+      'say say say say say say say . fig fig fig fig'
+      'notes notes notes notes notes notes . . fig fig fig fig';
+    grid-template-rows: auto 1fr;
+    align-items: start;
+  }
+
+  .name__say {
+    grid-area: say;
+  }
+
+  .name__title {
+    font-size: clamp(2.5rem, 7.1vw, 6.6rem);
+  }
+
+  .name__title span {
+    display: block;
+  }
+
+  .name__title em {
+    font-style: normal;
+  }
+
+  .name__title .name__gap {
+    margin-top: 0.42em;
+  }
+
+  .name__see {
+    position: relative;
+    display: inline-block;
+  }
+
+  .name__see svg {
+    position: absolute;
+    left: 0;
+    bottom: -0.14em;
+    width: 100%;
+    height: 0.16em;
+    color: var(--pen);
+    overflow: visible;
+  }
+
+  .name__figure {
+    grid-area: fig;
+    width: 100%;
+    max-width: 440px;
+    justify-self: end;
+  }
+
+  .pass {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .pass__card {
+    fill: var(--sheet);
+    stroke: var(--ink);
+    stroke-width: 1.5;
+  }
+
+  .pass__notch {
+    fill: var(--paper);
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    stroke-dasharray: 34.6 34.6;
+  }
+
+  .pass__notch:first-of-type {
+    stroke-dashoffset: 17.3;
+  }
+
+  .pass__notch:last-of-type {
+    stroke-dashoffset: -17.3;
+  }
+
+  .pass__tear {
+    stroke: var(--ink);
+    stroke-width: 1;
+    stroke-dasharray: 2 6;
+    stroke-linecap: round;
+  }
+
+  .pass__air {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 17px;
+  }
+
+  .pass__label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    fill: var(--ink-soft);
+  }
+
+  .pass__code {
+    font-family: var(--display);
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144;
+    font-size: 58px;
+    letter-spacing: -0.03em;
+  }
+
+  .pass__arrow {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .pass__city {
+    font-size: 12px;
+    fill: var(--ink-soft);
+  }
+
+  .pass__value {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  .mark {
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    transition-delay: 0s;
+  }
+
+  [data-named] .mark {
+    opacity: 1;
+    transition-delay: calc(var(--i) * 0.22s);
+  }
+
+  .mark__pen,
+  .mark__pencil {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .mark__pen {
+    stroke: var(--pen);
+  }
+
+  .mark__pencil {
+    stroke: var(--pencil);
+    stroke-width: 1.25;
+    stroke-dasharray: 5 4;
+  }
+
+  .mark circle {
+    fill: var(--pen);
+  }
+
+  .mark:nth-child(2) circle {
+    fill: var(--pencil);
+  }
+
+  .mark text {
+    font-family: var(--mono);
+    font-size: 13px;
+    fill: #fff;
+    text-anchor: middle;
+  }
+
+  .name__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    margin-top: 22px;
+    padding-inline: 11.9%;
+  }
+
+  .name__notes {
+    grid-area: notes;
+    align-self: end;
+  }
+
+  .name__lede {
+    max-width: 30rem;
+    font-size: 1.12em;
+  }
+
+  .name__legend {
+    margin-top: 28px;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .name__legend li {
+    display: grid;
+    grid-template-columns: 26px 7.5rem 1fr;
+    align-items: baseline;
+    gap: 14px;
+    padding-block: 12px;
+    border-bottom: 1px solid var(--hairline);
+    opacity: 0.18;
+    transition: opacity 0.35s ease;
+  }
+
+  [data-named] .name__legend li {
+    opacity: 1;
+    transition-delay: calc(var(--i) * 0.22s);
+  }
+
+  .name__tag {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--pen);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    transform: translateY(3px);
+  }
+
+  .name__legend li:nth-child(2) .name__tag {
+    background: var(--pencil);
+  }
+
+  .name__why {
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 900px) {
+    .name {
+      grid-template-areas: 'say' 'fig' 'notes';
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto;
+    }
+
+    .name__figure {
+      justify-self: center;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .name__legend li {
+      grid-template-columns: 26px 1fr;
+    }
+
+    .name__why {
+      grid-column: 2;
+    }
+  }
+</style>

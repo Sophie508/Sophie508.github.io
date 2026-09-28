@@ -1,0 +1,117 @@
+---
+import { getCollection } from 'astro:content';
+import { sketches } from '../../sketches';
+
+const sightings = (await getCollection('sightings'))
+  .sort((a, b) => b.data.number - a.data.number)
+  .slice(0, 4);
+---
+
+<section class="recent wrap" id="recently-noticed">
+  <header class="recent__head">
+    <h2 class="recent__title display">Recently<br />noticed</h2>
+    <p class="recent__note label">
+      Design Sightings<br />
+      Sketched for now. Photographs to follow.
+    </p>
+  </header>
+
+  <ol class="recent__list">
+    {
+      sightings.map(({ data }) => {
+        const Sketch = data.sketch ? sketches[data.sketch] : undefined;
+        return (
+          <li class="sighting">
+            <figure>
+              {Sketch && <Sketch />}
+              <figcaption>
+                <span class="label sighting__n">
+                  Design Sighting #{String(data.number).padStart(3, '0')}
+                </span>
+                <span class="sighting__title">{data.title}</span>
+                <span class="label sighting__tags">
+                  {data.principles.slice(0, 1).map((p) => (
+                    <span>{p}</span>
+                  ))}
+                </span>
+              </figcaption>
+            </figure>
+          </li>
+        );
+      })
+    }
+  </ol>
+</section>
+
+<style>
+  .recent {
+    margin-top: var(--section-space);
+  }
+
+  .recent__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px 40px;
+    padding-bottom: 18px;
+    border-bottom: 1.5px solid var(--ink);
+  }
+
+  .recent__title {
+    font-size: clamp(2.5rem, 5.6vw, 5.2rem);
+  }
+
+  .recent__note {
+    color: var(--ink-soft);
+    text-align: right;
+  }
+
+  .recent__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--column-gap);
+    margin-top: clamp(28px, 4vw, 52px);
+  }
+
+  .sighting:nth-child(even) {
+    margin-top: clamp(40px, 6vw, 96px);
+  }
+
+  .sighting figcaption {
+    display: grid;
+    gap: 5px;
+    margin-top: 14px;
+  }
+
+  .sighting__n {
+    color: var(--ink-soft);
+  }
+
+  .sighting__title {
+    font-family: var(--display);
+    font-weight: 600;
+    font-variation-settings: 'opsz' 36;
+    font-size: 1.4rem;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+  }
+
+  .sighting__tags span {
+    display: inline-block;
+    margin-top: 4px;
+    padding-bottom: 2px;
+    border-bottom: 1.5px solid var(--pen);
+  }
+
+  @media (max-width: 900px) {
+    .recent__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 40px;
+    }
+
+    .recent__note {
+      text-align: left;
+    }
+  }
+</style>

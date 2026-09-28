@@ -1,0 +1,457 @@
+---
+const menu = [
+  ['Noodles', ['Laksa', 'Mee goreng']],
+  ['Rice', ['Chicken rice', 'Nasi lemak']],
+  ['Drinks', ['Lime juice']],
+] as const;
+
+const signs = [
+  ['Library', 'M14 0H-14m9-9-9 9 9 9'],
+  ['Canteen', 'M-14 0h28m-9-9 9 9-9 9'],
+  ['Lecture hall 3', 'M0 14V-14m-9 9 9-9 9 9'],
+  ['Toilets', 'M-14 0h28m-9-9 9 9-9 9'],
+] as const;
+---
+
+<div class="spot" data-spot>
+  <h2 class="headline spot__title">Once I knew the name, it was everywhere.</h2>
+  <div class="spot__switch" role="group" aria-label="Show each example">
+    <button class="button" type="button" aria-pressed="true" data-spot-state="found">
+      As I found it
+    </button>
+    <button class="button" type="button" aria-pressed="false" data-spot-state="fixed">
+      Moved closer
+    </button>
+  </div>
+
+  <ul class="spot__grid">
+    <li class="spot__item">
+      <div class="art">
+        <div class="menu">
+          {
+            menu.map(([heading, dishes]) => (
+              <>
+                <p class="menu__h">{heading}</p>
+                {dishes.map((dish) => (
+                  <p class="menu__d">{dish}</p>
+                ))}
+              </>
+            ))
+          }
+        </div>
+      </div>
+      <p class="label">Menus</p>
+      <p class="spot__note">
+        The heading floats halfway, so “Rice” could just as easily belong to the noodles.
+      </p>
+    </li>
+
+    <li class="spot__item">
+      <div class="art">
+        <div class="form">
+          <p class="form__l">Name</p>
+          <span class="form__f"></span>
+          <p class="form__l">Email</p>
+          <span class="form__f"></span>
+          <p class="form__l">Message</p>
+          <span class="form__f form__f--tall"></span>
+        </div>
+      </div>
+      <p class="label">Forms</p>
+      <p class="spot__note">Each label sits closer to the box above it than to its own box.</p>
+    </li>
+
+    <li class="spot__item">
+      <div class="art art--desk">
+        <div class="card">
+          <span class="card__name">Mei Tan</span>
+          <span class="card__role">Ceramics, small batches</span>
+          <span class="card__a">mei@kilnlane.example</span>
+          <span class="card__b">kilnlane.example</span>
+          <span class="card__c">12 Kiln Lane</span>
+          <span class="card__d">By appointment</span>
+        </div>
+      </div>
+      <p class="label">Business cards</p>
+      <p class="spot__note">
+        Six places to look. My eye bounces from corner to corner and never settles.
+      </p>
+    </li>
+
+    <li class="spot__item">
+      <div class="art">
+        <div class="web">
+          <span class="web__img web__img--a"></span>
+          <p class="web__cap">Morning at the market</p>
+          <span class="web__img web__img--b"></span>
+          <p class="web__cap">The last tram home</p>
+        </div>
+      </div>
+      <p class="label">Websites</p>
+      <p class="spot__note">
+        Which picture is the caption talking about? The gap is supposed to answer that.
+      </p>
+    </li>
+
+    <li class="spot__item">
+      <div class="art art--dark">
+        <div class="sign">
+          {
+            signs.map(([place, arrow]) => (
+              <p>
+                <span>{place}</span>
+                <svg viewBox="-18 -18 36 36" aria-hidden="true">
+                  <path d={arrow} />
+                </svg>
+              </p>
+            ))
+          }
+        </div>
+      </div>
+      <p class="label">Public signs</p>
+      <p class="spot__note">
+        The arrow is so far from its word that I could pair it with the wrong row.
+      </p>
+    </li>
+
+    <li class="spot__aside">
+      <svg viewBox="0 0 120 70" aria-hidden="true">
+        <path d="M10 62c40 4 80-14 96-50m8 16-8-18-16 10"></path>
+      </svg>
+      <p class="hand">
+        flip the switch.<br />nothing is added or removed. things only move.
+      </p>
+    </li>
+  </ul>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-spot]').forEach((root) => {
+    const buttons = root.querySelectorAll<HTMLButtonElement>('[data-spot-state]');
+    buttons.forEach((button) =>
+      button.addEventListener('click', () => {
+        root.toggleAttribute('data-fixed', button.dataset.spotState === 'fixed');
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+      })
+    );
+  });
+</script>
+
+<style>
+  .spot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 24px 40px;
+  }
+
+  .spot__title {
+    max-width: 15em;
+  }
+
+  .spot__switch {
+    display: flex;
+  }
+
+  .spot__switch .button + .button {
+    margin-left: -1.5px;
+  }
+
+  .spot__grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(36px, 5vw, 64px) var(--column-gap);
+    margin-top: clamp(4px, 2vw, 28px);
+  }
+
+  .spot__item .label {
+    margin-top: 14px;
+    color: var(--pen);
+  }
+
+  .spot__note {
+    max-width: 24rem;
+    margin-top: 4px;
+    color: var(--ink-soft);
+    font-size: 0.95em;
+  }
+
+  .spot__aside {
+    align-self: center;
+    padding: 0 8%;
+  }
+
+  .spot__aside svg {
+    width: 96px;
+    fill: none;
+    stroke: var(--pen);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .spot__aside .hand {
+    margin-top: 10px;
+    font-size: 1.7rem;
+    transform: rotate(-2deg);
+  }
+
+  .art {
+    display: grid;
+    place-items: center;
+    height: 330px;
+    padding: 24px;
+    background: var(--paper-deep);
+    font-size: 13px;
+    line-height: 1.25;
+    overflow: hidden;
+  }
+
+  .art * {
+    transition: all 0.7s cubic-bezier(0.6, 0, 0.2, 1);
+  }
+
+  /* Menu: the heading drifts between two groups, then joins its own */
+  .menu {
+    width: min(100%, 210px);
+    height: 282px;
+    padding: 12px 24px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+  }
+
+  .menu p {
+    margin-top: 12px;
+  }
+
+  .menu__h {
+    font-family: var(--mono);
+    font-size: 0.78em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  [data-fixed] .menu__h {
+    margin-top: 30px;
+  }
+
+  [data-fixed] .menu__h:first-child {
+    margin-top: 12px;
+  }
+
+  [data-fixed] .menu__d {
+    margin-top: 3px;
+  }
+
+  /* Form: each label leaves the box above and joins the one below */
+  .form {
+    width: min(100%, 220px);
+  }
+
+  .form__l {
+    margin: 5px 0 17px;
+    font-weight: 600;
+  }
+
+  .form__f {
+    display: block;
+    height: 30px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+  }
+
+  .form__f--tall {
+    height: 58px;
+  }
+
+  [data-fixed] .form__l {
+    margin: 17px 0 5px;
+  }
+
+  /* Business card: six scattered corners become two groups */
+  .art--desk {
+    padding: 16px;
+  }
+
+  .card {
+    position: relative;
+    width: min(100%, 300px);
+    aspect-ratio: 1.7;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+    font-size: 0.82em;
+  }
+
+  .card span {
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  .card__name {
+    left: 50%;
+    top: 40%;
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 1.9em;
+    letter-spacing: -0.02em;
+    transform: translate(-50%, -50%);
+  }
+
+  .card__role {
+    left: 50%;
+    top: 56%;
+    transform: translate(-50%, 0);
+  }
+
+  .card__a {
+    left: 6%;
+    top: 7%;
+  }
+
+  .card__b {
+    left: 94%;
+    top: 7%;
+    transform: translate(-100%, 0);
+  }
+
+  .card__c {
+    left: 6%;
+    top: 84%;
+  }
+
+  .card__d {
+    left: 94%;
+    top: 84%;
+    transform: translate(-100%, 0);
+  }
+
+  [data-fixed] .card span {
+    left: 9%;
+    transform: translate(0, 0);
+  }
+
+  [data-fixed] .card__name {
+    top: 11%;
+  }
+
+  [data-fixed] .card__role {
+    top: 30%;
+  }
+
+  [data-fixed] .card__a {
+    top: 57%;
+  }
+
+  [data-fixed] .card__b {
+    top: 67%;
+  }
+
+  [data-fixed] .card__c {
+    top: 77%;
+  }
+
+  [data-fixed] .card__d {
+    top: 87%;
+  }
+
+  /* Website: a caption stranded between two pictures picks one */
+  .web {
+    width: min(100%, 200px);
+  }
+
+  .web__img {
+    display: block;
+    height: 86px;
+  }
+
+  .web__img--a {
+    background: #9fb0a3;
+  }
+
+  .web__img--b {
+    background: #d3a58c;
+  }
+
+  .web__cap {
+    margin: 17px 0;
+    font-weight: 600;
+  }
+
+  [data-fixed] .web__cap {
+    margin: 6px 0 28px;
+  }
+
+  /* Sign: each arrow travels across the board to stand beside its word */
+  .art--dark {
+    background: #1b1d21;
+    color: var(--paper);
+  }
+
+  .sign {
+    width: min(100%, 250px);
+    font-size: 1.35em;
+    font-weight: 600;
+  }
+
+  .sign p {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .sign span {
+    flex-grow: 1;
+  }
+
+  .sign svg {
+    width: 26px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  [data-fixed] .sign p {
+    margin-top: 26px;
+  }
+
+  [data-fixed] .sign p:first-child {
+    margin-top: 4px;
+  }
+
+  [data-fixed] .sign span {
+    flex-grow: 0;
+    margin-right: 14px;
+  }
+
+  @media (max-width: 900px) {
+    .spot__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    .spot {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .spot__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .spot__switch {
+      position: sticky;
+      top: 12px;
+      z-index: 3;
+      justify-self: start;
+      background: var(--paper);
+    }
+
+    .spot__aside {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,29 @@
+---
+const modules = [
+  { x: 44, y: 70, tone: '#c9b89b' },
+  { x: 44, y: 262, tone: '#9fb0a3' },
+  { x: 214, y: 70, tone: '#b7a9c0' },
+  { x: 214, y: 262, tone: '#d3a58c' },
+];
+---
+
+<svg class="sketch" viewBox="0 0 400 500" role="img" aria-label="Sketch of a catalogue spread where four modules repeat the same picture, title and yellow price tag">
+  <rect x="28" y="46" width="344" height="408" fill="#fdfcf9" stroke="#14120f" stroke-width="1.5"></rect>
+  <line x1="200" y1="46" x2="200" y2="454" stroke="#14120f" stroke-width="1" opacity="0.35"></line>
+  {
+    modules.map((m) => (
+      <g>
+        <rect x={m.x} y={m.y} width="142" height="112" fill={m.tone} />
+        <rect x={m.x + 100} y={m.y + 70} width="42" height="42" fill="#ffe45c" />
+        <text class="s-display" x={m.x + 121} y={m.y + 98} font-size="18" text-anchor="middle">9</text>
+        <rect x={m.x} y={m.y + 126} width="74" height="8" fill="#14120f" />
+        <rect x={m.x} y={m.y + 144} width="142" height="3" fill="#14120f" opacity="0.3" />
+        <rect x={m.x} y={m.y + 154} width="118" height="3" fill="#14120f" opacity="0.3" />
+      </g>
+    ))
+  }
+  <text class="s-mono" x="44" y="440" font-size="8" fill="#5d584f">24</text>
+  <text class="s-mono" x="356" y="440" font-size="8" fill="#5d584f" text-anchor="end">25</text>
+  {modules.map((m) => <path class="s-pen" d={`M${m.x + 96} ${m.y + 118}l50 0`} />)}
+  <text class="s-hand" x="150" y="34" font-size="30" transform="rotate(-3 150 34)">same tag, four times</text>
+</svg>

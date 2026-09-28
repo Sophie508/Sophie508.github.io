@@ -1,0 +1,389 @@
+---
+const pieces = [
+  { text: '7 – 9 pm', group: 'when' },
+  { text: 'Room 2.04', group: 'where' },
+  { text: 'Open Studio', group: 'what' },
+  { text: 'Bring a friend', group: 'good to know' },
+  { text: 'Building 3, Level 2', group: 'where' },
+  { text: 'Sat 14 Nov', group: 'when' },
+  { text: 'Free entry', group: 'good to know' },
+  { text: 'Small experiments, shown early', group: 'what' },
+];
+---
+
+<div class="game" data-game>
+  <div class="game__head">
+    <h2 class="headline">Which things belong together?</h2>
+    <p class="game__rule">
+      Eight scraps of one poster. Drag them until the poster makes sense. You can’t change the
+      words, the type or the colour. Only how far apart things are.
+    </p>
+  </div>
+
+  <div class="game__poster" data-poster>
+    <div data-rings aria-hidden="true"></div>
+    {
+      pieces.map((piece) => (
+        <button class="scrap" type="button" data-scrap data-group={piece.group}>
+          {piece.text}
+        </button>
+      ))
+    }
+    <p class="game__win hand" data-win aria-hidden="true">you just used proximity.</p>
+  </div>
+
+  <div class="game__foot">
+    <p class="game__status" data-status role="status">This reads as 8 separate things.</p>
+    <div class="game__actions">
+      <button class="button" type="button" data-solve>Show me</button>
+      <button class="button" type="button" data-scatter>Scatter again</button>
+    </div>
+  </div>
+  <p class="game__keys label">Keyboard: focus a scrap, then use the arrow keys.</p>
+</div>
+
+<script>
+  const REACH = 30;
+  const SLOTS = [
+    [0.05, 0.07],
+    [0.58, 0.1],
+    [0.03, 0.3],
+    [0.6, 0.33],
+    [0.06, 0.54],
+    [0.57, 0.57],
+    [0.04, 0.78],
+    [0.59, 0.8],
+  ];
+  const HOMES: Record<string, [number, number]> = {
+    what: [0.05, 0.1],
+    when: [0.58, 0.1],
+    where: [0.05, 0.58],
+    'good to know': [0.58, 0.58],
+  };
+
+  type Box = { left: number; top: number; right: number; bottom: number };
+
+  document.querySelectorAll<HTMLElement>('[data-game]').forEach((root) => {
+    const poster = root.querySelector<HTMLElement>('[data-poster]')!;
+    const rings = root.querySelector<HTMLElement>('[data-rings]')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const scraps = [...root.querySelectorAll<HTMLElement>('[data-scrap]')];
+    const groupSize = new Map<string, number>();
+    scraps.forEach((s) => groupSize.set(s.dataset.group!, (groupSize.get(s.dataset.group!) ?? 0) + 1));
+
+    const place = (scrap: HTMLElement, x: number, y: number) => {
+      const maxX = 1 - scrap.offsetWidth / poster.clientWidth;
+      const maxY = 1 - scrap.offsetHeight / poster.clientHeight;
+      scrap.style.setProperty('--x', String(Math.min(Math.max(x, 0), maxX)));
+      scrap.style.setProperty('--y', String(Math.min(Math.max(y, 0), maxY)));
+    };
+
+    const origin = () => {
+      const frame = poster.getBoundingClientRect();
+      return { x: frame.left + poster.clientLeft, y: frame.top + poster.clientTop };
+    };
+
+    const boxOf = (scrap: HTMLElement): Box => {
+      const o = origin();
+      const r = scrap.getBoundingClientRect();
+      return { left: r.left - o.x, top: r.top - o.y, right: r.right - o.x, bottom: r.bottom - o.y };
+    };
+
+    const gap = (a: Box, b: Box) =>
+      Math.hypot(
+        Math.max(0, a.left - b.right, b.left - a.right),
+        Math.max(0, a.top - b.bottom, b.top - a.bottom)
+      );
+
+    const read = () => {
+      const boxes = scraps.map(boxOf);
+      const parent = scraps.map((_, i) => i);
+      const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i])));
+      for (let i = 0; i < boxes.length; i++)
+        for (let j = i + 1; j < boxes.length; j++)
+          if (gap(boxes[i], boxes[j]) < REACH) parent[find(i)] = find(j);
+
+      const clusters = new Map<number, number[]>();
+      scraps.forEach((_, i) => clusters.set(find(i), [...(clusters.get(find(i)) ?? []), i]));
+
+      let mixed = 0;
+      let named = 0;
+      rings.replaceChildren();
+      clusters.forEach((members) => {
+        const groups = new Set(members.map((i) => scraps[i].dataset.group!));
+        const pure = groups.size === 1;
+        const whole = pure && members.length === groupSize.get([...groups][0]);
+        if (!pure) mixed++;
+        if (whole) named++;
+        if (members.length < 2) return;
+
+        const ring = document.createElement('div');
+        ring.className = whole ? 'ring ring--named' : pure ? 'ring' : 'ring ring--mixed';
+        if (whole) ring.dataset.name = [...groups][0];
+        const pad = 12;
+        const left = Math.min(...members.map((i) => boxes[i].left)) - pad;
+        const top = Math.min(...members.map((i) => boxes[i].top)) - pad;
+        ring.style.left = `${left}px`;
+        ring.style.top = `${top}px`;
+        ring.style.width = `${Math.max(...members.map((i) => boxes[i].right)) + pad - left}px`;
+        ring.style.height = `${Math.max(...members.map((i) => boxes[i].bottom)) + pad - top}px`;
+        rings.append(ring);
+      });
+
+      const solved = named === groupSize.size && clusters.size === groupSize.size;
+      root.toggleAttribute('data-solved', solved);
+      const count = clusters.size;
+      const message = solved
+        ? 'Four groups. Nobody has to read anything to find them.'
+        : mixed
+          ? `This reads as ${count} ${count === 1 ? 'thing' : 'things'}, but some neighbours don’t belong together.`
+          : `This reads as ${count} separate things.`;
+      if (status.textContent !== message) status.textContent = message;
+    };
+
+    const follow = (ms: number) => {
+      const end = performance.now() + ms;
+      const tick = () => {
+        read();
+        if (performance.now() < end) requestAnimationFrame(tick);
+      };
+      tick();
+    };
+
+    const glide = (move: () => void) => {
+      root.setAttribute('data-gliding', '');
+      move();
+      follow(750);
+      setTimeout(() => root.removeAttribute('data-gliding'), 750);
+    };
+
+    const scatter = () => {
+      const offset = Math.floor(Math.random() * 2);
+      scraps.forEach((scrap, i) => {
+        const slot = SLOTS[(i + offset * 2) % SLOTS.length];
+        place(scrap, slot[0], slot[1]);
+      });
+    };
+
+    const solve = () => {
+      const stacked = new Map<string, number>();
+      scraps.forEach((scrap) => {
+        const group = scrap.dataset.group!;
+        const [x, y] = HOMES[group];
+        const used = stacked.get(group) ?? 0;
+        place(scrap, x, y + used / poster.clientHeight);
+        stacked.set(group, used + scrap.offsetHeight + 4);
+      });
+    };
+
+    scraps.forEach((scrap) => {
+      let grip: { dx: number; dy: number } | null = null;
+
+      scrap.addEventListener('pointerdown', (e) => {
+        const r = scrap.getBoundingClientRect();
+        grip = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+        scrap.setPointerCapture(e.pointerId);
+        scrap.classList.add('is-held');
+      });
+
+      scrap.addEventListener('pointermove', (e) => {
+        if (!grip) return;
+        const o = origin();
+        place(
+          scrap,
+          (e.clientX - grip.dx - o.x) / poster.clientWidth,
+          (e.clientY - grip.dy - o.y) / poster.clientHeight
+        );
+        read();
+      });
+
+      const drop = () => {
+        grip = null;
+        scrap.classList.remove('is-held');
+      };
+      scrap.addEventListener('pointerup', drop);
+      scrap.addEventListener('pointercancel', drop);
+
+      scrap.addEventListener('keydown', (e) => {
+        const step = e.shiftKey ? 48 : 12;
+        const moves: Record<string, [number, number]> = {
+          ArrowLeft: [-step, 0],
+          ArrowRight: [step, 0],
+          ArrowUp: [0, -step],
+          ArrowDown: [0, step],
+        };
+        const move = moves[e.key];
+        if (!move) return;
+        e.preventDefault();
+        const box = boxOf(scrap);
+        place(
+          scrap,
+          (box.left + move[0]) / poster.clientWidth,
+          (box.top + move[1]) / poster.clientHeight
+        );
+        read();
+      });
+    });
+
+    root.querySelector('[data-solve]')!.addEventListener('click', () => glide(solve));
+    root.querySelector('[data-scatter]')!.addEventListener('click', () => glide(scatter));
+    new ResizeObserver(() => {
+      scraps.forEach((s) =>
+        place(s, Number(s.style.getPropertyValue('--x')), Number(s.style.getPropertyValue('--y')))
+      );
+      read();
+    }).observe(poster);
+
+    scatter();
+    document.fonts.ready.then(read);
+  });
+</script>
+
+<style>
+  .game__head {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: 20px clamp(32px, 6vw, 96px);
+    align-items: end;
+  }
+
+
+  .game__rule {
+    max-width: 30rem;
+    color: var(--ink-soft);
+  }
+
+  .game__poster {
+    position: relative;
+    height: clamp(500px, 62vh, 600px);
+    margin-top: clamp(28px, 4vw, 48px);
+    background-color: var(--sheet);
+    background-image: radial-gradient(rgba(20, 18, 15, 0.22) 1px, transparent 1.2px);
+    background-size: 24px 24px;
+    background-position: 12px 12px;
+    border: 1.5px solid var(--ink);
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+
+  .scrap {
+    position: absolute;
+    left: calc(var(--x, 0) * 100%);
+    top: calc(var(--y, 0) * 100%);
+    max-width: 38%;
+    padding: 7px 12px 8px;
+    background: var(--sheet);
+    border: 1px solid var(--ink);
+    font-size: clamp(0.92rem, 1.5vw, 1.12rem);
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: left;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .scrap:global(.is-held) {
+    z-index: 2;
+    cursor: grabbing;
+    box-shadow: 5px 6px 0 rgba(20, 18, 15, 0.16);
+  }
+
+  [data-gliding] .scrap {
+    transition:
+      left 0.7s cubic-bezier(0.6, 0, 0.2, 1),
+      top 0.7s cubic-bezier(0.6, 0, 0.2, 1);
+  }
+
+  .game__poster :global(.ring) {
+    position: absolute;
+    border: 1.5px dashed var(--pencil);
+    border-radius: 10px;
+    pointer-events: none;
+  }
+
+  .game__poster :global(.ring--mixed) {
+    border-color: var(--ink-soft);
+    opacity: 0.6;
+  }
+
+  .game__poster :global(.ring--named) {
+    border: 2px solid var(--pen);
+    border-radius: 14px 18px 12px 20px;
+  }
+
+  .game__poster :global(.ring--named)::before {
+    content: attr(data-name);
+    position: absolute;
+    left: 10px;
+    bottom: 100%;
+    font-family: var(--hand);
+    font-weight: 600;
+    font-size: 1.45rem;
+    line-height: 1.1;
+    color: var(--pen);
+    white-space: nowrap;
+  }
+
+  .game__win {
+    position: absolute;
+    right: 5%;
+    bottom: 5%;
+    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+    transform: rotate(-4deg) translateY(12px);
+    opacity: 0;
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  [data-solved] .game__win {
+    opacity: 1;
+    transform: rotate(-4deg);
+  }
+
+  .game__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 32px;
+    margin-top: 18px;
+  }
+
+  .game__status {
+    font-family: var(--display);
+    font-style: italic;
+    font-variation-settings: 'opsz' 36;
+    font-size: clamp(1.15rem, 1.9vw, 1.5rem);
+    line-height: 1.2;
+  }
+
+  .game__actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .game__keys {
+    margin-top: 14px;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 760px) {
+    .game__head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .scrap {
+      padding-inline: 9px;
+    }
+  }
+
+  @media (hover: none) {
+    .game__keys {
+      display: none;
+    }
+  }
+</style>

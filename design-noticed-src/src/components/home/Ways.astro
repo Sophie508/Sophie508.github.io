@@ -1,0 +1,253 @@
+---
+import { href, pages } from '../../links';
+---
+
+<section class="ways wrap grid" id="ways">
+  <h2 class="ways__title display">
+    <span class="ways__four">4</span> ways<br />I learned<br />to look.
+  </h2>
+
+  <ol class="ways__list">
+    {
+      pages.map((page, i) => {
+        const Tag = page.live ? 'a' : 'div';
+        const glyph = page.name.toLowerCase();
+        return (
+          <li>
+            <Tag class="way" href={page.live ? href(page.path) : undefined} data-way>
+              <span class="way__n label">0{i + 1}</span>
+              <span class="way__words">
+                <span class="way__name">{page.name}</span>
+                <span class="way__phrase">{page.phrase}</span>
+              </span>
+              <span class={`glyph glyph--${glyph}`} aria-hidden="true">
+                {Array.from({ length: glyph === 'contrast' ? 2 : glyph === 'proximity' ? 6 : 4 }).map(
+                  () => (
+                    <i />
+                  )
+                )}
+              </span>
+              <span class="way__go label">
+                {page.live ? 'Open →' : <span class="hand">soon</span>}
+              </span>
+            </Tag>
+          </li>
+        );
+      })
+    }
+  </ol>
+</section>
+
+<script>
+  const rows = document.querySelectorAll<HTMLElement>('[data-way]');
+  const watcher = new IntersectionObserver(
+    (entries) => entries.forEach((e) => e.target.classList.toggle('is-on', e.isIntersecting)),
+    { rootMargin: '-35% 0px -35% 0px' }
+  );
+  rows.forEach((row) => watcher.observe(row));
+</script>
+
+<style>
+  .ways {
+    margin-top: var(--section-space);
+    row-gap: clamp(36px, 5vw, 56px);
+    align-items: start;
+  }
+
+  .ways__title {
+    grid-column: 1 / span 4;
+    font-size: clamp(2.5rem, 5.6vw, 5.2rem);
+    position: sticky;
+    top: 32px;
+  }
+
+  .ways__four {
+    color: var(--pen);
+  }
+
+  .ways__list {
+    grid-column: 6 / -1;
+    border-top: 1.5px solid var(--ink);
+  }
+
+  .way {
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr) 132px 4.6rem;
+    align-items: center;
+    column-gap: clamp(12px, 2vw, 28px);
+    padding-block: clamp(22px, 3vw, 38px);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .way__n {
+    align-self: start;
+    padding-top: 0.75em;
+    color: var(--ink-soft);
+  }
+
+  .way__name {
+    display: block;
+    font-family: var(--display);
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144;
+    font-size: clamp(1.9rem, 4.2vw, 3.8rem);
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+  }
+
+  a.way:hover .way__name {
+    color: var(--pen);
+  }
+
+  .way__phrase {
+    display: block;
+    margin-top: 0.45em;
+    font-family: var(--display);
+    font-style: italic;
+    font-variation-settings: 'opsz' 36;
+    font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+    line-height: 1.2;
+    color: var(--ink-soft);
+  }
+
+  .way__go {
+    justify-self: end;
+    white-space: nowrap;
+  }
+
+  .way__go .hand {
+    font-size: 1.5rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .glyph {
+    position: relative;
+    width: 132px;
+    height: 56px;
+  }
+
+  .glyph i {
+    position: absolute;
+    display: block;
+    background: var(--ink);
+    transition: all 0.55s cubic-bezier(0.6, 0, 0.2, 1);
+  }
+
+  /* Proximity: six evenly spaced dots become two groups of three */
+  .glyph--proximity i {
+    top: 22px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    left: calc(var(--k) * 24px);
+  }
+  .glyph--proximity i:nth-child(1) { --k: 0; --to: 8px; }
+  .glyph--proximity i:nth-child(2) { --k: 1; --to: 0px; }
+  .glyph--proximity i:nth-child(3) { --k: 2; --to: -8px; }
+  .glyph--proximity i:nth-child(4) { --k: 3; --to: 8px; }
+  .glyph--proximity i:nth-child(5) { --k: 4; --to: 0px; }
+  .glyph--proximity i:nth-child(6) { --k: 5; --to: -8px; }
+  .way:hover .glyph--proximity i,
+  .way.is-on .glyph--proximity i {
+    transform: translateX(var(--to));
+  }
+
+  /* Alignment: ragged bars find one shared edge */
+  .glyph--alignment i {
+    height: 7px;
+    top: calc(4px + var(--k) * 14px);
+    left: 12px;
+    width: var(--w);
+    transform: translateX(var(--from));
+  }
+  .glyph--alignment i:nth-child(1) { --k: 0; --w: 70px; --from: 26px; }
+  .glyph--alignment i:nth-child(2) { --k: 1; --w: 104px; --from: 4px; }
+  .glyph--alignment i:nth-child(3) { --k: 2; --w: 52px; --from: 46px; }
+  .glyph--alignment i:nth-child(4) { --k: 3; --w: 86px; --from: 14px; }
+  .glyph--alignment::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: -4px;
+    bottom: -4px;
+    border-left: 1.5px dashed var(--pencil);
+    opacity: 0;
+    transition: opacity 0.4s ease 0.3s;
+  }
+  .way:hover .glyph--alignment i,
+  .way.is-on .glyph--alignment i {
+    transform: translateX(0);
+  }
+  .way:hover .glyph--alignment::before,
+  .way.is-on .glyph--alignment::before {
+    opacity: 1;
+  }
+
+  /* Repetition: four unrelated shapes agree on one */
+  .glyph--repetition i {
+    top: 14px;
+    width: 28px;
+    height: 28px;
+    left: calc(var(--k) * 34px);
+  }
+  .glyph--repetition i:nth-child(1) { --k: 0; border-radius: 50%; }
+  .glyph--repetition i:nth-child(2) { --k: 1; transform: scale(0.8, 1.25); }
+  .glyph--repetition i:nth-child(3) { --k: 2; transform: rotate(45deg) scale(0.8); }
+  .glyph--repetition i:nth-child(4) { --k: 3; border-radius: 0 50% 50% 0; transform: scale(1.1, 0.6); }
+  .way:hover .glyph--repetition i,
+  .way.is-on .glyph--repetition i {
+    border-radius: 7px 7px 7px 0;
+    transform: none;
+  }
+
+  /* Contrast: almost-the-same becomes really different */
+  .glyph--contrast i {
+    top: 50%;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    margin-top: -28px;
+  }
+  .glyph--contrast i:nth-child(1) { left: 8px; transform: scale(0.52); }
+  .glyph--contrast i:nth-child(2) { left: 66px; transform: scale(0.6); }
+  .way:hover .glyph--contrast i:nth-child(1),
+  .way.is-on .glyph--contrast i:nth-child(1) {
+    transform: scale(0.18);
+  }
+  .way:hover .glyph--contrast i:nth-child(2),
+  .way.is-on .glyph--contrast i:nth-child(2) {
+    transform: scale(1);
+    background: var(--pen);
+  }
+
+  @media (max-width: 900px) {
+    .ways__title {
+      grid-column: 1 / -1;
+      position: static;
+    }
+
+    .ways__list {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .way {
+      grid-template-columns: 2rem minmax(0, 1fr) auto;
+      row-gap: 16px;
+    }
+
+    .glyph {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .way__go {
+      grid-column: 3;
+      grid-row: 1;
+    }
+  }
+</style>

@@ -1,0 +1,87 @@
+---
+import { href, pages, sightingsPage } from '../links';
+
+const items = [...pages, sightingsPage];
+const current = Astro.url.pathname;
+---
+
+<header class="mast wrap">
+  <a class="mast__mark" href={href('/')}>Design, Noticed.</a>
+  <nav class="mast__nav label" aria-label="Main">
+    {
+      items.map((item) =>
+        item.live ? (
+          <a href={href(item.path)} aria-current={current.endsWith(item.path) ? 'page' : undefined}>
+            {item.name}
+          </a>
+        ) : (
+          <span class="mast__soon">
+            {item.name}
+            <small>soon</small>
+          </span>
+        )
+      )
+    }
+  </nav>
+</header>
+
+<style>
+  .mast {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding-block: 22px 18px;
+  }
+
+  .mast__mark {
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 600;
+    font-variation-settings: 'opsz' 40;
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .mast__nav {
+    display: flex;
+    gap: clamp(14px, 2.2vw, 30px);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .mast__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mast__nav a {
+    padding-bottom: 3px;
+    border-bottom: 1.5px solid transparent;
+  }
+
+  .mast__nav a:hover,
+  .mast__nav a[aria-current='page'] {
+    border-bottom-color: var(--pen);
+  }
+
+  .mast__soon {
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+
+  .mast__soon small {
+    margin-left: 0.3em;
+    font-family: var(--hand);
+    font-size: 1.35em;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--pen);
+  }
+
+  @media (max-width: 700px) {
+    .mast__soon {
+      display: none;
+    }
+  }
+</style>

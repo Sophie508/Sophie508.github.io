@@ -1,0 +1,28 @@
+---
+const rows = [
+  { arrow: 'M70 0H46m9-9-9 9 9 9', badge: 'A', tone: '#ffe45c', text: 'Exit' },
+  { arrow: 'M58 12V-12m-9 9 9-9 9 9', badge: 'B', tone: '#ffe45c', text: 'Exit' },
+  { arrow: 'M46 0h24m-9-9 9 9-9 9', badge: '1', tone: '#7fc99a', text: 'Platform' },
+  { arrow: 'M46 0h24m-9-9 9 9-9 9', badge: '2', tone: '#c4a1e0', text: 'Platform' },
+];
+---
+
+<svg class="sketch" viewBox="0 0 400 500" role="img" aria-label="Sketch of a hanging station sign where every arrow, badge and word lines up on shared vertical edges">
+  <line x1="92" y1="0" x2="92" y2="104" stroke="#14120f" stroke-width="3"></line>
+  <line x1="308" y1="0" x2="308" y2="104" stroke="#14120f" stroke-width="3"></line>
+  <rect x="24" y="104" width="352" height="300" fill="#1b1d21"></rect>
+  <rect x="24" y="104" width="352" height="10" fill="#e5412d"></rect>
+  {
+    rows.map((r, i) => (
+      <g transform={`translate(0 ${166 + i * 62})`}>
+        <path d={r.arrow} fill="none" stroke="#f4f1ea" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="118" cy="0" r="17" fill={r.tone} />
+        <text x="118" y="7" font-size="19" font-weight="700" text-anchor="middle" fill="#14120f">{r.badge}</text>
+        <text x="156" y="9" font-size="27" font-weight="600" fill="#f4f1ea">{r.text}</text>
+      </g>
+    ))
+  }
+  <line class="s-pencil" x1="156" y1="84" x2="156" y2="440"></line>
+  <line class="s-pencil" x1="46" y1="84" x2="46" y2="440"></line>
+  <text class="s-hand" x="168" y="458" font-size="30" transform="rotate(-3 168 458)">one line. every word.</text>
+</svg>
