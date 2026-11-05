@@ -226,3 +226,41 @@ Fig 10 已经是这个样子，把它当模板。按这条契约审一遍，达�
 6. **02 节现在只剩四段文字加两个折叠块，没有图。**不算问题；如果想再紧一点，可以并进 03 节开头。
 
 **这轮没验证的：**键盘导航和读屏器仍没测；源码仍没看；加载体积仍没测。
+
+## 10. 第二轮补充：01 节末尾的六个折叠块
+
+位置：01 节引言（"Which requirements are met..."）之后、02 节之前，六个 `<details>` 竖着排。2026-11-05 逐个打开看过内容。
+
+**里面实际装的是什么**
+
+| 标题 | 内容 | 判断 |
+| --- | --- | --- |
+| The task in full: what goes into the workbook? | 任务的改写版，146 词，内嵌一个 S-01 的二级折叠 | 与最后一个重复 |
+| What makes a table an Excel PivotTable? | 59 词的定义 | 放错位置，应在 Step 4 旁 |
+| How does the script become 26 tiles? | 161 词，含一段 pytest 代码摘录 | 放错位置，应在 Step 2 旁 |
+| Executed code and verifier evidence | 只有一行 "Inspect the execution evidence ↓" 跳转 | 空壳 |
+| What this does not show | 81 词 caveat | 留在节尾 |
+| Original task and source provenance | 任务原文 256 词 | 与第一个重复 |
+
+六个里一个空壳、两个重复、两个离被解释对象隔了整个 stepper，真正属于节尾的只有一个。
+
+**为什么读者看到这堆不知道要不要点**
+
+- 标题只有话题，没有回报。依据：Pirolli & Card 的信息觅食理论（information foraging, 1999），链接文字要让读者能预测点开后得到什么、值不值得，这叫 information scent。"The task in full" 说了里面是任务，没说此刻为什么该关心。上面那句引言刚把情绪推到顶，这里给了六道一样的门。
+- 六行长得一样，读者把它们当一块跳过。依据：Gestalt 相似性原则，视觉同质的元素被当成一组处理；没有层级、摘要行、分类，最省力的策略就是全不点。另有两处视觉噪音：每两行之间是双线；部分标题蓝、部分黑，像没做完。
+- 位置错了。依据：Mayer 空间邻近原则，解释要贴着被解释的东西；Nielsen 讲 progressive disclosure 时同样强调次级内容要在读者需要它的位置出现，不是堆在末尾。透视表定义在 Step 4 草图旁才有用，读者看到草图那一刻会产生疑问；挪到三屏后疑问已经散了。
+
+**建议：拆散各归各位，节尾最多留一个**
+
+1. PivotTable 定义进 Step 4。草图下加一行小字链接 "What Excel stores for a PivotTable"，原地展开那 59 词。
+2. 26 个格子的来历进 Step 2。"One tile = one verifier check" 旁加 "how 26?"，原地展开，代码摘录可保留。
+3. "Executed code and verifier evidence" 删。图内已有 "Inspect a check and its recorded output"，功能重复。
+4. 任务原文和改写版合并成一个，放 Step 1。Step 1 卡片 "PDF + spreadsheet → One Excel report" 下加 "Read the full instruction"，展开显示原文并高亮被引用的行，沿用 03 节已有的样式。改写版 146 词不再需要，Step 1 到 5 的正文已经讲完。
+5. "What this does not show" 留节尾，换视觉处理：浅底色 aside 卡片，标题改成 "What one pair can and cannot show"，默认折叠但露出第一句。
+6. Provenance 改成节尾一行 Sources 小字，与其他节一致，不折叠。
+
+改完后节尾只剩一个折叠块，其余细节都在读者产生疑问的位置等着。
+
+**再往上一档（可选）：**Tufte 的 sidenote、Distill 的悬停脚注，把定义和来源挂在具体那句话上，悬停或点击在页边展开。这是 details on demand 做到句子粒度的版本。PivotTable 定义和 26 个格子的来历都适合这种处理。
+
+**顺带：**这个模式在 02 到 05 节也有，每节末尾都是一列裸 `<details>`。01 节改好之后，同样的规则过一遍其他节：空壳删、重复合并、贴近被解释对象、节尾只留 caveat 一个。

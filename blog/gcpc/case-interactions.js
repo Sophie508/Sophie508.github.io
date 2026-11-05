@@ -17,19 +17,13 @@
   function selectStep(n) {
     visual.dataset.stage = String(n);
     $('case-step-name').textContent = titles[n];
-    let manualSelection = false;
-  const releaseManualSelection = () => { manualSelection = false; };
-  window.addEventListener('wheel', releaseManualSelection, { passive: true });
-  window.addEventListener('touchstart', releaseManualSelection, { passive: true });
-  window.addEventListener('keydown', event => {
-    if (['PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) releaseManualSelection();
-  });
-  controls.forEach((b, i) => b.setAttribute('aria-pressed', String(i === n)));
+    controls.forEach((b, i) => b.setAttribute('aria-pressed', String(i === n)));
     steps.forEach((s, i) => s.classList.toggle('is-active', i === n));
     $('case-grid-view').hidden = n === 0 || n === 5;
     $('case-inspect').hidden = n === 0 || n === 5;
     $('case-requirements').hidden = n !== 5;
     $('case-explanation').innerHTML = explanations[n];
+    document.querySelectorAll('[data-step-detail]').forEach(detail => { detail.hidden = Number(detail.dataset.stepDetail) !== n; });
     if (n === 0 && !matchMedia('(min-width: 1000px) and (min-height: 650px)').matches) {
       $('case-explanation').textContent = 'Select steps 2–6 to look inside the verdict.';
     }
@@ -62,7 +56,17 @@
     if (entry) selectStep(Number(entry.target.dataset.caseStep));
   }, { rootMargin: '-30% 0px -35% 0px', threshold: 0 });
   steps.forEach(step => observer.observe(step));
+  function followWorkbookAnchor() {
+    if (location.hash === '#workbook-delivery') {
+      manualSelection = true;
+      selectStep(5);
+      $('workbook-delivery').open = true;
+      $('workbook-delivery').scrollIntoView({ block: 'center' });
+    }
+  }
   selectStep(0);
+  followWorkbookAnchor();
+  window.addEventListener('hashchange', followWorkbookAnchor);
   const labels = ['Save a valid workbook', 'Population by State', 'Earners by State', 'Regions by State', 'State Income Quartile', 'Joined source-data fields', 'Valid income-group labels', 'Calculate Total', 'Join the original data'];
   fetch('data/explorer/skillsbench/sales-pivot-analysis.json').then(r => {
     if (!r.ok) throw new Error('Checklist unavailable');
@@ -86,6 +90,6 @@
     }
   }).catch(() => {
     $('case-requirement-list').textContent = 'Checklist unavailable. Reload to retry, or use the task browser below.';
-    $('workbook-delivery-detail').textContent = 'Checklist unavailable. The original task remains in the source disclosure below.';
+    $('workbook-delivery-detail').textContent = 'Checklist unavailable. The original task remains available in step 1.';
   });
 })();

@@ -10,13 +10,6 @@
     if (text !== undefined) node.textContent = text;
     return node;
   };
-  const reveal = document.getElementById('reveal-case');
-  reveal.addEventListener('click', () => {
-    const open = reveal.getAttribute('aria-expanded') !== 'true';
-    reveal.setAttribute('aria-expanded', String(open));
-    document.getElementById('case-reveal').hidden = !open;
-    reveal.textContent = open ? 'Hide execution evidence ↑' : 'Inspect the execution evidence ↓';
-  });
   const grid = document.getElementById('test-grid');
   data.runs.forEach(run => {
     const row = el('div', 'grid-row');
@@ -104,9 +97,10 @@
       }
     });
   });
-  document.getElementById('task-instruction').textContent = data.instruction;
-  const sources = document.getElementById('case-sources');
-  sources.append(el('p', '', 'Two records with the same task, model and trial index, under no_skills and curated conditions. Their task instructions are identical. Only the excerpts needed for this case are included.'));
-  data.runs.forEach(run => sources.append(el('p', '', `${run.label}: ${run.source}`)));
-  sources.append(el('p', '', 'Counts come from the 26 parameterized test-result lines in stdout. The CTRF summary merges tests sharing function names and is not used for these counts. Source hashes and reproduction notes are recorded in data/case.js and README.md.'));
+  const instruction = document.getElementById('task-instruction');
+  const highlights = [data.instruction.split('\n')[0], 'the new Excel file should contain four new pivot tables and five different sheets:'];
+  const pattern = new RegExp('(' + highlights.map(text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'g');
+  data.instruction.split(pattern).forEach(text => {
+    instruction.append(highlights.includes(text) ? el('mark', '', text) : document.createTextNode(text));
+  });
 })();
