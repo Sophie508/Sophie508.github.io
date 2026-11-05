@@ -10,7 +10,7 @@
     '<p>Two files. One shared final verdict.<br>Scroll or select a step to look closer.</p>',
     '<p>Select any tile to inspect the same check in both runs.</p>',
     '<div class="shared-error"><span>Quarter · both reports</span><strong>nan</strong><span>Required: Q1 · Q2 · Q3 · Q4</span></div>',
-    '<div class="implementation-pair"><div><span>Without skill</span><strong>Ordinary cells</strong><div class="cell-sketch" aria-hidden="true">▤</div><small>Computed totals written to cells</small></div><div><span>With skill</span><strong>Native PivotTable</strong><div class="pivot-connection"><span>Source data</span><b>→</b><span>Pivot cache</span><b>→</b><span>Rows + values</span></div><small>Stored objects and field settings</small></div></div>',
+    '<div class="implementation-pair"><div><span><span class="run-mark run-without">Without skill</span></span><strong><span class="run-mark run-without">Ordinary cells</span></strong><div class="cell-sketch" aria-hidden="true">▤</div><small>Computed totals written to cells</small></div><div><span><span class="run-mark run-with">With skill</span></span><strong><span class="run-mark run-with">Native PivotTable</span></strong><div class="pivot-connection"><span>Source data</span><b>→</b><span>Pivot cache</span><b>→</b><span>Rows + values</span></div><small>Stored objects and field settings</small></div></div>',
     '<div class="grouped-requirement"><span class="mini-label">8 COLUMN CHECKS ↓ 1 REQUIREMENT</span><strong>S-06 · Joined source-data fields</strong><p>SA2_CODE · SA2_NAME · STATE · POPULATION_2023 · EARNERS · MEDIAN_INCOME · Quarter · Total</p></div>',
     '<p>Nine task requirements; no scores are inferred from these checks.</p>'
   ];

@@ -10,11 +10,12 @@
     if (text !== undefined) node.textContent = text;
     return node;
   };
+  const runMark = run => el('span', `run-mark run-${run.key === 'baseline' ? 'without' : 'with'}`, run.label);
   const grid = document.getElementById('test-grid');
   data.runs.forEach(run => {
     const row = el('div', 'grid-row');
     const label = el('div', 'grid-label');
-    label.append(el('strong', '', run.label));
+    const title = el('strong'); title.append(runMark(run)); label.append(title);
     const count = status => run.tests.filter(t => t.status === status).length;
     const counts = el('small', 'case-counts');
     counts.append(el('b', '', `${count('PASSED')} pass`), document.createTextNode(` / ${count('FAILED')} fail / ${count('SKIPPED')} skip`));
@@ -48,7 +49,7 @@
     sources.append(el('summary', '', 'Read the original test output'));
     data.runs.forEach(run => {
       const test = run.tests[index];
-      const label = el('p', '', run.label);
+      const label = el('p'); label.append(runMark(run));
       label.append(el('span', `status-pill ${test.status.toLowerCase()}`, `${symbols[test.status]} ${names[test.status]}`));
       results.append(label);
       sources.append(el('code', '', `${run.label}\n${test.raw}`), el('span', 'source-location', `${run.source}/verifier/test_runner.stdout.log:${test.line}`));
@@ -61,7 +62,8 @@
     const pair = el('div', 'code-pair');
     data.runs.forEach((run, index) => {
       const block = el('div');
-      block.append(el('h4', '', run.label), el('pre', '', snippets[index]), el('span', 'source-location', location(run)));
+      const heading = el('h4'); heading.append(runMark(run));
+      block.append(heading, el('pre', '', snippets[index]), el('span', 'source-location', location(run)));
       pair.append(block);
     });
     panel.append(pair);

@@ -25,6 +25,8 @@ Expert review inputs and the revision plan are in `docs/blog/gcpc/`. Local scree
 
 The page retains the established white-background design with Source Serif 4, Inter Tight and IBM Plex Mono, readable narrow prose, and restrained sage evidence accents. Font families load from Google Fonts with local fallbacks. Original research evidence and original diagrams are retained; no reference-site prose or source was copied.
 
+Run identity uses a consistent wavy underline: blue for Without skill, cool pink for With skill. The same marks connect narrative phrases, figure labels, implementation titles and evidence headings. Pass/fail colors remain separate; text labels are always retained.
+
 ## Evidence
 
 Source project: GCPC / Beyond Pass Rate. Paths in `data/case.js` are relative to that research checkout, not this website.

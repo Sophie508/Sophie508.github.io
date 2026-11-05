@@ -264,3 +264,38 @@ Fig 10 已经是这个样子，把它当模板。按这条契约审一遍，达�
 **再往上一档（可选）：**Tufte 的 sidenote、Distill 的悬停脚注，把定义和来源挂在具体那句话上，悬停或点击在页边展开。这是 details on demand 做到句子粒度的版本。PivotTable 定义和 26 个格子的来历都适合这种处理。
 
 **顺带：**这个模式在 02 到 05 节也有，每节末尾都是一列裸 `<details>`。01 节改好之后，同样的规则过一遍其他节：空壳删、重复合并、贴近被解释对象、节尾只留 caveat 一个。
+
+## 11. 第二轮补充：给两次 run 各一个颜色，文图共用（2026-11-05）
+
+**现状。** 页面现在只有两种语义色：绿 `--pass #237056` 是通过，红 `--fail #a04b43` 是失败。两次 run 在图里只靠左右位置和两个灰字标签（Without skill / With skill）区分，正文里也只靠「one run / the other」这类措辞。读者从 Step 1 到 Step 4 要反复判断「现在说的是哪一次」，而没有任何视觉通道帮他。
+
+**决定（Sophie 定）。** 两次 run 各一个固定颜色，用手绘画笔式的波浪下划线标在正文里：
+
+| run | 颜色 | 用在哪 |
+| --- | --- | --- |
+| Without skill | 蓝 | 正文里描述这次 run 的短语；图里该列的标签 |
+| With skill | 粉 | 同上 |
+
+波浪线只标「这句在说哪一次 run」，不标重点句。重点句不另加黄色荧光，黄色不表达 run 身份，会跟这套编码打架。
+
+**正文里要标的位置。**
+
+| 步骤 | 蓝（Without skill） | 粉（With skill） |
+| --- | --- | --- |
+| Step 1 | the other could not | One run could read an xlsx skill |
+| Step 2 | The run without the skill passed 12（如果恢复数字） | The run with the skill passes more of the checks |
+| Step 4 | Without the skill, the agent wrote those sums into ordinary cells | After reading the xlsx guide, the other run built what Excel recognizes as a PivotTable |
+| Step 4 右侧插图 | Ordinary cells 卡片的标题 | PivotTable 草图的标题 |
+
+**图里要跟着改的。** Fig. 1 两个列标签（Without skill / With skill）加同色波浪线或同色细边框，Step 1 的两个 FAIL 徽章同样处理。文字和图用的是同一条线、同一个颜色，读者看一眼就把短语和那一列对上。Inspect 抽屉里的「Without skill × Failed / With skill × Failed」两组标签也沿用。
+
+**实现建议。** 波浪线用一段 SVG 路径做 `background-image` 铺在 span 底部，或 `text-decoration: underline wavy` 加粗线宽；前者更像手绘，后者一行 CSS。两种都不影响选中和复制文字。
+
+**依据。** Gestalt 相似性：同色的东西被当成同一组。Mayer 空间邻近与 Ware 的前注意颜色通道：文字和它指的图元共用颜色，读者不用在脑子里做翻译。Nielsen 一致性：一个编码从 Step 1 定下来，后面每步沿用，不再新学。
+
+**要核对的两点。**
+
+- 粉色和失败红 `#a04b43` 是同一色系，并排时要确认分得开。粉偏冷（带紫、带品红）比偏暖的粉更稳；定稿前把两个色值和红色放在同一张格子图上看一次。
+- 不要只靠颜色：标签文字和「without / with」两个词保留，波浪线是叠加，不是替代。
+
+**同样模式的其他地方。** 06 节的 Fig 8（FAIL→FAIL 改善/退步）和 03 节比较两次 run 的任何地方，如果出现「with / without」字样，用同一套色。
