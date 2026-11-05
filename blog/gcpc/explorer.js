@@ -36,7 +36,7 @@
     stop();
     root.querySelectorAll('[data-benchmark]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.benchmark === state.benchmark)));
     const b = benchmark(), tasks = filtered();
-    $('explorer-count').textContent = `${tasks.length} of ${b.tasks} tasks · ${b.items} checklist items in this benchmark`;
+    $('explorer-count').textContent = `${tasks.length} of ${b.tasks} tasks · ${b.items} requirements in this benchmark`;
     $('explorer-scope').textContent = state.benchmark === 'skillsbench'
       ? 'All 87 archived checklists. Run views use compatible binary-outcome records from the configuration × task archive, not the paper’s 4,455-trajectory analysis cohort or a model leaderboard.'
       : `All ${b.tasks} archived checklists from the study’s ${b.label} sample. Each task has one official PASS and one official FAIL run; this is an outcome-selected sample, not a pass-rate estimate.`;
@@ -44,8 +44,8 @@
     tasks.forEach((task, i) => {
       const tile = button(String(i + 1).padStart(2, '0'), () => openTask(task, tile), 'task-tile');
       tile.style.setProperty('--tile-shade', String(0.14 + task.items / 16 * 0.73));
-      tile.setAttribute('aria-label', `${task.title}; ${task.items} checklist items; open task`);
-      tile.title = `${task.id} · ${task.items} items · ${task.runs} archived runs`;
+      tile.setAttribute('aria-label', `${task.title}; ${task.items} requirements; open task`);
+      tile.title = `${task.id} · ${task.items} requirements · ${task.runs} archived runs`;
       tile.addEventListener('mouseenter', () => describeTask(task));
       tile.addEventListener('focus', () => describeTask(task));
       grid.append(tile);
@@ -64,7 +64,7 @@
       dialog.showModal(); document.body.classList.add('task-dialog-open');
     }
     $('drawer-title').textContent = summary.title;
-    $('drawer-meta').textContent = `${benchmark().label} · ${summary.items} checklist items`;
+    $('drawer-meta').textContent = `${benchmark().label} · ${summary.items} requirements`;
     $('drawer-loading').hidden = false; $('drawer-loading').textContent = 'Loading archived checklist…';
     $('drawer-content').hidden = true;
     try {
@@ -130,12 +130,12 @@
     $('anchored-mode').setAttribute('aria-pressed', String(state.mode === 'anchored'));
     $('mode-note').textContent = state.mode === 'raw'
       ? 'Log-only: Yes / (Yes + No). Abstain is excluded from the score, so read evidence coverage alongside it.'
-      : 'With official outcome: assertion items become Yes on official PASS, and a separate final-outcome item is added. This is a different score.';
+      : 'With official outcome: assertion-route requirements become Yes on official PASS, and a separate final-outcome entry is added. This is a different score.';
     const values = $('run-values');
     if (!run) { values.replaceChildren(node('p', '', 'No compatible run judgments are included for this checklist version.')); return; }
     $('run-identity').textContent = `${run.label} · ${run.condition}`;
     $('run-origin').textContent = `Judgments: ${run.source}${state.mode === 'raw' && run.raw_source ? `\nLog-only rejudgment: ${run.raw_source}` : ''}`;
-    $('run-note').textContent = `${run.raw_note || ''}${run.truncated ? ' The evaluator received a truncated log.' : ''} Item-level rationales and trajectory excerpts are not stored in this export.`;
+    $('run-note').textContent = `${run.raw_note || ''}${run.truncated ? ' The evaluator received a truncated log.' : ''} Requirement-level rationales and trajectory excerpts are not stored in this export.`;
     const measure = run[state.mode];
     if (!values.children.length || values.children.length !== 3) {
       values.replaceChildren();
@@ -153,9 +153,9 @@
     boxes[1].querySelector('span').textContent = state.mode === 'raw' ? 'Log-only partial credit' : 'With official outcome';
     boxes[2].querySelector('strong').textContent = run.raw ? percent(run.raw.coverage) : 'Not retained';
     boxes[2].querySelector('.score-fill').style.width = `${(run.raw?.coverage || 0) * 100}%`;
-    $('run-counts').textContent = measure ? `${measure.yes} Yes · ${measure.no} No · ${measure.abstain} Abstain${state.mode === 'anchored' ? ' · includes the final-outcome item' : ''}${measure.score == null ? ' · no decidable evidence; no score' : ''}` : 'Original log-only judgments are unavailable for this run; the outcome-inclusive archive does not recover them.';
+    $('run-counts').textContent = measure ? `${measure.yes} Yes · ${measure.no} No · ${measure.abstain} Abstain${state.mode === 'anchored' ? ' · includes the final-outcome entry' : ''}${measure.score == null ? ' · no decidable evidence; no score' : ''}` : 'Original log-only judgments are unavailable for this run; the outcome-inclusive archive does not recover them.';
     $('endpoint-note').hidden = state.mode !== 'anchored';
-    $('endpoint-note').textContent = `Additional final-outcome item: ${run.official ? 'Yes (official PASS)' : 'No (official FAIL)'}. It is separate from the task’s ${state.task.items.length} checklist requirements.`;
+    $('endpoint-note').textContent = `Additional final-outcome entry: ${run.official ? 'Yes (official PASS)' : 'No (official FAIL)'}. It is separate from the task’s ${state.task.items.length} checklist requirements.`;
   }
   function answerFor(item) {
     const run = state.task.runs[state.run];
@@ -178,7 +178,7 @@
       addField(body, 'Quoted task requirement', item.source_quote, 'criterion-quote');
       const routes = { assertion: 'Existing verifier check', generated: 'Proposed deterministic check', judge: 'Requires judgment' };
       addField(body, 'Verification route', routes[item.verification_type] || item.verification_type);
-      addField(body, 'How this item proposes to verify the requirement', item.verification);
+      addField(body, 'Proposed way to verify this requirement', item.verification);
       addField(body, 'Referenced check', item.verification_ref, 'check-ref');
       addField(body, 'Authoring notes', item.notes);
       if (item.validation) {
@@ -186,8 +186,8 @@
         addField(body, 'Recorded mechanical validation', `Source quote: ${v.a_quote ? 'pass' : 'flagged'} · requirement form: ${v.b_req ? 'pass' : 'flagged'} · check reference: ${v.c_ref ? 'pass' : 'flagged'}. These gates do not establish semantic correctness.`);
       }
       addField(body, 'Judgment provenance', answer
-        ? answer.basis === 'official-pass-rule' ? 'Yes supplied by the official PASS postprocessing rule; not independent evidence from the execution log.' : 'Archived log-based judgment. No per-item rationale or execution excerpt is included in this record.'
-        : 'The original log-only judgment for this item is not retained in this export. This is missing data, not an Abstain judgment.');
+        ? answer.basis === 'official-pass-rule' ? 'Yes supplied by the official PASS postprocessing rule; not independent evidence from the execution log.' : 'Archived log-based judgment. No requirement-level rationale or execution excerpt is included in this record.'
+        : 'The original log-only judgment for this requirement is not retained in this export. This is missing data, not an Abstain judgment.');
       detail.append(summary, body);
       detail.addEventListener('toggle', () => {
         if (detail.open) {

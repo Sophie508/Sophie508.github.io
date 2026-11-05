@@ -12,12 +12,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="explorer.css">
-  <link rel="stylesheet" href="story.css">
+  <link rel="stylesheet" href="story.css?v=d4bf3ab592">
   <link rel="stylesheet" href="case-story.css">
   <script src="data/case.js" defer></script>
   <script src="app.js" defer></script>
-  <script src="explorer.js" defer></script>
-  <script src="story.js" defer></script>
+  <script src="explorer.js?v=8d231ed6d6" defer></script>
+  <script src="story.js?v=e6830a370b" defer></script>
   <script src="case-interactions.js" defer></script>
 </head>
 <body>
@@ -34,7 +34,7 @@
       <div class="hero-copy">
         <p class="eyebrow">November 2026 · Interactive research article</p>
         <h1 id="article-title"><span class="big">Checklist<span class="accent"> /</span><br>Partial Credit<span class="accent">.</span></span><span class="subtitle">What did the agent get right,<br>even when the task failed?</span></h1>
-        <p class="lede">Two agent runs can fail the same task after completing very different amounts of work. A final PASS or FAIL tells us whether the result was accepted. It does not tell us which requirements were met.</p>
+        <p class="lede">Imagine opening the Excel report an agent just produced. The result says FAIL. Before starting over, you want to know: what can I keep, and what still needs fixing?</p>
         <p class="lede">We build a checklist from the task’s instructions and verifier, then look for evidence for each requirement in the execution record. This article explains how—and lets you inspect the checklists yourself.</p>
         <div class="paper-links" aria-label="Paper resources"><a class="primary-link" href="#case">Start with an example ↓</a><a href="https://arxiv.org/abs/2608.27487">Paper ↗</a><a href="https://arxiv.org/pdf/2608.27487">PDF ↗</a></div>
         <p class="byline">Suliu Qin · Lu Yin · Xilu Wang<br><span>Grounded Checklist Partial Credit for Agent Skill Trajectories</span></p>
@@ -44,7 +44,7 @@
         <p class="mini-label">SAME TASK · TWO AGENT RUNS</p>
         <div class="outcomes"><div><span>Without skill</span><strong>FAIL</strong></div><div><span>With skill</span><strong>FAIL</strong></div></div>
         <div class="hero-document" aria-hidden="true"><span>PDF + spreadsheet</span><b>↓</b><span>One Excel report</span></div>
-        <h3>Same verdict.<br>Same work?</h3><a class="follow-link" href="#case">Look inside the two runs ↓</a>
+        <h3>Same verdict.<br>Same work?</h3>
       </figure>
     </section>
     <noscript><p class="prose">Interactive evidence requires JavaScript. Without skill: 12 passed, 11 failed, 3 skipped. With skill: 22 passed, 1 failed, 3 skipped. Both failed the Quarter-values check.</p></noscript>
@@ -104,9 +104,9 @@ def test_pivot_row_is_state(self, workbook, sheet_name, expected_agg, col_field)
           <p>Not automatically. In the archived checklist, S-02 and S-07 explicitly note these verifier limitations, but their linked verification procedures still inherit them. Stating a stronger requirement in natural language is not the same as implementing a stronger check. A missing check must be supplied, or the available evidence must support the judgment.</p>
         </details>
         <p>Each requirement needs a source and a way to check it. Unless the task demands a particular library or button, using that library or button is not an achievement in itself. Different valid solutions must remain possible.</p>
-        <details class="article-detail"><summary>Why not add more and more requirements?</summary><p>The same discipline applies to redundancy. “Create a native pivot table” and “the workbook contains that native pivot object” may count the same condition twice. Repeating a satisfied condition raises its effective weight. Organizing items into categories helps us inspect coverage, but does not by itself remove duplicates or settle the right granularity.</p></details>
+        <details class="article-detail"><summary>Why not add more and more requirements?</summary><p>The same discipline applies to redundancy. “Create a native pivot table” and “the workbook contains that native pivot object” may count the same condition twice. Repeating a satisfied condition raises its effective weight. Organizing requirements into categories helps us inspect coverage, but does not by itself remove duplicates or settle the right granularity.</p></details>
         <p>So the contribution is not simply replacing PASS/FAIL with more boxes. It is a procedure for constructing and evaluating task-grounded boxes whose meaning and evidence can be inspected.</p>
-        <p class="source-note">Sources: the archived <code>sales-pivot-analysis</code> verifier and nine-item checklist; <a href="https://arxiv.org/abs/2608.27487">paper, Method</a>.</p>
+        <p class="source-note">Sources: the archived <code>sales-pivot-analysis</code> verifier and checklist of nine requirements; <a href="https://arxiv.org/abs/2608.27487">paper, Method</a>.</p>
       </div>
     </section>
     <svg class="figure-defs" width="0" height="0" aria-hidden="true"><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10" fill="none" stroke="#8a8c9c" stroke-width="1.5"/></marker></defs></svg>
@@ -114,9 +114,9 @@ def test_pivot_row_is_state(self, workbook, sheet_name, expected_agg, col_field)
       <div class="prose">
         <p class="eyebrow">03 / Checklists</p>
         <h2>How do we turn a task into a checklist?</h2>
-        <p>Writing a careful checklist from scratch for every task is expensive. Asking a model to invent one freely is easier, but can produce repeated items, omitted requirements, or restrictions the task never asked for. We divide the work: people specify reusable rules, and a model applies those rules to each task.</p>
+        <p>Writing a careful checklist from scratch for every task is expensive. Asking a model to invent one freely is easier, but can produce repeated requirements, omitted requirements, or restrictions the task never asked for. We divide the work: people specify reusable rules, and a model applies those rules to each task.</p>
         <p>Choose a requirement below. Can you trace it back to something the user actually requested?</p>
-        <p>The generator receives the task instruction and verifier source. It does not receive the evaluated trajectories, their outcomes, or a reference solution. Each proposed item must be self-contained, avoid redundant requirements, and carry an exact quotation from the task instruction.</p>
+        <p>The generator receives the task instruction and verifier source. It does not receive the evaluated trajectories, their outcomes, or a reference solution. Each proposed requirement must be self-contained, avoid redundant requirements, and carry an exact quotation from the task instruction.</p>
       </div>
       <figure class="wide story-panel anatomy" id="task-anatomy">
         <div class="anatomy-toolbar"><div class="story-switch" role="group" aria-label="Example task"><button data-example="0" aria-pressed="true">Excel report</button><button data-example="1" aria-pressed="false">Python package server</button><button data-example="2" aria-pressed="false">Scientific code fix</button></div><button class="story-button" id="anatomy-open">Open archived results ↗</button></div>
@@ -131,8 +131,8 @@ def test_pivot_row_is_state(self, workbook, sheet_name, expected_agg, col_field)
           <g fill="#fff" stroke="#d9dfe9"><rect x="8" y="35" width="220" height="110" rx="5"/><rect x="270" y="35" width="220" height="110" rx="5"/><rect x="532" y="35" width="220" height="110" rx="5"/></g>
           <rect x="794" y="35" width="238" height="110" rx="5" fill="#eef3fc" stroke="#b9c9eb"/>
           <g font-size="11" fill="#788394"><text x="25" y="61">01 / SPECIFY</text><text x="287" y="61">02 / GENERATE</text><text x="549" y="61">03 / REVIEW</text><text x="811" y="61">04 / FREEZE</text></g>
-          <g font-size="17" fill="#1e293d"><text x="25" y="89">Reusable human rules</text><text x="287" y="89">Task-specific items</text><text x="549" y="89">Checks + human review</text><text x="811" y="89">One checklist per task</text></g>
-          <g font-size="11" fill="#657389"><text x="25" y="115">Grounding · relevance · redundancy</text><text x="287" y="115">Instruction + verifier → draft</text><text x="549" y="115">Sources · coverage · valid criteria</text><text x="811" y="115">Then evaluate the trajectories</text></g>
+          <g font-size="17" fill="#1e293d"><text x="25" y="89">Reusable human rules</text><text x="287" y="89">Task requirements</text><text x="549" y="89">Checks + human review</text><text x="811" y="89">One checklist per task</text></g>
+          <g font-size="11" fill="#657389"><text x="25" y="115">Grounding · relevance · redundancy</text><text x="287" y="115">Instruction + verifier → draft</text><text x="549" y="115">Sources · coverage · valid requirements</text><text x="811" y="115">Then evaluate the trajectories</text></g>
           <g fill="none" stroke="#8997ac" marker-end="url(#arrow)"><path d="M234 90H259"/><path d="M496 90H521"/><path d="M758 90H783"/></g>
         </svg>
         <figcaption><span class="figure-number">Fig. 3.</span> The checklist is fixed before scoring. Keeping generation, review and scoring distinct makes their inputs and decisions easier to audit.</figcaption>
@@ -141,8 +141,8 @@ def test_pivot_row_is_state(self, workbook, sheet_name, expected_agg, col_field)
         <p>Once a requirement has a source, where should its evidence come from?</p>
       </div>
       <figure class="wide story-panel routes-figure"><h3>Where does the checking come from?</h3><div class="route-row"><div><strong>Reuse an existing test</strong><span>assertion route</span></div><div class="route-track"><i style="width:82.3%"></i></div><b>82.3%</b></div><div class="route-row"><div><strong>Specify a missing test</strong><span>generated route</span></div><div class="route-track"><i style="width:14.9%"></i></div><b>14.9%</b></div><div class="route-row"><div><strong>Ask for a judgment</strong><span>judge route</span></div><div class="route-track"><i style="width:2.8%"></i></div><b>2.8%</b></div><figcaption><span class="figure-number">Fig. 4.</span> Verification routes for 713 requirements across 87 SkillsBench tasks.</figcaption></figure>
-      <div class="prose"><details class="article-detail"><summary>What do the automatic validation gates check?</summary><p>The validator checks that the source quotation occurs in the task, the referenced verifier test exists, and the item describes a task requirement. Passing these gates establishes traceability, not complete semantic correctness.</p></details>
-        <p>People review the checklist for missing requirements, repeated items and conditions the task never asked for. The reviewed checklist is then frozen and reused for every evaluated run of that task.</p>
+      <div class="prose"><details class="article-detail"><summary>What do the automatic validation gates check?</summary><p>The validator checks that the source quotation occurs in the task, the referenced verifier test exists, and the requirement describes a task requirement. Passing these gates establishes traceability, not complete semantic correctness.</p></details>
+        <p>People review the checklist for missing requirements, repeated requirements and conditions the task never asked for. The reviewed checklist is then frozen and reused for every evaluated run of that task.</p>
         <details class="article-detail"><summary>What this does not show</summary><p>A generated verification plan is not proof that a new test was implemented or run. Automatic validation checks traceability, not completeness. Human review remains necessary; the recorded scope of that review is an <a href="#protocol-note">unresolved protocol detail</a>.</p></details>
         <details class="article-detail">
           <summary>What do the five categories do?</summary>
@@ -174,7 +174,7 @@ def test_pivot_row_is_state(self, workbook, sheet_name, expected_agg, col_field)
         <p>The official verifier may see things missing from the log. We therefore keep two versions separate: <strong>plain GCPC</strong> uses log evidence only; <strong>GCPC with official outcome</strong> also incorporates the final PASS or FAIL through fixed rules.</p>
         <details class="article-detail">
           <summary>What this does not show: evidence and official outcomes</summary><p>If no requirement is decidable, we report a zero-evidence case, not a perfect score. Score and coverage describe the evidence available to the judge.</p>
-          <p>On an official PASS, assertion-route items are set to Yes because the referenced tests have passed. On FAIL, existing item judgments remain unchanged: the final binary outcome alone does not identify the failed requirements. The script also adds one endpoint item, Yes for PASS or No for FAIL.</p>
+          <p>On an official PASS, assertion-route requirements are set to Yes because the referenced tests have passed. On FAIL, existing requirement judgments remain unchanged: the final binary outcome alone does not identify the failed requirements. The script also adds one final-outcome entry, Yes for PASS or No for FAIL.</p>
           <p>For example, nine log-supported Yes judgments and an official FAIL give plain GCPC 9/9, but the outcome-inclusive version 9/10. This bookkeeping reconciles the score with the final outcome; it does not independently validate the evaluator. Outcome-free and outcome-inclusive scores must not be presented as the same measurement.</p>
         </details>
         <p>We now have a requirement-by-requirement account of the run. The next question is whether people find that account informative.</p>
@@ -185,9 +185,9 @@ def test_pivot_row_is_state(self, workbook, sheet_name, expected_agg, col_field)
       <div class="prose">
         <p class="eyebrow">05 / Validation</p>
         <h2>Does the checklist tell us something useful?</h2>
-        <p>A plausible pipeline is not enough. We evaluated it on a deduplicated population of 4,455 SkillsBench trajectories, compared scoring procedures, and collected human judgments. This analysis population differs from the archived run collection in the task browser. Two findings connect most directly to the question we started with.</p>
+        <p>A plausible pipeline is not enough. We evaluated it on a deduplicated population of 4,455 SkillsBench trajectories, compared scoring procedures, and collected human judgments. Two findings connect most directly to the question we started with.</p>
         <h3>First: agreement with human comparisons.</h3>
-        <p>Five annotators evaluated a prespecified set of 96 trajectories from 12 tasks across all eight SkillsBench domains. They rated overall progress and compared same-task trajectories <em>before seeing the checklist</em>. This kept those judgments separate from the criteria used by our method.</p>
+        <p>Five annotators evaluated a prespecified set of 96 trajectories from 12 tasks across all eight SkillsBench domains. They rated overall progress and compared same-task trajectories <em>before seeing the checklist</em>. This kept those judgments separate from the requirements used by our method.</p>
       </div>
       <figure class="results-figure wide story-panel">
         <svg viewBox="0 0 640 212" role="img" aria-labelledby="agreement-title agreement-desc">
@@ -206,17 +206,17 @@ def test_pivot_row_is_state(self, workbook, sheet_name, expected_agg, col_field)
         <p>We matched runs by task, harness, and model-and-source configuration. Among 1,946 with/without-skill pairs, many failed in both conditions. Does that shared verdict mean nothing changed? Switch the view below.</p>
       </div>
       <figure class="results-figure wide story-panel">
-        <div class="panel-title"><h3>879 pairs. The final verdict stays FAIL.</h3><div class="story-switch" role="group" aria-label="View paired failures"><button data-change="binary" aria-pressed="true">Final outcome</button><button data-change="partial" aria-pressed="false">Checklist differences</button></div></div><div id="binary-change" class="binary-change"><strong>FAIL → FAIL</strong><p>Every pair looks the same at this level.</p></div><div id="partial-change" hidden>
+        <div class="panel-title"><h3>879 pairs. The final verdict stays FAIL.</h3><div class="story-switch" role="group" aria-label="View paired failures"><button data-change="binary" aria-controls="binary-change" aria-pressed="true">Final outcome</button><button data-change="partial" aria-controls="partial-change" aria-pressed="false">Checklist differences</button></div></div><div id="binary-change" class="binary-change"><strong>FAIL → FAIL</strong><p>Every pair looks the same at this level.</p></div><div id="partial-change" hidden>
         <div class="change-bar" role="img" aria-label="20.9 percent improved by more than 0.10, 60.4 percent were within plus or minus 0.10, and 18.7 percent regressed by more than 0.10."><span class="improved" style="width:20.9%">20.9%</span><span class="middle" style="width:60.4%">60.4%</span><span class="regressed" style="width:18.7%">18.7%</span></div>
         <div class="change-labels"><span>Improved &gt; 0.10</span><span>Within ±0.10</span><span>Regressed &gt; 0.10</span></div>
-        </div><p id="change-takeaway" class="chart-takeaway" aria-live="polite">Switch to checklist differences to see what this single label hides.</p><figcaption><span class="figure-number">Fig. 8.</span> Switch between the official outcome and the paper’s checklist-score differences for the same pairs.</figcaption>
+        </div><p id="change-announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p><p id="change-takeaway" class="chart-takeaway">Switch to checklist differences to see what this single label hides.</p><figcaption><span class="figure-number">Fig. 8.</span> Switch between the official outcome and the paper’s checklist-score differences for the same pairs.</figcaption>
       </figure>
       <div class="prose">
         <p>Final pass rate misses changes in both directions. The checklist makes those differences inspectable; it does not show that skills always help.</p>
         <h3>Where does the record stop helping?</h3><p>A checklist is only as informative as the evidence it can see. Transfer to other benchmarks makes that boundary clear.</p><details class="article-detail"><summary>Transfer results: Terminal-Bench and SWE-bench</summary>
-        <p>The same pipeline was applied to Terminal-Bench and SWE-bench without changing its prompts or scoring rules. Terminal-Bench supplied useful diagnoses: in the paper’s <code>pypi-server</code> example, a failed run satisfied four of six criteria but did not build the distributable artifact or start the package-index server.</p>
-        <p>SWE-bench exposed the opposite case. Of 74 decidable resolved/unresolved pairs, 58 received the same log-only GCPC score, and 42.1% of criteria received Abstain. When decisive evidence lives outside the visible log, the checklist cannot recover it by asking more questions.</p></details>
-        <details class="article-detail"><summary>What this does not show</summary><p>Human agreement is measured on the studied sample. Comparable-pair counts differ by method because of ties and missing scores; the chart reports point estimates. These results do not establish universal superiority or that every generated requirement is correct.</p><p>The paired-failure distribution is observational, not a causal skill-effect estimate. Its middle share is the remainder of two rounded percentages and includes small positive and negative changes.</p>
+        <p>The same pipeline was applied to Terminal-Bench and SWE-bench without changing its prompts or scoring rules. Terminal-Bench supplied useful diagnoses: in the paper’s <code>pypi-server</code> example, a failed run satisfied four of six requirements but did not build the distributable artifact or start the package-index server.</p>
+        <p>SWE-bench exposed the opposite case. Of 74 decidable resolved/unresolved pairs, 58 received the same log-only GCPC score, and 42.1% of requirements received Abstain. When decisive evidence lives outside the visible log, the checklist cannot recover it by asking more questions.</p></details>
+        <details class="article-detail"><summary>What this does not show</summary><p>The 4,455-trajectory analysis population differs from the archived run collection in the task browser.</p><p>Human agreement is measured on the studied sample. Comparable-pair counts differ by method because of ties and missing scores; the chart reports point estimates. These results do not establish universal superiority or that every generated requirement is correct.</p><p>The paired-failure distribution is observational, not a causal skill-effect estimate. Its middle share is the remainder of two rounded percentages and includes small positive and negative changes.</p>
         <p>We also have not established that GCPC outperforms simply aggregating all available verifier subtests: that direct baseline is absent from the main reported comparison. Where reliable executable checks already exist, they remain valuable evidence. Checklist provenance, human review and finer granularity do not guarantee completeness or eliminate judge error.</p></details>
         <blockquote>Keep the final verdict.<br>Make the completed work—and the uncertainty—visible.</blockquote>
         <p>That is the role of checklist-based partial credit: a task-grounded, inspectable account of what an agent accomplished, what remains unmet, and what the record does not let us decide. The pipeline makes that account easier to construct across tasks; the empirical study tests how informative it actually is.</p>
@@ -229,11 +229,11 @@ def test_pivot_row_is_state(self, workbook, sheet_name, expected_agg, col_field)
     </section>
     <section id="explore" class="chapter" aria-labelledby="explore-heading">
       <div class="prose explorer-intro"><p class="eyebrow">06 / All tasks</p><h2 id="explore-heading">Explore all 273 task checklists.</h2><p>Browse the generated checklists for all 273 tasks in our three study samples. Each tile below is a <strong>task</strong>. Open it to read the instruction, unfold a requirement, and locate its quoted source. Archived run judgments let you see how the same checklist was applied.</p></div>
-      <details class="collection-overview wide"><summary>Browse tasks by checklist length</summary>      <figure class="hero-mosaic collection-mosaic wide" aria-label="The checklist collection">
+      <details class="collection-overview wide"><summary>Browse tasks by number of requirements</summary>      <figure class="hero-mosaic collection-mosaic wide" aria-label="The checklist collection">
         <div id="hero-tiles" class="hero-tiles" aria-label="Tasks; select one to inspect its checklist"><p>Loading the task collection…</p></div>
         <figcaption><strong>One dot, one task.</strong> Darker dots contain more requirements. Hover or focus for the exact count; select a dot to explore.</figcaption>
         <div id="hero-benchmarks" class="story-switch" role="group" aria-label="Choose a benchmark"></div>
-        <ul class="dot-legend" aria-label="Checklist item count">
+        <ul class="dot-legend" aria-label="Number of requirements">
           <li><i style="--swatch:var(--count-1)" aria-hidden="true"></i>1–4</li>
           <li><i style="--swatch:var(--count-2)" aria-hidden="true"></i>5–8</li>
           <li><i style="--swatch:var(--count-3)" aria-hidden="true"></i>9–12</li>
@@ -247,8 +247,8 @@ def test_pivot_row_is_state(self, workbook, sheet_name, expected_agg, col_field)
         <div id="benchmark-buttons" class="benchmark-buttons" role="group" aria-label="Benchmark"></div>
         <div id="task-tiles" class="task-tiles" role="group" aria-label="Tasks; one tile per task"></div>
         <p id="task-hover" class="task-hover" aria-live="polite"></p>
-        <div class="tile-legend"><span>Fewer items</span><i aria-hidden="true"></i><span>More items</span><span>1–16 · color = checklist length</span></div>
-        <p class="explorer-scope">These are generated checklists, not guaranteed-correct gold labels. Recorded validation flags and item notes remain visible. Scores are archived endpoint judgments, not measurements over execution time.</p>
+        <div class="tile-legend"><span>Fewer requirements</span><i aria-hidden="true"></i><span>More requirements</span><span>1–16 · color = number of requirements</span></div>
+        <p class="explorer-scope">These are generated checklists, not guaranteed-correct gold labels. Recorded validation flags and requirement notes remain visible. Scores are archived endpoint judgments, not measurements over execution time.</p>
         <p id="explorer-scope" class="explorer-scope"></p>
       </div>
       <noscript><p class="prose">The task browser requires JavaScript. Download its <a href="data/explorer/index.json">task index</a> to inspect the archived data.</p></noscript>

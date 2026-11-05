@@ -28,10 +28,10 @@
     $('hero-benchmarks').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.benchmark === benchmark)));
     for (const task of tasks) {
       const b = node('button', 'task-dot'); b.type = 'button';
-      b.setAttribute('aria-label', `${task.title}, ${task.items} checklist items. Open task.`);
+      b.setAttribute('aria-label', `${task.title}, ${task.items} requirements. Open task.`);
       b.dataset.countBand = String(Math.ceil(task.items / 4));
-      b.title = `${task.title} · Checklist: ${task.items} items`; b.dataset.task = task.id;
-      const describe = () => { $('hero-hover').textContent = `${task.title} · Checklist: ${task.items} items`; };
+      b.title = `${task.title} · Checklist: ${task.items} requirements`; b.dataset.task = task.id;
+      const describe = () => { $('hero-hover').textContent = `${task.title} · Checklist: ${task.items} requirements`; };
       b.addEventListener('focus', describe); b.addEventListener('mouseenter', describe);
       b.addEventListener('click', () => openArchived(task, b)); $('hero-tiles').append(b);
     }
@@ -91,7 +91,7 @@
         technical.append(node('p', '', `${item.verification_type} · ${item.verification}`));
         if (item.notes) technical.append(node('p', 'item-note', item.notes));
         technical.append(node('code', '', item.verification_ref));
-        technical.append(node('p', 'item-note', `Recorded validation: ${item.validation?.valid ? 'passed' : 'flagged — inspect before relying on this item'}. Validation is not a guarantee of completeness.`));
+        technical.append(node('p', 'item-note', `Recorded validation: ${item.validation?.valid ? 'passed' : 'flagged — inspect before relying on this requirement'}. Validation is not a guarantee of completeness.`));
         body.append(technical); detail.append(summary, body); $('anatomy-items').append(detail);
         detail.addEventListener('toggle', () => {
           if (!detail.open) return;
@@ -104,7 +104,7 @@
             view.scrollTop += mark.getBoundingClientRect().top - view.getBoundingClientRect().top - view.clientHeight / 3;
           } else {
             view.scrollTop = 0;
-            $('anatomy-location').textContent = `${item.item_id} · Quote not found in the displayed sources. This archived item needs inspection.`;
+            $('anatomy-location').textContent = `${item.item_id} · Quote not found in the displayed sources. This archived requirement needs inspection.`;
           }
         });
       });
@@ -133,6 +133,10 @@
     const partial = b.dataset.change === 'partial';
     document.querySelectorAll('[data-change]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     $('binary-change').hidden = partial; $('partial-change').hidden = !partial;
+    const result = $('change-announcement');
+    result.textContent = partial
+      ? 'Checklist differences: 20.9 percent improved by more than 0.10; 60.4 percent were within plus or minus 0.10; 18.7 percent regressed by more than 0.10. Median change: zero.'
+      : 'Final outcome: all 879 pairs failed in both conditions.';
     $('change-takeaway').textContent = partial
       ? 'The median change was zero. The shared FAIL label hides differences in both directions; skills did not always help.'
       : 'Switch to checklist differences to see what this single label hides.';

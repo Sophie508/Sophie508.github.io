@@ -188,3 +188,41 @@ Fig 10 已经是这个样子，把它当模板。按这条契约审一遍，达�
 | Don't Make Me Think | Krug 2000 | 4.2 |
 
 标杆样本（改稿人可以对照看）：Distill 上的 Building Blocks of Interpretability；The Pudding 的任意一篇 scrollytelling 长文；Bartosz Ciechanowski 的交互式文章（ciechanow.ski）。三者共同点：一张图跟着文字演化，数字只出现一次，每个控件点了都有后果。
+
+## 9. 第二轮：2026-11-05 改后版本的复核
+
+改后页面重新读了一遍，六步 stepper 逐步点开看过，手机宽度（375px）和 Fig 8 的切换都试过。
+
+**已经做了的（对照第 5 节的七条）：**
+
+| 第 5 节条目 | 状态 | 页面上的证据 |
+| --- | --- | --- |
+| 1 文图去重 | 做了 | Fig 8（原 Fig 12）前的正文不再给 20.9 / 18.7，只问 "Does that shared verdict mean nothing changed? Switch the view below."；Fig 7（原 Fig 11）前后不再重复 73.0 / 61.3；Fig 5（原 Fig 9）前的定义段砍成一句；02 节开头不再复述 12 对 22 |
+| 2 图注瘦身、caveat 收折叠 | 做了 | 每节多了一个 "What this does not show" 折叠块，图注都是一句；折叠块 34 → 40 |
+| 3 01 节重排 | 做了，且直接做成了第 7 条 | 见下 |
+| 4 术语统一 | 做了一半 | 首屏统计和 Fig 4 图注已改成 requirements；06 节和 03 节还有残留，见下 |
+| 5 Fig 2 去 tab、Fig 3 平铺、Fig 4 高亮 | 做了 | Fig 2、Fig 3 并入 stepper，任务全文进折叠块 "The task in full"；Quarter 那一格在 Step 2、3 默认带框 |
+| 6 首屏 Fig 1 替换 | 做了 | 换成两个 FAIL 徽章加 "Same verdict. Same work?"，即 2.4 的第二个方案 |
+| 7 Fig 2–5 合并成 scrollytelling | 做了 | 01 节右侧一张图固定，左侧六步文字，滚动驱动换状态，也能点数字跳步。六步文字与 `gcpc-section01-rewrite.md` 几乎逐字对应；Step 2 比重写稿更干净，12 和 22 从正文全删只留在图里 |
+
+另外做了但备忘没要求的：05 节 "Where the approach stops" 三段收成折叠块 "Transfer results"；03 节完整任务文本默认折叠，只露被引用的行；kicker 去掉了 DRAFT；图与图之间加了过渡问句（"How do we keep that link when we scale to hundreds of tasks?"、"Once a requirement has a source, where should its evidence come from?"），正好是第 1 节末尾那条规则的做法。
+
+| | 改前 | 改后 |
+| --- | --- | --- |
+| 正文词数 | 3,140 | 2,127 |
+| 图 | 12 | 9 |
+| 页面高度 | 15,443 px | 13,726 px |
+| 折叠块 | 34 | 40 |
+
+**验证过的：**手机宽度下 stepper 变成文字在上、图在下，26 个格子折成每行 7 个，可用。Fig 8 切换正常。
+
+**剩余项，按轻重：**
+
+1. **术语没统一完。**06 节仍是 "713 checklist items in this benchmark"、"color = checklist length"、"item notes remain visible"；03 节仍有 "Each proposed item must be self-contained"。建议全局搜 item 和 checklist length，按 3.3 改成 requirement。
+2. **05 节首段还有一句 caveat 在正文里：**"This analysis population differs from the archived run collection in the task browser." 建议移进该节的 "What this does not show"。
+3. **文风（2.5）没动。**全篇仍没有一句第一人称或具体画面。优先级最低，但这是最后那一档的差距。
+4. **首屏两个按钮指向同一处：**"Start with an example ↓" 和右侧卡片里的 "Look inside the two runs ↓"。建议留一个。
+5. **Fig 8 的淡入动画超过一秒，**刚点完切换那一瞬间条形图是空白的（1 秒截图几乎看不见，3 秒后正常）。建议缩到 300 ms 以内，不然揭示那一下被动画吃掉了。
+6. **02 节现在只剩四段文字加两个折叠块，没有图。**不算问题；如果想再紧一点，可以并进 03 节开头。
+
+**这轮没验证的：**键盘导航和读屏器仍没测；源码仍没看；加载体积仍没测。
