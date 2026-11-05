@@ -23,7 +23,9 @@
     const label = el('div', 'grid-label');
     label.append(el('strong', '', run.label));
     const count = status => run.tests.filter(t => t.status === status).length;
-    label.append(el('small', '', `${count('PASSED')} pass / ${count('FAILED')} fail / ${count('SKIPPED')} skip`));
+    const counts = el('small', 'case-counts');
+    counts.append(el('b', '', `${count('PASSED')} pass`), document.createTextNode(` / ${count('FAILED')} fail / ${count('SKIPPED')} skip`));
+    label.append(counts);
     const cells = el('div', 'test-cells');
     cells.setAttribute('role', 'group');
     cells.setAttribute('aria-label', `${run.label}: 26 verifier subtests`);
@@ -35,7 +37,10 @@
       cell.setAttribute('aria-controls', 'test-detail');
       cell.setAttribute('aria-label', `${run.label}, test ${index + 1}, ${test.label}, ${names[test.status]}`);
       cell.title = `${index + 1}. ${test.label} · ${names[test.status]}`;
-      cell.addEventListener('click', () => selectTest(index));
+      cell.addEventListener('click', () => {
+        selectTest(index);
+        document.getElementById('case-inspect').open = true;
+      });
       cells.append(cell);
     });
     row.append(label, cells);
@@ -57,6 +62,8 @@
     });
     detail.append(results, sources);
   }
+  document.addEventListener('gcpc:select-check', event => selectTest(event.detail));
+  selectTest(21);
   function codePair(panel, snippets, location) {
     const pair = el('div', 'code-pair');
     data.runs.forEach((run, index) => {

@@ -1,18 +1,29 @@
 # GCPC English research article
 
-Canonical planned URL: https://sophie508.github.io/blog/gcpc/
+Canonical source: `/Users/sophie/Sophie508.github.io/blog/gcpc/`.
+Public route: https://sophie508.github.io/blog/gcpc/.
+Local preview: http://localhost:8922/blog/gcpc/ (serve the personal-site root).
 
-Local preview from the personal-site root:
+The public article already exists. Sophie approved the November 5 editorial revision for commit and publication after reviewing the local preview and scoped diff. Future commits and pushes still require explicit approval.
 
-```sh
-python3 -m http.server 8922 --bind 127.0.0.1
-```
+## Current reading structure
 
-Visit `http://localhost:8922/#publications` and follow this paper's Blog link. This page is a local draft until review and publication approval. All five sections now contain full English prose: the paired failure case, completion criteria, checklist construction, evidence scoring, and empirical validation. New figures explain the pipeline, score/coverage distinction, human preference agreement, and FAIL-to-FAIL changes. Native disclosures provide technical detail. The draft protocol note flags the unresolved difference between the author’s account of full manual review and the paper’s description of targeted review; reconcile before publication.
+1. Two failed Excel runs, explored through six steps in one persistent figure.
+2. Why the task requirement is a different evaluation unit from a verifier check.
+3. Source-grounded requirement construction, validation and review.
+4. Yes / No / Abstain, with score and evidence coverage shown together.
+5. Human comparisons, matched failed-run differences and transfer limits.
+6. The task archive, with the earlier sage-dot overview available as a secondary view.
+
+`case-interactions.js` and `case-story.css` implement scroll-driven steps at desktop widths of at least 1000px and heights of at least 650px. Explicit six-step buttons work at all widths; smaller viewports show one narrative step at a time. Source data are unchanged. The nine requirements are not inferred scores or a one-to-one conversion of all 26 checks. S-01 remains visible in the nine-requirement view and the workbook disclosure.
+
+`story.js` retains the source-to-requirement interaction, score/coverage illustration, and binary-versus-checklist result reveal. The selected quotation appears once; the full highlighted source is available in a disclosure. Percentages for the failed-run distribution are hidden until its checklist view is selected.
+
+Expert review inputs and the revision plan are in `docs/blog/gcpc/`. Local screenshots and review patches are in Git-ignored `artifacts/blog/gcpc/2026-11-05/`. See `blog/README.md` and `docs/blog/WORKSPACE-MAP.md` for the canonical layout and legacy folders.
 
 ## Typography
 
-Reference inspected on 2026-11-03: https://odysseysbench.com/v2/ . The page adopts its Source Serif 4 / Inter Tight / IBM Plex Mono typography, 18px body with 1.62 leading, 19.2px lead, 34.4px section headings, 13.76px captions, 640px prose width, and 53px sticky navigation. The article-specific title and paired-case figure use their own composition within a two-column opening. Font families load from Google Fonts with local fallback stacks; evidence interactions have no network dependency. No reference-site source, prose or diagrams were copied.
+The page retains the established white-background design with Source Serif 4, Inter Tight and IBM Plex Mono, readable narrow prose, and restrained sage evidence accents. Font families load from Google Fonts with local fallbacks. Original research evidence and original diagrams are retained; no reference-site prose or source was copied.
 
 ## Evidence
 
@@ -28,17 +39,9 @@ Source project: GCPC / Beyond Pass Rate. Paths in `data/case.js` are relative to
 
 Diagrams are structural schematics, not workbook screenshots. No cell values or GCPC scores were invented. Verifier checks vary in granularity, so their pass count is not a task-completion percentage. SKIPPED is not GCPC Abstain. Object/configuration checks do not establish numerical correctness, and a single pair does not establish causal or population-level skill effects.
 
-## Chinese discussion draft
+## Task archive
 
-The existing Chinese prototype remains unchanged in the separate `research-pages-gcpc-blog` worktree under `gcpc-blog/`. It is an editorial discussion draft, not a second automatically synchronized language route.
-
-## Review boundary
-
-The only home-page change is the relative Blog link next to the GCPC arXiv/PDF links. It reuses existing button CSS. No other publications or personal-site styles change. No commit or push without Sophie's explicit approval.
-
-## Task explorer
-
-The Explore tasks section includes 273 seed-1 checklists (1,634 items): SkillsBench v1.1 87/713, Terminal-Bench 2.0 86/585, and SWE-bench Verified 100/336. Each blue tile represents a task; color encodes checklist length on the same 1–16 scale. This is separate from the two-run verifier-subtest grid in the opening.
+The export contains 273 seed-1 checklists (1,634 requirements): SkillsBench v1.1 87/713, Terminal-Bench 2.0 86/585, and SWE-bench Verified 100/336. Task-dot shades encode checklist length (1–4, 5–8, 9–12, 13–16), not task success. This task collection is separate from the two-run verifier grid.
 
 `explorer.js` and `explorer.css` implement benchmark selection, task/domain search, a native modal drawer, task-source highlighting, checklist accordions, run selection, score comparison, JSON download and a controllable reading walkthrough. The animation advances checklist items, not execution time or intermediate task scores. Reduced-motion preferences disable spatial/width transitions. Only the selected task JSON loads after the small index.
 
@@ -56,18 +59,6 @@ python3 blog/gcpc/scripts/export_explorer.py '/path/to/beyound pass rate'
 
 The existing Excel case now explains the task, native PivotTables, income quartiles, and the parameterized 26-test expansion. `data/sales-pivot-verifier.py` is an exact copy of the original case verifier for download.
 
-## November 3 editorial revision
+## Unresolved protocol detail
 
-Inspected the Odyssey reference directly in Chrome, including expanding task rubrics and toggling its grading-policy example. The revised opening exposes a real task mosaic; the original two-run verifier grid now appears after the Excel case. The narrative moves through why, requirement granularity, checklist construction, evidence grading, validation, and the full archive.
-
-`story.js` / `story.css` add a three-benchmark opening, three inline task/rubric examples with exact source highlighting, the paper's Yes/No/Abstain cards, a clearly labeled synthetic five-item scoring illustration, and a binary-versus-checklist aggregate view. Editorial short item titles never replace original requirements. Missing quotations and original validation flags remain exposed. The scoring illustration changes only its fifth judgment and reports score and coverage together; it is not a research run or execution replay.
-
-Existing exported data, original case evidence, and research sources are unchanged. The manual-review protocol discrepancy remains in the draft. Publication is still pending review.
-
-## Shaded task dots and concrete cases
-
-The opening uses one equal-sized sage-green dot per task (87, 86 and 100 for the three study samples). Four shared shades encode checklist counts of 1–4, 5–8, 9–12 and 13–16; darker means more items, not a higher score. Invisible targets remain at least 44×44 pixels; narrower screens use fewer columns. Hover or keyboard focus adds an outer blue ring without changing the data color and reveals the task name and exact count. Selecting a dot opens the existing archive drawer. The full archive at the end retains its existing search and task grid.
-
-`case-interactions.js` adds five workbook-sheet views with original requirement links and three focused two-run comparisons (implementation, STATE row-field test, invalid Quarter value). The workbook is a requested-structure schematic, not a screenshot or live spreadsheet. Compared verifier outcomes remain distinct from GCPC judgments. Exact executed-code excerpts and verifier logs remain accessible.
-
-Task-source quotations in the inline anatomy are now clickable in both directions. Original text is preserved, including overlaps; shorter matching quotations are preferred when selecting an overlapping span unless its currently selected requirement also covers it. Missing quotations remain explicit. Short item titles are editorial aids, not replacements for original criteria.
+The author's account says every checklist was manually reviewed before scoring; the paper describes targeted author review. The article keeps this distinction in its protocol disclosure and does not claim human review was blind to trajectories. This editorial revision does not resolve that research-documentation discrepancy.

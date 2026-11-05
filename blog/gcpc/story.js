@@ -86,7 +86,7 @@
         summary.append(node('span', 'item-number', item.item_id), node('strong', '', spec.labels[i] || item.requirement), node('span', 'expand-icon', '+'));
         const body = node('div', 'anatomy-body');
         body.append(node('p', '', item.requirement));
-        const quote = node('blockquote', 'anatomy-quote', item.source_quote); body.append(quote);
+        // The selected source quote is shown once, beside the requirement.
         const technical = node('details', 'anatomy-technical'); technical.append(node('summary', '', 'Verification route and limits'));
         technical.append(node('p', '', `${item.verification_type} · ${item.verification}`));
         if (item.notes) technical.append(node('p', 'item-note', item.notes));
@@ -97,9 +97,10 @@
           if (!detail.open) return;
           $('anatomy-items').querySelectorAll(':scope > details').forEach(d => { if (d !== detail) d.open = false; });
           renderSource(i);
+          $('anatomy-selected-quote').textContent = item.source_quote || 'No source quotation was archived for this requirement.';
           const view = $('anatomy-instruction'), mark = view.querySelector('.source-active');
           if (mark) {
-            $('anatomy-location').textContent = `${item.item_id} · Source highlighted. Underlined passages open their requirements.`;
+            $('anatomy-location').textContent = `${item.item_id} · Quoted source shown below; expand the full task for context.`;
             view.scrollTop += mark.getBoundingClientRect().top - view.getBoundingClientRect().top - view.clientHeight / 3;
           } else {
             view.scrollTop = 0;
@@ -120,8 +121,8 @@
     last.replaceChildren(document.createTextNode('R5'), document.createElement('br'), node('strong', '', { YES:'Yes', NO:'No', ABSTAIN:'Abstain' }[v]));
     $('lab-score').textContent = `${score}%`; $('lab-coverage').textContent = `${coverage}%`;
     $('lab-score-bar').style.width = `${score}%`; $('lab-coverage-bar').style.width = `${coverage}%`;
-    $('lab-score-formula').textContent = `${yes} Yes ÷ ${decided} decidable items`;
-    $('lab-coverage-formula').textContent = `${decided} decidable ÷ 5 items`;
+    $('lab-score-formula').textContent = `${yes} Yes ÷ ${decided} decidable requirements`;
+    $('lab-coverage-formula').textContent = `${decided} decidable ÷ 5 requirements`;
     $('lab-takeaway').textContent = {
       YES: 'R5 is now supported. Four of five requirements are met, and all five can be judged.',
       NO: 'R5 is now a confirmed violation. Coverage rises to 100%, but partial credit falls to 60%. More evidence does not always mean a better score.',
@@ -133,7 +134,7 @@
     document.querySelectorAll('[data-change]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     $('binary-change').hidden = partial; $('partial-change').hidden = !partial;
     $('change-takeaway').textContent = partial
-      ? '20.9% improved and 18.7% regressed by more than 0.10. The median change was zero; the shared FAIL label hides differences in both directions.'
+      ? 'The median change was zero. The shared FAIL label hides differences in both directions; skills did not always help.'
       : 'Switch to checklist differences to see what this single label hides.';
   }));
   const sections = [...document.querySelectorAll('main > section')];
