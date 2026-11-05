@@ -73,14 +73,16 @@
   let evidenceOpened = false;
   function drawLab() {
     const claim=$('lab-claim').checked,overlap=$('lab-overlap').checked,hidden=$('lab-hidden').checked;
-    $('lab-verdict').textContent = claim?'The parser was successfully fixed.':'The parser was not fixed.';
+    const price=claim?'13.80':'12.80';
+    $('lab-verdict').textContent=`CNY ${price}`;
+    $('lab-table-price').textContent=price;
     $('lab-badge').hidden=!overlap; $('lab-more').hidden=!hidden;
     $('lab-evidence-wrap').hidden=hidden&&!evidenceOpened;
     $('lab-more').textContent=evidenceOpened?'Less':'More';$('lab-more').setAttribute('aria-expanded',String(evidenceOpened));
     const notes=[
-      ['content', 'Content', claim?'Unsupported success claim':'The outcome matches the described patch',claim?'A reproduction file does not support the claim that the parser was repaired.':'No unsupported repair is claimed in this small example. This is not a full Content assessment.'],
-      ['visual','Visual Quality',overlap?'Evidence becomes unreadable':'The patch remains readable',overlap?'The badge covers text the reader needs. Successful rendering does not make that content legible.':'The relevant text is visible at this layout size.'],
-      ['access','Information Access',hidden?'The entry point conceals its purpose':'Outcome and evidence are adjacent',hidden?'The button says “More,” not what evidence it opens. A descriptive cue would help readers decide where to go.':'Readers can follow the outcome directly to the patch information.']
+      ['content','Content',claim?'The reported number is wrong':'The number matches the reference',claim?'The report says CNY 13.80, but the reference record says CNY 12.80. A clear display does not repair this factual error.':'The report preserves the date, currency, price type, and value in this toy record. Full Content evaluation also checks coverage, context, and conciseness.'],
+      ['visual','Visual Quality',overlap?'The price card is obstructed':'The displayed values are legible',overlap?'A badge covers the prominent price. The table still carries the number, but the card has a visible rendering defect. If collapsed, open “More” to inspect it.':hidden&&!evidenceOpened?'The visible heading and control are readable. The hidden answer is an access issue; open it to inspect its rendering.':'The price, dates, currency, and table structure are readable in the preview. Legibility alone does not establish correctness.'],
+      ['access','Information Access',hidden?'“More” does not tell you where the answer is':'The question has a direct answer location',hidden?'The price and its source are behind an entry that does not name them. A label such as “Daily closing prices and source” would tell readers where to go.':'A dated price card answers the question directly; the retrieved rows and source sit beside it. This checks support for access, not whether the number is true.']
     ];
     $('lab-findings').innerHTML=notes.map(([color,title,head,body])=>`<div style="--axis-color:var(--${color})"><span>${title}</span><strong>${head}</strong><p>${body}</p></div>`).join('');
   }
@@ -89,13 +91,13 @@
   $('lab-reset').addEventListener('click',()=>{['lab-claim','lab-overlap','lab-hidden'].forEach(id=>$(id).checked=false);evidenceOpened=false;drawLab();});drawLab();
 
   const needs={
-    outcome:['Was the issue fixed?','No parser fix was produced.','The submitted artifact reproduces the issue, while the parser source remains unchanged.','change','What changed in the patch?','Findability: the question leads directly to an outcome, rather than a generic section title.'],
-    change:['What did the patch change?','A reproduction file was added.','The report identifies reproduce.sas as the new file. It contains an example for the SAS parsing issue.','proof','What supports “not fixed”?','Continuity: the outcome leads to the concrete artifact behind it.'],
-    proof:['What supports that conclusion?','No parser implementation was changed.','The inspected patch supports a limited conclusion: it provides a reproduction, not a repair of the parsing logic.','limit','What is the verification limit?','Continuity: the evidence is connected to the conclusion it supports.'],
-    limit:['What can we not verify?','Do not invent an official test verdict.','The original Direct HTML report notes that official evaluation logs were stripped from its input. It bases the unresolved-issue conclusion on the submitted patch.','outcome','Return to the outcome','A caveat belongs on the reading path, so the conclusion keeps its proper scope.']
+    outcome:['What was the June 4 close?','CNY 12.80.','The dated price card gives the answer directly. A reader who only needs this value can stop here.','change','Where did this number come from?','ROOT → N1 · Findability checks the dated price card; Continuity checks the route from the page entry to this main answer.'],
+    change:['Where did the number come from?','The retrieved row for June 4.','The illustrative record contains June 3: 12.40, June 4: 12.80, and June 5: 12.60 (CNY). A source table next to the price lets the reader inspect the relevant row.','outcome','Return to the closing price','N1 → N1.1 · Continuity checks the price-to-source route. A descriptive link or adjacent source table supports this relation.'],
+    proof:['What does this price mean?','A daily closing price, in CNY.','This value is the close for the specified date, not an intraday high or a live quote. The date, field name, and unit make the meaning explicit.','outcome','Return to the closing price','N1 → N1.2 · Continuity checks the route to the definition. Content separately checks whether the definition is correct and sufficient.'],
+    limit:['What does the report not cover?','Only three retrieved dates.','The example supplies three daily closes. It provides no intraday prices or longer historical series, and all values here are fictional teaching data.','outcome','Go to the closing price','ROOT → N2 · The scope question has its own entry. The reader need not follow a mandatory sequence through every node.']
   };
   const needOrder=['outcome','change','proof','limit'];let needIndex=0;
-  function drawNeed(key){needIndex=needOrder.indexOf(key);pressed('need',key);const n=needs[key];$('need-answer').innerHTML=`<span class="tiny-label">${n[0]}</span><h4>${n[1]}</h4><p>${n[2]}</p><button class="text-button" id="need-next">${n[4]} →</button><span class="need-source">Case: paper Figure 5 · editorial paraphrase</span>`;$('need-insight').textContent=n[5];$('need-next').addEventListener('click',()=>{needPlayer.stop();drawNeed(n[3]);$('need-next').focus({preventScroll:true});});}
+  function drawNeed(key){needIndex=needOrder.indexOf(key);pressed('need',key);const n=needs[key];$('need-answer').innerHTML=`<span class="tiny-label">${n[0]}</span><h4>${n[1]}</h4><p>${n[2]}</p><button class="text-button" id="need-next">${n[4]} →</button><span class="need-source">Fictional stock report · same example as Figure 2</span>`;$('need-insight').textContent=n[5];$('need-next').addEventListener('click',()=>{needPlayer.stop();drawNeed(n[3]);$('need-next').focus({preventScroll:true});});}
   const needPlayer=player('need-play','Follow a reading path',()=>{drawNeed(needOrder[(needIndex+1)%4]);return needIndex!==3;},2800);
   document.querySelectorAll('[data-need]').forEach(b=>b.addEventListener('click',()=>{needPlayer.stop();drawNeed(b.dataset.need);}));drawNeed('outcome');
 
@@ -108,11 +110,54 @@
   const pipelinePlayer=player('pipeline-play','Walk through',()=>{drawPipeline((pipelineIndex+1)%3);return pipelineIndex!==2;},3200);
   document.querySelectorAll('[data-pipeline]').forEach(b=>b.addEventListener('click',()=>{pipelinePlayer.stop();drawPipeline(Number(b.dataset.pipeline));}));drawPipeline(0);
 
-  const domains=[['Audio-video understanding',5,'Collected for tasks without public trajectories'],['Code repair',5,'Trajectories obtained from public datasets'],['Daily web tasks',5,'Trajectories obtained from public datasets'],['Data analysis',5,'Collected for tasks without public trajectories'],['Desktop GUI',5,'Trajectories obtained from public datasets'],['Education / tutoring',5,'Collected for tasks without public trajectories'],['Paper reproduction',4,'Collected for tasks without public trajectories'],['Scientific computing',3,'Collected for tasks without public trajectories'],['Spreadsheet / office',5,'Collected for tasks without public trajectories'],['Terminal / DevOps',5,'Trajectories obtained from public datasets'],['Tool use / customer service',5,'Trajectories obtained from public datasets'],['Travel planning',3,'Collected for tasks without public trajectories'],['Web navigation',5,'Trajectories obtained from public datasets']];
-  $('domain-list').innerHTML=domains.map(([name,n],i)=>`<button data-domain="${i}" aria-pressed="false">${name}<b>${n}</b></button>`).join('');
-  $('domain-dots').innerHTML=domains.map(([name,n],i)=>Array.from({length:n},()=>`<i data-dot-domain="${i}" title="${name}"></i>`).join('')).join('');
-  function drawDomain(i){pressed('domain',i);document.querySelectorAll('[data-dot-domain]').forEach(e=>e.classList.toggle('selected',Number(e.dataset.dotDomain)===i));$('domain-description').textContent=`${domains[i][0]}: ${domains[i][1]} of 60 trajectories. ${domains[i][2]}.`;}
-  document.querySelectorAll('[data-domain]').forEach(b=>b.addEventListener('click',()=>drawDomain(Number(b.dataset.domain))));drawDomain(1);
+  // Counts and benchmark labels are checked against bench_trajs/case_meta.json.
+  const domains = [
+    ['Audio-video understanding',5,'AVUT','Understand events and information in audio and video.','Locate a sound event or match audio with on-screen text.','Collected for this study','#668caf'],
+    ['Code repair',5,'SWE-bench','Resolve software issues by changing an existing codebase.','Repair tasks from pyupgrade, asv, and other repositories.','Public dataset trajectories','#8aa6bd'],
+    ['Daily web tasks',5,'ClawBench','Carry out everyday requests through websites.','Find flights, plan a food order, or arrange parking.','Public dataset trajectories','#5e918c'],
+    ['Data analysis',5,'DataAgentBench','Query and analyze data to answer a concrete question.','MusicBrainz queries and stock-index analysis.','Collected for this study','#89b3a2'],
+    ['Desktop GUI',5,'OSWorld','Complete tasks by operating desktop applications.','Take a video frame into a slide, or sort data and plot a chart.','Public dataset trajectories','#a8b698'],
+    ['Education / tutoring',5,'MMTutorBench','Guide a student using the problem and their current work.','Use images of a problem and student progress to suggest a next step.','Collected for this study','#c4b380'],
+    ['Paper reproduction',4,'PaperBench','Implement and reproduce methods described in research papers.','Reproduction cases include robust-clip and semantic-self-consistency.','Collected for this study','#c89d78'],
+    ['Scientific computing',3,'ScienceAgentBench','Solve scientific analysis and modeling tasks with code.','Analyze elk movement or build a molecular-property model.','Collected for this study','#bb897d'],
+    ['Spreadsheet / office',5,'SpreadsheetBench','Edit and transform spreadsheets according to a request.','Five spreadsheet cases, including task IDs 47484 and 59433.','Collected for this study','#b18e9f'],
+    ['Terminal / DevOps',5,'TerminalBench','Complete technical tasks in a terminal environment.','Handle asynchronous tasks or train a CIFAR-10 model with Caffe.','Public dataset trajectories','#9c94b8'],
+    ['Tool use / customer service',5,'τ-bench','Handle customer-service requests through domain-specific tools.','Four retail cases and one airline case.','Public dataset trajectories','#7e8baa'],
+    ['Travel planning',3,'TravelPlanner','Build an itinerary that satisfies a traveler’s constraints.','Plan trips such as Houston to Fayetteville.','Collected for this study','#a6b8c7'],
+    ['Web navigation',5,'Mind2Web','Follow user instructions to navigate and act on websites.','Find a personal trainer, save a recipe, or book a hotel.','Public dataset · human demonstrations','#537e77']
+  ];
+  const domainTotal=domains.reduce((total,d)=>total+d[1],0);
+  let pinnedDomain=12;
+  const point=(radius,angle)=>[180+radius*Math.cos(angle),180+radius*Math.sin(angle)].join(' ');
+  let angle=-Math.PI/2;
+  $('domain-chart').innerHTML=domains.map(([name,n,benchmark,,,,color],i)=>{
+    const next=angle+2*Math.PI*n/domainTotal, a=angle+.012, b=next-.012;
+    const path=`M ${point(155,a)} A 155 155 0 0 1 ${point(155,b)} L ${point(100,b)} A 100 100 0 0 0 ${point(100,a)} Z`;
+    angle=next;
+    return `<path d="${path}" fill="${color}" data-domain="${i}" role="button" tabindex="0" aria-pressed="false" aria-label="${esc(name)}, ${esc(benchmark)}, ${n} of ${domainTotal} cases, ${(100*n/domainTotal).toFixed(1)} percent"><title>${esc(benchmark)} · ${n} cases</title></path>`;
+  }).join('')+`<text x="180" y="175" class="domain-total" text-anchor="middle">${domainTotal}</text><text x="180" y="202" class="domain-total-label" text-anchor="middle">cases · ${domains.length} domains</text>`;
+  $('domain-list').innerHTML=domains.map(([name,n,,,,,color],i)=>`<button type="button" data-domain="${i}" aria-pressed="false"><i style="background:${color}" aria-hidden="true"></i><span>${esc(name)}</span><b>${n}</b></button>`).join('');
+  function drawDomain(i){
+    const [name,n,benchmark,purpose,example,origin,color]=domains[i];
+    document.querySelectorAll('[data-domain]').forEach(e=>{
+      e.classList.toggle('is-active',Number(e.dataset.domain)===i);
+      e.setAttribute('aria-pressed',String(Number(e.dataset.domain)===pinnedDomain));
+    });
+    $('domain-detail').style.setProperty('--domain-color',color);
+    $('domain-detail').innerHTML=`<div class="domain-detail-meta"><span>${esc(name)}</span><b>${n} / ${domainTotal} · ${(100*n/domainTotal).toFixed(1)}%</b></div><h4>${esc(benchmark)}</h4><p class="domain-purpose">${esc(purpose)}</p><p class="domain-example"><span>IN THIS SUBSET</span>${esc(example)}</p><p class="domain-origin">${esc(origin)}</p>`;
+  }
+  document.querySelectorAll('[data-domain]').forEach(control=>{
+    const i=Number(control.dataset.domain);
+    control.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch')drawDomain(i);});
+    control.addEventListener('pointerleave',()=>drawDomain(pinnedDomain));
+    control.addEventListener('focus',()=>drawDomain(i));
+    control.addEventListener('blur',()=>drawDomain(pinnedDomain));
+    control.addEventListener('click',()=>{pinnedDomain=i;drawDomain(i);});
+    if(control.tagName.toLowerCase()==='path')control.addEventListener('keydown',event=>{
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();pinnedDomain=i;drawDomain(i);}
+    });
+  });
+  drawDomain(pinnedDomain);
 
   const data=window.HTMLPRESENT_DATA,axes=[['content','Content'],['visual','Visual Quality'],['access','Information Access']];let model='mean',method=1;
   data.models.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;$('model-select').append(o);});
