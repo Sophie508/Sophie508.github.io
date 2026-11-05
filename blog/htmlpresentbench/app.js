@@ -97,7 +97,7 @@
     limit:['What does the report not cover?','Only three retrieved dates.','The example supplies three daily closes. It provides no intraday prices or longer historical series, and all values here are fictional teaching data.','outcome','Go to the closing price','ROOT → N2 · The scope question has its own entry. The reader need not follow a mandatory sequence through every node.']
   };
   const needOrder=['outcome','change','proof','limit'];let needIndex=0;
-  function drawNeed(key){needIndex=needOrder.indexOf(key);pressed('need',key);const n=needs[key];$('need-answer').innerHTML=`<span class="tiny-label">${n[0]}</span><h4>${n[1]}</h4><p>${n[2]}</p><button class="text-button" id="need-next">${n[4]} →</button><span class="need-source">Fictional stock report · same example as Figure 2</span>`;$('need-insight').textContent=n[5];$('need-next').addEventListener('click',()=>{needPlayer.stop();drawNeed(n[3]);$('need-next').focus({preventScroll:true});});}
+  function drawNeed(key){needIndex=needOrder.indexOf(key);pressed('need',key);const n=needs[key];$('need-answer').innerHTML=`<span class="tiny-label">${n[0]}</span><h4>${n[1]}</h4><p>${n[2]}</p><button class="text-button" id="need-next">${n[4]} →</button><span class="need-source">Fictional stock report · same example as Figure 3</span>`;$('need-insight').textContent=n[5];$('need-next').addEventListener('click',()=>{needPlayer.stop();drawNeed(n[3]);$('need-next').focus({preventScroll:true});});}
   const needPlayer=player('need-play','Follow a reading path',()=>{drawNeed(needOrder[(needIndex+1)%4]);return needIndex!==3;},2800);
   document.querySelectorAll('[data-need]').forEach(b=>b.addEventListener('click',()=>{needPlayer.stop();drawNeed(b.dataset.need);}));drawNeed('outcome');
 
