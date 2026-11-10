@@ -41,11 +41,6 @@
   document.querySelectorAll('[data-geometry]').forEach(b=>b.addEventListener('click',()=>{stopGeometry();drawGeometry(+b.dataset.geometry);}));
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopGeometry();});drawGeometry(0);
 
-  const workflow=[['Design','The building is described in drawings.','Architecture, structure, services, and façade details describe different aspects of the same building.'],['Issue tender','Bidders receive a common package.','Drawings, specifications, contractual terms, and quantity information establish what they are being asked to price.'],['Measure & price','This is where Tender 1 sits.','The agent measures façade quantities and records its evidence. Pricing those quantities is outside this task.'],['Clarify & evaluate','Make the bids comparable.','Ambiguous scope and assumptions need clarification before price, technical approach, programme, and experience can be assessed.'],['Award & build','The agreement becomes a project.','The selected offer becomes a contract. Later design changes may need formal variation and valuation.']];
-  $('tender-steps').innerHTML=workflow.map((w,i)=>`<button data-workflow="${i}" aria-pressed="false"><span>0${i+1}</span>${w[0]}</button>`).join('');
-  function drawWorkflow(i){press('workflow',i);$('tender-detail').innerHTML=`<strong>${workflow[i][1]}</strong><p>${workflow[i][2]}</p>`;}
-  document.querySelectorAll('[data-workflow]').forEach(b=>b.addEventListener('click',()=>drawWorkflow(+b.dataset.workflow)));drawWorkflow(2);
-
   let condition='baseline',selectedRow='3.1',selectedModel='Astra';
   const rowById=Object.fromEntries(D.rows.map(r=>[r.id,r]));
   const rowLabels={'1.1':'Fritted glass','1.2':'Glass / timber backpan','1.3':'Fritted glass','1.4':'Glass / backpan','2.1':'Steel portal wraps','2.2':'Steel panels & frames','2.3':'Steel column wraps','3.1':'Stone cladding','3.2':'Stone corner feature','3.3':'Aluminium eave trim','3.4':'Granite skirting','4':'Roof cladding','5':'Roof trellis','6.1':'Curved canopy','6.2':'Canopy ceiling','6.3':'Canopy column wraps','7':'Double-bank louver','7.1':'Transom above louver','8':'Covered linkway','9':'Skylight','9.2':'Inner steel cladding','10':'Glass railing','11.1':'Double sliding door','11.2':'Steel swing door','11.3':'Single sliding door','11.4':'Framed-glass swing door'};
