@@ -17,23 +17,14 @@
     const controls = {stop}; players.push(controls); return controls;
   }
   document.addEventListener('visibilitychange', () => { if (document.hidden) players.forEach(p => p.stop()); });
-  const hero = {
-    result: '<span class="status">TASK OUTCOME</span><h3>A reproduction.<br>Still no parser fix.</h3><p>The agent submitted a file that reproduces the issue. The parser itself was unchanged.</p><a href="#case">Compare how this was reported →</a>',
-    evidence: '<span class="status">SUPPORTING ARTIFACT</span><h3>What actually<br>changed?</h3><div class="patch"><code>+ reproduce.sas</code><span>A new reproduction example</span><code>  Parser source</code><span>No change in the submitted patch</span></div><a href="#needs">Follow the evidence path →</a>',
-    caveat: '<span class="status amber">VERIFICATION LIMIT</span><h3>Do not turn a submission<br>into a success claim.</h3><p>The report’s patch evidence supports “no parser fix.” A submitted file alone does not establish that the issue was resolved.</p><a href="#axes">Inspect the content criteria →</a>'
-  };
-  function drawHero(key) { pressed('hero', key); $('hero-report').innerHTML = hero[key]; }
-  document.querySelectorAll('[data-hero]').forEach(b => b.addEventListener('click', () => drawHero(b.dataset.hero)));
-  drawHero('result');
 
   const cases = [
     {name:'Markdown',title:'The answer sits inside the record.',copy:'The outcome is one metadata row. To find verification, the original reader must reach screen 3.',scores:[84.7,93.3,22.2]},
     {name:'Direct HTML',title:'Put the outcome where reading begins.',copy:'An opening banner states both the lack of a fix and the verification limit. Access improves here without navigation controls.',scores:[84.5,100,50]},
     {name:'HTML Anything',title:'Connect the verdict to the next question.',copy:'A prominent outcome is paired with routes to execution steps and the submitted patch. The original report also has lower Visual quality.',scores:[85.4,76.7,66.7]}
   ];
-  let caseIndex = 0;
   function drawCase(n) {
-    caseIndex = n; pressed('case', n); const c = cases[n];
+    pressed('case', n); const c = cases[n];
     $('case-location').textContent = `${c.name} / explanatory reconstruction`;
     $('case-heading').textContent = c.title; $('case-description').textContent = c.copy;
     $('case-metrics').innerHTML = c.scores.map((v,i) => `<div><span>${['Content','Visual','Access'][i]}</span><strong style="color:var(--${['content','visual','access'][i]})">${v.toFixed(1)}</strong></div>`).join('');
@@ -43,14 +34,13 @@
     if (n === 2) $('case-page').innerHTML = '<div class="mini-nav"><span>Findings</span><button data-evidence>Patch ↗</button></div><span class="tiny-label">VERDICT</span><h4 class="report-verdict">A submitted file.<br>An unresolved issue.</h4><p>The reproduction captures the problem. It does not repair the parser.</p><button class="primary evidence-button" data-evidence>See the submitted patch →</button><small class="block">Outcome → supporting artifact</small>';
     $('case-page').scrollTop=0;
     $('case-page').querySelectorAll('[data-evidence]').forEach(b => b.addEventListener('click', () => {
-      casePlayer.stop();
+
       $('case-page').innerHTML = '<span class="tiny-label">SUPPORTING ARTIFACT · SIMPLIFIED</span><h4>The change is a reproduction.</h4><div class="patch"><code>+ reproduce.sas</code><span>Contains a SAS snippet for the reported issue.</span><code>  Parser implementation</code><span>No source-code change in the submitted patch.</span></div><p>This is evidence of submission, not of a parser repair.</p><button class="quiet" id="case-back">← Back to overview</button>';
       $('case-back').addEventListener('click', () => { drawCase(n); $('case-page').querySelector('[data-evidence]').focus(); });
       $('case-back').focus({preventScroll:true});
     }));
   }
-  const casePlayer = player('case-play','Play comparison', () => { drawCase((caseIndex + 1) % 3); return caseIndex !== 2; },2800);
-  document.querySelectorAll('[data-case]').forEach(b => b.addEventListener('click', () => {casePlayer.stop();drawCase(Number(b.dataset.case));})); drawCase(0);
+  document.querySelectorAll('[data-case]').forEach(b => b.addEventListener('click', () => {drawCase(Number(b.dataset.case));})); drawCase(0);
 
   const criteria = [
     {axis:'Content',color:'content',lead:'Does it preserve the right meaning?',items:[
@@ -80,9 +70,9 @@
     $('lab-evidence-wrap').hidden=hidden&&!evidenceOpened;
     $('lab-more').textContent=evidenceOpened?'Less':'More';$('lab-more').setAttribute('aria-expanded',String(evidenceOpened));
     const notes=[
-      ['content','Content',claim?'The reported number is wrong':'The number matches the reference',claim?'The report says CNY 13.80, but the reference record says CNY 12.80. A clear display does not repair this factual error.':'The report preserves the date, currency, price type, and value in this toy record. Full Content evaluation also checks coverage, context, and conciseness.'],
-      ['visual','Visual Quality',overlap?'The price card is obstructed':'The displayed values are legible',overlap?'A badge covers the prominent price. The table still carries the number, but the card has a visible rendering defect. If collapsed, open “More” to inspect it.':hidden&&!evidenceOpened?'The visible heading and control are readable. The hidden answer is an access issue; open it to inspect its rendering.':'The price, dates, currency, and table structure are readable in the preview. Legibility alone does not establish correctness.'],
-      ['access','Information Access',hidden?'“More” does not tell you where the answer is':'The question has a direct answer location',hidden?'The price and its source are behind an entry that does not name them. A label such as “Daily closing prices and source” would tell readers where to go.':'A dated price card answers the question directly; the retrieved rows and source sit beside it. This checks support for access, not whether the number is true.']
+      ['content','Content',claim?'The reported number is wrong':'The number matches the reference',claim?'The report says CNY 13.80, but the reference record says CNY 12.80. A clear display does not repair this factual error.':'The date, currency, price type, and value agree with this example’s source record.'],
+      ['visual','Visual Quality',overlap?'The price card is obstructed':'The displayed values are legible',overlap?'A badge covers the prominent price. The table still carries the number, but the card has a visible rendering defect. If collapsed, open “More” to inspect it.':hidden&&!evidenceOpened?'The visible heading and control are readable. The hidden answer is an access issue; open it to inspect its rendering.':'The price and the retrieved rows can be read. This does not establish whether they are correct.'],
+      ['access','Information Access',hidden?'“More” does not tell you where the answer is':'The question has a direct answer location',hidden?'The price and its source are behind an entry that does not name them. A label such as “Daily closing prices and source” would tell readers where to go.':'The dated price answers the question directly. The retrieved rows and source are nearby.']
     ];
     $('lab-findings').innerHTML=notes.map(([color,title,head,body])=>`<div style="--axis-color:var(--${color})"><span>${title}</span><strong>${head}</strong><p>${body}</p></div>`).join('');
   }
@@ -96,19 +86,9 @@
     proof:['What does this price mean?','A daily closing price, in CNY.','This value is the close for the specified date, not an intraday high or a live quote. The date, field name, and unit make the meaning explicit.','outcome','Return to the closing price','N1 → N1.2 · Continuity checks the route to the definition. Content separately checks whether the definition is correct and sufficient.'],
     limit:['What does the report not cover?','Only three retrieved dates.','The example supplies three daily closes. It provides no intraday prices or longer historical series, and all values here are fictional teaching data.','outcome','Go to the closing price','ROOT → N2 · The scope question has its own entry. The reader need not follow a mandatory sequence through every node.']
   };
-  const needOrder=['outcome','change','proof','limit'];let needIndex=0;
-  function drawNeed(key){needIndex=needOrder.indexOf(key);pressed('need',key);const n=needs[key];$('need-answer').innerHTML=`<span class="tiny-label">${n[0]}</span><h4>${n[1]}</h4><p>${n[2]}</p><button class="text-button" id="need-next">${n[4]} →</button><span class="need-source">Fictional stock report · same example as Figure 3</span>`;$('need-insight').textContent=n[5];$('need-next').addEventListener('click',()=>{needPlayer.stop();drawNeed(n[3]);$('need-next').focus({preventScroll:true});});}
-  const needPlayer=player('need-play','Follow a reading path',()=>{drawNeed(needOrder[(needIndex+1)%4]);return needIndex!==3;},2800);
-  document.querySelectorAll('[data-need]').forEach(b=>b.addEventListener('click',()=>{needPlayer.stop();drawNeed(b.dataset.need);}));drawNeed('outcome');
+  function drawNeed(key){pressed('need',key);const n=needs[key];$('need-answer').innerHTML=`<span class="tiny-label">${n[0]}</span><h4>${n[1]}</h4><p>${n[2]}</p><button class="text-button" id="need-next">${n[4]} →</button><span class="need-source">Fictional stock report · same example as Figure 1</span>`;$('need-insight').textContent=n[5];$('need-next').addEventListener('click',()=>{drawNeed(n[3]);$('need-next').focus({preventScroll:true});});}
+  document.querySelectorAll('[data-need]').forEach(b=>b.addEventListener('click',()=>{drawNeed(b.dataset.need);}));drawNeed('outcome');
 
-  const pipeline=[
-    ['A reference for meaning, not a reference webpage.','The task and trajectory yield an atomic fact list, an important-information checklist, and a reader-need tree. A human corrects unsupported entries and reviews relevant needs. These references are frozen before report evaluation, then reused.','Task + completed trajectory → human-reviewed references'],
-    ['Inspect what the page says and what readers can see.','Each report gets its own semantic map, screenshots, and captured interaction states. Desktop and mobile views reveal clipping or overlap that source-level extraction alone would miss. A screenshot alone can miss content behind a control.','Candidate report → semantic map + rendered evidence'],
-    ['Make each judgment traceable.','Checks produce criterion-level judgments with supporting evidence. Content compares reported meaning with the execution; Visual checks rendered elements; Access checks answers and routes against reader needs. The resulting axis scores are kept separate.','References + relevant report evidence → judgments + scores']
-  ];let pipelineIndex=0;
-  function drawPipeline(n){pipelineIndex=n;pressed('pipeline',n);$('pipeline-detail').innerHTML=`<div class="pipeline-flow">${pipeline[n][2]}</div><h4>${pipeline[n][0]}</h4><p>${pipeline[n][1]}</p>`;}
-  const pipelinePlayer=player('pipeline-play','Walk through',()=>{drawPipeline((pipelineIndex+1)%3);return pipelineIndex!==2;},3200);
-  document.querySelectorAll('[data-pipeline]').forEach(b=>b.addEventListener('click',()=>{pipelinePlayer.stop();drawPipeline(Number(b.dataset.pipeline));}));drawPipeline(0);
 
   // Counts and benchmark labels are checked against bench_trajs/case_meta.json.
   const domains = [
@@ -159,7 +139,7 @@
   });
   drawDomain(pinnedDomain);
 
-  const data=window.HTMLPRESENT_DATA,axes=[['content','Content'],['visual','Visual Quality'],['access','Information Access']];let model='mean',method=1;
+  const data=window.HTMLPRESENT_DATA,axes=[['content','Content'],['visual','Visual Quality'],['access','Information Access']];let model='mean',method=3;
   data.models.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;$('model-select').append(o);});
   $('method-tabs').innerHTML=data.methods.map((m,i)=>`<button data-method="${i}" aria-pressed="${i===1}">${m}</button>`).join('');
   function selectedRows(){return data.methods.map(m=>{
@@ -175,9 +155,8 @@
     $('results-caption').textContent=`${name} · scores out of 100`;
     $('results-table').innerHTML=rows.map(r=>`<tr><th scope="row">${r.method}</th>${axes.map(([k])=>`<td>${r[k].toFixed(1)}${r[`${k}SE`]!==undefined?` ± ${r[`${k}SE`].toFixed(1)}`:''}</td>`).join('')}<td>$${r.cost.toFixed(3)}</td></tr>`).join('');
   }
-  const resultPlayer=player('results-play','Compare methods',()=>{method=(method+1)%4;drawResults();return method!==3;},2800);
-  document.querySelectorAll('[data-method]').forEach(b=>b.addEventListener('click',()=>{resultPlayer.stop();method=Number(b.dataset.method);drawResults();}));
-  $('model-select').addEventListener('change',e=>{resultPlayer.stop();model=e.target.value;drawResults();});drawResults();
+  document.querySelectorAll('[data-method]').forEach(b=>b.addEventListener('click',()=>{method=Number(b.dataset.method);drawResults();}));
+  $('model-select').addEventListener('change',e=>{model=e.target.value;drawResults();});drawResults();
 
   const NS='http://www.w3.org/2000/svg';
   function svg(tag,attrs,text){const e=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));if(text!==undefined)e.textContent=text;return e;}
@@ -204,5 +183,13 @@
   $('source-close').addEventListener('click',()=>$('source-dialog').close());$('source-dialog').addEventListener('close',()=>sourceTrigger?.focus());
   const sections=[...document.querySelectorAll('.chapter')];
   function reading(){const max=document.documentElement.scrollHeight-innerHeight;$('reading-progress').style.width=`${max>0?scrollY/max*100:0}%`;let current='';sections.forEach(s=>{if(s.getBoundingClientRect().top<180)current=s.id;});document.querySelectorAll('.chapters a').forEach(a=>{if(a.hash===`#${current}`)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});}
+  function revealAnchor(){
+    let target;try{target=document.getElementById(decodeURIComponent(location.hash.slice(1)));}catch{return;}
+    if(!target)return;
+    for(let parent=target.parentElement;parent;parent=parent.parentElement){if(parent.tagName==='DETAILS')parent.open=true;}
+    requestAnimationFrame(()=>target.scrollIntoView({block:'start'}));
+  }
+  window.addEventListener('hashchange',revealAnchor);if(location.hash)revealAnchor();
+  document.querySelectorAll('details').forEach(d=>d.addEventListener('toggle',reading));
   window.addEventListener('scroll',reading,{passive:true});window.addEventListener('resize',reading);reading();
 })();
